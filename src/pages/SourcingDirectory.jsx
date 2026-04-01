@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Link, useSearchParams, useParams } from 'react-router-dom';
-import { supabase } from '../dashboard/lib/supabase.js';
+import { supabase } from '../lib/supabase.js';
 import { SourcingNav } from './SourcingMarketplace.jsx';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
 import { trackEvent } from './sourcingAnalytics.js';

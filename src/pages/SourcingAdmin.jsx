@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation, useParams } from 'react-router-dom';
 const SourcingCreate = lazy(() => import('./SourcingCreate.jsx'));
 const SourcingSettings = lazy(() => import('./SourcingSettings.jsx'));
 import { createClient } from '@supabase/supabase-js';
-import { supabase } from '../dashboard/lib/supabase.js';
+import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
 
 // ─── Scout Chat Panel ─────────────────────────────────────────────────────────
