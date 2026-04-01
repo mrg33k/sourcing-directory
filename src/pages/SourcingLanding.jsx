@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../lib/supabase.js';
+import { supabase } from '../dashboard/lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens, ThemeToggle } from './SourcingTheme.jsx';
 
 // ─── Industry background images ──────────────────────────────────────────────
@@ -24,7 +24,7 @@ function TenantCard({ tenant, V }) {
 
   return (
     <Link
-      to={`/${tenant.slug}`}
+      to={`/sourcing/${tenant.slug}`}
       style={{ textDecoration: 'none' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -171,7 +171,11 @@ function SourcingLandingInner() {
           const res = await fetch('/api/sourcing/tenants');
           if (res.ok) {
             const data = await res.json();
-            setTenants(data);
+            // Sort by sort_order (Space Rising + SC3 above Biotech + Defense)
+            const sorted = [...data].sort((a, b) =>
+              (a.sort_order ?? 99) - (b.sort_order ?? 99) || (a.name || '').localeCompare(b.name || '')
+            );
+            setTenants(sorted);
             setLoading(false);
             return;
           }
@@ -183,7 +187,7 @@ function SourcingLandingInner() {
             .from('directory_tenants')
             .select('*')
             .eq('status', 'active')
-            .order('name');
+            .order('sort_order', { ascending: true, nullsFirst: false });
 
           const results = [];
           for (const t of (tenantRows || [])) {
@@ -238,7 +242,7 @@ function SourcingLandingInner() {
           <div style={{ flex: 1 }} />
           <ThemeToggle />
           <Link
-            to="/admin"
+            to="/sourcing/admin"
             style={{
               fontSize: 11, color: V.muted, fontFamily: "'JetBrains Mono', monospace",
               textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase',

@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation, useParams } from 'react-router-dom';
 const SourcingCreate = lazy(() => import('./SourcingCreate.jsx'));
 const SourcingSettings = lazy(() => import('./SourcingSettings.jsx'));
 import { createClient } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase.js';
+import { supabase } from '../dashboard/lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
 
 // ─── Scout Chat Panel ─────────────────────────────────────────────────────────
@@ -413,8 +413,8 @@ function SourcingAdminInner() {
   const params = useParams();
 
   // Detect admin sub-routes
-  const isNew = location.pathname === '/admin/new';
-  const isSettings = location.pathname.startsWith('/admin/settings/');
+  const isNew = location.pathname === '/sourcing/admin/new';
+  const isSettings = location.pathname.startsWith('/sourcing/admin/settings/');
 
   const [authed, setAuthed] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
@@ -522,7 +522,7 @@ function SourcingAdminInner() {
         body: JSON.stringify({
           email: forgotEmail,
           org_name: selectedTenant?.name || 'AOM Sourcing Directory',
-          redirect_to: window.location.origin + '/admin',
+          redirect_to: window.location.origin + '/sourcing/admin',
         }),
       });
       const data = await resp.json();
@@ -800,7 +800,13 @@ function SourcingAdminInner() {
     if (!adminSupabase) return;
     try {
       const newStatus = action === 'approve' ? 'active' : 'rejected';
-      await adminSupabase.from('directory_listings').update({ status: newStatus }).eq('id', articleId);
+      const { data: { user } } = await adminSupabase.auth.getUser();
+      const moderatedBy = user?.email || 'admin';
+      await adminSupabase.from('directory_listings').update({
+        status: newStatus,
+        moderated_at: new Date().toISOString(),
+        moderated_by: moderatedBy,
+      }).eq('id', articleId);
       await fetchData();
     } catch (err) {
       console.error('Article action error:', err);
@@ -1208,7 +1214,7 @@ function SourcingAdminInner() {
                 </button>
               </form>
               <div style={{ textAlign: 'center', marginTop: 16 }}>
-                <Link to="/" style={{ fontSize: 13, color: V.muted, fontFamily: V.space, textDecoration: 'none' }}>
+                <Link to="/sourcing" style={{ fontSize: 13, color: V.muted, fontFamily: V.space, textDecoration: 'none' }}>
                   ← Back to Directory
                 </Link>
               </div>
@@ -1264,7 +1270,7 @@ function SourcingAdminInner() {
           <span style={{ fontSize: 13, fontWeight: 800, fontFamily: V.syne, color: V.accent, letterSpacing: '0.12em', textTransform: 'uppercase' }}>AOM</span>
         </Link>
         <span style={{ color: V.dim, fontSize: 13 }}>/</span>
-        <Link to="/" style={{ textDecoration: 'none', fontSize: 13, color: V.muted, fontFamily: V.space }}>
+        <Link to="/sourcing" style={{ textDecoration: 'none', fontSize: 13, color: V.muted, fontFamily: V.space }}>
           Sourcing Directory
         </Link>
         <span style={{ color: V.dim, fontSize: 13 }}>/</span>
@@ -1291,7 +1297,7 @@ function SourcingAdminInner() {
         )}
         {selectedTenant && (
           <button
-            onClick={() => navigate(`/admin/settings/${selectedTenant.slug}`)}
+            onClick={() => navigate(`/sourcing/admin/settings/${selectedTenant.slug}`)}
             style={{
               background: V.accentDim, border: `1px solid ${V.accentBrd}`,
               color: V.accent, borderRadius: 6, padding: '5px 12px',
@@ -1302,7 +1308,7 @@ function SourcingAdminInner() {
           </button>
         )}
         <button
-          onClick={() => navigate('/admin/new')}
+          onClick={() => navigate('/sourcing/admin/new')}
           style={{
             background: V.accent, border: 'none',
             color: '#fff', borderRadius: 6, padding: '5px 12px',
@@ -1655,9 +1661,25 @@ function SourcingAdminInner() {
                           <div style={{ fontSize: 15, fontWeight: 700, fontFamily: V.syne, color: V.heading, marginBottom: 4 }}>
                             {article.title}
                           </div>
-                          <div style={{ fontSize: 11, color: V.dim, fontFamily: V.mono, marginBottom: 6 }}>
-                            {company?.name || 'Unknown Company'} · {article.vertical} · {postedDate}
-                            {article.read_time_min && ` · ${article.read_time_min} min read`}
+                          <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 6 }}>
+                            <span style={{ fontSize: 11, color: V.dim, fontFamily: V.mono }}>
+                              <span style={{ color: V.muted, fontWeight: 600 }}>Author</span>{' '}
+                              {company?.name || 'Unknown Company'}
+                            </span>
+                            <span style={{ fontSize: 11, color: V.dim, fontFamily: V.mono }}>
+                              <span style={{ color: V.muted, fontWeight: 600 }}>Submitted</span>{' '}
+                              {postedDate}
+                            </span>
+                            {article.vertical && (
+                              <span style={{ fontSize: 11, color: V.dim, fontFamily: V.mono }}>
+                                {article.vertical}
+                              </span>
+                            )}
+                            {article.read_time_min && (
+                              <span style={{ fontSize: 11, color: V.dim, fontFamily: V.mono }}>
+                                {article.read_time_min} min read
+                              </span>
+                            )}
                           </div>
                           {article.excerpt && (
                             <div style={{
