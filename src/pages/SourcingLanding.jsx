@@ -24,7 +24,7 @@ function TenantCard({ tenant, V }) {
 
   return (
     <Link
-      to={`/sourcing/${tenant.slug}`}
+      to={`/${tenant.slug}`}
       style={{ textDecoration: 'none' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}

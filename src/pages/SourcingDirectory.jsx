@@ -125,7 +125,7 @@ function CompanyCard({ company, certs, V, tenantSlug, isFavorite, onToggleFavori
 
   return (
     <Link
-      to={tenantSlug ? `/sourcing/${tenantSlug}/${company.slug}` : `/sourcing/${company.slug}`}
+      to={tenantSlug ? `/${tenantSlug}/${company.slug}` : `/${company.slug}`}
       style={{ textDecoration: 'none' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -1073,7 +1073,7 @@ function SourcingDirectoryInner() {
             )}
           </div>
           <Link
-            to={tenantSlug ? `/sourcing/${tenantSlug}/signup` : '/sourcing/signup'}
+            to={tenantSlug ? `/${tenantSlug}/signup` : '/signup'}
             style={{
               fontSize: 12, color: V.muted, fontFamily: V.space,
               textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5,
@@ -1221,7 +1221,7 @@ function SourcingDirectoryInner() {
                 : (query ? `No results for "${query}". Try different keywords or broaden your filters.` : 'No companies in this vertical yet. Be the first to join.')}
             </div>
             <Link
-              to={tenantSlug ? `/sourcing/${tenantSlug}/signup` : '/sourcing/signup'}
+              to={tenantSlug ? `/${tenantSlug}/signup` : '/signup'}
               style={{
                 background: V.accent, color: '#fff', textDecoration: 'none',
                 borderRadius: 7, padding: '10px 20px', fontSize: 13,
