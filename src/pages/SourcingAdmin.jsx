@@ -497,12 +497,17 @@ function SourcingAdminInner() {
     e.preventDefault();
     setPwError('');
     setAuthLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email: emailInput, password: pwInput });
-    setAuthLoading(false);
-    if (error) {
-      setPwError(error.message || 'Login failed.');
-    } else {
-      setAuthed(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email: emailInput.trim(), password: pwInput });
+      if (error) {
+        setPwError(error.message || 'Login failed.');
+      } else {
+        setAuthed(true);
+      }
+    } catch (err) {
+      setPwError(err.message || 'Connection error. Please try again.');
+    } finally {
+      setAuthLoading(false);
     }
   };
 
