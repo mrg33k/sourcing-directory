@@ -877,7 +877,19 @@ function SourcingProfileInner() {
           .eq('status', 'active')
           .single();
 
-        if (error || !data) { setNotFound(true); setLoading(false); return; }
+        if (error || !data) {
+          // If no company found, check if this slug is a tenant -- redirect to its directory
+          try {
+            const { data: tenantMatch } = await supabase
+              .from('directory_tenants')
+              .select('slug')
+              .eq('slug', slug)
+              .eq('status', 'active')
+              .single();
+            if (tenantMatch) { navigate(`/${tenantMatch.slug}`, { replace: true }); return; }
+          } catch { /* not a tenant either */ }
+          setNotFound(true); setLoading(false); return;
+        }
 
         setCompany(data);
 

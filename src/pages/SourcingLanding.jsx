@@ -242,7 +242,7 @@ function SourcingLandingInner() {
           <div style={{ flex: 1 }} />
           <ThemeToggle />
           <Link
-            to="/sourcing/admin"
+            to="/admin"
             style={{
               fontSize: 11, color: V.muted, fontFamily: "'JetBrains Mono', monospace",
               textDecoration: 'none', letterSpacing: '0.06em', textTransform: 'uppercase',

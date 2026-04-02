@@ -413,8 +413,8 @@ function SourcingAdminInner() {
   const params = useParams();
 
   // Detect admin sub-routes
-  const isNew = location.pathname === '/sourcing/admin/new';
-  const isSettings = location.pathname.startsWith('/sourcing/admin/settings/');
+  const isNew = location.pathname === '/admin/new';
+  const isSettings = location.pathname.startsWith('/admin/settings/');
 
   const [authed, setAuthed] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
@@ -522,7 +522,7 @@ function SourcingAdminInner() {
         body: JSON.stringify({
           email: forgotEmail,
           org_name: selectedTenant?.name || 'AOM Sourcing Directory',
-          redirect_to: window.location.origin + '/sourcing/admin',
+          redirect_to: window.location.origin + '/admin',
         }),
       });
       const data = await resp.json();
@@ -1297,7 +1297,7 @@ function SourcingAdminInner() {
         )}
         {selectedTenant && (
           <button
-            onClick={() => navigate(`/sourcing/admin/settings/${selectedTenant.slug}`)}
+            onClick={() => navigate(`/admin/settings/${selectedTenant.slug}`)}
             style={{
               background: V.accentDim, border: `1px solid ${V.accentBrd}`,
               color: V.accent, borderRadius: 6, padding: '5px 12px',
@@ -1308,7 +1308,7 @@ function SourcingAdminInner() {
           </button>
         )}
         <button
-          onClick={() => navigate('/sourcing/admin/new')}
+          onClick={() => navigate('/admin/new')}
           style={{
             background: V.accent, border: 'none',
             color: '#fff', borderRadius: 6, padding: '5px 12px',
