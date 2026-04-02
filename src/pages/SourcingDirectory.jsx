@@ -840,6 +840,17 @@ function SourcingDirectoryInner() {
           justifyContent: 'center',
         }}>
           <div style={{ padding: '48px 24px 32px', maxWidth: 900, width: '100%', textAlign: 'center' }}>
+            {/* Tenant logo */}
+            {tenant.slug === 'space-rising' && (
+              <img src="/images/space-rising/logo-white.png" alt="Space Rising" style={{
+                height: 56, objectFit: 'contain', marginBottom: 16, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
+              }} />
+            )}
+            {tenant.slug === 'sc3-semiconductor' && (
+              <img src="/images/s3c/logo.png" alt="SC3" style={{
+                height: 56, objectFit: 'contain', marginBottom: 16, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
+              }} />
+            )}
             <div style={{
               fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: tenant.brand_color || V.accent,
               letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 10,

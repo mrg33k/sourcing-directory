@@ -16,11 +16,50 @@ function getVerticalImage(vertical) {
   return VERTICAL_IMAGES[vertical] || VERTICAL_IMAGES.default;
 }
 
+// ─── Tenant brand overrides (logos, colors, fonts) ──────────────────────────
+const TENANT_BRANDS = {
+  'space-rising': {
+    logo: '/images/space-rising/logo-white.png',
+    accent: '#E5451F',
+    headingFont: "'Oswald', sans-serif",
+    bodyFont: "'Inter', sans-serif",
+    fontImport: 'https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@400;500;600&display=swap',
+    bgOverlay: 'linear-gradient(to top, #080808 0%, rgba(8,8,8,0.92) 12%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.18) 100%)',
+  },
+  'sc3-semiconductor': {
+    logo: '/images/s3c/logo.png',
+    accent: '#A0522D',
+    headingFont: "'Barlow Condensed', sans-serif",
+    bodyFont: "'Inter', sans-serif",
+    fontImport: 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Inter:wght@400;500;600&display=swap',
+    bgOverlay: 'linear-gradient(to top, #0D1B2E 0%, rgba(13,27,46,0.92) 12%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.18) 100%)',
+  },
+};
+
+// Priority slugs always sort first
+const PRIORITY_SLUGS = ['space-rising', 'sc3-semiconductor'];
+
 // ─── Tenant Card ──────────────────────────────────────────────────────────────
 function TenantCard({ tenant, V }) {
   const [hovered, setHovered] = useState(false);
-  const brandColor = tenant.brand_color || V.accent;
+  const brand = TENANT_BRANDS[tenant.slug];
+  const brandColor = brand?.accent || tenant.brand_color || V.accent;
   const bgImage = getVerticalImage(tenant.vertical);
+  const headingFont = brand?.headingFont || "'Syne', sans-serif";
+  const bodyFont = brand?.bodyFont || "'Space Grotesk', sans-serif";
+  const logoSrc = brand?.logo || tenant.logo_url;
+  const overlay = brand?.bgOverlay || 'linear-gradient(to top, #0f1419 0%, rgba(15,20,25,0.92) 12%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.18) 100%)';
+
+  // Inject brand font
+  useEffect(() => {
+    if (!brand?.fontImport) return;
+    const id = `tenant-font-${tenant.slug}`;
+    if (!document.getElementById(id)) {
+      const link = document.createElement('link');
+      link.id = id; link.rel = 'stylesheet'; link.href = brand.fontImport;
+      document.head.appendChild(link);
+    }
+  }, [brand, tenant.slug]);
 
   return (
     <Link
@@ -30,7 +69,7 @@ function TenantCard({ tenant, V }) {
       onMouseLeave={() => setHovered(false)}
     >
       <div style={{
-        backgroundImage: `linear-gradient(to top, #0f1419 0%, rgba(15,20,25,0.92) 12%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.18) 100%), url(${bgImage})`,
+        backgroundImage: `${overlay}, url(${bgImage})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         borderTop: `1px solid ${hovered ? `${brandColor}60` : 'rgba(255,255,255,0.08)'}`,
@@ -52,9 +91,9 @@ function TenantCard({ tenant, V }) {
       }}>
         {/* Header: logo + name */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-          {tenant.logo_url ? (
+          {logoSrc ? (
             <img
-              src={tenant.logo_url}
+              src={logoSrc}
               alt={tenant.name}
               style={{ width: 48, height: 48, borderRadius: 10, objectFit: 'contain', background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(8px)', flexShrink: 0 }}
             />
@@ -65,7 +104,7 @@ function TenantCard({ tenant, V }) {
               border: `1px solid ${brandColor}50`,
               backdropFilter: 'blur(8px)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 22, fontWeight: 800, fontFamily: "'Syne', sans-serif",
+              fontSize: 22, fontWeight: 800, fontFamily: headingFont,
               color: '#fff', flexShrink: 0,
             }}>
               {tenant.name.charAt(0)}
@@ -73,14 +112,16 @@ function TenantCard({ tenant, V }) {
           )}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{
-              fontSize: 18, fontWeight: 700, fontFamily: "'Syne', sans-serif",
+              fontSize: 18, fontWeight: 700, fontFamily: headingFont,
               color: '#fff', lineHeight: 1.2, textShadow: '0 1px 4px rgba(0,0,0,0.4)',
+              textTransform: brand ? 'uppercase' : undefined,
+              letterSpacing: brand ? '0.03em' : undefined,
             }}>
               {tenant.nav_label || tenant.name}
             </div>
             <div style={{
               fontSize: 12, fontWeight: 600, fontFamily: "'JetBrains Mono', monospace",
-              color: '#4ADE80', textTransform: 'uppercase', letterSpacing: '0.08em',
+              color: brandColor, textTransform: 'uppercase', letterSpacing: '0.08em',
               marginTop: 3, textShadow: '0 1px 3px rgba(0,0,0,0.5)',
             }}>
               {tenant.vertical}
@@ -91,7 +132,7 @@ function TenantCard({ tenant, V }) {
         {/* Description */}
         {tenant.description && (
           <div style={{
-            fontSize: 13, color: 'rgba(255,255,255,0.75)', fontFamily: "'Space Grotesk', sans-serif",
+            fontSize: 13, color: 'rgba(255,255,255,0.75)', fontFamily: bodyFont,
             lineHeight: 1.55,
             display: '-webkit-box', WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical', overflow: 'hidden',
@@ -115,19 +156,19 @@ function TenantCard({ tenant, V }) {
             }}>
               {tenant.company_count || 0}
             </span>
-            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontFamily: "'Space Grotesk', sans-serif" }}>
+            <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontFamily: bodyFont }}>
               companies
             </span>
           </div>
 
           <div style={{ marginLeft: 'auto' }}>
             <div style={{
-              background: 'rgba(74,222,128,0.15)',
-              border: '1px solid rgba(74,222,128,0.3)',
+              background: `${brandColor}20`,
+              border: `1px solid ${brandColor}40`,
               borderRadius: 6,
               padding: '4px 10px',
               fontSize: 11, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace",
-              color: '#4ADE80', textTransform: 'uppercase', letterSpacing: '0.06em',
+              color: brandColor, textTransform: 'uppercase', letterSpacing: '0.06em',
               display: 'flex', alignItems: 'center', gap: 5,
               backdropFilter: 'blur(4px)',
             }}>
@@ -171,9 +212,10 @@ function SourcingLandingInner() {
           const res = await fetch('/api/sourcing/tenants');
           if (res.ok) {
             const data = await res.json();
-            // Sort by sort_order (Space Rising + SC3 above Biotech + Defense)
+            // Priority tenants first, then by sort_order
+            const prio = (t) => { const i = PRIORITY_SLUGS.indexOf(t.slug); return i >= 0 ? i : 999; };
             const sorted = [...data].sort((a, b) =>
-              (a.sort_order ?? 99) - (b.sort_order ?? 99) || (a.name || '').localeCompare(b.name || '')
+              prio(a) - prio(b) || (a.sort_order ?? 99) - (b.sort_order ?? 99) || (a.name || '').localeCompare(b.name || '')
             );
             setTenants(sorted);
             setLoading(false);
