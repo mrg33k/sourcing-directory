@@ -240,8 +240,8 @@ function ScoutPanel({ V, tenantId }) {
 
 // Admin client — uses service role key if available (bypasses RLS), falls back to anon
 // VITE_SOURCING_ADMIN_KEY should be set to service role key in Vercel env vars
-const _adminKey = import.meta.env.VITE_SOURCING_ADMIN_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY;
-const _sbUrl = import.meta.env.VITE_SUPABASE_URL;
+const _adminKey = (import.meta.env.VITE_SOURCING_ADMIN_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
+const _sbUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim();
 const adminSupabase = (_sbUrl && _adminKey)
   ? createClient(_sbUrl, _adminKey)
   : supabase;
