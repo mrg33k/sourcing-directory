@@ -664,13 +664,37 @@ function SourcingSignupInner() {
             <p style={{ fontSize: 14, color: V.muted, fontFamily: V.space, maxWidth: 380, margin: '0 auto 28px', lineHeight: 1.6 }}>
               Your listing has been submitted for review. You'll receive an email when approved.
             </p>
+            {/* Membership upsell */}
+            <div style={{
+              background: `${V.accent}08`, border: `1px solid ${V.accent}30`,
+              borderRadius: 12, padding: '20px 24px', margin: '0 auto 24px',
+              maxWidth: 380, textAlign: 'left',
+            }}>
+              <div style={{ fontSize: 14, fontWeight: 700, fontFamily: V.syne, color: V.heading, marginBottom: 6 }}>
+                Want to post jobs, events & articles?
+              </div>
+              <div style={{ fontSize: 13, color: V.muted, fontFamily: V.space, lineHeight: 1.6, marginBottom: 14 }}>
+                Upgrade to a paid membership to unlock posting, analytics, VIP events, and more. Starting at $1,000/seat.
+              </div>
+              <Link
+                to={`${basePath}/membership`}
+                style={{
+                  display: 'inline-block', background: V.accent, color: '#fff',
+                  textDecoration: 'none', borderRadius: 6, padding: '8px 20px',
+                  fontSize: 13, fontWeight: 600, fontFamily: V.space,
+                }}
+              >
+                View Membership Options
+              </Link>
+            </div>
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 280, margin: '0 auto' }}>
               <Link
                 to={basePath}
                 style={{
-                  background: V.accent, color: '#fff', textDecoration: 'none',
-                  borderRadius: 8, padding: '11px 0', fontSize: 14,
-                  fontWeight: 700, fontFamily: V.space, display: 'block', textAlign: 'center',
+                  background: 'transparent', color: V.muted, textDecoration: 'none',
+                  border: `1px solid ${V.border}`, borderRadius: 8, padding: '11px 0', fontSize: 14,
+                  fontWeight: 600, fontFamily: V.space, display: 'block', textAlign: 'center',
                 }}
               >
                 Browse the Directory
@@ -678,9 +702,8 @@ function SourcingSignupInner() {
               <Link
                 to={`${basePath}/login`}
                 style={{
-                  background: 'transparent', color: V.muted, textDecoration: 'none',
-                  border: `1px solid ${V.border}`, borderRadius: 8, padding: '11px 0',
-                  fontSize: 14, fontWeight: 600, fontFamily: V.space, display: 'block', textAlign: 'center',
+                  background: 'transparent', color: V.dim, textDecoration: 'none',
+                  fontSize: 13, fontFamily: V.space, display: 'block', textAlign: 'center',
                 }}
               >
                 Sign In
