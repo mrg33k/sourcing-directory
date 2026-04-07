@@ -3,7 +3,7 @@
 -- Run this in the Supabase SQL editor at:
 --   https://mcngatprgluexjjcqpkp.supabase.co/sql
 
--- ─── Organizations (Space Rising, SC3, etc.) ──────────────────────────────────
+-- ─── Organizations (Space Rising, S3C, etc.) ──────────────────────────────────
 CREATE TABLE IF NOT EXISTS directory_organizations (
   id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name            text NOT NULL,
@@ -107,7 +107,7 @@ CREATE POLICY "public read listings" ON directory_listings        FOR SELECT USI
 INSERT INTO directory_organizations (name, slug, description, website, vertical, membership_tiers)
 VALUES
   (
-    'SC3 Arizona',
+    'S3C Arizona',
     'sc3-arizona',
     'Semiconductor cluster advancing Arizona''s semiconductor ecosystem through workforce development, supply chain, and business growth.',
     'https://sc3az.org',

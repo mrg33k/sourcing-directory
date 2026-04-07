@@ -7,8 +7,6 @@ import { SourcingThemeProvider, useSourcingTheme, getTokens, useTenant } from '.
 const VERTICALS = [
   { key: 'semiconductor', label: 'Semiconductor' },
   { key: 'space',         label: 'Space & Aerospace' },
-  { key: 'biotech',       label: 'Biotech' },
-  { key: 'defense',       label: 'Defense' },
 ];
 
 const EVENT_TYPES = [
@@ -245,9 +243,9 @@ function SourcingEventsPostInner() {
                 Organizer
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <InputField label="Organization / Company Name" required value={form.company_name} onChange={set('company_name')} placeholder="SC3 Arizona" V={V} />
+                <InputField label="Organization / Company Name" required value={form.company_name} onChange={set('company_name')} placeholder="S3C Arizona" V={V} />
                 <InputField label="Organization Email" required type="email" value={form.company_email} onChange={set('company_email')} placeholder="events@organization.org" hint="Used to link event to your directory profile." V={V} />
-                <InputField label="Organizer Display Name" value={form.organizer} onChange={set('organizer')} placeholder="SC3 Arizona Events Team" hint="Shown on the event listing. Defaults to your organization name." V={V} />
+                <InputField label="Organizer Display Name" value={form.organizer} onChange={set('organizer')} placeholder="S3C Arizona Events Team" hint="Shown on the event listing. Defaults to your organization name." V={V} />
               </div>
             </div>
 

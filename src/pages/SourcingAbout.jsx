@@ -29,31 +29,6 @@ const VERTICALS = [
     href: '/space-rising',
     description: 'Avionics, propulsion, structures, composites, and satellite systems.',
   },
-  {
-    key: 'biotech',
-    label: 'Biotech',
-    color: '#22C55E',
-    icon: (
-      <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-        <circle cx="12" cy="12" r="3"/>
-      </svg>
-    ),
-    href: '/az-biotech',
-    description: 'Life sciences, diagnostics, medical devices, and pharmaceutical suppliers.',
-  },
-  {
-    key: 'defense',
-    label: 'Defense',
-    color: '#EF4444',
-    icon: (
-      <svg width="28" height="28" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-      </svg>
-    ),
-    href: '/az-defense',
-    description: 'ITAR-registered suppliers, C4ISR, weapons systems, and cyber defense.',
-  },
 ];
 
 function StatBlock({ label, value, V }) {
@@ -76,7 +51,7 @@ function StatBlock({ label, value, V }) {
 function SourcingAboutInner() {
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
-  const [stats, setStats] = useState({ companies: 107, verticals: 4, certs: '500+' });
+  const [stats, setStats] = useState({ companies: 107, verticals: 2, certs: '500+' });
 
   useEffect(() => {
     document.title = 'About | sourcing.directory -- Arizona Industrial Supplier Directory';
@@ -86,9 +61,9 @@ function SourcingAboutInner() {
       if (!el) { el = document.createElement('meta'); el.setAttribute(attr, key); document.head.appendChild(el); }
       el.setAttribute('content', content);
     };
-    setMeta('name', 'description', 'Find verified semiconductor, aerospace, biotech, and defense suppliers in Arizona. sourcing.directory connects procurement teams with certified industrial partners.');
+    setMeta('name', 'description', 'Find verified semiconductor and aerospace suppliers in Arizona. sourcing.directory connects procurement teams with certified industrial partners.');
     setMeta('property', 'og:title', 'sourcing.directory | Arizona Industrial Supplier Directory');
-    setMeta('property', 'og:description', 'Find verified suppliers in semiconductor, aerospace, biotech, and defense. Direct connections to certified Arizona industrial companies.');
+    setMeta('property', 'og:description', 'Find verified suppliers in semiconductor and aerospace. Direct connections to certified Arizona industrial companies.');
     return () => { document.title = 'Sourcing Directory | Find Certified Suppliers'; };
   }, []);
 
@@ -165,7 +140,7 @@ function SourcingAboutInner() {
           fontSize: 'clamp(15px, 2vw, 18px)', color: 'rgba(255,255,255,0.6)',
           maxWidth: 580, margin: '0 auto 36px', lineHeight: 1.7,
         }}>
-          Semiconductor. Aerospace. Biotech. Defense. Real companies, verified credentials, direct connections.
+          Semiconductor. Aerospace. Real companies, verified credentials, direct connections.
         </p>
         <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
           <Link to="/sc3" style={{
@@ -372,7 +347,7 @@ function SourcingAboutInner() {
             marginBottom: 24,
           }}>
             <span style={{ color: 'rgba(16,185,129,0.7)' }}>&gt; </span>
-            ISO-certified PCB manufacturer near Phoenix with defense experience
+            ISO-certified PCB manufacturer near Phoenix with aerospace experience
           </div>
           <Link to="/sc3" style={{
             background: 'rgba(16,185,129,0.15)',
@@ -412,7 +387,7 @@ function SourcingAboutInner() {
                 Power your member directory
               </h3>
               <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, margin: '0 0 24px' }}>
-                Running an industry association or trade group? sourcing.directory powers member directories for Space Rising, SC3, and more. Your members get a branded directory. You get analytics, member management, and a platform that grows with your community.
+                Running an industry association or trade group? sourcing.directory powers member directories for Space Rising, S3C, and more. Your members get a branded directory. You get analytics, member management, and a platform that grows with your community.
               </p>
               <Link to="/sc3/signup" style={{
                 background: accent, color: '#fff', textDecoration: 'none',
@@ -425,7 +400,7 @@ function SourcingAboutInner() {
               </Link>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {['SC3 -- Semiconductor Consortium', 'Space Rising', 'AZ Biotech Alliance', 'AZ Defense Network'].map(org => (
+              {['S3C -- Semiconductor Coalition', 'Space Rising'].map(org => (
                 <div key={org} style={{
                   background: 'rgba(255,255,255,0.04)',
                   border: '1px solid rgba(255,255,255,0.08)',

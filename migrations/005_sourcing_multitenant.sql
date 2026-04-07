@@ -4,7 +4,7 @@
 -- ─── Tenants table ──────────────────────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS directory_tenants (
   id            uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  name          text NOT NULL,           -- "SC3 Arizona Semiconductor", "Space Rising"
+  name          text NOT NULL,           -- "S3C Arizona Semiconductor", "Space Rising"
   slug          text UNIQUE NOT NULL,    -- URL path segment
   description   text,
   vertical      text NOT NULL,           -- primary vertical
@@ -38,7 +38,7 @@ CREATE POLICY "public read tenants" ON directory_tenants FOR SELECT USING (statu
 
 -- ─── Seed default tenants from existing verticals ───────────────────────────
 INSERT INTO directory_tenants (name, slug, vertical, hero_text) VALUES
-  ('SC3 Arizona Semiconductor', 'sc3-semiconductor', 'semiconductor', 'Arizona''s semiconductor supply chain directory. Find certified fabs, suppliers, and partners.'),
+  ('S3C Arizona Semiconductor', 'sc3-semiconductor', 'semiconductor', 'Arizona''s semiconductor supply chain directory. Find certified fabs, suppliers, and partners.'),
   ('Space Rising Arizona', 'space-rising', 'space', 'Arizona''s space and aerospace industry directory. Launch suppliers, defense contractors, and R&D firms.'),
   ('Arizona Biotech Council', 'az-biotech', 'biotech', 'Arizona''s biotech and life sciences directory. Labs, manufacturers, and clinical partners.'),
   ('Arizona Defense Alliance', 'az-defense', 'defense', 'Arizona''s defense industry directory. Cleared contractors, ITAR suppliers, and mission-critical partners.')

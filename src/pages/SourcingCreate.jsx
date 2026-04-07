@@ -7,8 +7,6 @@ import { SourcingThemeProvider, useSourcingTheme, getTokens, ThemeToggle } from 
 const VERTICALS = [
   { key: 'semiconductor', label: 'Semiconductor' },
   { key: 'space',         label: 'Space & Aerospace' },
-  { key: 'biotech',       label: 'Biotech & Life Sciences' },
-  { key: 'defense',       label: 'Defense & Security' },
   { key: 'custom',        label: 'Custom...' },
 ];
 
@@ -88,7 +86,7 @@ function Step1({ data, onChange, V, accent }) {
           type="text"
           value={data.name}
           onChange={e => onChange({ name: e.target.value })}
-          placeholder="e.g. SC3 Arizona Semiconductor"
+          placeholder="e.g. S3C Arizona Semiconductor"
           style={inputStyle(V)}
         />
         {data.name && (

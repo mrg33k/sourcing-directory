@@ -50,15 +50,11 @@ const VERTICALS = [
   { key: 'all',           label: 'All Industries',  color: '#9ca3af' },
   { key: 'semiconductor', label: 'Semiconductor',    color: '#29B6F6' },
   { key: 'space',         label: 'Space & Aerospace',color: '#7C3AED' },
-  { key: 'biotech',       label: 'Biotech',          color: '#22C55E' },
-  { key: 'defense',       label: 'Defense',          color: '#EF4444' },
 ];
 
 const VERTICAL_CERTS = {
   semiconductor: ['ISO 9001', 'ISO 14001', 'ISO 45001', 'ITAR Registered', 'AS9100D', 'ANSI/ESD S20.20', 'AEC-Q100', 'IPC-7711/7721'],
   space:         ['AS9100D', 'AS9120B', 'ITAR Registered', 'ISO 9001', 'MIL-STD-810', 'NADCAP', 'FAA FAR Part 145', 'DoD Secret Cleared'],
-  biotech:       ['ISO 13485', 'ISO 9001', 'cGMP', 'FDA 21 CFR Part 820', 'ISO 14155', 'CE Marked', 'ICH Q10'],
-  defense:       ['ITAR Registered', 'ISO 9001', 'AS9100D', 'CMMC Level 2', 'MIL-STD-810', 'DoD Secret Cleared', 'NIST 800-171'],
 };
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -501,7 +497,7 @@ function SourcingDirectoryInner() {
   // Reviews map: company slug -> { avg, count }
   const [reviewStats, setReviewStats] = useState({});
 
-  // ─── Tenant brand tokens (Space Rising + SC3) ──────────────────────────────
+  // ─── Tenant brand tokens (Space Rising + S3C) ──────────────────────────────
   const tenantBrand = useMemo(() => {
     if (!tenant) return null;
     if (tenant.slug === 'space-rising') return {
@@ -847,7 +843,7 @@ function SourcingDirectoryInner() {
               }} />
             )}
             {tenant.slug === 'sc3-semiconductor' && (
-              <img src="/images/s3c/logo.png" alt="SC3" style={{
+              <img src="/images/s3c/logo.png" alt="S3C" style={{
                 height: 56, objectFit: 'contain', marginBottom: 16, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
               }} />
             )}

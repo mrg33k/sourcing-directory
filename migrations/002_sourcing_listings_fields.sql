@@ -120,7 +120,7 @@ SELECT
   '2026-05-16 17:00:00+00',
   'Phoenix Convention Center, Phoenix, AZ',
   'conference',
-  'SC3 Arizona',
+  'S3C Arizona',
   'semiconductor'
 FROM directory_companies WHERE slug = 'intel-chandler'
 ON CONFLICT DO NOTHING;
