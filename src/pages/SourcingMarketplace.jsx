@@ -67,6 +67,7 @@ export function SourcingNav({ active, tenantSlug, tenantName, features, brandCol
     { key: 'events',      label: 'Events',       href: `${base}/events`,       show: f.events !== false },
     { key: 'articles',    label: 'Articles',     href: `${base}/articles`,     show: f.articles !== false },
     { key: 'grants',      label: 'Grants',       href: `${base}/grants`,       show: f.grants !== false },
+    { key: 'reports',     label: 'Reports',      href: `${base}/reports`,      show: true },
     { key: 'membership',  label: 'Membership',   href: `${base}/membership`,   show: true },
     { key: 'portal',      label: 'My Portal',    href: `${base}/portal`,       show: !!authUser },
     { key: 'about',       label: 'About',        href: '/about',      show: true },

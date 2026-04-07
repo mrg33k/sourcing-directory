@@ -20,6 +20,7 @@ const SourcingArticles = lazy(() => import('./pages/SourcingArticles.jsx'))
 const SourcingArticlesPost = lazy(() => import('./pages/SourcingArticlesPost.jsx'))
 const SourcingGrants = lazy(() => import('./pages/SourcingGrants.jsx'))
 const SourcingMembership = lazy(() => import('./pages/SourcingMembership.jsx'))
+const SourcingReports = lazy(() => import('./pages/SourcingReports.jsx'))
 const SourcingOrg = lazy(() => import('./pages/SourcingOrg.jsx'))
 const SourcingCheckout = lazy(() => import('./pages/SourcingCheckout.jsx'))
 const SourcingSettings = lazy(() => import('./pages/SourcingSettings.jsx'))
@@ -59,6 +60,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/:tenantSlug/articles/post" element={<SourcingArticlesPost />} />
           <Route path="/:tenantSlug/grants" element={<SourcingGrants />} />
           <Route path="/:tenantSlug/membership" element={<SourcingMembership />} />
+          <Route path="/:tenantSlug/reports" element={<SourcingReports />} />
           <Route path="/:tenantSlug/org/:slug" element={<SourcingOrg />} />
           <Route path="/:tenantSlug/checkout" element={<SourcingCheckout />} />
           <Route path="/:tenantSlug/settings" element={<SourcingSettings />} />
