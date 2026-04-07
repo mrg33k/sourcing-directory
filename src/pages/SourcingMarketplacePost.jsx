@@ -153,7 +153,7 @@ function SourcingMarketplacePostInner() {
           description: form.description,
           price: form.price ? parseFloat(form.price) : null,
           category: 'equipment',
-          status: 'active',
+          status: 'pending',
           condition: form.condition,
           vertical: form.vertical,
           contact_email: form.contact_email,

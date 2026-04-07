@@ -151,7 +151,7 @@ function ScoutPanel({ V, tenantId }) {
               <div style={{ color: 'rgba(255,255,255,0.35)', fontSize: 13, fontFamily: "'Space Grotesk', sans-serif", textAlign: 'center', marginTop: 40, lineHeight: 1.6 }}>
                 Tell me what to do.<br/>
                 <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)' }}>
-                  "Create a directory for Arizona Biotech Council and seed it with 15 companies"
+                  "Create a directory and seed it with 15 companies"
                 </span>
               </div>
             )}
@@ -588,8 +588,8 @@ function SourcingAdminInner() {
         membersQ = membersQ.eq('tenant_id', selectedTenantId);
       }
 
-      // Fetch pending articles
-      let articlesQ = adminSupabase.from('directory_listings').select('*').eq('category', 'article').eq('status', 'pending').order('created_at', { ascending: false });
+      // Fetch all pending content (articles, jobs, events, marketplace)
+      let articlesQ = adminSupabase.from('directory_listings').select('*').eq('status', 'pending').order('created_at', { ascending: false });
       if (selectedTenantId) {
         articlesQ = articlesQ.eq('tenant_id', selectedTenantId);
       }
@@ -1253,7 +1253,7 @@ function SourcingAdminInner() {
     { key: 'stats',      label: 'Stats' },
     { key: 'companies',  label: `Companies${pendingCompanies.length > 0 ? ` (${pendingCompanies.length} pending)` : ''}` },
     { key: 'members',    label: `Pending Reviews${pendingMembers.length > 0 ? ` (${pendingMembers.length})` : ''}` },
-    { key: 'articles',   label: `Pending Articles${pendingArticles.length > 0 ? ` (${pendingArticles.length})` : ''}` },
+    { key: 'articles',   label: `Pending Content${pendingArticles.length > 0 ? ` (${pendingArticles.length})` : ''}` },
     { key: 'add',        label: '+ Add Company' },
     { key: 'orgs',       label: 'Organizations' },
     { key: 'listings',   label: 'Listings' },
@@ -1636,19 +1636,19 @@ function SourcingAdminInner() {
           </AdminSection>
         )}
 
-        {/* Pending Articles */}
+        {/* Pending Content */}
         {!loading && activeTab === 'articles' && (
-          <AdminSection title={`Pending Articles (${pendingArticles.length})`} V={V}>
+          <AdminSection title={`Pending Content (${pendingArticles.length})`} V={V}>
             {pendingArticles.length === 0 ? (
               <div style={{
                 background: V.card, border: `1px solid ${V.border}`,
                 borderRadius: 10, padding: '40px 24px', textAlign: 'center',
               }}>
                 <div style={{ fontSize: 15, fontWeight: 700, fontFamily: V.syne, color: V.text, marginBottom: 6 }}>
-                  No pending articles
+                  No pending content
                 </div>
                 <div style={{ fontSize: 13, color: V.muted, fontFamily: V.space }}>
-                  All submitted articles have been reviewed.
+                  All submitted content has been reviewed.
                 </div>
               </div>
             ) : (
@@ -1667,6 +1667,15 @@ function SourcingAdminInner() {
                             {article.title}
                           </div>
                           <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 6 }}>
+                            <span style={{
+                              fontSize: 10, fontWeight: 700, fontFamily: V.mono,
+                              textTransform: 'uppercase', letterSpacing: '0.06em',
+                              padding: '2px 8px', borderRadius: 4,
+                              background: article.category === 'article' ? 'rgba(59,130,246,0.15)' : article.category === 'job' ? 'rgba(16,185,129,0.15)' : article.category === 'event' ? 'rgba(168,85,247,0.15)' : 'rgba(234,179,8,0.15)',
+                              color: article.category === 'article' ? '#93C5FD' : article.category === 'job' ? '#6EE7B7' : article.category === 'event' ? '#C4B5FD' : '#FDE68A',
+                            }}>
+                              {article.category || 'article'}
+                            </span>
                             <span style={{ fontSize: 11, color: V.dim, fontFamily: V.mono }}>
                               <span style={{ color: V.muted, fontWeight: 600 }}>Author</span>{' '}
                               {company?.name || 'Unknown Company'}
@@ -1770,8 +1779,6 @@ function SourcingAdminInner() {
                       style={{ width: '100%', background: V.card2, border: `1px solid ${V.border}`, color: V.text, borderRadius: 7, padding: '9px 12px', fontSize: 13, fontFamily: V.space }}>
                       <option value="semiconductor">Semiconductor</option>
                       <option value="space">Space / Aerospace</option>
-                      <option value="biotech">Biotech</option>
-                      <option value="defense">Defense</option>
                       <option value="other">Other</option>
                     </select>
                   </div>
@@ -1828,7 +1835,7 @@ function SourcingAdminInner() {
                 <div style={{ fontSize: 13, fontWeight: 700, fontFamily: V.syne, color: V.heading, marginBottom: 14 }}>New Organization</div>
                 <form onSubmit={handleAddOrg} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {[
-                    { label: 'Name *', key: 'name', placeholder: 'e.g. AZ Biotech Alliance' },
+                    { label: 'Name *', key: 'name', placeholder: 'e.g. Industry Alliance' },
                     { label: 'Website', key: 'website', placeholder: 'https://example.org' },
                     { label: 'Description', key: 'description', placeholder: 'What this org does...' },
                   ].map(({ label, key, placeholder }) => (
@@ -1848,8 +1855,6 @@ function SourcingAdminInner() {
                       style={{ width: '100%', background: V.card2, border: `1px solid ${V.border}`, color: V.text, borderRadius: 6, padding: '8px 11px', fontSize: 13, fontFamily: V.space }}>
                       <option value="semiconductor">Semiconductor</option>
                       <option value="space">Space / Aerospace</option>
-                      <option value="biotech">Biotech</option>
-                      <option value="defense">Defense</option>
                       <option value="other">Other</option>
                     </select>
                   </div>
@@ -2225,7 +2230,7 @@ function SourcingAdminInner() {
                   Add Organization
                 </div>
                 <div style={{ fontSize: 12, color: V.muted, fontFamily: V.space, marginBottom: 14 }}>
-                  Create a new industry vertical org (biotech, defense, etc.)
+                  Create a new industry vertical organization
                 </div>
                 <button onClick={() => setActiveTab('orgs')} style={{
                   width: '100%', background: 'rgba(59,130,246,0.12)',

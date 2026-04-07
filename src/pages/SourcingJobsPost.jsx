@@ -173,7 +173,7 @@ function SourcingJobsPostInner() {
           title: form.title,
           description: form.description,
           category: 'job',
-          status: 'active',
+          status: 'pending',
           job_type: form.job_type,
           location: form.location || null,
           remote: form.remote,

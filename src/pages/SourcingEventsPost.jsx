@@ -157,7 +157,7 @@ function SourcingEventsPostInner() {
           title: form.title,
           description: form.description,
           category: 'event',
-          status: 'active',
+          status: 'pending',
           event_type: form.event_type,
           event_date: form.event_date ? new Date(form.event_date).toISOString() : null,
           event_end_date: form.event_end_date ? new Date(form.event_end_date).toISOString() : null,
