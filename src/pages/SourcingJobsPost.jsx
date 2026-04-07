@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import { SourcingNav } from './SourcingMarketplace.jsx';
+import { SourcingNav, MembershipGate } from './SourcingMarketplace.jsx';
 import { SourcingThemeProvider, useSourcingTheme, getTokens, useTenant } from './SourcingTheme.jsx';
 
 const VERTICALS = [
   { key: 'semiconductor', label: 'Semiconductor' },
   { key: 'space',         label: 'Space & Aerospace' },
-  { key: 'biotech',       label: 'Biotech' },
-  { key: 'defense',       label: 'Defense' },
 ];
 
 const JOB_TYPES = [
@@ -239,6 +237,7 @@ function SourcingJobsPostInner() {
 
       <SourcingNav active="jobs" tenantSlug={tenantSlug} />
 
+      <MembershipGate featureName="job listings">
       <div style={{ maxWidth: 600, margin: '0 auto', padding: '40px 24px 80px' }}>
         <div style={{ marginBottom: 28 }}>
           <Link to={`${basePath}/jobs`} style={{ fontSize: 12, color: V.muted, fontFamily: V.space, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5, marginBottom: 16 }}>
@@ -341,6 +340,7 @@ function SourcingJobsPostInner() {
           </div>
         </form>
       </div>
+      </MembershipGate>
     </div>
   );
 }

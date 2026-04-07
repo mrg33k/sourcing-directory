@@ -170,6 +170,124 @@ export function SourcingNav({ active, tenantSlug, tenantName, features, brandCol
   );
 }
 
+// ─── Membership Gate (used by posting pages) ────────────────────────────────
+export function MembershipGate({ children, featureName }) {
+  const { dark } = useSourcingTheme();
+  const V = getTokens(dark);
+  const { tenant, tenantSlug } = useTenant();
+  const base = tenantSlug ? `/${tenantSlug}` : '';
+  const accent = tenant?.brand_color || V.accent;
+  const [state, setState] = useState('loading'); // loading | no-auth | free | paid
+
+  useEffect(() => {
+    if (!supabase) { setState('no-auth'); return; }
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { setState('no-auth'); return; }
+      if (!tenant?.id) { setState('no-auth'); return; }
+
+      const { data: member } = await supabase
+        .from('directory_members')
+        .select('company_id')
+        .eq('auth_user_id', user.id)
+        .eq('tenant_id', tenant.id)
+        .single();
+
+      if (!member?.company_id) { setState('no-auth'); return; }
+
+      const { data: company } = await supabase
+        .from('directory_companies')
+        .select('membership_tier')
+        .eq('id', member.company_id)
+        .single();
+
+      const tier = company?.membership_tier || 'free';
+      setState(tier === 'free' ? 'free' : 'paid');
+    })();
+  }, [tenant]);
+
+  if (state === 'loading') {
+    return (
+      <div style={{ minHeight: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{
+          width: 20, height: 20, borderRadius: '50%',
+          border: `2px solid ${V.border}`, borderTop: `2px solid ${accent}`,
+          animation: 'spin 0.8s linear infinite',
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
+
+  if (state === 'no-auth') {
+    return (
+      <div style={{
+        maxWidth: 480, margin: '60px auto', padding: '40px 28px',
+        background: V.card, border: `1px solid ${V.border}`, borderRadius: 12,
+        textAlign: 'center',
+      }}>
+        <div style={{ fontSize: 32, marginBottom: 16 }}>
+          <svg width="40" height="40" fill="none" stroke={accent} strokeWidth="1.5" viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0110 0v4"/>
+          </svg>
+        </div>
+        <h2 style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Syne', sans-serif", color: '#fff', margin: '0 0 10px' }}>
+          Sign in required
+        </h2>
+        <p style={{ fontSize: 14, color: V.muted, fontFamily: V.space, margin: '0 0 20px', lineHeight: 1.6 }}>
+          You need to be signed in to {featureName || 'access this feature'}.
+        </p>
+        <Link
+          to={`${base}/login`}
+          style={{
+            display: 'inline-block', background: accent, color: '#fff',
+            textDecoration: 'none', borderRadius: 8, padding: '10px 28px',
+            fontSize: 14, fontWeight: 600, fontFamily: V.space,
+          }}
+        >
+          Sign In
+        </Link>
+      </div>
+    );
+  }
+
+  if (state === 'free') {
+    return (
+      <div style={{
+        maxWidth: 480, margin: '60px auto', padding: '40px 28px',
+        background: V.card, border: `1px solid ${V.border}`, borderRadius: 12,
+        textAlign: 'center',
+      }}>
+        <div style={{ fontSize: 32, marginBottom: 16 }}>
+          <svg width="40" height="40" fill="none" stroke={accent} strokeWidth="1.5" viewBox="0 0 24 24">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+        </div>
+        <h2 style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Syne', sans-serif", color: '#fff', margin: '0 0 10px' }}>
+          Paid membership required
+        </h2>
+        <p style={{ fontSize: 14, color: V.muted, fontFamily: V.space, margin: '0 0 20px', lineHeight: 1.6 }}>
+          Posting {featureName || 'content'} is available to paid members. Upgrade your membership to unlock this feature.
+        </p>
+        <Link
+          to={`${base}/membership`}
+          style={{
+            display: 'inline-block', background: accent, color: '#fff',
+            textDecoration: 'none', borderRadius: 8, padding: '10px 28px',
+            fontSize: 14, fontWeight: 600, fontFamily: V.space,
+          }}
+        >
+          View Membership Options
+        </Link>
+      </div>
+    );
+  }
+
+  // Paid member: show the form
+  return children;
+}
+
 // ─── Condition Badge ──────────────────────────────────────────────────────────
 function ConditionBadge({ condition, V }) {
   if (!condition) return null;

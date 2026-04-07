@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import { SourcingNav } from './SourcingMarketplace.jsx';
+import { SourcingNav, MembershipGate } from './SourcingMarketplace.jsx';
 import { SourcingThemeProvider, useSourcingTheme, getTokens, useTenant } from './SourcingTheme.jsx';
 
 const VERTICALS = [
   { key: 'semiconductor', label: 'Semiconductor' },
   { key: 'space',         label: 'Space & Aerospace' },
-  { key: 'biotech',       label: 'Biotech' },
-  { key: 'defense',       label: 'Defense' },
 ];
 
 const CONDITIONS = [
@@ -216,6 +214,7 @@ function SourcingMarketplacePostInner() {
 
       <SourcingNav active="marketplace" tenantSlug={tenantSlug} />
 
+      <MembershipGate featureName="marketplace listings">
       <div style={{ maxWidth: 600, margin: '0 auto', padding: '40px 24px 80px' }}>
         <div style={{ marginBottom: 28 }}>
           <Link to={`${basePath}/marketplace`} style={{ fontSize: 12, color: V.muted, fontFamily: V.space, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5, marginBottom: 16 }}>
@@ -289,6 +288,7 @@ function SourcingMarketplacePostInner() {
           </div>
         </form>
       </div>
+      </MembershipGate>
     </div>
   );
 }

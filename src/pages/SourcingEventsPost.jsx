@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import { SourcingNav } from './SourcingMarketplace.jsx';
+import { SourcingNav, MembershipGate } from './SourcingMarketplace.jsx';
 import { SourcingThemeProvider, useSourcingTheme, getTokens, useTenant } from './SourcingTheme.jsx';
 
 const VERTICALS = [
@@ -222,6 +222,7 @@ function SourcingEventsPostInner() {
 
       <SourcingNav active="events" tenantSlug={tenantSlug} />
 
+      <MembershipGate featureName="events">
       <div style={{ maxWidth: 600, margin: '0 auto', padding: '40px 24px 80px' }}>
         <div style={{ marginBottom: 28 }}>
           <Link to={`${basePath}/events`} style={{ fontSize: 12, color: V.muted, fontFamily: V.space, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5, marginBottom: 16 }}>
@@ -310,6 +311,7 @@ function SourcingEventsPostInner() {
           </div>
         </form>
       </div>
+      </MembershipGate>
     </div>
   );
 }

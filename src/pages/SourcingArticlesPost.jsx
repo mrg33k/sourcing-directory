@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import { SourcingNav } from './SourcingMarketplace.jsx';
+import { SourcingNav, MembershipGate } from './SourcingMarketplace.jsx';
 import { SourcingThemeProvider, useSourcingTheme, getTokens, useTenant } from './SourcingTheme.jsx';
 
 const VERTICALS = [
   { key: 'semiconductor', label: 'Semiconductor' },
   { key: 'space',         label: 'Space & Aerospace' },
-  { key: 'biotech',       label: 'Biotech' },
-  { key: 'defense',       label: 'Defense' },
 ];
 
 function InputField({ label, required, hint, V, ...props }) {
@@ -221,6 +219,7 @@ function SourcingArticlesPostInner() {
 
       <SourcingNav active="articles" tenantSlug={tenantSlug} />
 
+      <MembershipGate featureName="articles">
       <div style={{ maxWidth: 680, margin: '0 auto', padding: '48px 24px 80px' }}>
         <div style={{ marginBottom: 32 }}>
           <div style={{ fontSize: 11, color: V.accent, fontFamily: V.mono, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 10 }}>
@@ -383,6 +382,7 @@ function SourcingArticlesPostInner() {
           </div>
         </form>
       </div>
+      </MembershipGate>
     </div>
   );
 }
