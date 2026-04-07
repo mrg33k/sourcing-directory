@@ -23,10 +23,10 @@ export default async function handler(req, res) {
   }
 
   const client = new Client({
-    host: 'aws-1-us-east-1.pooler.supabase.com',
+    host: 'db.mcngatprgluexjjcqpkp.supabase.co',
     port: 5432,
     database: 'postgres',
-    user: 'postgres.mcngatprgluexjjcqpkp',
+    user: 'postgres',
     password: SERVICE_KEY,
     ssl: { rejectUnauthorized: false },
   });
