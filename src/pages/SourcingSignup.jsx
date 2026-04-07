@@ -184,81 +184,38 @@ function SourcingSignupInner() {
   };
 
   const handleSubmit = async () => {
-    if (!supabase) {
-      setError('Supabase not configured. Run the migration first.');
-      return;
-    }
     setLoading(true);
     setError('');
     try {
-      // 1. Create Supabase auth user
-      const { data: authData, error: authErr } = await supabase.auth.signUp({
-        email: form.auth_email.trim(),
-        password: form.auth_password,
-      });
-      if (authErr) throw authErr;
-
-      const slug = slugify(form.name);
-
-      // 2. Insert company (status: pending)
-      const companyPayload = {
-        name: form.name.trim(),
-        slug,
-        description: form.description.trim(),
-        website: form.website.trim() || null,
-        phone: form.phone.trim() || null,
-        email: form.email.trim() || null,
-        vertical: form.vertical,
-        city: form.city.trim() || null,
-        state: form.state || 'AZ',
-        employee_count: form.employee_count || null,
-        year_founded: form.year_founded ? parseInt(form.year_founded) : null,
-        organization_id: form.org_id || null,
-        membership_tier: 'free',
-        status: 'pending',
-      };
-
-      // Add tenant_id if we have a tenant
-      if (tenant?.id) companyPayload.tenant_id = tenant.id;
-
-      const { data: company, error: companyErr } = await supabase
-        .from('directory_companies')
-        .insert(companyPayload)
-        .select()
-        .single();
-
-      if (companyErr) throw companyErr;
-
-      // 3. Insert directory_members record
-      if (tenant?.id) {
-        const { error: memberErr } = await supabase
-          .from('directory_members')
-          .insert({
-            tenant_id: tenant.id,
-            company_id: company.id,
-            email: form.auth_email.trim(),
-            full_name: form.full_name.trim(),
-            status: 'pending',
-            auth_user_id: authData.user?.id || null,
-          });
-        if (memberErr) console.error('Member insert error:', memberErr);
-      }
-
-      // 4. Insert certifications
-      if (form.selectedCerts.length > 0) {
-        const certRows = form.selectedCerts.map(cert => ({
-          company_id: company.id,
-          cert_name: cert,
-          cert_value: 'true',
+      // Server-side signup: auth user + company + member + certs in one request
+      const res = await fetch('/api/sourcing/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          auth_email: form.auth_email.trim(),
+          auth_password: form.auth_password,
+          full_name: form.full_name.trim(),
+          name: form.name.trim(),
+          description: form.description.trim(),
+          website: form.website.trim() || null,
+          phone: form.phone.trim() || null,
+          email: form.email.trim() || null,
           vertical: form.vertical,
-          ...(tenant?.id ? { tenant_id: tenant.id } : {}),
-        }));
-        await supabase.from('directory_certifications').insert(certRows);
-      }
+          city: form.city.trim() || null,
+          state: form.state || 'AZ',
+          employee_count: form.employee_count || null,
+          year_founded: form.year_founded || null,
+          org_id: form.org_id || null,
+          tenant_id: tenant?.id || null,
+          selectedCerts: form.selectedCerts,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Signup failed.');
 
       setStep(3);
 
-      // Fire-and-forget welcome email -- don't block on success/failure
+      // Fire-and-forget welcome email
       const emailTo = form.auth_email.trim() || form.email.trim();
       if (emailTo) {
         fetch('/api/sourcing/welcome-email', {
@@ -268,20 +225,14 @@ function SourcingSignupInner() {
             email: emailTo,
             company_name: form.name.trim(),
             org_name: tenant?.name || 'AOM Sourcing Directory',
-            company_slug: slug,
+            company_slug: data.company_slug,
             base_url: window.location.origin,
           }),
-        }).catch(() => {}); // intentional no-op on failure
+        }).catch(() => {});
       }
     } catch (err) {
       console.error('Signup error:', err);
-      if (err.message?.includes('duplicate key') || err.message?.includes('unique')) {
-        setError('A company with this name already exists, or that email is already registered. Try a different name or email.');
-      } else if (err.message?.includes('already registered')) {
-        setError('That email is already registered. Try signing in instead.');
-      } else {
-        setError(err.message || 'Something went wrong. Please try again.');
-      }
+      setError(err.message || 'Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
