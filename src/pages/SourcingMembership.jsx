@@ -155,6 +155,16 @@ function SourcingMembershipInner() {
   const base = tenantSlug ? `/${tenantSlug}` : '';
   const accent = tenant?.brand_color || V.accent;
   const [authUser, setAuthUser] = useState(null);
+  const [seats, setSeats] = useState(1);
+
+  const getPricePerSeat = (n) => {
+    if (n >= 50) return null; // custom
+    if (n >= 15) return 700;
+    if (n >= 5) return 850;
+    return 1000;
+  };
+  const pricePerSeat = getPricePerSeat(seats);
+  const totalPrice = pricePerSeat ? pricePerSeat * seats : null;
 
   useEffect(() => {
     document.title = `Membership | ${tenant?.name || 'sourcing.directory'}`;
@@ -311,16 +321,76 @@ function SourcingMembershipInner() {
             ))}
           </div>
 
-          <div style={{ textAlign: 'center', marginTop: 32 }}>
+          {/* Seat selector */}
+          <div style={{
+            maxWidth: 400, margin: '32px auto 0', background: V.card,
+            border: `1px solid ${V.border}`, borderRadius: 12, padding: '24px',
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 700, fontFamily: V.space, color: V.text, marginBottom: 12 }}>
+              How many seats do you need?
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+              <button
+                onClick={() => setSeats(Math.max(1, seats - 1))}
+                style={{
+                  width: 36, height: 36, borderRadius: 8, border: `1px solid ${V.border}`,
+                  background: V.card2, color: V.text, fontSize: 18, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >-</button>
+              <input
+                type="number"
+                min="1"
+                value={seats}
+                onChange={e => setSeats(Math.max(1, parseInt(e.target.value) || 1))}
+                style={{
+                  width: 60, textAlign: 'center', background: V.card2,
+                  border: `1px solid ${V.border}`, color: V.text, borderRadius: 8,
+                  padding: '8px', fontSize: 16, fontWeight: 700, fontFamily: V.space,
+                  outline: 'none',
+                }}
+              />
+              <button
+                onClick={() => setSeats(seats + 1)}
+                style={{
+                  width: 36, height: 36, borderRadius: 8, border: `1px solid ${V.border}`,
+                  background: V.card2, color: V.text, fontSize: 18, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}
+              >+</button>
+              <span style={{ fontSize: 13, color: V.muted, fontFamily: V.space }}>
+                {seats === 1 ? 'seat' : 'seats'}
+              </span>
+            </div>
+            {totalPrice ? (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 16 }}>
+                <span style={{ fontSize: 13, color: V.muted, fontFamily: V.space }}>
+                  {seats} x ${pricePerSeat.toLocaleString()}/seat
+                </span>
+                <span style={{ fontSize: 22, fontWeight: 800, fontFamily: "'Syne', sans-serif", color: '#fff' }}>
+                  ${totalPrice.toLocaleString()}<span style={{ fontSize: 13, fontWeight: 400, color: V.muted }}>/yr</span>
+                </span>
+              </div>
+            ) : (
+              <div style={{ fontSize: 14, color: accent, fontFamily: V.space, fontWeight: 600, marginBottom: 16 }}>
+                50+ seats: contact us for custom pricing
+              </div>
+            )}
             <Link
-              to={authUser ? `${base}/checkout?tier=paid` : `${base}/signup`}
+              to={authUser
+                ? `${base}/checkout?tier=Member&seats=${seats}&price=${totalPrice || 0}`
+                : `${base}/signup`
+              }
               style={{
-                display: 'inline-block', background: accent, color: '#fff',
-                textDecoration: 'none', borderRadius: 8, padding: '12px 32px',
+                display: 'block', textAlign: 'center', background: accent, color: '#fff',
+                textDecoration: 'none', borderRadius: 8, padding: '12px 0',
                 fontSize: 14, fontWeight: 700, fontFamily: V.space,
               }}
             >
-              {authUser ? 'Upgrade to Paid Membership' : 'Sign Up & Become a Member'}
+              {authUser
+                ? (totalPrice ? `Upgrade - $${totalPrice.toLocaleString()}/yr` : 'Contact Us for Pricing')
+                : 'Sign Up & Become a Member'
+              }
             </Link>
           </div>
         </div>
