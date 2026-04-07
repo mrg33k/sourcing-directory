@@ -7,7 +7,7 @@ import { createClient } from '@supabase/supabase-js';
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://mcngatprgluexjjcqpkp.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const FROM_ADDRESS = 'noreply@aheadofmarket.com';
+const FROM_ADDRESS = process.env.RESEND_FROM_ADDRESS || 'AOM Sourcing <onboarding@resend.dev>';
 
 function buildResetEmailHtml({ org_name, reset_url }) {
   const displayName = org_name || 'AOM Sourcing Directory';

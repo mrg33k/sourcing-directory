@@ -3,7 +3,7 @@
 // Body: { email, company_name, org_name, company_slug, base_url }
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_ADDRESS = 'noreply@aheadofmarket.com';
+const FROM_ADDRESS = process.env.RESEND_FROM_ADDRESS || 'AOM Sourcing <onboarding@resend.dev>';
 
 function buildEmailHtml({ company_name, org_name, profile_url }) {
   return `<!DOCTYPE html>
