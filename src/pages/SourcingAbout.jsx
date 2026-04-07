@@ -174,7 +174,7 @@ function SourcingAboutInner() {
         }}>
           {[
             { label: 'Verified Companies', value: `${stats.companies}+` },
-            { label: 'Industry Verticals', value: '4' },
+            { label: 'Industry Verticals', value: '2' },
             { label: 'Certifications Tracked', value: '500+' },
             { label: 'Arizona Focused', value: '100%' },
           ].map((s, i) => (
@@ -262,7 +262,7 @@ function SourcingAboutInner() {
             fontFamily: "'Syne', sans-serif", color: '#fff',
             textAlign: 'center', margin: '0 auto 40px', maxWidth: 480,
           }}>
-            Four verticals, one platform
+            Two verticals, one platform
           </h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
             {VERTICALS.map(v => (
