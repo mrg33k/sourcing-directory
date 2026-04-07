@@ -8,8 +8,6 @@ const VERTICALS = [
   { key: 'all',           label: 'All Industries',   color: '#9ca3af' },
   { key: 'semiconductor', label: 'Semiconductor',     color: '#29B6F6' },
   { key: 'space',         label: 'Space & Aerospace', color: '#7C3AED' },
-  { key: 'biotech',       label: 'Biotech',           color: '#22C55E' },
-  { key: 'defense',       label: 'Defense',           color: '#EF4444' },
 ];
 
 const EVENT_TYPES = [

@@ -250,7 +250,7 @@ function SourcingGrantsInner() {
         .select('id, title, cover_image_url, created_at, tags')
         .eq('category', 'article')
         .eq('status', 'active')
-        .contains('tags', ['grants'])
+        .filter('tags', 'cs', '["grants"]')
         .order('created_at', { ascending: false })
         .limit(5);
 

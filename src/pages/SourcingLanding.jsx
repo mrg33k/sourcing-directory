@@ -7,8 +7,6 @@ import { SourcingThemeProvider, useSourcingTheme, getTokens, ThemeToggle } from 
 const VERTICAL_IMAGES = {
   semiconductor: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
   space:         'https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?w=800&q=80',
-  biotech:       'https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?w=800&q=80',
-  defense:       'https://images.unsplash.com/photo-1580752300992-559f8e0734e0?w=800&q=80',
   default:       'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&q=80',
 };
 
@@ -26,7 +24,7 @@ const TENANT_BRANDS = {
     fontImport: 'https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@400;500;600&display=swap',
     bgOverlay: 'linear-gradient(to top, #080808 0%, rgba(8,8,8,0.92) 12%, rgba(0,0,0,0.45) 55%, rgba(0,0,0,0.18) 100%)',
   },
-  'sc3-semiconductor': {
+  's3c-semiconductor': {
     logo: '/images/s3c/logo.png',
     accent: '#A0522D',
     headingFont: "'Barlow Condensed', sans-serif",
@@ -37,7 +35,7 @@ const TENANT_BRANDS = {
 };
 
 // Priority slugs always sort first
-const PRIORITY_SLUGS = ['space-rising', 'sc3-semiconductor'];
+const PRIORITY_SLUGS = ['space-rising', 's3c-semiconductor'];
 
 // ─── Tenant Card ──────────────────────────────────────────────────────────────
 function TenantCard({ tenant, V }) {

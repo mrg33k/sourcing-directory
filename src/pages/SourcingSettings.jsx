@@ -9,8 +9,6 @@ const PREF_KEYS = [
   'companies_new',
   'articles_semiconductor',
   'articles_space',
-  'articles_biotech',
-  'articles_defense',
   'jobs_new',
   'events_new',
 ];
@@ -277,8 +275,6 @@ function SourcingSettingsInner() {
             {[
               { key: 'articles_semiconductor', label: 'Semiconductor', sublabel: 'New semiconductor industry articles' },
               { key: 'articles_space',         label: 'Space & Aerospace', sublabel: 'New space and aerospace articles' },
-              { key: 'articles_biotech',       label: 'Biotech & Life Sciences', sublabel: 'New biotech and life science articles' },
-              { key: 'articles_defense',       label: 'Defense & Security', sublabel: 'New defense and security articles' },
             ].map((item, i) => (
               <div key={item.key} style={{ borderTop: i > 0 ? `1px solid ${V.border}` : 'none' }}>
                 <PrefRow

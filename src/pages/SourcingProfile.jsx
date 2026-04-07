@@ -8,8 +8,6 @@ import { getVerticalImage } from './SourcingLanding.jsx';
 const VERTICALS = {
   semiconductor: { label: 'Semiconductor', color: '#29B6F6' },
   space:         { label: 'Space & Aerospace', color: '#7C3AED' },
-  biotech:       { label: 'Biotech', color: '#22C55E' },
-  defense:       { label: 'Defense', color: '#EF4444' },
 };
 
 const LISTING_ICONS = {

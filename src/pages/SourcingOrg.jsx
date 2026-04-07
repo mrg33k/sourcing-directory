@@ -7,8 +7,6 @@ import { SourcingThemeProvider, useSourcingTheme, getTokens, useTenant } from '.
 const VERTICAL_COLORS = {
   semiconductor: '#29B6F6',
   space:         '#7C3AED',
-  biotech:       '#22C55E',
-  defense:       '#EF4444',
 };
 
 const TIER_COLORS = {

@@ -509,7 +509,7 @@ function SourcingDirectoryInner() {
       surface2: '#1A1A1A',
       fontImport: 'https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@400;500;600&display=swap',
     };
-    if (tenant.slug === 'sc3-semiconductor') return {
+    if (tenant.slug === 's3c-semiconductor') return {
       headingFont: "'Barlow Condensed', sans-serif",
       bodyFont: "'Inter', sans-serif",
       accent: '#A0522D',
@@ -842,7 +842,7 @@ function SourcingDirectoryInner() {
                 height: 56, objectFit: 'contain', marginBottom: 16, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
               }} />
             )}
-            {tenant.slug === 'sc3-semiconductor' && (
+            {tenant.slug === 's3c-semiconductor' && (
               <img src="/images/s3c/logo.png" alt="S3C" style={{
                 height: 56, objectFit: 'contain', marginBottom: 16, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
               }} />
