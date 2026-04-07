@@ -6,15 +6,11 @@ import { SourcingThemeProvider, useSourcingTheme, getTokens, useTenant } from '.
 const VERTICALS = [
   { key: 'semiconductor', label: 'Semiconductor', color: '#29B6F6', icon: '💡' },
   { key: 'space',         label: 'Space & Aerospace', color: '#7C3AED', icon: '🚀' },
-  { key: 'biotech',       label: 'Biotech', color: '#22C55E', icon: '🧬' },
-  { key: 'defense',       label: 'Defense', color: '#EF4444', icon: '🛡️' },
 ];
 
 const VERTICAL_CERTS = {
   semiconductor: ['ISO 9001', 'ISO 14001', 'ISO 45001', 'ITAR Registered', 'AS9100D', 'ANSI/ESD S20.20', 'AEC-Q100', 'IPC-7711/7721', 'JEDEC Standards'],
-  space:         ['AS9100D', 'AS9120B', 'ITAR Registered', 'ISO 9001', 'MIL-STD-810', 'NADCAP', 'FAA FAR Part 145', 'DoD Secret Cleared', 'DFAR Compliant'],
-  biotech:       ['ISO 13485', 'ISO 9001', 'cGMP', 'FDA 21 CFR Part 820', 'ISO 14155', 'CE Marked', 'ICH Q10', 'USP Compliance'],
-  defense:       ['ITAR Registered', 'ISO 9001', 'AS9100D', 'CMMC Level 2', 'MIL-STD-810', 'DoD Secret Cleared', 'NIST 800-171', 'DFAR Compliant'],
+  space:         ['AS9100D', 'AS9110', 'AS9120B', 'ITAR Registered', 'ISO 9001', 'MIL-STD-810', 'NADCAP', 'FAA FAR Part 145', 'DoD Secret Cleared', 'DFAR Compliant', 'Certified for Space Commerce', 'SpaceTEC Certified', 'NASA Aerospace Medical Certification'],
 };
 
 const EMP_RANGES = [
