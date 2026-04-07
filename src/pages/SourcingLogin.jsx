@@ -16,6 +16,42 @@ function SourcingLoginInner() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
+  const [showReset, setShowReset] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetMessage, setResetMessage] = useState('');
+
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
+    const target = (resetEmail || email).trim();
+    if (!target) {
+      setResetMessage('Please enter your email address.');
+      return;
+    }
+    setResetLoading(true);
+    setResetMessage('');
+    try {
+      const res = await fetch('/api/sourcing/reset-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: target,
+          org_name: tenant?.name || 'AOM Sourcing Directory',
+          redirect_to: `${window.location.origin}${basePath}/login`,
+        }),
+      });
+      if (res.ok) {
+        setResetMessage('Password reset email sent. Check your inbox.');
+      } else {
+        const data = await res.json();
+        setResetMessage(data.error || 'Failed to send reset email. Please try again.');
+      }
+    } catch (err) {
+      setResetMessage('Something went wrong. Please try again.');
+    } finally {
+      setResetLoading(false);
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -171,6 +207,69 @@ function SourcingLoginInner() {
               }}
             />
           </div>
+
+          <div style={{ textAlign: 'right', marginTop: -8 }}>
+            <button
+              type="button"
+              onClick={() => { setShowReset(!showReset); setResetEmail(email); setResetMessage(''); }}
+              style={{
+                background: 'none', border: 'none', color: V.accent,
+                fontSize: 12, fontFamily: V.space, cursor: 'pointer',
+                padding: 0, textDecoration: 'underline',
+              }}
+            >
+              Forgot password?
+            </button>
+          </div>
+
+          {showReset && (
+            <div style={{
+              background: 'rgba(41,182,246,0.05)', border: `1px solid rgba(41,182,246,0.15)`,
+              borderRadius: 8, padding: '16px 18px',
+              display: 'flex', flexDirection: 'column', gap: 10,
+            }}>
+              <div style={{ fontSize: 13, color: V.text, fontFamily: V.space, fontWeight: 600 }}>
+                Reset your password
+              </div>
+              <div style={{ fontSize: 12, color: V.muted, fontFamily: V.space, lineHeight: 1.5 }}>
+                Enter your email and we'll send you a link to reset your password.
+              </div>
+              <input
+                type="email"
+                value={resetEmail}
+                onChange={e => setResetEmail(e.target.value)}
+                placeholder="you@company.com"
+                style={{
+                  background: V.card2, border: `1px solid ${V.border}`,
+                  color: V.text, borderRadius: 7, padding: '10px 12px',
+                  fontSize: 13, fontFamily: V.space, outline: 'none',
+                  width: '100%',
+                }}
+              />
+              {resetMessage && (
+                <div style={{
+                  fontSize: 12, fontFamily: V.space, lineHeight: 1.5,
+                  color: resetMessage.includes('sent') ? '#10B981' : '#EF4444',
+                }}>
+                  {resetMessage}
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={handlePasswordReset}
+                disabled={resetLoading}
+                style={{
+                  background: resetLoading ? `${V.accent}60` : V.accent,
+                  border: 'none', color: '#fff', borderRadius: 6, padding: '9px 0',
+                  fontSize: 13, fontWeight: 600, fontFamily: V.space,
+                  cursor: resetLoading ? 'not-allowed' : 'pointer',
+                  width: '100%',
+                }}
+              >
+                {resetLoading ? 'Sending...' : 'Send Reset Link'}
+              </button>
+            </div>
+          )}
 
           {error && (
             <div style={{ color: '#EF4444', fontSize: 13, fontFamily: V.space, padding: '8px 12px', background: 'rgba(239,68,68,0.08)', borderRadius: 6, border: '1px solid rgba(239,68,68,0.2)' }}>
