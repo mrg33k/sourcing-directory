@@ -74,6 +74,43 @@ export default async function handler(req, res) {
           USING (auth.uid() = user_id);
       END IF;
     END $$;
+
+    -- Signup RLS policies (migration 011)
+    DO $$
+    BEGIN
+      IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'signup insert companies' AND tablename = 'directory_companies') THEN
+        CREATE POLICY "signup insert companies" ON directory_companies FOR INSERT WITH CHECK (status = 'pending');
+      END IF;
+    END $$;
+
+    DO $$
+    BEGIN
+      IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'signup insert certs' AND tablename = 'directory_certifications') THEN
+        CREATE POLICY "signup insert certs" ON directory_certifications FOR INSERT WITH CHECK (true);
+      END IF;
+    END $$;
+
+    DO $$
+    BEGIN
+      IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'signup insert members' AND tablename = 'directory_members') THEN
+        CREATE POLICY "signup insert members" ON directory_members FOR INSERT WITH CHECK (true);
+      END IF;
+    END $$;
+
+    DO $$
+    BEGIN
+      IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname = 'read own pending company' AND tablename = 'directory_companies') THEN
+        CREATE POLICY "read own pending company" ON directory_companies FOR SELECT USING (status IN ('active', 'pending'));
+      END IF;
+    END $$;
+
+    -- Grant columns (migration 009)
+    ALTER TABLE directory_listings
+      ADD COLUMN IF NOT EXISTS grant_type           text,
+      ADD COLUMN IF NOT EXISTS grant_amount_min      numeric,
+      ADD COLUMN IF NOT EXISTS grant_amount_max      numeric,
+      ADD COLUMN IF NOT EXISTS eligibility_criteria  text,
+      ADD COLUMN IF NOT EXISTS application_url       text;
   `;
 
   try {
