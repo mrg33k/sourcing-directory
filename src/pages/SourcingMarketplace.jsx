@@ -58,25 +58,34 @@ export function SourcingNav({ active, tenantSlug, tenantName, features, brandCol
   const [moreOpen, setMoreOpen] = useState(false);
   const navigate = useNavigate();
 
-  const base = tenantSlug ? `/${tenantSlug}` : '/';
+  const base = tenantSlug ? `/${tenantSlug}` : '';
   const f = features || { jobs: true, marketplace: true, events: true, articles: true, signup: true };
 
   const isHome = active === 'home' || active === 'landing';
   const isDir = ['directory','marketplace','jobs','events','articles','grants','reports','membership','portal','settings','about','profile','signup','login','checkout'].includes(active);
 
-  const moreItems = [
-    { label: 'Jobs', sub: 'Open positions', href: `${base}/jobs`, icon: 'M20 7H4v14h16V7zM16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2', color: '#34D399', bg: 'rgba(52,211,153,0.1)' },
-    { label: 'Events', sub: 'Conferences & meetups', href: `${base}/events`, icon: 'M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zM16 2v4M8 2v4M3 10h18', color: '#22D3EE', bg: 'rgba(34,211,238,0.1)' },
-    { label: 'Reports', sub: 'Intelligence & analysis', href: `${base}/reports`, icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6', color: '#A78BFA', bg: 'rgba(167,139,250,0.1)' },
-    { label: 'Marketplace', sub: 'Equipment exchange', href: `${base}/marketplace`, icon: 'M9 21a1 1 0 100-2 1 1 0 000 2zM20 21a1 1 0 100-2 1 1 0 000 2zM1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6', color: '#FBBF24', bg: 'rgba(251,191,36,0.1)' },
-    { label: 'Membership', sub: 'Upgrade your account', href: `${base}/membership`, icon: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z', color: '#FB7185', bg: 'rgba(251,113,133,0.1)' },
-    { label: 'Articles', sub: 'Industry news', href: `${base}/articles`, icon: 'M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 014 17V5a2.5 2.5 0 012.5-2.5H20v17H6.5', color: '#38BDF8', bg: 'rgba(56,189,248,0.1)' },
-  ];
+  const handleSignOut = async () => {
+    if (supabase) await supabase.auth.signOut();
+    navigate(tenantSlug ? `/${tenantSlug}/login` : '/');
+  };
+
+  const moreItems = [];
+  // Only show section links when inside a tenant directory
+  if (tenantSlug) {
+    moreItems.push(
+      { label: 'Jobs', sub: 'Open positions', href: `${base}/jobs`, icon: 'M20 7H4v14h16V7zM16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2', color: '#34D399', bg: 'rgba(52,211,153,0.1)' },
+      { label: 'Events', sub: 'Conferences & meetups', href: `${base}/events`, icon: 'M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zM16 2v4M8 2v4M3 10h18', color: '#22D3EE', bg: 'rgba(34,211,238,0.1)' },
+      { label: 'Reports', sub: 'Intelligence & analysis', href: `${base}/reports`, icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6', color: '#A78BFA', bg: 'rgba(167,139,250,0.1)' },
+      { label: 'Marketplace', sub: 'Equipment exchange', href: `${base}/marketplace`, icon: 'M9 21a1 1 0 100-2 1 1 0 000 2zM20 21a1 1 0 100-2 1 1 0 000 2zM1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6', color: '#FBBF24', bg: 'rgba(251,191,36,0.1)' },
+      { label: 'Membership', sub: 'Upgrade your account', href: `${base}/membership`, icon: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z', color: '#FB7185', bg: 'rgba(251,113,133,0.1)' },
+      { label: 'Articles', sub: 'Industry news', href: `${base}/articles`, icon: 'M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 014 17V5a2.5 2.5 0 012.5-2.5H20v17H6.5', color: '#38BDF8', bg: 'rgba(56,189,248,0.1)' },
+    );
+  }
   if (authUser) {
-    moreItems.push({ label: 'My Portal', sub: 'Company dashboard', href: `${base}/portal`, icon: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z', color: '#E2E8F0', bg: 'rgba(255,255,255,0.05)' });
+    moreItems.push({ label: 'My Portal', sub: 'Admin & company dashboard', href: '/admin', icon: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z', color: '#E2E8F0', bg: 'rgba(255,255,255,0.05)' });
   }
   moreItems.push(
-    { label: authUser ? 'Sign Out' : 'Sign In', sub: authUser ? '' : 'Manage your profile', href: `${base}/login`, icon: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z', color: '#94A3B8', bg: 'rgba(255,255,255,0.04)' },
+    { label: authUser ? 'Sign Out' : 'Sign In', sub: authUser ? '' : 'Manage your profile', href: authUser ? '#signout' : (tenantSlug ? `${base}/login` : '/admin'), icon: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z', color: '#94A3B8', bg: 'rgba(255,255,255,0.04)', action: authUser ? handleSignOut : null },
     { label: 'Admin', sub: 'Manage directory', href: '/admin', icon: 'M12 15a3 3 0 100-6 3 3 0 000 6z', color: '#22D3EE', bg: 'rgba(34,211,238,0.06)' },
   );
 
@@ -90,7 +99,7 @@ export function SourcingNav({ active, tenantSlug, tenantName, features, brandCol
           </div>
           <div className="v10-nav-label">Home</div>
         </Link>
-        <Link to={base} className={`v10-nav-btn ${(isDir && !isHome) ? 'on' : ''}`}>
+        <Link to={base || '/'} className={`v10-nav-btn ${(isDir && !isHome) ? 'on' : ''}`}>
           <div className="v10-nav-icon">
             <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
           </div>
@@ -117,15 +126,27 @@ export function SourcingNav({ active, tenantSlug, tenantName, features, brandCol
         {moreItems.map((item, i) => (
           <React.Fragment key={i}>
             {i === moreItems.length - 2 && <div className="more-divider" />}
-            <Link to={item.href} className="more-item" onClick={() => setMoreOpen(false)}>
-              <div className="more-item-icon" style={{ background: item.bg, color: item.color }}>
-                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d={item.icon}/></svg>
+            {item.action ? (
+              <div className="more-item" onClick={() => { setMoreOpen(false); item.action(); }}>
+                <div className="more-item-icon" style={{ background: item.bg, color: item.color }}>
+                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d={item.icon}/></svg>
+                </div>
+                <div>
+                  <div className="more-item-label">{item.label}</div>
+                  {item.sub && <div className="more-item-sub">{item.sub}</div>}
+                </div>
               </div>
-              <div>
-                <div className="more-item-label">{item.label}</div>
-                {item.sub && <div className="more-item-sub">{item.sub}</div>}
-              </div>
-            </Link>
+            ) : (
+              <Link to={item.href} className="more-item" onClick={() => setMoreOpen(false)}>
+                <div className="more-item-icon" style={{ background: item.bg, color: item.color }}>
+                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d={item.icon}/></svg>
+                </div>
+                <div>
+                  <div className="more-item-label">{item.label}</div>
+                  {item.sub && <div className="more-item-sub">{item.sub}</div>}
+                </div>
+              </Link>
+            )}
           </React.Fragment>
         ))}
       </div>
