@@ -1160,7 +1160,7 @@ function SourcingAdminInner() {
   // ─── Password reset callback (user landed from reset email) ─────────────
   if (showNewPw) {
     return (
-      <div style={{ minHeight: '100vh', background: V.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div style={{ minHeight: '100dvh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
         <style>{`* { box-sizing: border-box; } input::placeholder { color: ${V.dim}; } input:focus { border-color: ${V.accentBrd} !important; outline: none; }`}</style>
         <div style={{
           background: V.card, border: `1px solid ${V.border}`,
@@ -1207,10 +1207,10 @@ function SourcingAdminInner() {
   // ─── Login gate ───────────────────────────────────────────────────────────
   if (!authed) {
     if (authLoading) {
-      return <div style={{ minHeight: '100vh', background: V.bg }} />;
+      return <div style={{ minHeight: '100dvh', background: 'var(--bg)' }} />;
     }
     return (
-      <div style={{ minHeight: '100vh', background: V.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div style={{ minHeight: '100dvh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
         <style>{`* { box-sizing: border-box; } input::placeholder { color: ${V.dim}; } input:focus { border-color: ${V.accentBrd} !important; outline: none; }`}</style>
         <div style={{
           background: V.card, border: `1px solid ${V.border}`,
@@ -1349,7 +1349,7 @@ function SourcingAdminInner() {
   // ─── Admin Sub-routes (behind the gate) ──────────────────────────────────
   if (isNew) {
     return (
-      <Suspense fallback={<div style={{ minHeight: '100vh', background: V.bg }} />}>
+      <Suspense fallback={<div style={{ minHeight: '100dvh', background: 'var(--bg)' }} />}>
         <SourcingCreate />
       </Suspense>
     );
@@ -1357,7 +1357,7 @@ function SourcingAdminInner() {
 
   if (isSettings) {
     return (
-      <Suspense fallback={<div style={{ minHeight: '100vh', background: V.bg }} />}>
+      <Suspense fallback={<div style={{ minHeight: '100dvh', background: 'var(--bg)' }} />}>
         <SourcingSettings />
       </Suspense>
     );
@@ -1380,7 +1380,7 @@ function SourcingAdminInner() {
   ];
 
   return (
-    <div style={{ minHeight: '100vh', background: V.bg, color: V.text }}>
+    <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
       <style>{`* { box-sizing: border-box; } a { color: inherit; }`}</style>
 
       {/* Top bar */}

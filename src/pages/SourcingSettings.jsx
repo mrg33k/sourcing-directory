@@ -206,7 +206,7 @@ function SourcingSettingsInner() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: V.bg, color: V.text }}>
+    <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         * { box-sizing: border-box; }

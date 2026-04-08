@@ -176,46 +176,20 @@ function SourcingMembershipInner() {
   const orgName = tenant?.nav_label || tenant?.name || 'sourcing.directory';
 
   return (
-    <div style={{ minHeight: '100vh', background: V.bg, color: V.text }}>
-      <SourcingNav
-        active="membership"
-        tenantSlug={tenantSlug}
-        tenantName={tenant?.nav_label || tenant?.name}
-        features={tenant?.features}
-        brandColor={tenant?.brand_color}
-      />
+    <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
+      <SourcingNav active="membership" tenantSlug={tenantSlug} tenantName={tenant?.nav_label || tenant?.name} features={tenant?.features} brandColor={tenant?.brand_color} />
 
-      {/* Hero */}
-      <section style={{
-        padding: 'clamp(48px, 8vw, 96px) 24px',
-        textAlign: 'center',
-        background: `linear-gradient(180deg, rgba(${accent === '#7C3AED' ? '124,58,237' : '16,185,129'},0.08) 0%, transparent 100%)`,
-      }}>
-        <div style={{
-          display: 'inline-block',
-          fontSize: 11, fontWeight: 700, fontFamily: V.space,
-          color: accent, letterSpacing: '0.14em', textTransform: 'uppercase',
-          background: `${accent}18`, borderRadius: 20, padding: '5px 14px',
-          marginBottom: 20,
-        }}>
-          Membership
-        </div>
-        <h1 style={{
-          fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800,
-          fontFamily: "'Syne', sans-serif", color: '#fff',
-          margin: '0 auto 16px', maxWidth: 600, lineHeight: 1.15,
-        }}>
-          Join {orgName}
-        </h1>
-        <p style={{
-          fontSize: 'clamp(14px, 2vw, 17px)', color: 'rgba(255,255,255,0.55)',
-          maxWidth: 520, margin: '0 auto 32px', lineHeight: 1.7,
-          fontFamily: V.space,
-        }}>
-          Get full access to post jobs, events, articles, and connect with industry leaders.
-          Free listing included for all members.
-        </p>
-      </section>
+      {/* v10 Membership Hero */}
+      <div style={{ padding: 'max(env(safe-area-inset-top),16px) 20px 0' }}>
+        <Link to={tenantSlug ? `/${tenantSlug}` : '/'} className="browse-back" style={{ textDecoration: 'none' }}>
+          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+          Back
+        </Link>
+      </div>
+      <div className="mem-hero">
+        <div className="mem-title">Join {orgName}</div>
+        <div className="mem-sub">Get full access to post jobs, events, articles, and connect with industry leaders.</div>
+      </div>
 
       {/* Comparison Table */}
       <section style={{ padding: '0 24px 64px', maxWidth: 720, margin: '0 auto' }}>
