@@ -1416,6 +1416,20 @@ function SourcingAdminInner() {
               ))}
             </select>
           )}
+          {/* My Portal link -- per selected directory */}
+          {selectedTenant && (
+            <Link
+              to={`/${selectedTenant.slug}/portal`}
+              style={{
+                background: 'var(--cyan-dim)', border: '1px solid var(--cyan-brd)',
+                color: 'var(--cyan)', borderRadius: 6, padding: '4px 10px',
+                fontSize: 11, fontWeight: 600, textDecoration: 'none',
+                display: 'flex', alignItems: 'center', gap: 4,
+              }}
+            >
+              My Portal
+            </Link>
+          )}
           <button
             onClick={handleLogout}
             style={{

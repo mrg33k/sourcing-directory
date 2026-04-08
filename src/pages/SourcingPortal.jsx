@@ -80,12 +80,6 @@ function SourcingPortalInner() {
         return;
       }
 
-      // Admin users go to the admin panel
-      if (memberData.role === 'admin') {
-        navigate('/admin', { replace: true });
-        return;
-      }
-
       setMember(memberData);
 
       // Get company

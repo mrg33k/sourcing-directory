@@ -90,7 +90,7 @@ function SourcingLoginInner() {
       }
 
       if (member.status === 'approved') {
-        navigate(`${basePath}/portal`);
+        navigate(member.role === 'admin' ? '/admin' : `${basePath}/portal`);
       } else if (member.status === 'pending') {
         setStatusMessage('Your account is pending review. You will receive an email when approved.');
       } else if (member.status === 'rejected') {
