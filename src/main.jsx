@@ -26,6 +26,7 @@ const SourcingCheckout = lazy(() => import('./pages/SourcingCheckout.jsx'))
 const SourcingSettings = lazy(() => import('./pages/SourcingSettings.jsx'))
 const SourcingProfile = lazy(() => import('./pages/SourcingProfile.jsx'))
 const SourcingCreate = lazy(() => import('./pages/SourcingCreate.jsx'))
+const GlobalSignup = lazy(() => import('./pages/GlobalSignup.jsx'))
 
 const Loading = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#0f1419', color: '#9ca3af', fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -40,6 +41,7 @@ createRoot(document.getElementById('root')).render(
         <Routes>
           {/* Global */}
           <Route path="/" element={<SourcingLanding />} />
+          <Route path="/signup" element={<GlobalSignup />} />
           <Route path="/about" element={<SourcingAbout />} />
           <Route path="/admin" element={<SourcingAdmin />} />
           <Route path="/admin/new" element={<SourcingAdmin />} />
