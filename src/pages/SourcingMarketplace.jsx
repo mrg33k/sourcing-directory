@@ -82,7 +82,7 @@ export function SourcingNav({ active, tenantSlug, tenantName, features, brandCol
     );
   }
   if (authUser) {
-    moreItems.push({ label: 'My Portal', sub: 'Admin & company dashboard', href: '/admin', icon: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z', color: '#E2E8F0', bg: 'rgba(255,255,255,0.05)' });
+    moreItems.push({ label: 'My Portal', sub: 'Company dashboard', href: tenantSlug ? `${base}/portal` : '/admin', icon: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z', color: '#E2E8F0', bg: 'rgba(255,255,255,0.05)' });
   }
   moreItems.push(
     { label: authUser ? 'Sign Out' : 'Sign In', sub: authUser ? '' : 'Manage your profile', href: authUser ? '#signout' : (tenantSlug ? `${base}/login` : '/admin'), icon: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z', color: '#94A3B8', bg: 'rgba(255,255,255,0.04)', action: authUser ? handleSignOut : null },
