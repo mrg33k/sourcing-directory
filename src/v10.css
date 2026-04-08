@@ -70,7 +70,7 @@
 /* ═══ BROWSE SCREEN ═══ */
 .browse-hero {
   position:relative; min-height:280px; display:flex; flex-direction:column; justify-content:flex-end;
-  padding:0 20px 24px;
+  padding:max(env(safe-area-inset-top),0px) 20px 24px;
 }
 .browse-hero-bg { position:absolute; inset:0; background-size:cover; background-position:center; }
 .browse-hero-overlay { position:absolute; inset:0; background:linear-gradient(180deg, rgba(6,6,10,0.2) 0%, rgba(6,6,10,0.8) 60%, var(--bg) 100%); }
