@@ -36,53 +36,34 @@ export function useSourcingTheme() {
 // ─── Token builder ─────────────────────────────────────────────────────────────
 // Returns V tokens for the current theme mode.
 export function getTokens(dark) {
-  if (dark) {
-    return {
-      bg:        '#0f1419',
-      card:      '#1e2328',
-      card2:     '#252a31',
-      cardHov:   '#2c3239',
-      accent:    '#10b981',   // emerald green — primary CTA, links, active states
-      accentHov: '#059669',
-      accentDim: 'rgba(16,185,129,0.12)',
-      accentBrd: 'rgba(16,185,129,0.35)',
-      blue:      '#3B82F6',
-      text:      '#e5e7eb',
-      heading:   '#ffffff',
-      muted:     '#9ca3af',
-      dim:       '#4b5563',
-      border:    '#2d3339',
-      borderHov: 'rgba(16,185,129,0.4)',
-      green:     '#10b981',
-      navBg:     '#0a0e13',
-      syne:      "'Syne', sans-serif",
-      space:     "'Space Grotesk', sans-serif",
-      mono:      "'JetBrains Mono', monospace",
-    };
-  } else {
-    return {
-      bg:        '#f9fafb',
-      card:      '#ffffff',
-      card2:     '#f3f4f6',
-      cardHov:   '#e5e7eb',
-      accent:    '#059669',   // emerald green — slightly deeper for light bg
-      accentHov: '#047857',
-      accentDim: 'rgba(5,150,105,0.08)',
-      accentBrd: 'rgba(5,150,105,0.3)',
-      blue:      '#2563EB',
-      text:      '#111827',
-      heading:   '#030712',
-      muted:     '#6b7280',
-      dim:       '#9ca3af',
-      border:    '#e5e7eb',
-      borderHov: 'rgba(5,150,105,0.4)',
-      green:     '#059669',
-      navBg:     '#ffffff',
-      syne:      "'Syne', sans-serif",
-      space:     "'Space Grotesk', sans-serif",
-      mono:      "'JetBrains Mono', monospace",
-    };
-  }
+  // v10 design system -- always dark
+  return {
+    bg:        'var(--bg, #06060A)',
+    card:      'var(--s1, #0E0E14)',
+    card2:     'var(--s2, #15151E)',
+    cardHov:   'var(--s3, #1C1C28)',
+    accent:    'var(--cyan, #22D3EE)',
+    accentHov: '#06B6D4',
+    accentDim: 'var(--cyan-dim, rgba(34,211,238,0.08))',
+    accentBrd: 'var(--cyan-brd, rgba(34,211,238,0.2))',
+    blue:      '#3B82F6',
+    text:      'var(--tx, #F0F0F5)',
+    heading:   '#ffffff',
+    muted:     'var(--tx2, rgba(240,240,245,0.55))',
+    dim:       'var(--tx3, rgba(240,240,245,0.25))',
+    border:    'var(--bd, rgba(255,255,255,0.06))',
+    borderHov: 'var(--cyan-brd, rgba(34,211,238,0.2))',
+    green:     'var(--emerald, #34D399)',
+    violet:    'var(--violet, #A78BFA)',
+    amber:     'var(--amber, #FBBF24)',
+    rose:      'var(--rose, #FB7185)',
+    navBg:     'rgba(6,6,10,0.94)',
+    font:      "'Inter', system-ui, sans-serif",
+    // Keep old font refs for backward compat during migration
+    syne:      "'Inter', system-ui, sans-serif",
+    space:     "'Inter', system-ui, sans-serif",
+    mono:      "'Inter', system-ui, sans-serif",
+  };
 }
 
 // ─── Tenant Hook ──────────────────────────────────────────────────────────────

@@ -5,7 +5,7 @@
 import { createClient } from '@supabase/supabase-js';
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://mcngatprgluexjjcqpkp.supabase.co';
+const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://kzzvjtthknsozktmpvak.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const FROM_ADDRESS = process.env.RESEND_FROM_ADDRESS || 'Sourcing Directory <noreply@sourcing.directory>';
 
@@ -91,8 +91,8 @@ function buildResetEmailHtml({ org_name, reset_url }) {
           <tr>
             <td style="padding-top:28px;text-align:center;">
               <p style="margin:0;font-size:12px;color:#4a5568;line-height:1.6;">
-                This email was sent because a password reset was requested on <a href="https://aheadofmarket.com" style="color:#29B6F6;text-decoration:none;">aheadofmarket.com</a>.<br/>
-                Questions? Reach us at <a href="mailto:hello@aheadofmarket.com" style="color:#29B6F6;text-decoration:none;">hello@aheadofmarket.com</a>
+                This email was sent because a password reset was requested on <a href="https://sourcing.directory" style="color:#29B6F6;text-decoration:none;">sourcing.directory</a>.<br/>
+                Questions? Reach us at <a href="mailto:hello@sourcing.directory" style="color:#29B6F6;text-decoration:none;">hello@sourcing.directory</a>
               </p>
               <p style="margin:12px 0 0;font-size:11px;color:#2d3748;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;">
                 AOM &mdash; Ahead of Market
@@ -130,7 +130,7 @@ export default async function handler(req, res) {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  const redirectTo = redirect_to || 'https://aheadofmarket.com/sourcing/admin';
+  const redirectTo = redirect_to || 'https://sourcing.directory/space-rising/login';
 
   let reset_url;
   try {

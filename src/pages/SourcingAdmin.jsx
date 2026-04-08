@@ -430,6 +430,7 @@ function SourcingAdminInner() {
   const [newPwError, setNewPwError] = useState('');
   const [newPwLoading, setNewPwLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('stats');
+  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
 
   // Tenant switcher state
   const [tenants, setTenants] = useState([]);
@@ -1385,95 +1386,91 @@ function SourcingAdminInner() {
       {/* Top bar */}
       <div style={{
         borderBottom: `1px solid ${V.border}`, background: V.navBg,
-        padding: '0 24px', display: 'flex', alignItems: 'center', gap: 16, height: 56,
+        padding: '8px 12px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8,
       }}>
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <span style={{ fontSize: 13, fontWeight: 800, fontFamily: V.syne, color: V.accent, letterSpacing: '0.12em', textTransform: 'uppercase' }}>AOM</span>
-        </Link>
-        <span style={{ color: V.dim, fontSize: 13 }}>/</span>
-        <Link to="/sourcing" style={{ textDecoration: 'none', fontSize: 13, color: V.muted, fontFamily: V.space }}>
-          Sourcing Directory
-        </Link>
-        <span style={{ color: V.dim, fontSize: 13 }}>/</span>
-        <span style={{ fontSize: 13, color: V.text, fontFamily: V.space }}>Admin</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <span style={{ fontSize: 13, fontWeight: 800, fontFamily: V.syne, color: V.accent, letterSpacing: '0.12em', textTransform: 'uppercase' }}>AOM</span>
+          </Link>
+          <span style={{ color: V.dim, fontSize: 13 }}>/</span>
+          <span style={{ fontSize: 13, color: V.text, fontFamily: V.space, fontWeight: 600 }}>Admin</span>
+        </div>
         <div style={{ flex: 1 }} />
-        {/* Tenant switcher */}
-        {tenants.length > 0 && (
-          <select
-            value={selectedTenantId || ''}
-            onChange={e => setSelectedTenantId(e.target.value || null)}
-            style={{
-              background: V.card2, border: `1px solid ${selectedTenantId ? V.accentBrd : V.border}`,
-              color: selectedTenantId ? V.accent : V.muted,
-              borderRadius: 6, padding: '5px 10px', fontSize: 12,
-              fontFamily: V.space, cursor: 'pointer', outline: 'none',
-              maxWidth: 220,
-            }}
-          >
-            <option value="">All Directories (Global)</option>
-            {tenants.map(t => (
-              <option key={t.id} value={t.id}>{t.name}</option>
-            ))}
-          </select>
-        )}
-        {selectedTenant && (
-          <button
-            onClick={() => navigate(`/admin/settings/${selectedTenant.slug}`)}
-            style={{
-              background: V.accentDim, border: `1px solid ${V.accentBrd}`,
-              color: V.accent, borderRadius: 6, padding: '5px 12px',
-              fontSize: 12, fontFamily: V.space, cursor: 'pointer', whiteSpace: 'nowrap',
-            }}
-          >
-            Edit Settings
-          </button>
-        )}
-        <button
-          onClick={() => navigate('/admin/new')}
-          style={{
-            background: V.accent, border: 'none',
-            color: '#fff', borderRadius: 6, padding: '5px 12px',
-            fontSize: 12, fontFamily: V.space, cursor: 'pointer', whiteSpace: 'nowrap',
-          }}
-        >
-          + New Directory
-        </button>
-        <button
-          onClick={handleLogout}
-          style={{
-            background: 'transparent', border: `1px solid ${V.border}`,
-            color: V.muted, borderRadius: 6, padding: '5px 12px',
-            fontSize: 12, fontFamily: V.space, cursor: 'pointer',
-          }}
-        >
-          Sign Out
-        </button>
-      </div>
-
-      {/* Tab bar */}
-      <div style={{ padding: '0 24px', borderBottom: `1px solid ${V.border}`, background: V.navBg, display: 'flex', gap: 0 }}>
-        {TABS.map(tab => {
-          const isActive = tab.key === activeTab;
-          const isPending = (tab.key === 'companies' && pendingCompanies.length > 0) || (tab.key === 'members' && pendingMembers.length > 0) || (tab.key === 'articles' && pendingArticles.length > 0);
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+          {/* Tenant switcher */}
+          {tenants.length > 0 && (
+            <select
+              value={selectedTenantId || ''}
+              onChange={e => setSelectedTenantId(e.target.value || null)}
               style={{
-                background: 'none', border: 'none',
-                padding: '12px 16px', fontSize: 13,
-                fontWeight: isActive ? 700 : 500,
-                fontFamily: V.space,
-                color: isActive ? V.accent : isPending ? '#FDBA74' : V.muted,
-                borderBottom: isActive ? `2px solid ${V.accent}` : '2px solid transparent',
-                cursor: 'pointer', transition: 'all 0.15s',
-                whiteSpace: 'nowrap',
+                background: V.card2, border: `1px solid ${selectedTenantId ? V.accentBrd : V.border}`,
+                color: selectedTenantId ? V.accent : V.muted,
+                borderRadius: 6, padding: '5px 8px', fontSize: 11,
+                fontFamily: V.space, cursor: 'pointer', outline: 'none',
+                maxWidth: 160,
               }}
             >
-              {tab.label}
-            </button>
-          );
-        })}
+              <option value="">All Directories</option>
+              {tenants.map(t => (
+                <option key={t.id} value={t.id}>{t.name}</option>
+              ))}
+            </select>
+          )}
+          <button
+            onClick={handleLogout}
+            style={{
+              background: 'transparent', border: `1px solid ${V.border}`,
+              color: V.muted, borderRadius: 6, padding: '4px 10px',
+              fontSize: 11, fontFamily: V.space, cursor: 'pointer',
+            }}
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
+
+      {/* Tab bar -- dropdown like SourcingNav */}
+      <div style={{ borderBottom: `1px solid ${V.border}`, background: V.navBg, position: 'relative' }}>
+        <div
+          style={{ padding: '0 12px', height: 40, display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+          onClick={() => setAdminMenuOpen && setAdminMenuOpen(!adminMenuOpen)}
+        >
+          <span style={{ fontSize: 13, fontWeight: 700, fontFamily: V.space, color: V.accent }}>
+            {TABS.find(t => t.key === activeTab)?.label || 'Menu'}
+          </span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={V.muted} strokeWidth="2.5" style={{ marginLeft: 6, transform: adminMenuOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+            <path d="M6 9l6 6 6-6"/>
+          </svg>
+        </div>
+        {adminMenuOpen && (
+          <div style={{
+            position: 'absolute', top: '100%', left: 0, right: 0,
+            background: V.navBg, border: `1px solid ${V.border}`,
+            borderTop: 'none', zIndex: 1000,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+          }}>
+            {TABS.map(tab => {
+              const isActive = tab.key === activeTab;
+              const isPending = (tab.key === 'companies' && pendingCompanies.length > 0) || (tab.key === 'members' && pendingMembers.length > 0) || (tab.key === 'articles' && pendingArticles.length > 0);
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => { setActiveTab(tab.key); setAdminMenuOpen(false); }}
+                  style={{
+                    display: 'block', width: '100%', textAlign: 'left',
+                    background: isActive ? `${V.accent}10` : 'transparent',
+                    border: 'none', borderLeft: isActive ? `3px solid ${V.accent}` : '3px solid transparent',
+                    padding: '12px 16px', fontSize: 14,
+                    fontWeight: isActive ? 700 : 400,
+                    fontFamily: V.space,
+                    color: isActive ? V.accent : isPending ? '#FDBA74' : V.text,
+                    cursor: 'pointer',
+                  }}
+                >{tab.label}</button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px 60px' }}>

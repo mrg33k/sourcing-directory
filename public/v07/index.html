@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>sourcing.directory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #111113;
+  --surface: #1A1A1E;
+  --surface2: #222226;
+  --border: rgba(255,255,255,0.07);
+  --text: #F5F5F7;
+  --text2: rgba(245,245,247,0.6);
+  --text3: rgba(245,245,247,0.3);
+  --warm: #F97316;
+  --violet: #8B5CF6;
+  --emerald: #10B981;
+  --rose: #F43F5E;
+  --sky: #0EA5E9;
+  --amber: #F59E0B;
+  --r: 20px;
+  --r-sm: 14px;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:'Outfit',sans-serif; }
+.app { height:100dvh; position:relative; overflow:hidden; }
+
+/* ═══ SPLASH ═══ */
+.splash {
+  position:absolute; inset:0; z-index:10;
+  display:flex; flex-direction:column;
+  background:var(--bg);
+  transition:opacity 0.45s ease, transform 0.45s cubic-bezier(0.16,1,0.3,1);
+  overflow-y:auto; scrollbar-width:none;
+}
+.splash::-webkit-scrollbar { display:none; }
+.splash.out { opacity:0; transform:translateY(-20px); pointer-events:none; }
+
+.splash-top {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:max(env(safe-area-inset-top),14px) 20px 0;
+}
+.splash-avatar {
+  width:38px; height:38px; border-radius:50%;
+  background:linear-gradient(135deg, var(--warm), var(--rose));
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:14px; color:#fff;
+}
+.splash-search {
+  flex:1; margin:0 12px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); padding:10px 16px;
+  font-size:14px; font-family:'Outfit',sans-serif;
+  color:var(--text); outline:none;
+  transition:border-color 0.15s;
+}
+.splash-search:focus { border-color:var(--warm); }
+.splash-search::placeholder { color:var(--text3); }
+.splash-mic {
+  width:38px; height:38px; border-radius:50%;
+  background:var(--surface); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  color:var(--text3); cursor:pointer;
+}
+
+/* Category pills */
+.splash-pills {
+  display:flex; gap:8px; padding:18px 20px 4px;
+  overflow-x:auto; scrollbar-width:none;
+}
+.splash-pills::-webkit-scrollbar { display:none; }
+.sp {
+  flex-shrink:0; padding:9px 18px;
+  border-radius:100px; font-size:14px; font-weight:600;
+  cursor:pointer; transition:all 0.15s; border:none;
+}
+.sp:active { transform:scale(0.96); }
+.sp.on { background:#fff; color:#111; }
+.sp.off { background:var(--surface); color:var(--text2); border:1px solid var(--border); }
+
+/* Section heading */
+.section-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:24px 20px 14px;
+}
+.section-title { font-size:22px; font-weight:800; letter-spacing:-0.02em; }
+.section-action {
+  font-size:13px; font-weight:600; color:var(--warm);
+  cursor:pointer;
+}
+
+/* ═══ COMMUNITY TILES (hero grid) ═══ */
+.tiles {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:10px; padding:0 20px;
+}
+.tile {
+  border-radius:var(--r); padding:0;
+  cursor:pointer; position:relative; overflow:hidden;
+  transition:transform 0.2s;
+  aspect-ratio:1/1;
+}
+.tile:active { transform:scale(0.97); }
+.tile-bg {
+  position:absolute; inset:0;
+  border-radius:var(--r);
+}
+.tile-content {
+  position:absolute; inset:0;
+  display:flex; flex-direction:column;
+  justify-content:flex-end;
+  padding:16px;
+  z-index:2;
+}
+.tile-label {
+  font-size:11px; font-weight:700; text-transform:uppercase;
+  letter-spacing:0.06em; margin-bottom:4px;
+}
+.tile-name {
+  font-size:20px; font-weight:900; line-height:1.1;
+  letter-spacing:-0.02em; color:#fff;
+}
+.tile-count {
+  font-size:12px; font-weight:500; margin-top:6px;
+  opacity:0.75;
+}
+
+.tile.space .tile-bg {
+  background:linear-gradient(160deg, #2D1054 0%, #5B21B6 40%, #7C3AED 100%);
+}
+.tile.space .tile-label { color:#C4B5FD; }
+.tile.space .tile-count { color:#DDD6FE; }
+
+.tile.semi .tile-bg {
+  background:linear-gradient(160deg, #0D3320 0%, #059669 40%, #10B981 100%);
+}
+.tile.semi .tile-label { color:#A7F3D0; }
+.tile.semi .tile-count { color:#D1FAE5; }
+
+.tile.jobs .tile-bg {
+  background:linear-gradient(160deg, #7C2D12 0%, #EA580C 40%, #F97316 100%);
+}
+.tile.jobs .tile-label { color:#FED7AA; }
+.tile.jobs .tile-count { color:#FFEDD5; }
+
+.tile.events .tile-bg {
+  background:linear-gradient(160deg, #831843 0%, #DB2777 40%, #EC4899 100%);
+}
+.tile.events .tile-label { color:#FBCFE8; }
+.tile.events .tile-count { color:#FCE7F3; }
+
+/* ═══ FEATURED MEMBERS (horizontal scroll) ═══ */
+.members-scroll {
+  display:flex; gap:10px;
+  overflow-x:auto; scrollbar-width:none;
+  padding:0 20px;
+}
+.members-scroll::-webkit-scrollbar { display:none; }
+
+.member {
+  flex-shrink:0; width:140px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); padding:16px 14px;
+  cursor:pointer; transition:border-color 0.15s;
+  text-align:center;
+}
+.member:active { border-color:rgba(255,255,255,0.15); }
+.member-logo {
+  width:48px; height:48px; border-radius:14px;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:900; font-size:20px; margin:0 auto 10px;
+}
+.member-name { font-size:13px; font-weight:700; color:var(--text); line-height:1.3; }
+.member-loc { font-size:11px; color:var(--text3); margin-top:3px; }
+.member-badge {
+  display:inline-block; margin-top:8px;
+  font-size:9px; font-weight:700; padding:3px 8px;
+  border-radius:6px;
+  background:rgba(249,115,22,0.1); color:var(--warm);
+  border:1px solid rgba(249,115,22,0.15);
+}
+
+/* Bottom nav */
+.splash-nav {
+  flex-shrink:0; display:flex; justify-content:space-around;
+  padding:10px 20px max(env(safe-area-inset-bottom),10px);
+  border-top:1px solid var(--border);
+  background:var(--bg);
+  margin-top:auto;
+}
+.nav-item {
+  display:flex; flex-direction:column; align-items:center; gap:4px;
+  cursor:pointer; padding:4px 12px;
+}
+.nav-icon { color:var(--text3); }
+.nav-icon.on { color:var(--warm); }
+.nav-label { font-size:10px; font-weight:600; color:var(--text3); }
+.nav-label.on { color:var(--warm); }
+
+/* ═══ DIRECTORY VIEW ═══ */
+.dir {
+  position:absolute; inset:0; background:var(--bg);
+  z-index:20; display:flex; flex-direction:column;
+  transform:translateX(100%);
+  transition:transform 0.4s cubic-bezier(0.16,1,0.3,1);
+}
+.dir.open { transform:translateX(0); }
+
+.dir-head { flex-shrink:0; padding:max(env(safe-area-inset-top),12px) 20px 0; }
+.dir-head-row { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.dir-close {
+  width:36px; height:36px; border-radius:50%;
+  background:var(--surface); border:1px solid var(--border);
+  color:var(--text2); display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.dir-close:active { background:var(--surface2); }
+.dir-head-info { flex:1; }
+.dir-name { font-size:20px; font-weight:800; letter-spacing:-0.02em; }
+.dir-tag { font-size:11px; font-weight:500; color:var(--text3); margin-top:2px; }
+
+.dir-search-wrap { position:relative; margin-bottom:12px; }
+.dir-search {
+  width:100%; background:var(--surface); border:1px solid var(--border);
+  color:var(--text); border-radius:var(--r);
+  padding:12px 16px 12px 40px;
+  font-size:14px; font-family:'Outfit',sans-serif; outline:none;
+}
+.dir-search:focus { border-color:var(--warm); }
+.dir-search::placeholder { color:var(--text3); }
+.dir-search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text3); }
+
+.dir-pills {
+  display:flex; gap:8px; overflow-x:auto; scrollbar-width:none;
+  margin:0 -20px; padding:0 20px 12px;
+}
+.dir-pills::-webkit-scrollbar { display:none; }
+.dp {
+  flex-shrink:0; padding:8px 16px;
+  border-radius:100px; font-size:13px; font-weight:600;
+  cursor:pointer; transition:all 0.15s; border:none;
+}
+.dp.on { background:#fff; color:#111; }
+.dp.off { background:var(--surface); color:var(--text2); border:1px solid var(--border); }
+
+/* Company list (card style) */
+.dir-list {
+  flex:1; overflow-y:auto; padding:4px 20px 20px;
+  scrollbar-width:none; display:flex; flex-direction:column; gap:8px;
+}
+.dir-list::-webkit-scrollbar { display:none; }
+
+.co {
+  display:flex; align-items:center; gap:14px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:var(--r); padding:14px 16px;
+  cursor:pointer; transition:border-color 0.15s;
+}
+.co:active { border-color:rgba(255,255,255,0.14); }
+.co-logo {
+  width:46px; height:46px; border-radius:13px;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:900; font-size:19px; flex-shrink:0;
+}
+.co-info { flex:1; min-width:0; }
+.co-name { font-size:14px; font-weight:700; color:var(--text); }
+.co-loc { font-size:11px; color:var(--text3); margin-top:2px; }
+.co-tags { display:flex; gap:4px; margin-top:6px; flex-wrap:wrap; }
+.co-tag {
+  font-size:9px; font-weight:600; padding:2px 7px;
+  border-radius:5px;
+  background:rgba(139,92,246,0.08); color:var(--violet);
+  border:1px solid rgba(139,92,246,0.12);
+}
+.co-tag.feat {
+  background:rgba(249,115,22,0.08); color:var(--warm);
+  border-color:rgba(249,115,22,0.12);
+}
+.co-arrow {
+  color:var(--text3); flex-shrink:0;
+}
+
+.dir-foot {
+  flex-shrink:0; padding:10px 20px max(env(safe-area-inset-bottom),10px);
+  border-top:1px solid var(--border);
+}
+.dir-cta {
+  width:100%; padding:14px; border:none;
+  background:var(--warm); color:#fff;
+  font-family:'Outfit',sans-serif; font-size:14px; font-weight:700;
+  border-radius:var(--r); cursor:pointer;
+}
+.dir-cta:active { opacity:0.85; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SPLASH -->
+  <div class="splash" id="splash">
+    <div class="splash-top">
+      <div class="splash-avatar">SD</div>
+      <input class="splash-search" type="text" placeholder="Search">
+      <div class="splash-mic">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+      </div>
+    </div>
+
+    <div class="splash-pills">
+      <button class="sp on">Explore</button>
+      <button class="sp off">Jobs</button>
+      <button class="sp off">Events</button>
+      <button class="sp off">Articles</button>
+      <button class="sp off">Grants</button>
+    </div>
+
+    <div class="section-head">
+      <div class="section-title">Communities</div>
+    </div>
+
+    <div class="tiles">
+      <div class="tile space" onclick="openDir('space')">
+        <div class="tile-bg"></div>
+        <div class="tile-content">
+          <div class="tile-label">Aerospace</div>
+          <div class="tile-name">Space Rising</div>
+          <div class="tile-count">26 companies</div>
+        </div>
+      </div>
+      <div class="tile semi" onclick="openDir('s3c')">
+        <div class="tile-bg"></div>
+        <div class="tile-content">
+          <div class="tile-label">Semiconductor</div>
+          <div class="tile-name">S3C Arizona</div>
+          <div class="tile-count">36 companies</div>
+        </div>
+      </div>
+      <div class="tile jobs" onclick="openDir('space')">
+        <div class="tile-bg"></div>
+        <div class="tile-content">
+          <div class="tile-label">Open Now</div>
+          <div class="tile-name">30 Jobs</div>
+          <div class="tile-count">Across all sectors</div>
+        </div>
+      </div>
+      <div class="tile events" onclick="openDir('s3c')">
+        <div class="tile-bg"></div>
+        <div class="tile-content">
+          <div class="tile-label">Upcoming</div>
+          <div class="tile-name">Events</div>
+          <div class="tile-count">3 this month</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-head">
+      <div class="section-title">Featured Members</div>
+      <div class="section-action">See All</div>
+    </div>
+
+    <div class="members-scroll" id="members"></div>
+
+    <div style="height:20px;flex-shrink:0"></div>
+
+    <div class="splash-nav">
+      <div class="nav-item">
+        <div class="nav-icon on"><svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z"/></svg></div>
+        <div class="nav-label on">Home</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+        <div class="nav-label">Search</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21l-7-4-7 4V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg></div>
+        <div class="nav-label">Saved</div>
+      </div>
+      <div class="nav-item">
+        <div class="nav-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <div class="nav-label">Profile</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIRECTORY -->
+  <div class="dir" id="dir">
+    <div class="dir-head">
+      <div class="dir-head-row">
+        <button class="dir-close" onclick="closeDir()">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </button>
+        <div class="dir-head-info">
+          <div class="dir-name" id="d-name">Space Rising</div>
+          <div class="dir-tag" id="d-tag">26 companies</div>
+        </div>
+      </div>
+      <div class="dir-search-wrap">
+        <div class="dir-search-icon"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+        <input class="dir-search" type="text" placeholder="Search companies...">
+      </div>
+      <div class="dir-pills" id="d-pills"></div>
+    </div>
+    <div class="dir-list" id="d-list"></div>
+    <div class="dir-foot">
+      <button class="dir-cta">List Your Company</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DATA = {
+  space: {
+    name:'Space Rising', tag:'26 companies',
+    pills:['All','Aerospace','Defense','Launch','R&D','Services'],
+    list:[
+      {n:'Raytheon Missiles & Defense',c:'Tucson, AZ',e:'10,000+',b:['ITAR','DoD Secret'],f:1,bg:'#1E1145',fg:'#A78BFA'},
+      {n:'Northrop Grumman',c:'Chandler, AZ',e:'2,000+',b:['AS9100D'],f:1,bg:'#1a0d28',fg:'#C084FC'},
+      {n:'World View Enterprises',c:'Tucson, AZ',e:'200+',b:['FAA Part 145'],f:1,bg:'#0d2818',fg:'#34D399'},
+      {n:'Phantom Space Corp',c:'Tucson, AZ',e:'50+',b:['ITAR'],bg:'#2D1B06',fg:'#FBBF24'},
+      {n:'FreeFall Aerospace',c:'Tucson, AZ',e:'11-50',b:['ITAR'],bg:'#2D0A0A',fg:'#FB7185'},
+      {n:'SAIC Arizona',c:'Tucson, AZ',e:'500+',b:['DoD','TS/SCI'],bg:'#062028',fg:'#38BDF8'},
+      {n:'Kratos Defense',c:'Tucson, AZ',e:'200+',b:['ITAR'],bg:'#2D1506',fg:'#FB923C'},
+      {n:'L3Harris Technologies',c:'Tempe, AZ',e:'1,000+',b:['AS9100D'],bg:'#0D1428',fg:'#60A5FA'},
+    ]
+  },
+  s3c: {
+    name:'S3C Arizona', tag:'36 companies',
+    pills:['All','Fab','Design','Test','Equipment','Materials'],
+    list:[
+      {n:'Intel Chandler',c:'Chandler, AZ',e:'10,000+',b:['ITAR','ISO 9001'],f:1,bg:'#0D1428',fg:'#60A5FA'},
+      {n:'TSMC Arizona',c:'Phoenix, AZ',e:'2,000+',b:['ISO 14001'],f:1,bg:'#0d2818',fg:'#34D399'},
+      {n:'Microchip Technology',c:'Chandler, AZ',e:'5,000+',b:['AS9100D'],f:1,bg:'#1E1145',fg:'#A78BFA'},
+      {n:'Honeywell Aerospace',c:'Phoenix, AZ',e:'10,000+',b:['AS9100D','ITAR'],f:1,bg:'#2D0A0A',fg:'#FB7185'},
+      {n:'onsemi',c:'Scottsdale, AZ',e:'5,000+',b:['ISO 9001'],bg:'#0D1428',fg:'#60A5FA'},
+      {n:'Amkor Technology',c:'Tempe, AZ',e:'2,000+',b:['ISO 9001'],bg:'#2D1B06',fg:'#FBBF24'},
+      {n:'NXP Semiconductors',c:'Chandler, AZ',e:'1,000+',b:['AEC-Q100'],bg:'#2D0A0A',fg:'#FB7185'},
+      {n:'Benchmark Electronics',c:'Tempe, AZ',e:'500+',b:['ITAR'],bg:'#062028',fg:'#38BDF8'},
+      {n:'Rogers Corporation',c:'Chandler, AZ',e:'200+',b:['ISO 14001'],bg:'#0d2818',fg:'#34D399'},
+      {n:'Qorvo',c:'Chandler, AZ',e:'500+',b:['ITAR'],bg:'#2D1506',fg:'#FB923C'},
+      {n:'Applied Materials',c:'Tucson, AZ',e:'1,000+',b:[],bg:'#1E1145',fg:'#A78BFA'},
+      {n:'Analog Devices',c:'Chandler, AZ',e:'500+',b:['ISO 9001'],bg:'#0d2818',fg:'#34D399'},
+    ]
+  }
+};
+
+// Populate featured members
+const allFeat = [...DATA.space.list,...DATA.s3c.list].filter(c=>c.f);
+document.getElementById('members').innerHTML = allFeat.map(c=>`
+  <div class="member">
+    <div class="member-logo" style="background:${c.bg};color:${c.fg}">${c.n[0]}</div>
+    <div class="member-name">${c.n}</div>
+    <div class="member-loc">${c.c}</div>
+    <div class="member-badge">FEATURED</div>
+  </div>
+`).join('');
+
+function openDir(key) {
+  const d = DATA[key];
+  document.getElementById('d-name').textContent = d.name;
+  document.getElementById('d-tag').textContent = d.tag;
+  document.getElementById('d-pills').innerHTML = d.pills.map((p,i)=>`
+    <button class="dp${i===0?' on':' off'}" onclick="this.parentElement.querySelectorAll('.dp').forEach(b=>{b.classList.remove('on');b.classList.add('off')});this.classList.remove('off');this.classList.add('on')">${p}</button>
+  `).join('');
+  document.getElementById('d-list').innerHTML = d.list.map(c=>`
+    <div class="co">
+      <div class="co-logo" style="background:${c.bg};color:${c.fg}">${c.n[0]}</div>
+      <div class="co-info">
+        <div class="co-name">${c.n}</div>
+        <div class="co-loc">${c.c}</div>
+        <div class="co-tags">
+          ${c.f?'<span class="co-tag feat">FEATURED</span>':''}
+          ${c.b.map(b=>`<span class="co-tag">${b}</span>`).join('')}
+        </div>
+      </div>
+      <div class="co-arrow"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+    </div>
+  `).join('');
+  document.getElementById('splash').classList.add('out');
+  document.getElementById('dir').classList.add('open');
+}
+
+function closeDir() {
+  document.getElementById('dir').classList.remove('open');
+  document.getElementById('splash').classList.remove('out');
+}
+</script>
+</body>
+</html>

@@ -53,121 +53,83 @@ const CONDITION_COLORS = {
 export function SourcingNav({ active, tenantSlug, tenantName, features, brandColor }) {
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
-  const accent = brandColor || V.accent;
+  const accent = brandColor || '#22D3EE';
   const authUser = useAuthUser();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const navigate = useNavigate();
 
   const base = tenantSlug ? `/${tenantSlug}` : '/';
   const f = features || { jobs: true, marketplace: true, events: true, articles: true, signup: true };
 
-  const allTabs = [
-    { key: 'directory',   label: 'Directory',    href: base,                   show: true },
-    { key: 'marketplace', label: 'Marketplace',  href: `${base}/marketplace`,  show: f.marketplace !== false },
-    { key: 'jobs',        label: 'Jobs',         href: `${base}/jobs`,         show: f.jobs !== false },
-    { key: 'settings',    label: 'Settings',     href: `${base}/settings`,     show: !!authUser && !!tenantSlug },
-    { key: 'events',      label: 'Events',       href: `${base}/events`,       show: f.events !== false },
-    { key: 'articles',    label: 'Articles',     href: `${base}/articles`,     show: f.articles !== false },
-    { key: 'grants',      label: 'Grants',       href: `${base}/grants`,       show: f.grants !== false },
-    { key: 'reports',     label: 'Reports',      href: `${base}/reports`,      show: true },
-    { key: 'membership',  label: 'Membership',   href: `${base}/membership`,   show: true },
-    { key: 'portal',      label: 'My Portal',    href: `${base}/portal`,       show: !!authUser },
-    { key: 'about',       label: 'About',        href: '/about',      show: true },
-  ];
-  const tabs = allTabs.filter(t => t.show);
+  const isHome = active === 'home' || active === 'landing';
+  const isDir = ['directory','marketplace','jobs','events','articles','grants','reports','membership','portal','settings','about','profile','signup','login','checkout'].includes(active);
 
-  const displayName = tenantName || 'Sourcing Directory';
+  const moreItems = [
+    { label: 'Jobs', sub: 'Open positions', href: `${base}/jobs`, icon: 'M20 7H4v14h16V7zM16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2', color: '#34D399', bg: 'rgba(52,211,153,0.1)' },
+    { label: 'Events', sub: 'Conferences & meetups', href: `${base}/events`, icon: 'M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zM16 2v4M8 2v4M3 10h18', color: '#22D3EE', bg: 'rgba(34,211,238,0.1)' },
+    { label: 'Reports', sub: 'Intelligence & analysis', href: `${base}/reports`, icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6', color: '#A78BFA', bg: 'rgba(167,139,250,0.1)' },
+    { label: 'Marketplace', sub: 'Equipment exchange', href: `${base}/marketplace`, icon: 'M9 21a1 1 0 100-2 1 1 0 000 2zM20 21a1 1 0 100-2 1 1 0 000 2zM1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6', color: '#FBBF24', bg: 'rgba(251,191,36,0.1)' },
+    { label: 'Membership', sub: 'Upgrade your account', href: `${base}/membership`, icon: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z', color: '#FB7185', bg: 'rgba(251,113,133,0.1)' },
+    { label: 'Articles', sub: 'Industry news', href: `${base}/articles`, icon: 'M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 014 17V5a2.5 2.5 0 012.5-2.5H20v17H6.5', color: '#38BDF8', bg: 'rgba(56,189,248,0.1)' },
+  ];
+  if (authUser) {
+    moreItems.push({ label: 'My Portal', sub: 'Company dashboard', href: `${base}/portal`, icon: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z', color: '#E2E8F0', bg: 'rgba(255,255,255,0.05)' });
+  }
+  moreItems.push(
+    { label: authUser ? 'Sign Out' : 'Sign In', sub: authUser ? '' : 'Manage your profile', href: `${base}/login`, icon: 'M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 3a4 4 0 100 8 4 4 0 000-8z', color: '#94A3B8', bg: 'rgba(255,255,255,0.04)' },
+    { label: 'Admin', sub: 'Manage directory', href: '/admin', icon: 'M12 15a3 3 0 100-6 3 3 0 000 6z', color: '#22D3EE', bg: 'rgba(34,211,238,0.06)' },
+  );
 
   return (
-    <div style={{
-      borderBottom: `1px solid ${V.border}`,
-      background: V.navBg,
-    }}>
-      <style>{`.sourcing-nav-tabs::-webkit-scrollbar { display: none; }`}</style>
-      {/* Top bar */}
-      <div style={{
-        padding: '0 24px',
-        display: 'flex', alignItems: 'center', gap: 16, height: 56,
-        borderBottom: `1px solid ${V.border}`,
-      }}>
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <span style={{
-            fontSize: 13, fontWeight: 800, fontFamily: V.syne,
-            color: accent, letterSpacing: '0.12em', textTransform: 'uppercase',
-          }}>
-            AOM
-          </span>
+    <>
+      {/* Bottom Nav Bar -- v10 CSS classes */}
+      <div className="v10-nav">
+        <Link to="/" className={`v10-nav-btn ${isHome ? 'on' : ''}`}>
+          <div className="v10-nav-icon">
+            <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg>
+          </div>
+          <div className="v10-nav-label">Home</div>
         </Link>
-        <span style={{ color: V.dim, fontSize: 13 }}>/</span>
-        <Link to="/" style={{ textDecoration: 'none', fontSize: 13, color: V.muted, fontFamily: V.space }}>
-          Sourcing
+        <Link to={base} className={`v10-nav-btn ${(isDir && !isHome) ? 'on' : ''}`}>
+          <div className="v10-nav-icon">
+            <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          </div>
+          <div className="v10-nav-label">Directory</div>
         </Link>
-        {tenantSlug && (
-          <>
-            <span style={{ color: V.dim, fontSize: 13 }}>/</span>
-            <span style={{ fontSize: 13, color: V.text, fontFamily: V.space }}>{displayName}</span>
-          </>
-        )}
-        <div style={{ flex: 1 }} />
-        <ThemeToggle />
-        {!authUser && tenantSlug && (
-          <Link
-            to={`${base}/login`}
-            style={{
-              background: 'transparent', color: V.muted, textDecoration: 'none',
-              border: `1px solid ${V.border}`, borderRadius: 6, padding: '6px 14px',
-              fontSize: 12, fontWeight: 600, fontFamily: V.space,
-            }}
-          >
-            Login
-          </Link>
-        )}
-        {f.signup !== false && (
-          <Link
-            to={`${base}/signup`}
-            style={{
-              background: accent, color: '#fff', textDecoration: 'none',
-              borderRadius: 6, padding: '6px 14px', fontSize: 12,
-              fontWeight: 700, fontFamily: V.space,
-            }}
-          >
-            List Your Company
-          </Link>
-        )}
+        <div className="v10-nav-btn" onClick={() => { navigate(`${base}`); setTimeout(() => document.querySelector('input[type="text"], input[placeholder*="Search"]')?.focus(), 300); }}>
+          <div className="v10-nav-icon">
+            <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          </div>
+          <div className="v10-nav-label">Search</div>
+        </div>
+        <div className={`v10-nav-btn ${moreOpen ? 'on' : ''}`} onClick={() => setMoreOpen(!moreOpen)}>
+          <div className="v10-nav-icon">
+            <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+          </div>
+          <div className="v10-nav-label">More</div>
+        </div>
       </div>
-      {/* Section tabs */}
-      <div style={{
-        padding: '0 24px',
-        display: 'flex', gap: 0,
-        overflowX: 'auto',
-        WebkitOverflowScrolling: 'touch',
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none',
-      }}
-        className="sourcing-nav-tabs"
-      >
-        {tabs.map(tab => {
-          const isActive = tab.key === active;
-          return (
-            <Link
-              key={tab.key}
-              to={tab.href}
-              style={{
-                textDecoration: 'none',
-                padding: '12px 18px',
-                fontSize: 13,
-                fontWeight: isActive ? 700 : 500,
-                fontFamily: V.space,
-                color: isActive ? accent : V.muted,
-                borderBottom: isActive ? `2px solid ${accent}` : '2px solid transparent',
-                transition: 'all 0.15s',
-                whiteSpace: 'nowrap',
-              }}
-            >
-              {tab.label}
+
+      {/* More Menu */}
+      <div className={`more-overlay ${moreOpen ? 'open' : ''}`} onClick={() => setMoreOpen(false)} />
+      <div className={`more-sheet ${moreOpen ? 'open' : ''}`}>
+        <div className="more-handle" />
+        {moreItems.map((item, i) => (
+          <React.Fragment key={i}>
+            {i === moreItems.length - 2 && <div className="more-divider" />}
+            <Link to={item.href} className="more-item" onClick={() => setMoreOpen(false)}>
+              <div className="more-item-icon" style={{ background: item.bg, color: item.color }}>
+                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d={item.icon}/></svg>
+              </div>
+              <div>
+                <div className="more-item-label">{item.label}</div>
+                {item.sub && <div className="more-item-sub">{item.sub}</div>}
+              </div>
             </Link>
-          );
-        })}
+          </React.Fragment>
+        ))}
       </div>
-    </div>
+    </>
   );
 }
 

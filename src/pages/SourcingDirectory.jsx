@@ -931,8 +931,8 @@ function SourcingDirectoryInner() {
 
       {/* Vertical Tabs */}
       <div style={{
-        padding: '0 24px 0', maxWidth: 900, margin: '0 auto',
-        display: 'flex', gap: 8,
+        padding: '0 12px 0', maxWidth: 900, margin: '0 auto',
+        display: 'flex', gap: 6,
         overflowX: 'auto',
         WebkitOverflowScrolling: 'touch',
         scrollbarWidth: 'none',

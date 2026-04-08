@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>sourcing.directory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+:root {
+  --bg: #06060A;
+  --s1: #0E0E14;
+  --s2: #15151E;
+  --s3: #1C1C28;
+  --bd: rgba(255,255,255,0.06);
+  --bd2: rgba(255,255,255,0.1);
+  --tx: #F0F0F5;
+  --tx2: rgba(240,240,245,0.55);
+  --tx3: rgba(240,240,245,0.25);
+  --cyan: #22D3EE;
+  --cyan-dim: rgba(34,211,238,0.08);
+  --cyan-brd: rgba(34,211,238,0.2);
+  --violet: #A78BFA;
+  --violet-dim: rgba(167,139,250,0.08);
+  --violet-brd: rgba(167,139,250,0.2);
+  --emerald: #34D399;
+  --amber: #FBBF24;
+  --r: 16px;
+  --r-sm: 10px;
+  --nav-h: 72px;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; background:var(--bg); color:var(--tx); font-family:'Inter',system-ui,sans-serif; }
+.app { height:100dvh; display:flex; flex-direction:column; position:relative; overflow:hidden; }
+
+/* Screens */
+.screen { position:absolute; inset:0; bottom:var(--nav-h); display:flex; flex-direction:column; overflow:hidden; opacity:0; pointer-events:none; transition:opacity 0.25s, transform 0.3s cubic-bezier(0.16,1,0.3,1); transform:translateY(8px); }
+.screen.active { opacity:1; pointer-events:all; transform:translateY(0); }
+
+/* Bottom Nav */
+.nav { position:absolute; bottom:0; left:0; right:0; height:var(--nav-h); background:rgba(6,6,10,0.94); backdrop-filter:blur(24px) saturate(1.4); border-top:1px solid var(--bd); display:flex; align-items:center; justify-content:space-around; padding:0 8px; padding-bottom:max(env(safe-area-inset-bottom),8px); z-index:100; }
+.nav-btn { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:8px 0; cursor:pointer; border:none; background:none; }
+.nav-btn:active { transform:scale(0.92); }
+.nav-icon { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:8px; transition:all 0.15s; color:var(--tx3); }
+.nav-label { font-size:10px; font-weight:600; letter-spacing:0.02em; color:var(--tx3); transition:color 0.15s; }
+.nav-btn.on .nav-icon { background:var(--cyan-dim); color:var(--cyan); }
+.nav-btn.on .nav-label { color:var(--cyan); }
+
+/* Scroll */
+.scroll { flex:1; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:none; }
+.scroll::-webkit-scrollbar { display:none; }
+
+/* ═══ HOME SCREEN ═══ */
+.home-hero {
+  position:relative; min-height:420px; display:flex; flex-direction:column; justify-content:flex-end;
+  padding:0 20px max(env(safe-area-inset-top),24px);
+  background:linear-gradient(180deg, rgba(6,6,10,0) 0%, rgba(6,6,10,0.7) 60%, var(--bg) 100%),
+    url('https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&q=80') center/cover no-repeat;
+}
+.home-hero::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse at 30% 20%, rgba(34,211,238,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(167,139,250,0.06) 0%, transparent 50%);
+  pointer-events:none;
+}
+.home-hero-content { position:relative; z-index:1; padding-bottom:32px; }
+.home-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.08); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,0.1); border-radius:100px; padding:5px 14px 5px 10px; font-size:11px; font-weight:600; color:var(--tx2); margin-bottom:20px; }
+.home-badge-dot { width:6px; height:6px; border-radius:50%; background:var(--emerald); box-shadow:0 0 10px var(--emerald); }
+.home-title { font-size:36px; font-weight:900; letter-spacing:-0.04em; line-height:1.02; color:#fff; margin-bottom:10px; }
+.home-title em { color:var(--cyan); font-style:normal; }
+.home-sub { font-size:15px; color:rgba(255,255,255,0.6); line-height:1.5; max-width:320px; }
+
+/* Search */
+.home-search { margin:0 20px 24px; display:flex; gap:8px; }
+.home-search-input { flex:1; background:var(--s2); border:1px solid var(--bd2); border-radius:var(--r); padding:14px 16px; font-size:14px; font-family:inherit; color:var(--tx); outline:none; transition:border-color 0.15s; }
+.home-search-input::placeholder { color:var(--tx3); }
+.home-search-input:focus { border-color:var(--cyan-brd); }
+.home-search-btn { background:var(--cyan); border:none; border-radius:var(--r); width:52px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:opacity 0.15s; }
+.home-search-btn:active { opacity:0.8; }
+
+/* Section */
+.sec-hdr { display:flex; align-items:center; justify-content:space-between; padding:24px 20px 14px; }
+.sec-title { font-size:12px; font-weight:700; color:var(--tx3); text-transform:uppercase; letter-spacing:0.08em; }
+.sec-count { font-size:12px; font-weight:600; color:var(--tx3); }
+
+/* Directory Cards */
+.dir-cards { display:flex; flex-direction:column; gap:14px; padding:0 20px 24px; }
+.dir-card {
+  border-radius:var(--r); overflow:hidden; cursor:pointer; position:relative;
+  min-height:200px; display:flex; flex-direction:column; justify-content:flex-end;
+  transition:transform 0.2s; border:1px solid var(--bd);
+}
+.dir-card:active { transform:scale(0.98); }
+.dir-card-bg { position:absolute; inset:0; background-size:cover; background-position:center; }
+.dir-card-overlay { position:absolute; inset:0; }
+.dir-card-body { position:relative; z-index:1; padding:24px 20px; }
+.dir-card-tag { font-size:10px; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:8px; }
+.dir-card-name { font-size:24px; font-weight:900; letter-spacing:-0.03em; color:#fff; margin-bottom:4px; }
+.dir-card-desc { font-size:12px; line-height:1.5; color:rgba(255,255,255,0.6); max-width:280px; }
+.dir-card-foot { display:flex; align-items:center; justify-content:space-between; margin-top:16px; }
+.dir-card-count { display:flex; align-items:baseline; gap:6px; }
+.dir-card-count-num { font-size:28px; font-weight:900; letter-spacing:-0.04em; }
+.dir-card-count-label { font-size:11px; font-weight:500; opacity:0.6; }
+.dir-card-arrow { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.1); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.15); transition:background 0.15s; }
+
+.dir-card.space .dir-card-bg { background-image:url('https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?w=800&q=80'); background-position:center 30%; }
+.dir-card.space .dir-card-overlay { background:linear-gradient(180deg, rgba(15,10,40,0.3) 0%, rgba(15,10,40,0.85) 70%, rgba(15,10,40,0.95) 100%); }
+.dir-card.space .dir-card-tag { color:var(--violet); }
+.dir-card.space .dir-card-count-num { color:#C4B5FD; }
+
+.dir-card.semi .dir-card-bg { background-image:url('https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=80'); }
+.dir-card.semi .dir-card-overlay { background:linear-gradient(180deg, rgba(5,20,35,0.3) 0%, rgba(5,20,35,0.85) 70%, rgba(5,20,35,0.95) 100%); }
+.dir-card.semi .dir-card-tag { color:var(--cyan); }
+.dir-card.semi .dir-card-count-num { color:var(--cyan); }
+
+/* ═══ BROWSE SCREEN ═══ */
+.browse-hero {
+  position:relative; min-height:280px; display:flex; flex-direction:column; justify-content:flex-end;
+  padding:0 20px 24px;
+}
+.browse-hero-bg { position:absolute; inset:0; background-size:cover; background-position:center; }
+.browse-hero-overlay { position:absolute; inset:0; background:linear-gradient(180deg, rgba(6,6,10,0.2) 0%, rgba(6,6,10,0.8) 60%, var(--bg) 100%); }
+.browse-hero-content { position:relative; z-index:1; }
+.browse-back { display:inline-flex; align-items:center; gap:6px; background:none; border:none; color:var(--tx2); font-size:13px; font-weight:600; font-family:inherit; cursor:pointer; margin-bottom:12px; padding:0; }
+.browse-title { font-size:28px; font-weight:900; letter-spacing:-0.03em; color:#fff; margin-bottom:6px; }
+.browse-sub { font-size:13px; color:rgba(255,255,255,0.5); line-height:1.5; }
+
+.browse-search { margin:0 20px 4px; display:flex; align-items:center; gap:10px; background:var(--s2); border:1px solid var(--bd); border-radius:var(--r); padding:12px 14px; transition:border-color 0.15s; }
+.browse-search:focus-within { border-color:var(--cyan-brd); }
+.browse-search svg { color:var(--tx3); flex-shrink:0; }
+.browse-search input { flex:1; background:none; border:none; outline:none; font-size:14px; font-family:inherit; color:var(--tx); }
+.browse-search input::placeholder { color:var(--tx3); }
+
+.chips { display:flex; gap:8px; padding:12px 20px; overflow-x:auto; scrollbar-width:none; }
+.chips::-webkit-scrollbar { display:none; }
+.chip { flex-shrink:0; padding:7px 16px; border-radius:100px; font-size:12px; font-weight:600; cursor:pointer; border:1px solid var(--bd); background:var(--s1); color:var(--tx2); transition:all 0.15s; white-space:nowrap; }
+.chip:active { transform:scale(0.95); }
+.chip.on { border-color:var(--cyan-brd); background:var(--cyan-dim); color:var(--cyan); }
+
+/* Company List */
+.co-list { display:flex; flex-direction:column; gap:1px; padding:0 20px 24px; }
+.co-card { display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid var(--bd); cursor:pointer; transition:background 0.1s; }
+.co-card:last-child { border-bottom:none; }
+.co-logo { width:44px; height:44px; border-radius:var(--r-sm); flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:900; }
+.co-body { flex:1; min-width:0; }
+.co-name { font-size:14px; font-weight:700; color:var(--tx); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.co-loc { font-size:12px; color:var(--tx2); margin-top:2px; }
+.co-badges { display:flex; gap:5px; flex-wrap:wrap; margin-top:6px; }
+.co-badge { font-size:9px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:2px 6px; border-radius:3px; white-space:nowrap; }
+.co-badge.feat { background:rgba(251,191,36,0.12); border:1px solid rgba(251,191,36,0.25); color:var(--amber); }
+.co-badge.cert { background:var(--s3); border:1px solid var(--bd2); color:var(--tx2); }
+.co-arrow { color:var(--tx3); flex-shrink:0; }
+
+/* Empty / Loading */
+.empty-state { text-align:center; padding:60px 20px; display:flex; flex-direction:column; align-items:center; gap:10px; }
+.skel { background:linear-gradient(90deg,var(--s2) 25%,var(--s3) 50%,var(--s2) 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; border-radius:4px; }
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+@keyframes spin { to{transform:rotate(360deg)} }
+.spinner { width:20px; height:20px; border-radius:50%; border:2px solid var(--s3); border-top-color:var(--cyan); animation:spin 0.7s linear infinite; }
+
+/* ═══ PROFILE ═══ */
+.prof-hero { position:relative; min-height:220px; display:flex; flex-direction:column; justify-content:flex-end; padding:0 20px 20px; }
+.prof-hero-bg { position:absolute; inset:0; background-size:cover; background-position:center; }
+.prof-hero-overlay { position:absolute; inset:0; background:linear-gradient(180deg, rgba(6,6,10,0.2) 0%, rgba(6,6,10,0.85) 70%, var(--bg) 100%); }
+.prof-hero-content { position:relative; z-index:1; }
+.prof-card { display:flex; align-items:center; gap:16px; margin-top:12px; }
+.prof-logo { width:64px; height:64px; border-radius:14px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:900; border:2px solid rgba(255,255,255,0.1); }
+.prof-name { font-size:22px; font-weight:900; letter-spacing:-0.03em; color:#fff; line-height:1.1; }
+.prof-loc { font-size:13px; color:var(--tx2); margin-top:3px; }
+.prof-tier { display:inline-flex; align-items:center; gap:4px; font-size:10px; font-weight:800; letter-spacing:0.06em; text-transform:uppercase; padding:3px 8px; border-radius:4px; margin-top:6px; }
+.prof-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; margin:20px 20px 0; background:var(--bd); border-radius:var(--r); overflow:hidden; }
+.prof-stat { background:var(--s1); padding:16px; text-align:center; }
+.prof-stat-num { font-size:22px; font-weight:900; letter-spacing:-0.03em; }
+.prof-stat-label { font-size:10px; font-weight:600; color:var(--tx3); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
+.prof-tabs { display:flex; margin:16px 20px 0; border-bottom:1px solid var(--bd); }
+.prof-tab { flex:1; text-align:center; padding:12px 0; font-size:12px; font-weight:600; color:var(--tx3); cursor:pointer; border-bottom:2px solid transparent; transition:all 0.15s; }
+.prof-tab.on { color:var(--cyan); border-bottom-color:var(--cyan); }
+.prof-section { padding:20px; }
+.prof-desc { font-size:14px; color:var(--tx2); line-height:1.65; }
+.prof-certs { display:flex; flex-wrap:wrap; gap:8px; margin-top:16px; }
+.prof-cert { font-size:10px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase; padding:6px 12px; border-radius:6px; background:var(--s2); border:1px solid var(--bd2); color:var(--tx2); }
+.prof-contact { display:flex; flex-direction:column; gap:12px; margin-top:20px; }
+.prof-contact-row { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--tx2); }
+.prof-contact-row svg { color:var(--cyan); flex-shrink:0; }
+.prof-contact-row a { color:var(--cyan); text-decoration:none; }
+.prof-cta { margin:20px; }
+.prof-cta-btn { width:100%; padding:14px; border-radius:var(--r); border:none; font-size:14px; font-weight:700; font-family:inherit; cursor:pointer; transition:opacity 0.15s; }
+.prof-cta-btn:active { opacity:0.8; }
+.prof-cta-primary { background:var(--cyan); color:#000; }
+.prof-cta-secondary { background:var(--s2); color:var(--tx); border:1px solid var(--bd2); margin-top:8px; }
+
+/* ═══ MORE MENU ═══ */
+.more-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:200; opacity:0; pointer-events:none; transition:opacity 0.2s; }
+.more-overlay.open { opacity:1; pointer-events:all; }
+.more-sheet { position:fixed; bottom:0; left:0; right:0; background:var(--s1); border-top:1px solid var(--bd2); border-radius:16px 16px 0 0; z-index:201; transform:translateY(100%); transition:transform 0.3s cubic-bezier(0.16,1,0.3,1); padding-bottom:max(env(safe-area-inset-bottom),16px); max-height:70vh; overflow-y:auto; }
+.more-sheet.open { transform:translateY(0); }
+.more-handle { width:36px; height:4px; border-radius:2px; background:var(--bd2); margin:10px auto 16px; }
+.more-item { display:flex; align-items:center; gap:14px; padding:14px 20px; cursor:pointer; transition:background 0.1s; }
+.more-item:active { background:rgba(255,255,255,0.03); }
+.more-item-icon { width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.more-item-label { font-size:15px; font-weight:600; color:var(--tx); }
+.more-item-sub { font-size:12px; color:var(--tx3); margin-top:1px; }
+.more-divider { height:1px; background:var(--bd); margin:8px 20px; }
+
+/* ═══ MEMBERSHIP ═══ */
+.mem-hero { padding:40px 20px 32px; text-align:center; }
+.mem-title { font-size:28px; font-weight:900; letter-spacing:-0.03em; color:#fff; margin-bottom:8px; }
+.mem-sub { font-size:14px; color:var(--tx2); line-height:1.5; }
+.mem-toggle { display:flex; background:var(--s2); border:1px solid var(--bd); border-radius:100px; padding:3px; margin:0 auto; width:fit-content; margin-bottom:32px; }
+.mem-toggle-btn { padding:8px 20px; border-radius:100px; font-size:13px; font-weight:600; font-family:inherit; border:none; cursor:pointer; transition:all 0.15s; background:transparent; color:var(--tx3); }
+.mem-toggle-btn.on { background:var(--cyan); color:#000; }
+.mem-card { background:var(--s1); border:1px solid var(--bd); border-radius:var(--r); padding:24px; margin:0 20px 14px; }
+.mem-card.featured { border-color:var(--cyan-brd); }
+.mem-card-badge { font-size:10px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px; }
+.mem-card-price { font-size:32px; font-weight:900; letter-spacing:-0.04em; color:#fff; }
+.mem-card-price span { font-size:14px; font-weight:500; color:var(--tx3); }
+.mem-card-desc { font-size:13px; color:var(--tx2); margin:8px 0 16px; line-height:1.5; }
+.mem-features { display:flex; flex-direction:column; gap:10px; }
+.mem-feat { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--tx2); }
+.mem-feat svg { color:var(--cyan); flex-shrink:0; }
+.mem-card-btn { width:100%; padding:12px; border-radius:var(--r-sm); border:none; font-size:14px; font-weight:700; font-family:inherit; cursor:pointer; margin-top:20px; }
+
+/* ═══ LOGIN ═══ */
+.login-wrap { padding:60px 24px 40px; max-width:400px; margin:0 auto; }
+.login-card { background:var(--s1); border:1px solid var(--bd); border-radius:var(--r); padding:32px 24px; }
+.login-title { font-size:24px; font-weight:900; letter-spacing:-0.03em; color:#fff; margin-bottom:6px; }
+.login-sub { font-size:13px; color:var(--tx2); margin-bottom:24px; }
+.login-label { font-size:12px; font-weight:600; color:var(--tx2); margin-bottom:6px; display:block; }
+.login-input { width:100%; background:var(--s2); border:1px solid var(--bd); border-radius:var(--r-sm); padding:12px 14px; font-size:14px; font-family:inherit; color:var(--tx); outline:none; margin-bottom:16px; transition:border-color 0.15s; }
+.login-input:focus { border-color:var(--cyan-brd); }
+.login-btn { width:100%; padding:14px; border-radius:var(--r-sm); border:none; background:var(--cyan); color:#000; font-size:14px; font-weight:700; font-family:inherit; cursor:pointer; margin-top:8px; }
+
+/* Desktop */
+@media (min-width:768px) {
+  .app { max-width:480px; margin:0 auto; border-left:1px solid var(--bd); border-right:1px solid var(--bd); }
+  .home-title { font-size:42px; }
+  .dir-card { min-height:240px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HOME -->
+  <div class="screen active" id="s-home">
+    <div class="scroll">
+      <div class="home-hero">
+        <div class="home-hero-content">
+          <div class="home-badge"><div class="home-badge-dot"></div>Arizona Advanced Industries</div>
+          <div class="home-title">Find your <em>supply chain</em> partner</div>
+          <div class="home-sub">Verified suppliers, certified companies, and industry events in one place.</div>
+        </div>
+      </div>
+
+      <div class="home-search">
+        <input class="home-search-input" type="text" placeholder="Search companies, industries..." id="home-search-input">
+        <button class="home-search-btn" onclick="doHomeSearch()">
+          <svg width="20" height="20" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </button>
+      </div>
+
+      <div class="sec-hdr"><div class="sec-title">Directories</div><div class="sec-count" id="dir-count"></div></div>
+      <div class="dir-cards" id="dir-cards"></div>
+    </div>
+  </div>
+
+  <!-- BROWSE -->
+  <div class="screen" id="s-browse">
+    <div class="scroll">
+      <div class="browse-hero" id="browse-hero">
+        <div class="browse-hero-bg" id="browse-hero-bg"></div>
+        <div class="browse-hero-overlay"></div>
+        <div class="browse-hero-content">
+          <button class="browse-back" onclick="switchTab('home')">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+            Back
+          </button>
+          <div class="browse-title" id="browse-title">Browse</div>
+          <div class="browse-sub" id="browse-sub"></div>
+        </div>
+      </div>
+
+      <div class="browse-search">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="co-search" type="text" placeholder="Search companies..." oninput="filterCompanies()" autocomplete="off" spellcheck="false">
+      </div>
+
+      <!-- Section shortcuts -->
+      <div class="chips" id="section-chips" style="padding-bottom:4px;">
+        <div class="chip on">Companies</div>
+        <div class="chip" onclick="loadAndShowJobs()">Jobs</div>
+        <div class="chip" onclick="loadAndShowEvents()">Events</div>
+        <div class="chip" onclick="loadAndShowReports()">Reports</div>
+        <div class="chip" onclick="loadAndShowMarketplace()">Marketplace</div>
+        <div class="chip" onclick="switchTab('membership')">Membership</div>
+      </div>
+
+      <div class="chips" id="co-chips"></div>
+
+      <div class="sec-hdr">
+        <div class="sec-title">Companies</div>
+        <div class="sec-count" id="co-count"></div>
+      </div>
+
+      <div class="co-list" id="co-list"></div>
+    </div>
+  </div>
+
+  <!-- JOBS -->
+  <div class="screen" id="s-jobs">
+    <div class="scroll">
+      <div class="browse-hero" style="min-height:200px;">
+        <div class="browse-hero-bg" style="background-image:url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&q=80');background-position:center"></div>
+        <div class="browse-hero-overlay"></div>
+        <div class="browse-hero-content">
+          <button class="browse-back" onclick="switchTab('browse')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>Back</button>
+          <div class="browse-title">Job Board</div>
+          <div class="browse-sub">Open positions at Arizona's top companies</div>
+        </div>
+      </div>
+      <div class="sec-hdr"><div class="sec-title">Latest Jobs</div><div class="sec-count" id="jobs-count"></div></div>
+      <div id="jobs-list" style="padding:0 20px 24px;display:flex;flex-direction:column;gap:12px;"></div>
+    </div>
+  </div>
+
+  <!-- EVENTS -->
+  <div class="screen" id="s-events">
+    <div class="scroll">
+      <div class="browse-hero" style="min-height:200px;">
+        <div class="browse-hero-bg" style="background-image:url('https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80');background-position:center"></div>
+        <div class="browse-hero-overlay"></div>
+        <div class="browse-hero-content">
+          <button class="browse-back" onclick="switchTab('browse')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>Back</button>
+          <div class="browse-title">Industry Events</div>
+          <div class="browse-sub">Conferences, meetups, and networking</div>
+        </div>
+      </div>
+      <div class="sec-hdr"><div class="sec-title">Upcoming</div><div class="sec-count" id="events-count"></div></div>
+      <div id="events-list" style="padding:0 20px 24px;display:flex;flex-direction:column;gap:12px;"></div>
+    </div>
+  </div>
+
+  <!-- REPORTS -->
+  <div class="screen" id="s-reports">
+    <div class="scroll">
+      <div class="browse-hero" style="min-height:200px;">
+        <div class="browse-hero-bg" style="background-image:url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80');background-position:center"></div>
+        <div class="browse-hero-overlay"></div>
+        <div class="browse-hero-content">
+          <button class="browse-back" onclick="switchTab('browse')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>Back</button>
+          <div class="browse-title">Reports & Intelligence</div>
+          <div class="browse-sub">Government affairs, acquisition analysis, quarterly intelligence</div>
+        </div>
+      </div>
+      <div class="sec-hdr"><div class="sec-title">Latest Reports</div><div class="sec-count" id="reports-count"></div></div>
+      <div id="reports-list" style="padding:0 20px 24px;display:flex;flex-direction:column;gap:12px;"></div>
+    </div>
+  </div>
+
+  <!-- COMPANY PROFILE -->
+  <div class="screen" id="s-profile">
+    <div class="scroll" id="profile-content"></div>
+  </div>
+
+  <!-- MEMBERSHIP -->
+  <div class="screen" id="s-membership">
+    <div class="scroll">
+      <div style="padding:max(env(safe-area-inset-top),16px) 20px 0;">
+        <button class="browse-back" onclick="switchTab('browse')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>Back</button>
+      </div>
+      <div class="mem-hero">
+        <div class="mem-title">Join the Directory</div>
+        <div class="mem-sub">Get full access to post jobs, events, articles, and connect with industry leaders.</div>
+      </div>
+      <div class="mem-card">
+        <div class="mem-card-badge" style="color:var(--emerald)">Free</div>
+        <div class="mem-card-price">$0 <span>/forever</span></div>
+        <div class="mem-card-desc">Basic directory listing and read access to all public content.</div>
+        <div class="mem-features">
+          <div class="mem-feat"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Company listing in directory</div>
+          <div class="mem-feat"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>View all companies & events</div>
+          <div class="mem-feat"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Access public reports & grants</div>
+        </div>
+        <button class="mem-card-btn" style="background:var(--s2);color:var(--tx);border:1px solid var(--bd2)">Current Plan</button>
+      </div>
+      <div class="mem-card featured">
+        <div class="mem-card-badge" style="color:var(--cyan)">Paid Member</div>
+        <div class="mem-card-price">$1,000 <span>/seat/yr</span></div>
+        <div class="mem-card-desc">Full platform access. Post content, access intelligence reports, VIP events.</div>
+        <div class="mem-features">
+          <div class="mem-feat"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Everything in Free</div>
+          <div class="mem-feat"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Post jobs, events, articles</div>
+          <div class="mem-feat"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Monthly intelligence reports</div>
+          <div class="mem-feat"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>KPI dashboard & analytics</div>
+          <div class="mem-feat"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Space Congress discounts & VIP</div>
+          <div class="mem-feat"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>Company logo on platform</div>
+        </div>
+        <div style="font-size:11px;color:var(--tx3);margin-top:12px;">5-14 seats: $850/seat &middot; 15-49: $700/seat &middot; 50+: Custom</div>
+        <button class="mem-card-btn" style="background:var(--cyan);color:#000;">Upgrade Now</button>
+      </div>
+      <div style="height:40px;"></div>
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="screen" id="s-login">
+    <div class="scroll">
+      <div class="browse-hero" style="min-height:180px;">
+        <div class="browse-hero-bg" style="background-image:url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80');background-position:center"></div>
+        <div class="browse-hero-overlay"></div>
+        <div class="browse-hero-content">
+          <button class="browse-back" onclick="switchTab('home')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>Back</button>
+        </div>
+      </div>
+      <div class="login-wrap" style="padding-top:24px;">
+        <div class="login-card">
+          <div style="font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">sourcing.directory</div>
+          <div class="login-title">Welcome back</div>
+          <div class="login-sub">Sign in to manage your company and post content.</div>
+          <label class="login-label">Email</label>
+          <input class="login-input" type="email" placeholder="you@company.com">
+          <label class="login-label">Password</label>
+          <input class="login-input" type="password" placeholder="Enter password">
+          <button class="login-btn">Sign In</button>
+          <div style="text-align:center;margin-top:16px;"><a href="#" style="color:var(--cyan);font-size:13px;text-decoration:none;">Forgot password?</a></div>
+          <div style="text-align:center;margin-top:12px;font-size:13px;color:var(--tx3);">Don't have an account? <a href="#" onclick="switchTab('signup');return false;" style="color:var(--cyan);text-decoration:none;">Sign up</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIGNUP -->
+  <div class="screen" id="s-signup">
+    <div class="scroll">
+      <div class="browse-hero" style="min-height:160px;">
+        <div class="browse-hero-bg" style="background-image:url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&q=80');background-position:center"></div>
+        <div class="browse-hero-overlay"></div>
+        <div class="browse-hero-content">
+          <button class="browse-back" onclick="switchTab('home')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>Back</button>
+        </div>
+      </div>
+      <div class="login-wrap" style="padding-top:24px;">
+        <div style="font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;">Free Listing</div>
+        <div class="login-title" style="margin-bottom:4px;">List Your Company</div>
+        <div class="login-sub" style="margin-bottom:24px;">Get found by procurement teams and partners.</div>
+
+        <div style="font-size:13px;font-weight:700;color:var(--tx);margin-bottom:12px;">What industry are you in?</div>
+        <div style="display:flex;gap:10px;margin-bottom:24px;">
+          <div style="flex:1;background:var(--s1);border:1px solid var(--cyan-brd);border-radius:var(--r);padding:20px 16px;text-align:center;cursor:pointer;">
+            <div style="font-size:28px;margin-bottom:8px;">&#128161;</div>
+            <div style="font-size:13px;font-weight:700;color:var(--tx);">Semiconductor</div>
+          </div>
+          <div style="flex:1;background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:20px 16px;text-align:center;cursor:pointer;">
+            <div style="font-size:28px;margin-bottom:8px;">&#128640;</div>
+            <div style="font-size:13px;font-weight:700;color:var(--tx);">Space & Aerospace</div>
+          </div>
+        </div>
+
+        <label class="login-label">Company Name *</label>
+        <input class="login-input" placeholder="Acme Semiconductor LLC">
+        <label class="login-label">Description *</label>
+        <input class="login-input" placeholder="What does your company do?">
+        <div style="display:flex;gap:10px;">
+          <div style="flex:1;"><label class="login-label">City</label><input class="login-input" placeholder="Phoenix"></div>
+          <div style="flex:0 0 80px;"><label class="login-label">State</label><input class="login-input" placeholder="AZ"></div>
+        </div>
+        <label class="login-label">Website</label>
+        <input class="login-input" type="url" placeholder="https://yourcompany.com">
+        <div style="height:1px;background:var(--bd);margin:8px 0 20px;"></div>
+        <label class="login-label">Your Name *</label>
+        <input class="login-input" placeholder="Jane Smith">
+        <label class="login-label">Email *</label>
+        <input class="login-input" type="email" placeholder="you@company.com">
+        <label class="login-label">Password *</label>
+        <input class="login-input" type="password" placeholder="Minimum 6 characters">
+        <button class="login-btn" style="margin-bottom:40px;">Create Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MARKETPLACE -->
+  <div class="screen" id="s-marketplace">
+    <div class="scroll">
+      <div class="browse-hero" style="min-height:200px;">
+        <div class="browse-hero-bg" style="background-image:url('https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&q=80');background-position:center"></div>
+        <div class="browse-hero-overlay"></div>
+        <div class="browse-hero-content">
+          <button class="browse-back" onclick="switchTab('browse')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>Back</button>
+          <div class="browse-title">Equipment Marketplace</div>
+          <div class="browse-sub">Buy, sell, and trade industry equipment</div>
+        </div>
+      </div>
+      <div class="sec-hdr"><div class="sec-title">Latest Listings</div><div class="sec-count" id="market-count"></div></div>
+      <div id="market-list" style="padding:0 20px 24px;display:flex;flex-direction:column;gap:12px;"></div>
+    </div>
+  </div>
+
+  <!-- ADMIN -->
+  <div class="screen" id="s-admin">
+    <div class="scroll">
+      <div style="padding:max(env(safe-area-inset-top),16px) 20px 0;display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+        <button class="browse-back" onclick="switchTab('home')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>Back</button>
+        <div style="flex:1"></div>
+        <span style="font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:0.08em;text-transform:uppercase;">Admin</span>
+      </div>
+
+      <!-- Tenant Switcher -->
+      <div style="padding:0 20px 16px;">
+        <select id="admin-tenant-select" style="width:100%;background:var(--s2);border:1px solid var(--bd2);border-radius:var(--r-sm);padding:12px 14px;font-size:14px;font-family:inherit;color:var(--tx);outline:none;appearance:none;">
+          <option value="">All Directories</option>
+        </select>
+      </div>
+
+      <!-- Admin Stats -->
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 20px 16px;">
+        <div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:16px;">
+          <div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Companies</div>
+          <div id="admin-co-count" style="font-size:28px;font-weight:900;letter-spacing:-0.04em;color:var(--cyan);">--</div>
+        </div>
+        <div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:16px;">
+          <div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Listings</div>
+          <div id="admin-list-count" style="font-size:28px;font-weight:900;letter-spacing:-0.04em;color:var(--tx);">--</div>
+        </div>
+        <div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:16px;">
+          <div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Pending Review</div>
+          <div id="admin-pending-count" style="font-size:28px;font-weight:900;letter-spacing:-0.04em;color:var(--amber);">--</div>
+        </div>
+        <div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:16px;">
+          <div style="font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Members</div>
+          <div id="admin-member-count" style="font-size:28px;font-weight:900;letter-spacing:-0.04em;color:var(--emerald);">--</div>
+        </div>
+      </div>
+
+      <!-- Admin Tabs -->
+      <div class="prof-tabs" style="margin:0 20px;">
+        <div class="prof-tab on" onclick="showAdminTab('pending',this)">Pending</div>
+        <div class="prof-tab" onclick="showAdminTab('companies',this)">Companies</div>
+        <div class="prof-tab" onclick="showAdminTab('content',this)">Content</div>
+        <div class="prof-tab" onclick="showAdminTab('reports-admin',this)">Reports</div>
+      </div>
+
+      <!-- Pending section -->
+      <div id="admin-tab-pending" class="prof-section">
+        <div id="admin-pending-list"></div>
+      </div>
+      <div id="admin-tab-companies" class="prof-section" style="display:none;">
+        <div id="admin-companies-list"></div>
+      </div>
+      <div id="admin-tab-content" class="prof-section" style="display:none;">
+        <div id="admin-content-list"></div>
+      </div>
+      <div id="admin-tab-reports-admin" class="prof-section" style="display:none;">
+        <div style="text-align:center;padding:40px 0;color:var(--tx3);font-size:13px;">Manage reports from here. Upload, edit, and publish intelligence reports.</div>
+        <button class="prof-cta-btn prof-cta-primary" style="max-width:200px;margin:0 auto;display:block;">+ Add Report</button>
+      </div>
+
+      <div style="height:40px;"></div>
+    </div>
+  </div>
+
+  <!-- MORE MENU OVERLAY -->
+  <div class="more-overlay" id="more-overlay" onclick="closeMore()"></div>
+  <div class="more-sheet" id="more-sheet">
+    <div class="more-handle"></div>
+    <div class="more-item" onclick="loadAndShowJobs();closeMore();">
+      <div class="more-item-icon" style="background:rgba(16,185,129,0.1);color:#34D399"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg></div>
+      <div><div class="more-item-label">Jobs</div><div class="more-item-sub">Open positions at top companies</div></div>
+    </div>
+    <div class="more-item" onclick="loadAndShowEvents();closeMore();">
+      <div class="more-item-icon" style="background:rgba(34,211,238,0.1);color:var(--cyan)"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+      <div><div class="more-item-label">Events</div><div class="more-item-sub">Conferences, meetups, networking</div></div>
+    </div>
+    <div class="more-item" onclick="loadAndShowReports();closeMore();">
+      <div class="more-item-icon" style="background:rgba(167,139,250,0.1);color:var(--violet)"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></div>
+      <div><div class="more-item-label">Reports & Intelligence</div><div class="more-item-sub">Government affairs, quarterly analysis</div></div>
+    </div>
+    <div class="more-item" onclick="loadAndShowMarketplace();closeMore();">
+      <div class="more-item-icon" style="background:rgba(251,191,36,0.1);color:var(--amber)"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg></div>
+      <div><div class="more-item-label">Marketplace</div><div class="more-item-sub">Equipment buy, sell, trade</div></div>
+    </div>
+    <div class="more-divider"></div>
+    <div class="more-item" onclick="switchTab('membership');closeMore();">
+      <div class="more-item-icon" style="background:rgba(251,113,133,0.1);color:#FB7185"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+      <div><div class="more-item-label">Membership</div><div class="more-item-sub">Upgrade to post content & access reports</div></div>
+    </div>
+    <div class="more-item" onclick="switchTab('login');closeMore();">
+      <div class="more-item-icon" style="background:var(--s3);color:var(--tx2)"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div><div class="more-item-label">Sign In / Sign Up</div><div class="more-item-sub">Manage your company profile</div></div>
+    </div>
+    <div class="more-divider"></div>
+    <div class="more-item" onclick="loadAdmin();closeMore();">
+      <div class="more-item-icon" style="background:rgba(34,211,238,0.06);color:var(--cyan)"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"/><circle cx="12" cy="12" r="3"/></svg></div>
+      <div><div class="more-item-label">Admin Panel</div><div class="more-item-sub">Manage companies, content, reports</div></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div class="nav">
+    <button class="nav-btn on" id="nb-home" onclick="switchTab('home')">
+      <div class="nav-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg></div>
+      <div class="nav-label">Home</div>
+    </button>
+    <button class="nav-btn" id="nb-browse" onclick="switchTab('browse')">
+      <div class="nav-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+      <div class="nav-label">Directory</div>
+    </button>
+    <button class="nav-btn" id="nb-search" onclick="focusSearch()">
+      <div class="nav-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+      <div class="nav-label">Search</div>
+    </button>
+    <button class="nav-btn" id="nb-more" onclick="toggleMore()">
+      <div class="nav-icon"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg></div>
+      <div class="nav-label">More</div>
+    </button>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://kzzvjtthknsozktmpvak.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6enZqdHRoa25zb3prdG1wdmFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NzQwMTEsImV4cCI6MjA5MTI1MDAxMX0.GgxauYExjOFU1Us7PH1j7b-lXH4aga3Qbs2xwuPXA3I';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+let allCompanies = [];
+let allCerts = {};
+let currentVertical = 'all';
+let currentTenant = null;
+let activeTab = 'home';
+
+const TENANT_THEMES = {
+  'space-rising': { cls:'space', img:'https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?w=800&q=80' },
+  's3c-semiconductor': { cls:'semi', img:'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=80' },
+};
+
+const LOGO_PALETTES = [
+  {bg:'#0D1428',fg:'#60A5FA'},{bg:'#1E1145',fg:'#A78BFA'},{bg:'#0d2818',fg:'#34D399'},
+  {bg:'#2D0A0A',fg:'#FB7185'},{bg:'#062028',fg:'#38BDF8'},{bg:'#2D1B06',fg:'#FBBF24'},
+];
+function logoPalette(s){let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return LOGO_PALETTES[h%LOGO_PALETTES.length]}
+
+const ALL_SCREENS = ['home','browse','jobs','events','reports','profile','membership','login','signup','marketplace','admin'];
+function switchTab(tab) {
+  ALL_SCREENS.forEach(t => {
+    const el = document.getElementById('s-'+t);
+    if (el) el.classList.toggle('active', t===tab);
+  });
+  ['home','browse','search','more'].forEach(t => {
+    const btn = document.getElementById('nb-'+t);
+    if (btn) btn.classList.remove('on');
+  });
+  if (tab==='home') document.getElementById('nb-home')?.classList.add('on');
+  else if (tab==='browse'||tab==='profile') document.getElementById('nb-browse')?.classList.add('on');
+  else if (tab==='jobs'||tab==='events'||tab==='reports') document.getElementById('nb-more')?.classList.add('on');
+  activeTab = tab;
+  // Scroll to top
+  const scroll = document.querySelector('#s-'+tab+' .scroll');
+  if (scroll) scroll.scrollTop = 0;
+}
+
+function focusSearch() {
+  if (activeTab !== 'browse') switchTab('browse');
+  setTimeout(() => document.getElementById('co-search')?.focus(), 200);
+}
+
+function doHomeSearch() {
+  const q = document.getElementById('home-search-input').value;
+  switchTab('browse');
+  if (q) {
+    document.getElementById('co-search').value = q;
+    filterCompanies();
+  }
+}
+
+// Load tenants
+async function loadTenants() {
+  const { data } = await sb.from('directory_tenants').select('*').eq('status','active').order('name');
+  if (!data) return;
+  document.getElementById('dir-count').textContent = data.length + ' directories';
+  const container = document.getElementById('dir-cards');
+  // Store tenant data for click handling
+  window._tenants = data;
+  container.innerHTML = data.map((t, i) => {
+    const theme = TENANT_THEMES[t.slug] || { cls:'semi', img:'' };
+    return `<div class="dir-card ${theme.cls}" data-idx="${i}">
+      <div class="dir-card-bg"></div>
+      <div class="dir-card-overlay"></div>
+      <div class="dir-card-body">
+        <div class="dir-card-tag">${t.vertical || t.slug}</div>
+        <div class="dir-card-name">${t.name}</div>
+        <div class="dir-card-desc">${(t.hero_text||'').substring(0,80)}${(t.hero_text||'').length>80?'...':''}</div>
+        <div class="dir-card-foot">
+          <div class="dir-card-count">
+            <div class="dir-card-count-num">${t.company_count||'--'}</div>
+            <div class="dir-card-count-label">companies</div>
+          </div>
+          <div class="dir-card-arrow"><svg width="18" height="18" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  container.querySelectorAll('.dir-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const t = window._tenants[parseInt(card.dataset.idx)];
+      if (t) openDirectory(t.slug, t.name, t.hero_text||'', t.id);
+    });
+  });
+}
+
+async function openDirectory(slug, name, desc, tenantId) {
+  currentTenant = { slug, name, desc, id: tenantId };
+  const theme = TENANT_THEMES[slug] || TENANT_THEMES['s3c-semiconductor'];
+  document.getElementById('browse-hero-bg').style.backgroundImage = `url('${theme.img}')`;
+  document.getElementById('browse-title').textContent = name;
+  document.getElementById('browse-sub').textContent = desc;
+  switchTab('browse');
+  await loadCompanies(tenantId);
+}
+
+async function loadCompanies(tenantId) {
+  const coEl = document.getElementById('co-list');
+  coEl.innerHTML = '<div style="display:flex;justify-content:center;padding:40px"><div class="spinner"></div></div>';
+
+  let q = sb.from('directory_companies').select('*').eq('status','active').order('name');
+  if (tenantId) q = q.eq('tenant_id', tenantId);
+  const { data } = await q;
+  allCompanies = data || [];
+
+  // Load certs
+  if (allCompanies.length) {
+    const ids = allCompanies.map(c=>c.id);
+    const { data: certs } = await sb.from('directory_certifications').select('*').in('company_id', ids);
+    allCerts = {};
+    (certs||[]).forEach(c => { if(!allCerts[c.company_id]) allCerts[c.company_id]=[]; allCerts[c.company_id].push(c); });
+  }
+
+  // Build chips
+  const verticals = [...new Set(allCompanies.map(c=>c.vertical).filter(Boolean))];
+  const chipsEl = document.getElementById('co-chips');
+  chipsEl.innerHTML = `<div class="chip on" onclick="setVertical('all',this)">All</div>` +
+    verticals.map(v => `<div class="chip" onclick="setVertical('${v}',this)">${v.charAt(0).toUpperCase()+v.slice(1)}</div>`).join('');
+
+  currentVertical = 'all';
+  renderCompanies();
+}
+
+function setVertical(v, el) {
+  currentVertical = v;
+  document.querySelectorAll('#co-chips .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  renderCompanies();
+}
+
+function filterCompanies() { renderCompanies(); }
+
+function renderCompanies() {
+  const search = (document.getElementById('co-search')?.value||'').toLowerCase();
+  let filtered = allCompanies;
+  if (currentVertical !== 'all') filtered = filtered.filter(c => c.vertical === currentVertical);
+  if (search) filtered = filtered.filter(c => c.name.toLowerCase().includes(search) || (c.description||'').toLowerCase().includes(search));
+
+  document.getElementById('co-count').textContent = filtered.length + ' companies';
+  const el = document.getElementById('co-list');
+
+  if (!filtered.length) {
+    el.innerHTML = '<div class="empty-state"><div style="font-size:15px;font-weight:700">No companies found</div><div style="font-size:13px;color:var(--tx2)">Try a different search or filter</div></div>';
+    return;
+  }
+
+  el.innerHTML = filtered.map(c => {
+    const p = logoPalette(c.name);
+    const certs = (allCerts[c.id]||[]).slice(0,3);
+    const tier = c.membership_tier || 'free';
+    const isFeatured = tier !== 'free' && tier !== 'basic';
+    return `<div class="co-card" onclick="openProfile('${c.id}')">
+      <div class="co-logo" style="background:${p.bg};color:${p.fg}">${c.name.charAt(0)}</div>
+      <div class="co-body">
+        <div class="co-name">${c.name}</div>
+        <div class="co-loc">${[c.city,c.state].filter(Boolean).join(', ')||'Arizona'}</div>
+        <div class="co-badges">
+          ${isFeatured?'<span class="co-badge feat">Featured</span>':''}
+          ${certs.map(cert=>`<span class="co-badge cert">${cert.cert_name}</span>`).join('')}
+        </div>
+      </div>
+      <div class="co-arrow"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+    </div>`;
+  }).join('');
+}
+
+// Section nav
+function showSection(sec) {
+  document.querySelectorAll('#section-chips .chip').forEach(c=>c.classList.remove('on'));
+  event.target.classList.add('on');
+}
+
+// Jobs
+async function loadAndShowJobs() {
+  switchTab('jobs');
+  const el = document.getElementById('jobs-list');
+  el.innerHTML = '<div style="display:flex;justify-content:center;padding:40px"><div class="spinner"></div></div>';
+  let q = sb.from('directory_listings').select('*,directory_companies(name)').eq('category','job').eq('status','active').order('created_at',{ascending:false}).limit(20);
+  if (currentTenant?.id) q = q.eq('tenant_id', currentTenant.id);
+  const { data } = await q;
+  document.getElementById('jobs-count').textContent = (data?.length||0) + ' jobs';
+  if (!data?.length) { el.innerHTML = '<div class="empty-state"><div style="font-size:15px;font-weight:700">No jobs posted yet</div><div style="font-size:13px;color:var(--tx2)">Check back soon</div></div>'; return; }
+  el.innerHTML = data.map(j => `<div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:16px;cursor:pointer;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <span style="font-size:9px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;padding:2px 7px;border-radius:3px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#34D399">${j.employment_type||'Full-time'}</span>
+      ${j.vertical?`<span style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:2px 7px;border-radius:3px;background:var(--cyan-dim);border:1px solid var(--cyan-brd);color:var(--cyan)">${j.vertical}</span>`:''}
+    </div>
+    <div style="font-size:15px;font-weight:700;color:var(--tx);margin-bottom:4px;">${j.title}</div>
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:6px;">${j.directory_companies?.name||''} ${j.location?'· '+j.location:''}</div>
+    ${j.salary_min?`<div style="font-size:13px;font-weight:700;color:var(--emerald);">$${(j.salary_min/1000).toFixed(0)}k - $${(j.salary_max/1000).toFixed(0)}k/yr</div>`:''}
+  </div>`).join('');
+}
+
+// Events
+async function loadAndShowEvents() {
+  switchTab('events');
+  const el = document.getElementById('events-list');
+  el.innerHTML = '<div style="display:flex;justify-content:center;padding:40px"><div class="spinner"></div></div>';
+  let q = sb.from('directory_listings').select('*,directory_companies(name)').eq('category','event').eq('status','active').order('event_date',{ascending:true}).limit(20);
+  if (currentTenant?.id) q = q.eq('tenant_id', currentTenant.id);
+  const { data } = await q;
+  document.getElementById('events-count').textContent = (data?.length||0) + ' events';
+  if (!data?.length) { el.innerHTML = '<div class="empty-state"><div style="font-size:15px;font-weight:700">No upcoming events</div><div style="font-size:13px;color:var(--tx2)">Check back soon</div></div>'; return; }
+  el.innerHTML = data.map(e => {
+    const d = e.event_date ? new Date(e.event_date) : null;
+    const month = d ? d.toLocaleDateString('en',{month:'short'}).toUpperCase() : '';
+    const day = d ? d.getDate() : '';
+    return `<div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:16px;display:flex;gap:14px;cursor:pointer;">
+      <div style="width:52px;flex-shrink:0;background:var(--cyan-dim);border:1px solid var(--cyan-brd);border-radius:var(--r-sm);padding:8px 0;text-align:center;">
+        <div style="font-size:9px;font-weight:800;letter-spacing:0.08em;color:var(--cyan)">${month}</div>
+        <div style="font-size:22px;font-weight:900;letter-spacing:-0.03em;color:var(--cyan);line-height:1">${day}</div>
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px;">${e.title}</div>
+        <div style="font-size:12px;color:var(--tx2)">${e.event_location||e.location||''}</div>
+        ${e.event_type?`<span style="display:inline-block;margin-top:6px;font-size:9px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;padding:2px 7px;border-radius:3px;background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.3);color:#34D399">${e.event_type}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// Reports
+async function loadAndShowReports() {
+  switchTab('reports');
+  const el = document.getElementById('reports-list');
+  el.innerHTML = '<div style="display:flex;justify-content:center;padding:40px"><div class="spinner"></div></div>';
+  let q = sb.from('directory_reports').select('*').order('published_at',{ascending:false}).limit(20);
+  if (currentTenant?.id) q = q.eq('tenant_id', currentTenant.id);
+  const { data } = await q;
+  document.getElementById('reports-count').textContent = (data?.length||0) + ' reports';
+  if (!data?.length) { el.innerHTML = '<div class="empty-state"><div style="font-size:15px;font-weight:700">No reports yet</div><div style="font-size:13px;color:var(--tx2)">Reports will appear here as they are published</div></div>'; return; }
+  const catColors = { government:'var(--violet)', quarterly:'var(--cyan)', economic:'var(--emerald)', acquisition:'var(--amber)' };
+  el.innerHTML = data.map(r => {
+    const c = catColors[r.category] || 'var(--tx2)';
+    const d = r.published_at ? new Date(r.published_at).toLocaleDateString('en',{month:'short',day:'numeric',year:'numeric'}) : '';
+    return `<div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:18px;cursor:pointer;">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+        <span style="font-size:9px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;padding:2px 8px;border-radius:3px;background:${c}15;border:1px solid ${c}30;color:${c}">${r.access==='public'?'Free':'Members'}</span>
+        <span style="font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:0.04em">${r.category||''}</span>
+      </div>
+      <div style="font-size:15px;font-weight:700;color:var(--tx);margin-bottom:6px;line-height:1.3;">${r.title}</div>
+      <div style="font-size:12px;color:var(--tx2);line-height:1.5;margin-bottom:8px;">${(r.description||'').substring(0,120)}${(r.description||'').length>120?'...':''}</div>
+      <div style="font-size:11px;color:var(--tx3)">${d}</div>
+    </div>`;
+  }).join('');
+}
+
+// More menu
+function toggleMore() { const o=document.getElementById('more-overlay'),s=document.getElementById('more-sheet'); o.classList.toggle('open'); s.classList.toggle('open'); }
+function closeMore() { document.getElementById('more-overlay').classList.remove('open'); document.getElementById('more-sheet').classList.remove('open'); }
+
+// Marketplace
+async function loadAndShowMarketplace() {
+  switchTab('marketplace');
+  const el = document.getElementById('market-list');
+  el.innerHTML = '<div style="display:flex;justify-content:center;padding:40px"><div class="spinner"></div></div>';
+  let q = sb.from('directory_listings').select('*,directory_companies(name)').eq('category','marketplace').eq('status','active').order('created_at',{ascending:false}).limit(20);
+  if (currentTenant?.id) q = q.eq('tenant_id', currentTenant.id);
+  const { data } = await q;
+  document.getElementById('market-count').textContent = (data?.length||0) + ' listings';
+  if (!data?.length) { el.innerHTML = '<div class="empty-state"><div style="font-size:15px;font-weight:700">No marketplace listings yet</div><div style="font-size:13px;color:var(--tx2)">Be the first to list equipment</div></div>'; return; }
+  el.innerHTML = data.map(m => `<div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:16px;cursor:pointer;">
+    <div style="font-size:15px;font-weight:700;color:var(--tx);margin-bottom:4px;">${m.title}</div>
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:8px;">${m.directory_companies?.name||''}</div>
+    ${m.price?`<div style="font-size:16px;font-weight:800;color:var(--emerald);">$${Number(m.price).toLocaleString()}</div>`:''}
+    ${m.condition?`<span style="display:inline-block;margin-top:6px;font-size:9px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;padding:2px 7px;border-radius:3px;background:var(--s3);border:1px solid var(--bd2);color:var(--tx2)">${m.condition}</span>`:''}
+  </div>`).join('');
+}
+
+// Company profile (rich version)
+async function openProfile(companyId) {
+  switchTab('profile');
+  const el = document.getElementById('profile-content');
+  el.innerHTML = '<div style="display:flex;justify-content:center;padding:80px"><div class="spinner"></div></div>';
+  const { data: co } = await sb.from('directory_companies').select('*').eq('id',companyId).single();
+  if (!co) { el.innerHTML = '<div class="empty-state"><div>Company not found</div></div>'; return; }
+  const { data: certs } = await sb.from('directory_certifications').select('*').eq('company_id',companyId);
+  const p = logoPalette(co.name);
+  const theme = currentTenant?.slug === 'space-rising' ? TENANT_THEMES['space-rising'] : TENANT_THEMES['s3c-semiconductor'];
+  const tierColors = { free:{bg:'var(--s3)',brd:'var(--bd2)',tx:'var(--tx3)',label:'Free'}, basic:{bg:'rgba(59,130,246,0.1)',brd:'rgba(59,130,246,0.25)',tx:'#60A5FA',label:'Basic'}, pro:{bg:'rgba(167,139,250,0.1)',brd:'rgba(167,139,250,0.25)',tx:'var(--violet)',label:'Pro'}, enterprise:{bg:'rgba(251,191,36,0.1)',brd:'rgba(251,191,36,0.25)',tx:'var(--amber)',label:'Enterprise'} };
+  const tc = tierColors[co.membership_tier] || tierColors.free;
+
+  // Random industry image based on vertical
+  const verticalImgs = {
+    space: 'https://images.unsplash.com/photo-1457364559154-aa2644600ebb?w=800&q=80',
+    semiconductor: 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80',
+  };
+  const heroImg = verticalImgs[co.vertical] || theme.img;
+
+  el.innerHTML = `
+    <div class="prof-hero">
+      <div class="prof-hero-bg" style="background-image:url('${heroImg}');"></div>
+      <div class="prof-hero-overlay"></div>
+      <div class="prof-hero-content">
+        <button class="browse-back" onclick="switchTab('browse')"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>Back</button>
+        <div class="prof-card">
+          <div class="prof-logo" style="background:${p.bg};color:${p.fg}">${co.name.charAt(0)}</div>
+          <div>
+            <div class="prof-name">${co.name}</div>
+            <div class="prof-loc">${[co.city,co.state].filter(Boolean).join(', ')||'Arizona'}</div>
+            <div class="prof-tier" style="background:${tc.bg};border:1px solid ${tc.brd};color:${tc.tx}">${tc.label} Member</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="prof-stats">
+      <div class="prof-stat">
+        <div class="prof-stat-num" style="color:var(--cyan)">${co.employee_count||'--'}</div>
+        <div class="prof-stat-label">Employees</div>
+      </div>
+      <div class="prof-stat">
+        <div class="prof-stat-num">${co.year_founded||'--'}</div>
+        <div class="prof-stat-label">Founded</div>
+      </div>
+      <div class="prof-stat">
+        <div class="prof-stat-num" style="color:var(--emerald)">${(certs||[]).length}</div>
+        <div class="prof-stat-label">Certs</div>
+      </div>
+    </div>
+
+    <div class="prof-tabs">
+      <div class="prof-tab on" onclick="showProfTab('about',this)">About</div>
+      <div class="prof-tab" onclick="showProfTab('certs',this)">Certifications</div>
+      <div class="prof-tab" onclick="showProfTab('contact',this)">Contact</div>
+    </div>
+
+    <div class="prof-section" id="prof-tab-about">
+      <div class="prof-desc">${co.description||'No description available.'}</div>
+      ${co.vertical?`<div style="margin-top:16px;display:flex;gap:8px;">
+        <span style="font-size:10px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:4px 10px;border-radius:4px;background:${co.vertical==='space'?'var(--violet-dim)':'var(--cyan-dim)'};border:1px solid ${co.vertical==='space'?'var(--violet-brd)':'var(--cyan-brd)'};color:${co.vertical==='space'?'var(--violet)':'var(--cyan)'}">${co.vertical}</span>
+      </div>`:''}
+    </div>
+
+    <div class="prof-section" id="prof-tab-certs" style="display:none;">
+      ${(certs||[]).length ? `<div class="prof-certs">${(certs||[]).map(c=>`<div class="prof-cert">${c.cert_name}</div>`).join('')}</div>` : '<div style="color:var(--tx3);font-size:13px;">No certifications listed.</div>'}
+    </div>
+
+    <div class="prof-section" id="prof-tab-contact" style="display:none;">
+      <div class="prof-contact">
+        ${co.website?`<div class="prof-contact-row"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg><a href="${co.website}" target="_blank">${co.website}</a></div>`:''}
+        ${co.email?`<div class="prof-contact-row"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg>${co.email}</div>`:''}
+        ${co.phone?`<div class="prof-contact-row"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>${co.phone}</div>`:''}
+        ${!co.website&&!co.email&&!co.phone?'<div style="color:var(--tx3);font-size:13px;">No contact information listed.</div>':''}
+      </div>
+    </div>
+
+    <div class="prof-cta">
+      <button class="prof-cta-btn prof-cta-primary">Request Information</button>
+      <button class="prof-cta-btn prof-cta-secondary">Share Profile</button>
+    </div>
+  `;
+}
+
+function showProfTab(tab, el) {
+  ['about','certs','contact'].forEach(t => {
+    const section = document.getElementById('prof-tab-'+t);
+    if (section) section.style.display = t===tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.prof-tab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// Admin
+function showAdminTab(tab, el) {
+  ['pending','companies','content','reports-admin'].forEach(t => {
+    const s = document.getElementById('admin-tab-'+t);
+    if (s) s.style.display = t===tab ? 'block' : 'none';
+  });
+  el.parentElement.querySelectorAll('.prof-tab').forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+}
+
+async function loadAdmin() {
+  switchTab('admin');
+  // Load stats
+  const { count: coCount } = await sb.from('directory_companies').select('*',{count:'exact',head:true});
+  const { count: listCount } = await sb.from('directory_listings').select('*',{count:'exact',head:true});
+  const { count: pendCount } = await sb.from('directory_listings').select('*',{count:'exact',head:true}).eq('status','pending');
+  const { count: memCount } = await sb.from('directory_members').select('*',{count:'exact',head:true});
+  document.getElementById('admin-co-count').textContent = coCount||0;
+  document.getElementById('admin-list-count').textContent = listCount||0;
+  document.getElementById('admin-pending-count').textContent = pendCount||0;
+  document.getElementById('admin-member-count').textContent = memCount||0;
+
+  // Load pending content
+  const { data: pending } = await sb.from('directory_listings').select('*,directory_companies(name)').eq('status','pending').order('created_at',{ascending:false});
+  const pendEl = document.getElementById('admin-pending-list');
+  if (!pending?.length) {
+    pendEl.innerHTML = '<div style="text-align:center;padding:32px 0;color:var(--tx3);font-size:13px;">No pending reviews. All caught up.</div>';
+  } else {
+    pendEl.innerHTML = pending.map(p => `<div style="background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);padding:16px;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="font-size:9px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;padding:2px 7px;border-radius:3px;background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.3);color:#93C5FD">${p.category||'article'}</span>
+        <span style="font-size:11px;color:var(--tx3)">${p.directory_companies?.name||''}</span>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:8px;">${p.title}</div>
+      <div style="display:flex;gap:8px;">
+        <button style="flex:1;padding:10px;border-radius:var(--r-sm);border:none;background:var(--cyan);color:#000;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;">Approve</button>
+        <button style="flex:1;padding:10px;border-radius:var(--r-sm);border:1px solid rgba(251,113,133,0.3);background:rgba(251,113,133,0.08);color:#FB7185;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;">Reject</button>
+      </div>
+    </div>`).join('');
+  }
+
+  // Load recent companies
+  const { data: companies } = await sb.from('directory_companies').select('id,name,city,state,status,membership_tier').order('created_at',{ascending:false}).limit(20);
+  const coEl = document.getElementById('admin-companies-list');
+  coEl.innerHTML = (companies||[]).map(c => {
+    const p = logoPalette(c.name);
+    return `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bd);">
+      <div style="width:36px;height:36px;border-radius:8px;background:${p.bg};color:${p.fg};display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;flex-shrink:0;">${c.name.charAt(0)}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.name}</div>
+        <div style="font-size:11px;color:var(--tx3);">${[c.city,c.state].filter(Boolean).join(', ')} &middot; ${c.membership_tier||'free'}</div>
+      </div>
+      <span style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:2px 7px;border-radius:3px;background:${c.status==='active'?'rgba(16,185,129,0.12)':'rgba(251,191,36,0.12)'};border:1px solid ${c.status==='active'?'rgba(16,185,129,0.3)':'rgba(251,191,36,0.3)'};color:${c.status==='active'?'#34D399':'#FBBF24'}">${c.status}</span>
+    </div>`;
+  }).join('');
+
+  // Pending content (articles, jobs, events)
+  const { data: content } = await sb.from('directory_listings').select('id,title,category,status,created_at').order('created_at',{ascending:false}).limit(20);
+  const contentEl = document.getElementById('admin-content-list');
+  contentEl.innerHTML = (content||[]).map(c => `<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bd);">
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:13px;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${c.title}</div>
+      <div style="font-size:11px;color:var(--tx3);">${c.category||'--'}</div>
+    </div>
+    <span style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:2px 7px;border-radius:3px;background:${c.status==='active'?'rgba(16,185,129,0.12)':'rgba(251,191,36,0.12)'};border:1px solid ${c.status==='active'?'rgba(16,185,129,0.3)':'rgba(251,191,36,0.3)'};color:${c.status==='active'?'#34D399':'#FBBF24'}">${c.status}</span>
+  </div>`).join('');
+
+  // Populate tenant select
+  if (window._tenants) {
+    const sel = document.getElementById('admin-tenant-select');
+    sel.innerHTML = '<option value="">All Directories</option>' + window._tenants.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+  }
+}
+
+// Init
+loadTenants();
+</script>
+</body>
+</html>

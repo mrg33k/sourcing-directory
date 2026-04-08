@@ -98,8 +98,8 @@ function buildEmailHtml({ company_name, org_name, profile_url }) {
           <tr>
             <td style="padding-top:28px;text-align:center;">
               <p style="margin:0;font-size:12px;color:#4a5568;line-height:1.6;">
-                This email was sent because you signed up on <a href="https://aheadofmarket.com" style="color:#29B6F6;text-decoration:none;">aheadofmarket.com</a>.<br/>
-                Questions? Reply to this email or reach us at <a href="mailto:hello@aheadofmarket.com" style="color:#29B6F6;text-decoration:none;">hello@aheadofmarket.com</a>
+                This email was sent because you signed up on <a href="https://sourcing.directory" style="color:#29B6F6;text-decoration:none;">sourcing.directory</a>.<br/>
+                Questions? Reply to this email or reach us at <a href="mailto:hello@sourcing.directory" style="color:#29B6F6;text-decoration:none;">hello@sourcing.directory</a>
               </p>
               <p style="margin:12px 0 0;font-size:11px;color:#2d3748;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;">
                 AOM &mdash; Ahead of Market
@@ -135,7 +135,7 @@ export default async function handler(req, res) {
   }
 
   const directoryName = org_name || 'AOM Sourcing Directory';
-  const origin = base_url || 'https://aheadofmarket.com';
+  const origin = base_url || 'https://sourcing.directory';
   const profile_url = company_slug
     ? `${origin}/s3c-semiconductor/${company_slug}`
     : origin;

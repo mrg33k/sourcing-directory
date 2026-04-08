@@ -84,8 +84,22 @@ function SourcingReportsInner() {
     })();
   }, [tenant]);
 
+  const [reports, setReports] = useState([]);
+  const [reportsLoading, setReportsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!supabase) { setReports(PLACEHOLDER_REPORTS); setReportsLoading(false); return; }
+    (async () => {
+      let q = supabase.from('directory_reports').select('*').order('published_at', { ascending: false });
+      if (tenant?.id) q = q.eq('tenant_id', tenant.id);
+      const { data } = await q;
+      setReports(data && data.length > 0 ? data : PLACEHOLDER_REPORTS);
+      setReportsLoading(false);
+    })();
+  }, [tenant]);
+
   const isPaid = memberTier !== 'free';
-  const filtered = PLACEHOLDER_REPORTS.filter(r =>
+  const filtered = reports.filter(r =>
     category === 'all' || r.category === category
   );
 
@@ -183,7 +197,7 @@ function SourcingReportsInner() {
                       {report.description}
                     </p>
                     <span style={{ fontSize: 11, color: V.dim, fontFamily: V.mono }}>
-                      {new Date(report.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {new Date(report.published_at || report.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                     </span>
                   </div>
                   <div style={{ flexShrink: 0 }}>

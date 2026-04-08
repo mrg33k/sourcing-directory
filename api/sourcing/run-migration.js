@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   }
 
   const client = new Client({
-    host: 'db.mcngatprgluexjjcqpkp.supabase.co',
+    host: 'db.kzzvjtthknsozktmpvak.supabase.co',
     port: 5432,
     database: 'postgres',
     user: 'postgres',

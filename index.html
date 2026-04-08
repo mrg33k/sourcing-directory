@@ -2,13 +2,46 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sourcing Directory</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>sourcing.directory</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Syne:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   </head>
   <body>
+    <style>
+      :root {
+        --bg: #06060A; --s1: #0E0E14; --s2: #15151E; --s3: #1C1C28;
+        --bd: rgba(255,255,255,0.06); --bd2: rgba(255,255,255,0.1);
+        --tx: #F0F0F5; --tx2: rgba(240,240,245,0.55); --tx3: rgba(240,240,245,0.25);
+        --cyan: #22D3EE; --cyan-dim: rgba(34,211,238,0.08); --cyan-brd: rgba(34,211,238,0.2);
+        --violet: #A78BFA; --violet-dim: rgba(167,139,250,0.08); --violet-brd: rgba(167,139,250,0.2);
+        --emerald: #34D399; --amber: #FBBF24; --rose: #FB7185;
+        --r: 16px; --r-sm: 10px; --nav-h: 72px;
+      }
+      *, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+      html, body { margin: 0; padding: 0; background: var(--bg); color: var(--tx); font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+      #root { min-height: 100dvh; padding-bottom: var(--nav-h); }
+      /* v10 scrollable regions */
+      .v10-scroll { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+      .v10-scroll::-webkit-scrollbar { display: none; }
+      /* v10 chips row */
+      .v10-chips { display: flex; gap: 8px; padding: 12px 20px; overflow-x: auto; scrollbar-width: none; }
+      .v10-chips::-webkit-scrollbar { display: none; }
+      /* v10 skeleton shimmer */
+      @keyframes v10-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+      .v10-skel { background: linear-gradient(90deg, var(--s2) 25%, var(--s3) 50%, var(--s2) 75%); background-size: 200% 100%; animation: v10-shimmer 1.5s infinite; border-radius: 4px; }
+      @keyframes v10-spin { to { transform: rotate(360deg); } }
+      /* v10 page enter animation */
+      @keyframes v10-fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+      .v10-page { animation: v10-fadeUp 0.25s cubic-bezier(0.16,1,0.3,1); }
+      /* Desktop: constrain to phone width for app feel */
+      @media (min-width: 768px) {
+        #root { max-width: 480px; margin: 0 auto; border-left: 1px solid var(--bd); border-right: 1px solid var(--bd); }
+      }
+    </style>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
