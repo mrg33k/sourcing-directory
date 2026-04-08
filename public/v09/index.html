@@ -374,8 +374,17 @@ html, body { height:100%; overflow:hidden; background:var(--bg); color:var(--tx)
       <div class="events-hdr-inner">
         <div class="events-title">Events</div>
       </div>
-      <div class="chips" id="ev-chips" style="padding-top:12px;">
-        <button class="chip on" onclick="setEvType('all', this)">All</button>
+      <div class="search-wrap" style="margin-top:12px;">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input id="ev-search" type="text" placeholder="Search events..." oninput="renderEvents()" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="chips" id="ev-chips">
+        <button class="chip on" onclick="setEvVertical('all', this)">All Industries</button>
+        <button class="chip" onclick="setEvVertical('semiconductor', this)">Semiconductor</button>
+        <button class="chip" onclick="setEvVertical('space', this)">Space</button>
+      </div>
+      <div class="chips" id="ev-type-chips" style="padding-top:0;margin-top:-4px;">
+        <button class="chip on" onclick="setEvType('all', this)">All Types</button>
         <button class="chip" onclick="setEvType('conference', this)">Conference</button>
         <button class="chip" onclick="setEvType('meetup', this)">Meetup</button>
         <button class="chip" onclick="setEvType('webinar', this)">Webinar</button>
@@ -438,6 +447,7 @@ let allCerts = {};
 let allEvents = [];
 let currentVertical = 'all';
 let currentEvType = 'all';
+let currentEvVertical = 'all';
 let upcomingOnly = true;
 let activeTab = 'home';
 let pendingBrowseVertical = null;
@@ -497,10 +507,18 @@ function setVertical(v, btn) {
   renderCompanies();
 }
 
+// ─── Event vertical filter ────────────────────────────────────────────────────
+function setEvVertical(v, btn) {
+  currentEvVertical = v;
+  document.querySelectorAll('#ev-chips .chip').forEach(c => { c.classList.remove('on'); });
+  btn.classList.add('on');
+  renderEvents();
+}
+
 // ─── Event type filter ────────────────────────────────────────────────────────
 function setEvType(et, btn) {
   currentEvType = et;
-  document.querySelectorAll('#ev-chips .chip').forEach(c => { c.classList.remove('on'); });
+  document.querySelectorAll('#ev-type-chips .chip').forEach(c => { c.classList.remove('on'); });
   btn.classList.add('on');
   renderEvents();
 }
@@ -565,13 +583,25 @@ function renderCompanies() {
 // ─── Render Events ────────────────────────────────────────────────────────────
 function renderEvents() {
   const now = new Date();
+  const q = (document.getElementById('ev-search')?.value || '').toLowerCase().trim();
   let filtered = allEvents;
 
   if (upcomingOnly) {
     filtered = filtered.filter(e => !e.event_date || new Date(e.event_date) >= now);
   }
+  if (currentEvVertical !== 'all') {
+    filtered = filtered.filter(e => e.vertical === currentEvVertical);
+  }
   if (currentEvType !== 'all') {
     filtered = filtered.filter(e => e.event_type === currentEvType);
+  }
+  if (q) {
+    filtered = filtered.filter(e =>
+      (e.title || '').toLowerCase().includes(q) ||
+      (e.organizer || '').toLowerCase().includes(q) ||
+      (e.event_location || '').toLowerCase().includes(q) ||
+      (e.description || '').toLowerCase().includes(q)
+    );
   }
 
   document.getElementById('ev-count').textContent = filtered.length + ' event' + (filtered.length !== 1 ? 's' : '');
