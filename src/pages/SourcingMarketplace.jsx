@@ -603,14 +603,6 @@ function SourcingMarketplaceInner() {
         </div>
 
         <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
-          </div>
-          <button onClick={handleSearch} style={{
-            background: V.accent, border: 'none', color: '#fff',
-            borderRadius: 8, padding: '0 18px', fontSize: 13,
-            fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
-          }}>
-            Search
-          </button>
           {/* Mobile filters toggle */}
           <button
             className="mkt-filters-toggle"
@@ -764,10 +756,9 @@ function SourcingMarketplaceInner() {
             )}
           </div>
         </div>
-      </div>
 
-      {/* Results */}
-      <div style={{ padding: '0 24px 60px', maxWidth: 960, margin: '0 auto' }}>
+        {/* Results */}
+        <div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div style={{ fontSize: 13, color: V.muted, fontFamily: V.space }}>
             {loading ? 'Loading...' : (
@@ -836,6 +827,7 @@ function SourcingMarketplaceInner() {
             </Link>
           </div>
         )}
+        </div>
       </div>
 
       {/* Detail modal */}
