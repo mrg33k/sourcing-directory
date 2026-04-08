@@ -79,6 +79,13 @@ function SourcingPortalInner() {
         setLoading(false);
         return;
       }
+
+      // Admin users go to the admin panel
+      if (memberData.role === 'admin') {
+        navigate('/admin', { replace: true });
+        return;
+      }
+
       setMember(memberData);
 
       // Get company
@@ -246,22 +253,6 @@ function SourcingPortalInner() {
       />
 
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '40px 24px 80px' }}>
-        {/* Admin shortcut */}
-        <Link to="/admin" style={{
-          display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px',
-          background: 'var(--cyan-dim)', border: '1px solid var(--cyan-brd)',
-          borderRadius: 'var(--r)', marginBottom: 20, textDecoration: 'none', color: 'var(--cyan)',
-        }}>
-          <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"/><circle cx="12" cy="12" r="3"/>
-          </svg>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 700 }}>Admin Panel</div>
-            <div style={{ fontSize: 12, color: 'var(--tx2)' }}>Manage all companies, content, reports</div>
-          </div>
-          <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ marginLeft: 'auto' }}><path d="M9 18l6-6-6-6"/></svg>
-        </Link>
-
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 32, gap: 16, flexWrap: 'wrap' }}>
           <div>
