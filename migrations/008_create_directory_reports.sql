@@ -4,10 +4,11 @@ CREATE TABLE IF NOT EXISTS directory_reports (
   tenant_id     uuid NOT NULL REFERENCES directory_tenants(id) ON DELETE CASCADE,
   title         text NOT NULL,
   category      text,
-  access        text NOT NULL, -- 'free', 'member'
+  access        text NOT NULL DEFAULT 'public', -- 'public', 'members', 'paid'
   description   text,
   file_url      text,
-  published_at  timestamptz DEFAULT now()
+  published_at  timestamptz,
+  created_at    timestamptz DEFAULT now()
 );
 
 CREATE INDEX IF NOT EXISTS idx_dir_reports_tenant ON directory_reports(tenant_id);
