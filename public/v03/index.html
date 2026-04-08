@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>Sourcing Directory V03 - Game Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Barlow+Condensed:wght@400;600;700&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; background:#060810; color:#e5e7eb; font-family:'Space Grotesk',sans-serif; }
+
+.app { height:100dvh; display:flex; flex-direction:column; }
+
+/* ─── Status Bar ─── */
+.status-bar { flex-shrink:0; padding:env(safe-area-inset-top,8px) 16px 6px; display:flex; justify-content:space-between; align-items:center; background:#060810; }
+.status-bar .mark { font-family:'Syne',sans-serif; font-weight:800; font-size:11px; letter-spacing:0.14em; color:#10b981; }
+.status-bar .stats { display:flex; gap:12px; }
+.status-bar .stat { font-family:'JetBrains Mono',monospace; font-size:9px; color:#4b5563; display:flex; align-items:center; gap:4px; }
+.status-bar .stat-dot { width:5px; height:5px; border-radius:50%; }
+.stat-dot.green { background:#10b981; }
+.stat-dot.amber { background:#F59E0B; }
+.stat-dot.red { background:#EF4444; }
+
+/* ─── Landing: Radar/Map feel ─── */
+.radar-landing { flex:1; display:flex; flex-direction:column; padding:0 16px; position:relative; overflow:hidden; }
+.radar-bg { position:absolute; inset:0; opacity:0.03; background:repeating-linear-gradient(0deg, transparent, transparent 40px, #10b981 40px, #10b981 41px),repeating-linear-gradient(90deg, transparent, transparent 40px, #10b981 40px, #10b981 41px); }
+.radar-title { font-family:'Syne',sans-serif; font-size:clamp(16px,4vw,22px); font-weight:800; color:#fff; margin:16px 0 4px; position:relative; z-index:1; }
+.radar-sub { font-size:11px; color:#4b5563; margin-bottom:16px; font-family:'JetBrains Mono',monospace; letter-spacing:0.04em; position:relative; z-index:1; }
+
+/* Directory blocks */
+.dir-block { position:relative; z-index:1; border-radius:12px; overflow:hidden; cursor:pointer; margin-bottom:12px; flex:1; max-height:45%; display:flex; flex-direction:column; transition:transform 0.15s; }
+.dir-block:active { transform:scale(0.98); }
+.dir-block-bg { position:absolute; inset:0; background-size:cover; background-position:center; }
+.dir-block-overlay { position:absolute; inset:0; }
+.dir-block-content { position:relative; z-index:1; flex:1; display:flex; flex-direction:column; justify-content:space-between; padding:14px 16px; }
+
+.dir-block-header { display:flex; justify-content:space-between; align-items:flex-start; }
+.dir-block-label { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.5); letter-spacing:0.12em; text-transform:uppercase; }
+.dir-block-status { display:flex; align-items:center; gap:4px; font-family:'JetBrains Mono',monospace; font-size:9px; }
+.dir-block-status .pulse { width:6px; height:6px; border-radius:50%; background:#10b981; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.dir-block-center { text-align:center; }
+.dir-block-name { font-weight:800; font-size:16px; color:#fff; line-height:1.2; margin-bottom:6px; }
+.dir-block-desc { font-size:10px; color:rgba(255,255,255,0.5); }
+
+.dir-block-footer { display:flex; justify-content:space-between; align-items:flex-end; }
+.dir-block-metrics { display:flex; gap:14px; }
+.dir-block-metric { text-align:center; }
+.dir-block-metric-num { font-family:'Syne',sans-serif; font-weight:800; font-size:16px; }
+.dir-block-metric-label { font-family:'JetBrains Mono',monospace; font-size:8px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:0.08em; }
+.dir-block-enter { width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
+
+/* Space block */
+.block-space .dir-block-bg { background-image:url('https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?w=800&q=80'); }
+.block-space .dir-block-overlay { background:linear-gradient(135deg, rgba(229,69,31,0.08) 0%, rgba(8,8,8,0.92) 50%, rgba(8,8,8,0.98) 100%); border:1px solid rgba(229,69,31,0.15); border-radius:12px; }
+.block-space .dir-block-name { font-family:'Oswald',sans-serif; }
+.block-space .dir-block-metric-num { color:#E5451F; }
+.block-space .dir-block-enter { background:rgba(229,69,31,0.15); border:1px solid rgba(229,69,31,0.3); color:#E5451F; }
+.block-space .dir-block-status .pulse { background:#E5451F; }
+
+/* S3C block */
+.block-s3c .dir-block-bg { background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80'); }
+.block-s3c .dir-block-overlay { background:linear-gradient(135deg, rgba(160,82,45,0.08) 0%, rgba(13,27,46,0.92) 50%, rgba(6,8,16,0.98) 100%); border:1px solid rgba(160,82,45,0.15); border-radius:12px; }
+.block-s3c .dir-block-name { font-family:'Barlow Condensed',sans-serif; }
+.block-s3c .dir-block-metric-num { color:#A0522D; }
+.block-s3c .dir-block-enter { background:rgba(160,82,45,0.15); border:1px solid rgba(160,82,45,0.3); color:#A0522D; }
+.block-s3c .dir-block-status .pulse { background:#A0522D; }
+
+/* ─── Directory View ─── */
+.dir-screen { position:absolute; inset:0; top:0; z-index:20; background:#060810; display:flex; flex-direction:column; transform:scale(0.95); opacity:0; pointer-events:none; transition:transform 0.3s cubic-bezier(0.4,0,0.2,1), opacity 0.3s; }
+.dir-screen.open { transform:scale(1); opacity:1; pointer-events:all; }
+
+.dir-nav { flex-shrink:0; display:flex; align-items:center; gap:8px; padding:env(safe-area-inset-top,8px) 12px 6px; }
+.dir-nav-back { width:30px; height:30px; border-radius:8px; background:rgba(255,255,255,0.05); border:1px solid #1a1d24; color:#9ca3af; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.dir-nav-title { flex:1; font-family:'Syne',sans-serif; font-weight:700; font-size:14px; color:#fff; }
+.dir-nav-badge { font-family:'JetBrains Mono',monospace; font-size:10px; padding:3px 8px; border-radius:6px; }
+
+.dir-toolbar { flex-shrink:0; padding:4px 12px 8px; display:flex; gap:6px; }
+.dir-toolbar input { flex:1; background:#0d1017; border:1px solid #1a1d24; color:#e5e7eb; border-radius:8px; padding:8px 12px; font-size:12px; font-family:'Space Grotesk',sans-serif; outline:none; }
+.dir-toolbar input:focus { border-color:#10b981; }
+.dir-toolbar input::placeholder { color:#2d3339; }
+.dir-toolbar .filter-btn { width:36px; height:36px; border-radius:8px; background:#0d1017; border:1px solid #1a1d24; color:#4b5563; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+
+.dir-sections { flex-shrink:0; display:flex; gap:0; overflow-x:auto; scrollbar-width:none; padding:0 12px; }
+.dir-sections::-webkit-scrollbar { display:none; }
+.dir-sec { flex-shrink:0; padding:8px 14px; background:none; border:none; color:#2d3339; font-size:11px; font-weight:600; font-family:'Space Grotesk',sans-serif; cursor:pointer; border-bottom:2px solid transparent; position:relative; }
+.dir-sec.active { color:#fff; border-bottom-color:#10b981; }
+.dir-sec-count { font-family:'JetBrains Mono',monospace; font-size:9px; color:#10b981; margin-left:3px; }
+
+/* Company list - compact rows */
+.dir-rows { flex:1; overflow-y:auto; padding:4px 12px; scrollbar-width:thin; scrollbar-color:#1a1d24 transparent; }
+.co-row { display:flex; align-items:center; gap:10px; padding:10px; border-radius:8px; cursor:pointer; transition:background 0.1s; border-bottom:1px solid rgba(26,29,36,0.5); }
+.co-row:active { background:rgba(16,185,129,0.05); }
+.co-row-rank { font-family:'JetBrains Mono',monospace; font-size:9px; color:#2d3339; width:16px; text-align:right; flex-shrink:0; }
+.co-row-icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; flex-shrink:0; border:1px solid rgba(255,255,255,0.06); }
+.co-row-info { flex:1; min-width:0; }
+.co-row-name { font-size:12px; font-weight:600; color:#e5e7eb; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.co-row-meta { font-size:10px; color:#4b5563; margin-top:1px; display:flex; gap:8px; }
+.co-row-certs { display:flex; gap:3px; flex-shrink:0; }
+.co-row-cert { font-family:'JetBrains Mono',monospace; font-size:8px; padding:2px 5px; border-radius:3px; background:rgba(16,185,129,0.06); color:rgba(16,185,129,0.6); border:1px solid rgba(16,185,129,0.1); }
+.co-row-arrow { color:#1a1d24; flex-shrink:0; }
+
+/* Bottom HUD */
+.dir-hud { flex-shrink:0; padding:6px 12px env(safe-area-inset-bottom,6px); background:#0a0d14; border-top:1px solid #1a1d24; display:flex; gap:6px; }
+.hud-btn { flex:1; padding:10px 8px; border-radius:8px; border:none; font-family:'Space Grotesk',sans-serif; font-size:11px; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px; }
+.hud-btn.primary { background:#10b981; color:#fff; }
+.hud-btn.ghost { background:transparent; border:1px solid #1a1d24; color:#4b5563; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="status-bar">
+    <div class="mark">SOURCING.DIRECTORY</div>
+    <div class="stats">
+      <div class="stat"><div class="stat-dot green"></div>62 companies</div>
+      <div class="stat"><div class="stat-dot amber"></div>22 jobs</div>
+      <div class="stat"><div class="stat-dot green"></div>3 events</div>
+    </div>
+  </div>
+
+  <div class="radar-landing">
+    <div class="radar-bg"></div>
+    <div class="radar-title">Arizona Industry Intel</div>
+    <div class="radar-sub">// SELECT DIRECTORY</div>
+
+    <div class="dir-block block-space" onclick="openDir('space')">
+      <div class="dir-block-bg"></div>
+      <div class="dir-block-overlay"></div>
+      <div class="dir-block-content">
+        <div class="dir-block-header">
+          <div class="dir-block-label">Space &amp; Aerospace</div>
+          <div class="dir-block-status"><div class="pulse"></div><span style="color:rgba(255,255,255,0.4)">ACTIVE</span></div>
+        </div>
+        <div class="dir-block-center">
+          <div class="dir-block-name">SPACE RISING ARIZONA</div>
+          <div class="dir-block-desc">Launch suppliers, defense contractors, R&D</div>
+        </div>
+        <div class="dir-block-footer">
+          <div class="dir-block-metrics">
+            <div class="dir-block-metric"><div class="dir-block-metric-num">26</div><div class="dir-block-metric-label">Companies</div></div>
+            <div class="dir-block-metric"><div class="dir-block-metric-num">12</div><div class="dir-block-metric-label">Events</div></div>
+            <div class="dir-block-metric"><div class="dir-block-metric-num">8</div><div class="dir-block-metric-label">Open Jobs</div></div>
+          </div>
+          <div class="dir-block-enter"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dir-block block-s3c" onclick="openDir('s3c')">
+      <div class="dir-block-bg"></div>
+      <div class="dir-block-overlay"></div>
+      <div class="dir-block-content">
+        <div class="dir-block-header">
+          <div class="dir-block-label">Semiconductor</div>
+          <div class="dir-block-status"><div class="pulse"></div><span style="color:rgba(255,255,255,0.4)">ACTIVE</span></div>
+        </div>
+        <div class="dir-block-center">
+          <div class="dir-block-name">S3C ARIZONA SEMICONDUCTOR</div>
+          <div class="dir-block-desc">Fabs, suppliers, advanced manufacturing</div>
+        </div>
+        <div class="dir-block-footer">
+          <div class="dir-block-metrics">
+            <div class="dir-block-metric"><div class="dir-block-metric-num">36</div><div class="dir-block-metric-label">Companies</div></div>
+            <div class="dir-block-metric"><div class="dir-block-metric-num">22</div><div class="dir-block-metric-label">Open Jobs</div></div>
+            <div class="dir-block-metric"><div class="dir-block-metric-num">5</div><div class="dir-block-metric-label">Grants</div></div>
+          </div>
+          <div class="dir-block-enter"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Directory View -->
+  <div class="dir-screen" id="dir-screen">
+    <div class="dir-nav">
+      <button class="dir-nav-back" onclick="closeDir()"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+      <div class="dir-nav-title" id="dv-title">S3C Arizona</div>
+      <div class="dir-nav-badge" id="dv-badge" style="background:rgba(160,82,45,0.12);color:#A0522D;border:1px solid rgba(160,82,45,0.25);">SEMICONDUCTOR</div>
+    </div>
+    <div class="dir-toolbar">
+      <input type="text" placeholder="Search companies...">
+      <button class="filter-btn"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg></button>
+    </div>
+    <div class="dir-sections">
+      <button class="dir-sec active">All<span class="dir-sec-count" id="dv-count">36</span></button>
+      <button class="dir-sec">Jobs<span class="dir-sec-count">22</span></button>
+      <button class="dir-sec">Events<span class="dir-sec-count">3</span></button>
+      <button class="dir-sec">Articles</button>
+      <button class="dir-sec">Marketplace</button>
+      <button class="dir-sec">Grants<span class="dir-sec-count">5</span></button>
+      <button class="dir-sec">Reports</button>
+    </div>
+    <div class="dir-rows" id="dv-rows"></div>
+    <div class="dir-hud">
+      <button class="hud-btn ghost">Map View</button>
+      <button class="hud-btn primary">+ List Company</button>
+      <button class="hud-btn ghost">Login</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = {
+  s3c: {
+    title:'S3C Arizona', badge:'SEMICONDUCTOR', badgeBg:'rgba(160,82,45,0.12)', badgeColor:'#A0522D', badgeBorder:'rgba(160,82,45,0.25)',
+    companies: [
+      { n:'Intel Chandler', c:'Chandler, AZ', e:'10,000+', b:['ITAR','ISO 9001'], f:true, col:'#3B82F6' },
+      { n:'TSMC Arizona', c:'Phoenix, AZ', e:'2,000+', b:['ISO 14001'], f:true, col:'#10b981' },
+      { n:'Microchip Technology', c:'Chandler, AZ', e:'5,000+', b:['AS9100D'], f:true, col:'#8B5CF6' },
+      { n:'Honeywell Aerospace', c:'Phoenix, AZ', e:'10,000+', b:['AS9100D','ITAR'], f:true, col:'#EF4444' },
+      { n:'Amkor Technology', c:'Tempe, AZ', e:'2,000+', b:['ISO 9001'], col:'#F59E0B' },
+      { n:'NXP Semiconductors', c:'Chandler, AZ', e:'1,000+', b:['AEC-Q100'], col:'#EF4444' },
+      { n:'onsemi', c:'Scottsdale, AZ', e:'5,000+', b:['ISO 9001'], col:'#3B82F6' },
+      { n:'Benchmark Electronics', c:'Tempe, AZ', e:'500+', b:['ITAR'], col:'#06B6D4' },
+      { n:'Rogers Corporation', c:'Chandler, AZ', e:'200+', b:['ISO 14001'], col:'#10b981' },
+      { n:'Qorvo', c:'Chandler, AZ', e:'500+', b:['ITAR'], col:'#F97316' },
+      { n:'Applied Materials', c:'Tucson, AZ', e:'1,000+', b:[], col:'#8B5CF6' },
+      { n:'Analog Devices', c:'Chandler, AZ', e:'500+', b:['ISO 9001'], col:'#10b981' },
+    ]
+  },
+  space: {
+    title:'Space Rising', badge:'SPACE & AEROSPACE', badgeBg:'rgba(229,69,31,0.12)', badgeColor:'#E5451F', badgeBorder:'rgba(229,69,31,0.25)',
+    companies: [
+      { n:'Raytheon Missiles & Defense', c:'Tucson, AZ', e:'10,000+', b:['ITAR','DoD Secret'], f:true, col:'#3B82F6' },
+      { n:'Northrop Grumman', c:'Chandler, AZ', e:'2,000+', b:['AS9100D'], f:true, col:'#8B5CF6' },
+      { n:'World View Enterprises', c:'Tucson, AZ', e:'200+', b:['FAA Part 145'], f:true, col:'#10b981' },
+      { n:'Phantom Space Corp', c:'Tucson, AZ', e:'50+', b:['ITAR'], col:'#F59E0B' },
+      { n:'FreeFall Aerospace', c:'Tucson, AZ', e:'11-50', b:['ITAR'], col:'#EF4444' },
+      { n:'SAIC Arizona', c:'Tucson, AZ', e:'500+', b:['DoD','TS/SCI'], col:'#06B6D4' },
+      { n:'Kratos Defense', c:'Tucson, AZ', e:'200+', b:['ITAR'], col:'#F97316' },
+      { n:'L3Harris Technologies', c:'Tempe, AZ', e:'1,000+', b:['AS9100D'], col:'#3B82F6' },
+    ]
+  }
+};
+
+function openDir(dir) {
+  const d = DATA[dir];
+  document.getElementById('dv-title').textContent = d.title;
+  const badge = document.getElementById('dv-badge');
+  badge.textContent = d.badge;
+  badge.style.background = d.badgeBg;
+  badge.style.color = d.badgeColor;
+  badge.style.borderColor = d.badgeBorder;
+  document.getElementById('dv-count').textContent = d.companies.length;
+  const rows = document.getElementById('dv-rows');
+  rows.innerHTML = d.companies.map((c,i) => `
+    <div class="co-row">
+      <div class="co-row-rank">${String(i+1).padStart(2,'0')}</div>
+      <div class="co-row-icon" style="background:${c.col}12;color:${c.col};border-color:${c.col}20">${c.n[0]}</div>
+      <div class="co-row-info">
+        <div class="co-row-name">${c.f ? '&#9733; ' : ''}${c.n}</div>
+        <div class="co-row-meta"><span>${c.c}</span><span>${c.e} emp</span></div>
+      </div>
+      <div class="co-row-certs">${c.b.slice(0,2).map(b => `<span class="co-row-cert">${b}</span>`).join('')}</div>
+      <div class="co-row-arrow"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+    </div>
+  `).join('');
+  document.getElementById('dir-screen').classList.add('open');
+}
+
+function closeDir() {
+  document.getElementById('dir-screen').classList.remove('open');
+}
+</script>
+</body>
+</html>

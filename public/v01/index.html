@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>Sourcing Directory V01 - Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Barlow+Condensed:wght@400;600;700&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; background:#0a0e13; color:#e5e7eb; font-family:'Space Grotesk',sans-serif; }
+
+/* ─── App Shell ─── */
+.app { height:100dvh; display:flex; flex-direction:column; }
+.app-header { flex-shrink:0; padding:env(safe-area-inset-top,12px) 16px 8px; background:#0f1419; border-bottom:1px solid #1e2328; display:flex; align-items:center; justify-content:space-between; }
+.app-header .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:14px; color:#10b981; letter-spacing:0.1em; }
+.app-header .status { font-family:'JetBrains Mono',monospace; font-size:10px; color:#4b5563; }
+.app-content { flex:1; overflow:hidden; position:relative; }
+.app-tabs { flex-shrink:0; display:flex; background:#0f1419; border-top:1px solid #1e2328; padding:0 0 env(safe-area-inset-bottom,8px); }
+.app-tabs button { flex:1; padding:10px 0 6px; background:none; border:none; color:#4b5563; font-family:'Space Grotesk',sans-serif; font-size:10px; font-weight:600; cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:3px; transition:color 0.2s; }
+.app-tabs button.active { color:#10b981; }
+.app-tabs button svg { width:18px; height:18px; }
+
+/* ─── Screens ─── */
+.screen { position:absolute; inset:0; display:flex; flex-direction:column; opacity:0; pointer-events:none; transition:opacity 0.25s, transform 0.25s; transform:translateX(20px); }
+.screen.active { opacity:1; pointer-events:all; transform:translateX(0); }
+
+/* ─── Landing Screen ─── */
+.landing { padding:20px 16px; display:flex; flex-direction:column; justify-content:center; gap:16px; height:100%; }
+.landing-title { font-family:'Syne',sans-serif; font-size:clamp(20px,5vw,28px); font-weight:800; color:#fff; text-align:center; line-height:1.15; }
+.landing-sub { font-size:12px; color:#6b7280; text-align:center; margin-top:-8px; }
+.dir-card { border-radius:14px; overflow:hidden; position:relative; height:calc(50% - 30px); max-height:220px; cursor:pointer; transition:transform 0.15s; }
+.dir-card:active { transform:scale(0.97); }
+.dir-card-bg { position:absolute; inset:0; background-size:cover; background-position:center; }
+.dir-card-overlay { position:absolute; inset:0; }
+.dir-card-content { position:absolute; bottom:0; left:0; right:0; padding:16px 18px; display:flex; align-items:flex-end; justify-content:space-between; }
+.dir-card-name { font-weight:700; font-size:15px; color:#fff; text-transform:uppercase; letter-spacing:0.06em; }
+.dir-card-count { font-family:'JetBrains Mono',monospace; font-size:11px; color:rgba(255,255,255,0.7); }
+.dir-card-arrow { width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.15); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; color:#fff; }
+
+/* S3C brand */
+.dir-card.s3c .dir-card-bg { background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&q=80'); }
+.dir-card.s3c .dir-card-overlay { background:linear-gradient(to top, #0D1B2E 0%, rgba(13,27,46,0.85) 30%, rgba(0,0,0,0.2) 100%); }
+.dir-card.s3c .dir-card-name { font-family:'Barlow Condensed',sans-serif; color:#A0522D; }
+
+/* Space Rising brand */
+.dir-card.space .dir-card-bg { background-image:url('https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?w=600&q=80'); }
+.dir-card.space .dir-card-overlay { background:linear-gradient(to top, #080808 0%, rgba(8,8,8,0.85) 30%, rgba(0,0,0,0.2) 100%); }
+.dir-card.space .dir-card-name { font-family:'Oswald',sans-serif; color:#E5451F; }
+
+/* ─── Directory Screen ─── */
+.dir-header { flex-shrink:0; padding:12px 16px 10px; display:flex; align-items:center; gap:10px; }
+.dir-back { background:none; border:none; color:#9ca3af; cursor:pointer; padding:4px; }
+.dir-brand { font-weight:700; font-size:14px; color:#fff; flex:1; }
+.dir-search-bar { flex-shrink:0; padding:0 16px 10px; }
+.dir-search-bar input { width:100%; background:#1e2328; border:1px solid #2d3339; color:#e5e7eb; border-radius:10px; padding:10px 14px; font-size:13px; font-family:'Space Grotesk',sans-serif; outline:none; }
+.dir-search-bar input:focus { border-color:#10b981; box-shadow:0 0 0 2px rgba(16,185,129,0.15); }
+.dir-search-bar input::placeholder { color:#4b5563; }
+
+.dir-filters { flex-shrink:0; padding:0 16px 8px; display:flex; gap:6px; overflow-x:auto; scrollbar-width:none; }
+.dir-filters::-webkit-scrollbar { display:none; }
+.dir-filters button { flex-shrink:0; padding:5px 12px; border-radius:8px; border:1px solid #2d3339; background:transparent; color:#9ca3af; font-size:11px; font-family:'Space Grotesk',sans-serif; font-weight:600; cursor:pointer; white-space:nowrap; }
+.dir-filters button.active { background:rgba(16,185,129,0.12); border-color:rgba(16,185,129,0.35); color:#10b981; }
+
+.dir-section-tabs { flex-shrink:0; display:flex; padding:0 16px 6px; gap:0; border-bottom:1px solid #1e2328; overflow-x:auto; scrollbar-width:none; }
+.dir-section-tabs::-webkit-scrollbar { display:none; }
+.dir-section-tabs button { flex-shrink:0; padding:8px 14px; background:none; border:none; border-bottom:2px solid transparent; color:#4b5563; font-size:11px; font-weight:600; font-family:'Space Grotesk',sans-serif; cursor:pointer; white-space:nowrap; }
+.dir-section-tabs button.active { color:#10b981; border-bottom-color:#10b981; }
+
+.dir-list { flex:1; overflow-y:auto; padding:8px 16px; display:flex; flex-direction:column; gap:8px; scrollbar-width:thin; scrollbar-color:#2d3339 transparent; }
+.company-card { background:#1e2328; border:1px solid #2d3339; border-radius:10px; padding:12px 14px; display:flex; align-items:center; gap:12px; cursor:pointer; transition:border-color 0.15s; }
+.company-card:active { border-color:rgba(16,185,129,0.4); }
+.company-avatar { width:36px; height:36px; border-radius:8px; background:#252a31; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; color:#10b981; flex-shrink:0; }
+.company-info { flex:1; min-width:0; }
+.company-name { font-size:13px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.company-meta { font-size:11px; color:#6b7280; margin-top:2px; }
+.company-badges { display:flex; gap:4px; margin-top:4px; }
+.company-badge { font-family:'JetBrains Mono',monospace; font-size:9px; padding:2px 6px; border-radius:3px; background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.25); color:#10b981; }
+.company-badge.featured { background:rgba(234,179,8,0.1); border-color:rgba(234,179,8,0.3); color:#FBBF24; }
+
+.dir-count { flex-shrink:0; padding:6px 16px; font-size:11px; color:#6b7280; font-family:'JetBrains Mono',monospace; border-top:1px solid #1e2328; text-align:center; }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Header -->
+  <div class="app-header">
+    <div class="logo">AOM</div>
+    <div class="status">sourcing.directory</div>
+  </div>
+
+  <!-- Content -->
+  <div class="app-content">
+    <!-- Landing -->
+    <div class="screen active" id="screen-landing">
+      <div class="landing">
+        <div class="landing-title">Arizona Industry<br>Directories</div>
+        <div class="landing-sub">Verified suppliers, certified companies</div>
+        <div class="dir-card space" onclick="openDir('space')">
+          <div class="dir-card-bg"></div>
+          <div class="dir-card-overlay"></div>
+          <div class="dir-card-content">
+            <div>
+              <div class="dir-card-name">Space Rising Arizona</div>
+              <div class="dir-card-count">26 companies</div>
+            </div>
+            <div class="dir-card-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+          </div>
+        </div>
+        <div class="dir-card s3c" onclick="openDir('s3c')">
+          <div class="dir-card-bg"></div>
+          <div class="dir-card-overlay"></div>
+          <div class="dir-card-content">
+            <div>
+              <div class="dir-card-name">S3C Arizona Semiconductor</div>
+              <div class="dir-card-count">36 companies</div>
+            </div>
+            <div class="dir-card-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Directory View -->
+    <div class="screen" id="screen-directory">
+      <div class="dir-header">
+        <button class="dir-back" onclick="goHome()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="dir-brand" id="dir-brand-name">S3C Arizona Semiconductor</div>
+      </div>
+      <div class="dir-search-bar">
+        <input type="text" placeholder="Search companies, certifications..." id="dir-search">
+      </div>
+      <div class="dir-filters">
+        <button class="active">All</button>
+        <button>Semiconductor</button>
+        <button>Space</button>
+        <button>ITAR</button>
+        <button>ISO 9001</button>
+        <button>Featured</button>
+      </div>
+      <div class="dir-section-tabs">
+        <button class="active">Directory</button>
+        <button>Jobs <span style="color:#10b981;font-size:9px">22</span></button>
+        <button>Events <span style="color:#10b981;font-size:9px">3</span></button>
+        <button>Articles</button>
+        <button>Marketplace</button>
+        <button>Grants</button>
+        <button>Reports</button>
+      </div>
+      <div class="dir-list" id="dir-list">
+        <!-- Populated by JS -->
+      </div>
+      <div class="dir-count" id="dir-count">36 companies</div>
+    </div>
+  </div>
+
+  <!-- Tab Bar -->
+  <div class="app-tabs">
+    <button class="active" onclick="goHome()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+      Home
+    </button>
+    <button>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Search
+    </button>
+    <button>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Browse
+    </button>
+    <button>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Account
+    </button>
+  </div>
+</div>
+
+<script>
+const COMPANIES = {
+  s3c: [
+    { name:'Intel Chandler', city:'Chandler, AZ', emp:'10,000+', badges:['ITAR','ISO 9001'], featured:true },
+    { name:'TSMC Arizona', city:'Phoenix, AZ', emp:'2,000+', badges:['ISO 14001'], featured:true },
+    { name:'Microchip Technology', city:'Chandler, AZ', emp:'5,000+', badges:['AS9100D'], featured:true },
+    { name:'Amkor Technology', city:'Tempe, AZ', emp:'2,000+', badges:['ISO 9001'] },
+    { name:'NXP Semiconductors', city:'Chandler, AZ', emp:'1,000+', badges:['AEC-Q100'] },
+    { name:'Benchmark Electronics', city:'Tempe, AZ', emp:'500+', badges:['ISO 9001','ITAR'] },
+    { name:'Rogers Corporation', city:'Chandler, AZ', emp:'200+', badges:['ISO 14001'] },
+    { name:'Qorvo', city:'Chandler, AZ', emp:'500+', badges:['ITAR'] },
+    { name:'onsemi', city:'Scottsdale, AZ', emp:'5,000+', badges:['ISO 9001'] },
+    { name:'Analog Devices', city:'Chandler, AZ', emp:'500+', badges:['ISO 9001'] },
+    { name:'Applied Materials', city:'Tucson, AZ', emp:'1,000+', badges:[] },
+    { name:'Honeywell Aerospace', city:'Phoenix, AZ', emp:'10,000+', badges:['AS9100D','ITAR'], featured:true },
+  ],
+  space: [
+    { name:'Raytheon Missiles', city:'Tucson, AZ', emp:'10,000+', badges:['ITAR','DoD'], featured:true },
+    { name:'Northrop Grumman', city:'Chandler, AZ', emp:'2,000+', badges:['AS9100D'], featured:true },
+    { name:'World View', city:'Tucson, AZ', emp:'200+', badges:['FAA'], featured:true },
+    { name:'Phantom Space', city:'Tucson, AZ', emp:'50+', badges:['ITAR'] },
+    { name:'FreeFall Aerospace', city:'Tucson, AZ', emp:'11-50', badges:['ITAR'] },
+    { name:'SAIC Arizona', city:'Tucson, AZ', emp:'500+', badges:['DoD','TS/SCI'] },
+    { name:'Kratos Defense', city:'Tucson, AZ', emp:'200+', badges:['ITAR'] },
+    { name:'L3Harris Technologies', city:'Tempe, AZ', emp:'1,000+', badges:['AS9100D'] },
+  ]
+};
+
+function openDir(dir) {
+  document.getElementById('screen-landing').classList.remove('active');
+  document.getElementById('screen-directory').classList.add('active');
+  const brand = dir === 's3c' ? 'S3C Arizona Semiconductor' : 'Space Rising Arizona';
+  document.getElementById('dir-brand-name').textContent = brand;
+  const companies = COMPANIES[dir];
+  const list = document.getElementById('dir-list');
+  list.innerHTML = companies.map(c => `
+    <div class="company-card">
+      <div class="company-avatar">${c.name[0]}</div>
+      <div class="company-info">
+        <div class="company-name">${c.name}</div>
+        <div class="company-meta">${c.city} &middot; ${c.emp}</div>
+        <div class="company-badges">
+          ${c.featured ? '<span class="company-badge featured">FEATURED</span>' : ''}
+          ${c.badges.map(b => `<span class="company-badge">${b}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('dir-count').textContent = `${companies.length} companies`;
+}
+
+function goHome() {
+  document.getElementById('screen-directory').classList.remove('active');
+  document.getElementById('screen-landing').classList.add('active');
+}
+</script>
+</body>
+</html>

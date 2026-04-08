@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>Sourcing Directory V02 - Split Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Barlow+Condensed:wght@400;600;700&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; background:#08090c; color:#e5e7eb; font-family:'Space Grotesk',sans-serif; }
+
+.app { height:100dvh; display:flex; flex-direction:column; }
+
+/* ─── Landing: Full-bleed split ─── */
+.split-landing { flex:1; display:flex; flex-direction:column; position:relative; }
+.split-header { position:absolute; top:0; left:0; right:0; z-index:10; padding:env(safe-area-inset-top,14px) 20px 0; display:flex; justify-content:space-between; align-items:center; }
+.split-header .logo { font-family:'Syne',sans-serif; font-weight:800; font-size:15px; color:#fff; letter-spacing:0.08em; }
+.split-header .tag { font-family:'JetBrains Mono',monospace; font-size:9px; color:#6b7280; letter-spacing:0.1em; text-transform:uppercase; }
+
+.split-panel { flex:1; position:relative; overflow:hidden; cursor:pointer; transition:flex 0.3s ease; }
+.split-panel:active { flex:1.1; }
+.split-panel-bg { position:absolute; inset:0; background-size:cover; background-position:center; transition:transform 0.3s; }
+.split-panel:active .split-panel-bg { transform:scale(1.03); }
+.split-panel-overlay { position:absolute; inset:0; }
+.split-panel-content { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:flex-end; padding:20px; }
+.split-panel-logo { height:28px; object-fit:contain; margin-bottom:8px; opacity:0.9; }
+.split-panel-name { font-weight:700; font-size:18px; color:#fff; line-height:1.15; margin-bottom:4px; }
+.split-panel-stats { display:flex; gap:16px; }
+.split-panel-stat { display:flex; align-items:center; gap:5px; }
+.split-panel-stat-num { font-family:'Syne',sans-serif; font-weight:800; font-size:18px; }
+.split-panel-stat-label { font-size:10px; color:rgba(255,255,255,0.6); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.06em; }
+.split-divider { height:1px; background:rgba(255,255,255,0.08); flex-shrink:0; }
+
+.panel-space .split-panel-bg { background-image:url('https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?w=800&q=80'); }
+.panel-space .split-panel-overlay { background:linear-gradient(160deg, rgba(0,0,0,0.2) 0%, rgba(229,69,31,0.15) 40%, rgba(8,8,8,0.95) 100%); }
+.panel-space .split-panel-name { font-family:'Oswald',sans-serif; }
+.panel-space .split-panel-stat-num { color:#E5451F; }
+
+.panel-s3c .split-panel-bg { background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&q=80'); }
+.panel-s3c .split-panel-overlay { background:linear-gradient(160deg, rgba(0,0,0,0.2) 0%, rgba(160,82,45,0.15) 40%, rgba(13,27,46,0.95) 100%); }
+.panel-s3c .split-panel-name { font-family:'Barlow Condensed',sans-serif; }
+.panel-s3c .split-panel-stat-num { color:#A0522D; }
+
+/* ─── Directory View ─── */
+.dir-view { position:absolute; inset:0; display:flex; flex-direction:column; background:#08090c; transform:translateY(100%); transition:transform 0.35s cubic-bezier(0.4,0,0.2,1); z-index:20; }
+.dir-view.open { transform:translateY(0); }
+
+.dir-top { flex-shrink:0; padding:env(safe-area-inset-top,10px) 16px 0; }
+.dir-top-bar { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.dir-close { width:32px; height:32px; border-radius:8px; background:#1a1d24; border:none; color:#9ca3af; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.dir-top-title { flex:1; font-family:'Syne',sans-serif; font-weight:700; font-size:15px; color:#fff; }
+.dir-top-count { font-family:'JetBrains Mono',monospace; font-size:11px; color:#4b5563; }
+
+.dir-search { width:100%; background:#12151a; border:1px solid #1e2328; color:#e5e7eb; border-radius:10px; padding:10px 14px 10px 36px; font-size:13px; font-family:'Space Grotesk',sans-serif; outline:none; margin-bottom:8px; background-image:url("data:image/svg+xml,%3Csvg width='16' height='16' fill='none' stroke='%234b5563' stroke-width='2' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:12px center; }
+.dir-search:focus { border-color:#10b981; }
+.dir-search::placeholder { color:#4b5563; }
+
+/* Section pills - horizontal scroll */
+.dir-pills { display:flex; gap:0; overflow-x:auto; scrollbar-width:none; border-bottom:1px solid #1a1d24; }
+.dir-pills::-webkit-scrollbar { display:none; }
+.dir-pill { flex-shrink:0; padding:10px 16px; background:none; border:none; border-bottom:2px solid transparent; color:#4b5563; font-size:12px; font-weight:600; font-family:'Space Grotesk',sans-serif; cursor:pointer; position:relative; }
+.dir-pill.active { color:#10b981; border-bottom-color:#10b981; }
+.dir-pill .pill-badge { position:absolute; top:6px; right:4px; width:6px; height:6px; border-radius:50%; background:#10b981; }
+
+/* Company grid */
+.dir-grid { flex:1; overflow-y:auto; padding:10px 16px; display:grid; grid-template-columns:1fr 1fr; gap:8px; align-content:start; scrollbar-width:thin; scrollbar-color:#1a1d24 transparent; }
+.co-tile { background:#12151a; border:1px solid #1a1d24; border-radius:10px; padding:12px; cursor:pointer; transition:border-color 0.15s; display:flex; flex-direction:column; gap:6px; }
+.co-tile:active { border-color:rgba(16,185,129,0.4); }
+.co-tile-top { display:flex; align-items:center; gap:8px; }
+.co-tile-icon { width:28px; height:28px; border-radius:6px; background:#1a1d24; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:12px; flex-shrink:0; }
+.co-tile-name { font-size:11px; font-weight:600; color:#e5e7eb; line-height:1.2; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.co-tile-city { font-size:10px; color:#4b5563; }
+.co-tile-badges { display:flex; gap:3px; flex-wrap:wrap; }
+.co-tile-badge { font-family:'JetBrains Mono',monospace; font-size:8px; padding:1px 5px; border-radius:3px; background:rgba(16,185,129,0.08); color:#10b981; }
+.co-tile-badge.feat { background:rgba(234,179,8,0.08); color:#FBBF24; }
+
+/* Bottom action bar */
+.dir-action { flex-shrink:0; padding:8px 16px env(safe-area-inset-bottom,8px); border-top:1px solid #1a1d24; display:flex; gap:8px; }
+.dir-action button { flex:1; padding:10px; border-radius:10px; border:none; font-family:'Space Grotesk',sans-serif; font-size:12px; font-weight:600; cursor:pointer; }
+.dir-action .primary { background:#10b981; color:#fff; }
+.dir-action .secondary { background:#12151a; border:1px solid #1e2328; color:#9ca3af; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="split-landing">
+    <div class="split-header">
+      <div class="logo">SOURCING</div>
+      <div class="tag">Arizona Directories</div>
+    </div>
+    <div class="split-panel panel-space" onclick="openDir('space')">
+      <div class="split-panel-bg"></div>
+      <div class="split-panel-overlay"></div>
+      <div class="split-panel-content">
+        <img src="/images/space-rising/logo-white.png" class="split-panel-logo" alt="Space Rising" onerror="this.style.display='none'">
+        <div class="split-panel-name">SPACE RISING ARIZONA</div>
+        <div class="split-panel-stats">
+          <div class="split-panel-stat"><span class="split-panel-stat-num">26</span><span class="split-panel-stat-label">Companies</span></div>
+          <div class="split-panel-stat"><span class="split-panel-stat-num">12</span><span class="split-panel-stat-label">Events</span></div>
+          <div class="split-panel-stat"><span class="split-panel-stat-num">8</span><span class="split-panel-stat-label">Jobs</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="split-divider"></div>
+    <div class="split-panel panel-s3c" onclick="openDir('s3c')">
+      <div class="split-panel-bg"></div>
+      <div class="split-panel-overlay"></div>
+      <div class="split-panel-content">
+        <img src="/images/s3c/logo.png" class="split-panel-logo" alt="S3C" onerror="this.style.display='none'">
+        <div class="split-panel-name">S3C ARIZONA SEMICONDUCTOR</div>
+        <div class="split-panel-stats">
+          <div class="split-panel-stat"><span class="split-panel-stat-num">36</span><span class="split-panel-stat-label">Companies</span></div>
+          <div class="split-panel-stat"><span class="split-panel-stat-num">22</span><span class="split-panel-stat-label">Jobs</span></div>
+          <div class="split-panel-stat"><span class="split-panel-stat-num">5</span><span class="split-panel-stat-label">Grants</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Directory Sheet -->
+  <div class="dir-view" id="dir-view">
+    <div class="dir-top">
+      <div class="dir-top-bar">
+        <button class="dir-close" onclick="closeDir()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+        <div class="dir-top-title" id="dir-title">S3C Arizona</div>
+        <div class="dir-top-count" id="dir-count2">36</div>
+      </div>
+      <input class="dir-search" type="text" placeholder="Search companies, certs...">
+    </div>
+    <div class="dir-pills">
+      <button class="dir-pill active">Companies</button>
+      <button class="dir-pill">Jobs<div class="pill-badge"></div></button>
+      <button class="dir-pill">Events<div class="pill-badge"></div></button>
+      <button class="dir-pill">Articles</button>
+      <button class="dir-pill">Market</button>
+      <button class="dir-pill">Grants</button>
+      <button class="dir-pill">Reports</button>
+    </div>
+    <div class="dir-grid" id="dir-grid"></div>
+    <div class="dir-action">
+      <button class="secondary">Filters</button>
+      <button class="primary">+ List Your Company</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const COMPANIES = {
+  s3c: [
+    { n:'Intel Chandler', c:'Chandler, AZ', b:['ITAR','ISO 9001'], f:true, col:'#3B82F6' },
+    { n:'TSMC Arizona', c:'Phoenix, AZ', b:['ISO 14001'], f:true, col:'#10b981' },
+    { n:'Microchip Tech', c:'Chandler, AZ', b:['AS9100D'], f:true, col:'#8B5CF6' },
+    { n:'Amkor Technology', c:'Tempe, AZ', b:['ISO 9001'], col:'#F59E0B' },
+    { n:'NXP Semi', c:'Chandler, AZ', b:['AEC-Q100'], col:'#EF4444' },
+    { n:'Benchmark Elec', c:'Tempe, AZ', b:['ITAR'], col:'#06B6D4' },
+    { n:'Rogers Corp', c:'Chandler, AZ', b:['ISO 14001'], col:'#10b981' },
+    { n:'Qorvo', c:'Chandler, AZ', b:['ITAR'], col:'#F97316' },
+    { n:'onsemi', c:'Scottsdale, AZ', b:['ISO 9001'], col:'#3B82F6' },
+    { n:'Honeywell Aero', c:'Phoenix, AZ', b:['AS9100D','ITAR'], f:true, col:'#EF4444' },
+    { n:'Applied Materials', c:'Tucson, AZ', b:[], col:'#8B5CF6' },
+    { n:'Analog Devices', c:'Chandler, AZ', b:['ISO 9001'], col:'#10b981' },
+  ],
+  space: [
+    { n:'Raytheon Missiles', c:'Tucson, AZ', b:['ITAR','DoD'], f:true, col:'#3B82F6' },
+    { n:'Northrop Grumman', c:'Chandler, AZ', b:['AS9100D'], f:true, col:'#8B5CF6' },
+    { n:'World View', c:'Tucson, AZ', b:['FAA'], f:true, col:'#10b981' },
+    { n:'Phantom Space', c:'Tucson, AZ', b:['ITAR'], col:'#F59E0B' },
+    { n:'FreeFall Aero', c:'Tucson, AZ', b:['ITAR'], col:'#EF4444' },
+    { n:'SAIC Arizona', c:'Tucson, AZ', b:['DoD'], col:'#06B6D4' },
+    { n:'Kratos Defense', c:'Tucson, AZ', b:['ITAR'], col:'#F97316' },
+    { n:'L3Harris Tech', c:'Tempe, AZ', b:['AS9100D'], col:'#3B82F6' },
+  ]
+};
+
+function openDir(dir) {
+  const title = dir === 's3c' ? 'S3C Arizona' : 'Space Rising';
+  document.getElementById('dir-title').textContent = title;
+  const companies = COMPANIES[dir];
+  document.getElementById('dir-count2').textContent = companies.length;
+  const grid = document.getElementById('dir-grid');
+  grid.innerHTML = companies.map(c => `
+    <div class="co-tile">
+      <div class="co-tile-top">
+        <div class="co-tile-icon" style="color:${c.col}">${c.n[0]}</div>
+        <div class="co-tile-name">${c.n}</div>
+      </div>
+      <div class="co-tile-city">${c.c}</div>
+      <div class="co-tile-badges">
+        ${c.f ? '<span class="co-tile-badge feat">FEATURED</span>' : ''}
+        ${c.b.map(b => `<span class="co-tile-badge">${b}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('dir-view').classList.add('open');
+}
+
+function closeDir() {
+  document.getElementById('dir-view').classList.remove('open');
+}
+</script>
+</body>
+</html>
