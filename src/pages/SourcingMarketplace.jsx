@@ -96,7 +96,7 @@ export function SourcingNav({ active, tenantSlug, tenantName, features, brandCol
           </div>
           <div className="v10-nav-label">Directory</div>
         </Link>
-        <div className="v10-nav-btn" onClick={() => { navigate(`${base}`); setTimeout(() => document.querySelector('input[type="text"], input[placeholder*="Search"]')?.focus(), 300); }}>
+        <div className="v10-nav-btn" onClick={() => { const el = document.querySelector('.browse-search input, .home-search-input, input[placeholder*="Search"], input[type="text"]'); if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(() => el.focus(), 150); } else { navigate(`${base}`); setTimeout(() => document.querySelector('input[type="text"]')?.focus(), 400); } }}>
           <div className="v10-nav-icon">
             <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           </div>
