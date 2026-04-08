@@ -137,8 +137,8 @@ export default async function handler(req, res) {
   const directoryName = org_name || 'AOM Sourcing Directory';
   const origin = base_url || 'https://aheadofmarket.com';
   const profile_url = company_slug
-    ? `${origin}/sourcing/company/${company_slug}`
-    : `${origin}/sourcing`;
+    ? `${origin}/s3c-semiconductor/${company_slug}`
+    : origin;
 
   const html = buildEmailHtml({ company_name, org_name: directoryName, profile_url });
 

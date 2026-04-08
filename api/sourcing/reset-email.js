@@ -147,6 +147,8 @@ export default async function handler(req, res) {
     if (!reset_url) {
       return res.status(500).json({ error: 'No action_link returned from Supabase' });
     }
+    // Fix: Supabase site URL may be set to localhost -- rewrite redirect to production
+    reset_url = reset_url.replace(/redirect_to=http[^&]*/, `redirect_to=${encodeURIComponent(redirectTo)}`);
   } catch (err) {
     console.error('generateLink exception:', err);
     return res.status(500).json({ error: err.message });
