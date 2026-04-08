@@ -572,7 +572,7 @@ function renderCompanies() {
           <div class="co-loc">${escHtml(c.location || c.city || '')}</div>
           <div class="co-badges">
             ${c.featured ? '<span class="co-badge feat">Featured</span>' : ''}
-            ${certs.map(cert => `<span class="co-badge cert">${escHtml(cert.name)}</span>`).join('')}
+            ${certs.map(cert => `<span class="co-badge cert">${escHtml(cert.cert_name)}</span>`).join('')}
           </div>
         </div>
         <div class="co-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
@@ -749,7 +749,7 @@ async function fetchCompanies() {
       const ids = allCompanies.map(c => c.id);
       const { data: certsData } = await sb
         .from('directory_certifications')
-        .select('company_id, name')
+        .select('company_id, cert_name')
         .in('company_id', ids);
 
       allCerts = {};
