@@ -211,8 +211,6 @@
   .home-sub { font-size:17px; max-width:420px; }
   .dir-cards { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
   .dir-card { min-height:260px; }
-  .co-list { max-width:720px; }
-  .v10-nav { max-width:960px; left:50%; transform:translateX(-50%); }
   .more-sheet { max-width:480px; left:50%; transform:translateX(-50%) translateY(100%); }
   .more-sheet.open { transform:translateX(-50%) translateY(0); }
 }
