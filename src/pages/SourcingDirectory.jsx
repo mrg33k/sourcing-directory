@@ -484,7 +484,16 @@ function SourcingDirectoryInner() {
 
       if (v && v !== 'all') qb = qb.eq('vertical', v);
       if (q && q.trim()) {
-        qb = qb.or(`name.ilike.%${q}%,description.ilike.%${q}%`);
+        // Broad fuzzy search across all text fields
+        const words = q.split(/\s+/).filter(Boolean);
+        if (words.length === 1) {
+          // Single word: match against name, description, city, state, vertical, slug
+          qb = qb.or(`name.ilike.%${q}%,description.ilike.%${q}%,city.ilike.%${q}%,state.ilike.%${q}%,vertical.ilike.%${q}%,slug.ilike.%${q}%`);
+        } else {
+          // Multi-word: match if ANY word appears in name or description
+          const orClauses = words.flatMap(w => [`name.ilike.%${w}%`, `description.ilike.%${w}%`, `city.ilike.%${w}%`]);
+          qb = qb.or(orClauses.join(','));
+        }
       }
 
       const { data: companies, error } = await qb.limit(100);

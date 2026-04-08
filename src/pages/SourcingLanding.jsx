@@ -64,9 +64,36 @@ function SourcingLandingInner() {
     loadTenants();
   }, []);
 
+  // Fuzzy match: find the best tenant for this query, or search all
   function doSearch() {
     if (!searchQuery.trim()) return;
-    if (tenants.length > 0) navigate(`/${tenants[0].slug}?q=${encodeURIComponent(searchQuery)}`);
+    const q = searchQuery.trim().toLowerCase();
+
+    // Keywords that map to specific tenants
+    const TENANT_KEYWORDS = {
+      'space-rising': ['space', 'aerospace', 'rocket', 'satellite', 'launch', 'orbit', 'nasa', 'defense', 'missile', 'payload', 'leo', 'meo'],
+      's3c-semiconductor': ['semi', 'semiconductor', 'chip', 'wafer', 'fab', 'conductor', 'silicon', 'intel', 'tsmc', 'microchip', 'circuit', 'electronics', 'foundry'],
+    };
+
+    // Check if query matches a tenant's keywords
+    let bestTenant = null;
+    for (const tenant of tenants) {
+      const keywords = TENANT_KEYWORDS[tenant.slug] || [];
+      const tenantName = (tenant.name || '').toLowerCase();
+      const tenantVertical = (tenant.vertical || '').toLowerCase();
+      if (
+        tenantName.includes(q) ||
+        tenantVertical.includes(q) ||
+        keywords.some(kw => q.includes(kw) || kw.includes(q))
+      ) {
+        bestTenant = tenant;
+        break;
+      }
+    }
+
+    // If no keyword match, search across ALL tenants (no tenant filter)
+    const target = bestTenant || tenants[0];
+    if (target) navigate(`/${target.slug}?q=${encodeURIComponent(searchQuery)}`);
   }
 
   return (
