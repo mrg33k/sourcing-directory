@@ -113,176 +113,49 @@ function CertPill({ name, V }) {
   );
 }
 
-// ─── Company Card ─────────────────────────────────────────────────────────────
+// ─── Company Card (v10 co-card list style) ──────────────────────────────────
+const LOGO_PALETTES = [
+  { bg: '#0D1428', fg: '#60A5FA' }, { bg: '#1E1145', fg: '#A78BFA' },
+  { bg: '#0d2818', fg: '#34D399' }, { bg: '#2D0A0A', fg: '#FB7185' },
+  { bg: '#062028', fg: '#38BDF8' }, { bg: '#2D1B06', fg: '#FBBF24' },
+];
+function logoPalette(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return LOGO_PALETTES[h % LOGO_PALETTES.length];
+}
+
 function CompanyCard({ company, certs, V, tenantSlug, isFavorite, onToggleFavorite, reviewStat }) {
-  const [hovered, setHovered] = useState(false);
   const topCerts = (certs || []).slice(0, 3);
-  const vColor = verticalColor(company.vertical);
+  const pal = logoPalette(company.name);
 
   return (
     <Link
       to={tenantSlug ? `/${tenantSlug}/${company.slug}` : `/${company.slug}`}
-      style={{ textDecoration: 'none' }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      className="co-card"
     >
-      <div style={{
-        background: hovered ? V.cardHov : V.card,
-        border: `1px solid ${hovered ? V.borderHov : V.border}`,
-        borderRadius: 10,
-        padding: 0,
-        transition: 'all 0.15s ease',
-        cursor: 'pointer',
-        display: 'flex',
-        flexDirection: 'column',
-        overflow: 'hidden',
-        boxShadow: hovered ? `0 0 0 1px ${V.accent}20` : 'none',
-        position: 'relative',
-      }}>
-        {/* Subtle industry accent strip at top */}
-        <div style={{
-          height: 3,
-          background: `linear-gradient(90deg, ${vColor}, ${vColor}40)`,
-          opacity: hovered ? 1 : 0.6,
-          transition: 'opacity 0.15s ease',
-        }} />
-
-        {/* Heart / Favorite button */}
-        <button
-          onClick={e => onToggleFavorite && onToggleFavorite(company.slug, e)}
-          title={isFavorite ? 'Remove from saved' : 'Save company'}
-          style={{
-            position: 'absolute', top: 10, right: 10,
-            background: isFavorite ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.06)',
-            border: `1px solid ${isFavorite ? 'rgba(239,68,68,0.35)' : 'rgba(255,255,255,0.1)'}`,
-            color: isFavorite ? '#EF4444' : 'rgba(255,255,255,0.35)',
-            borderRadius: '50%', width: 28, height: 28,
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            cursor: 'pointer', fontSize: 14, zIndex: 2,
-            transition: 'all 0.15s ease',
-          }}
-        >
-          {isFavorite ? '♥' : '♡'}
-        </button>
-
-        {/* Logo / Avatar area */}
-        <div style={{ padding: '16px 20px 0' }}>
-          {company.logo_url ? (
-            <div style={{
-              width: '100%', height: 64,
-              display: 'flex', alignItems: 'center', justifyContent: 'flex-start',
-              gap: 14,
-            }}>
-              <img
-                src={company.logo_url}
-                alt={company.name}
-                style={{
-                  maxWidth: 120, maxHeight: 56, borderRadius: 8,
-                  objectFit: 'contain', background: V.card2,
-                  border: `1px solid ${V.border}`,
-                  padding: 6,
-                }}
-              />
-              {company.featured && (
-                <div style={{
-                  background: V.accentDim, border: `1px solid ${V.accentBrd}`,
-                  color: V.accent, fontSize: 9, fontWeight: 700, fontFamily: V.mono,
-                  padding: '2px 6px', borderRadius: 3, textTransform: 'uppercase',
-                  letterSpacing: '0.1em', whiteSpace: 'nowrap', marginLeft: 'auto',
-                }}>
-                  Featured
-                </div>
-              )}
-            </div>
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <div style={{
-                width: 56, height: 56, borderRadius: 12,
-                background: `${vColor}15`,
-                border: `1px solid ${vColor}35`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 24, fontWeight: 800, fontFamily: V.syne,
-                color: vColor, flexShrink: 0,
-              }}>
-                {company.name.charAt(0)}
-              </div>
-              {company.featured && (
-                <div style={{
-                  background: V.accentDim, border: `1px solid ${V.accentBrd}`,
-                  color: V.accent, fontSize: 9, fontWeight: 700, fontFamily: V.mono,
-                  padding: '2px 6px', borderRadius: 3, textTransform: 'uppercase',
-                  letterSpacing: '0.1em', whiteSpace: 'nowrap', marginLeft: 'auto',
-                }}>
-                  Featured
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div style={{ padding: '12px 20px 18px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {/* Name + location */}
-          <div>
-            <div style={{
-              fontSize: 16, fontWeight: 700, fontFamily: V.syne,
-              color: V.text, lineHeight: 1.2,
-              overflowWrap: 'break-word', wordBreak: 'break-word',
-              display: '-webkit-box', WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical', overflow: 'hidden',
-            }}>
-              {company.name}
-            </div>
-            <div style={{ fontSize: 12, color: V.muted, fontFamily: V.space, marginTop: 3 }}>
-              {[company.city, company.state].filter(Boolean).join(', ')}
-              {company.year_founded && ` · Est. ${company.year_founded}`}
-            </div>
+      {/* Logo */}
+      <div className="co-logo" style={{ background: pal.bg, color: pal.fg }}>
+        {company.logo_url
+          ? <img src={company.logo_url} alt="" style={{ width: 44, height: 44, borderRadius: 'var(--r-sm)', objectFit: 'contain' }} />
+          : company.name.charAt(0)
+        }
+      </div>
+      {/* Body */}
+      <div className="co-body">
+        <div className="co-name">{company.name}</div>
+        <div className="co-loc">{[company.city, company.state].filter(Boolean).join(', ')}</div>
+        {(company.featured || topCerts.length > 0) && (
+          <div className="co-badges">
+            {company.featured && <span className="co-badge feat">Featured</span>}
+            {topCerts.map(c => <span key={c.id} className="co-badge cert">{c.cert_name}</span>)}
+            {certs.length > 3 && <span className="co-badge cert">+{certs.length - 3}</span>}
           </div>
-
-          {/* Description */}
-          {company.description && (
-            <div style={{
-              fontSize: 13, color: V.muted, fontFamily: V.space,
-              lineHeight: 1.5,
-              display: '-webkit-box', WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical', overflow: 'hidden',
-            }}>
-              {company.description}
-            </div>
-          )}
-
-          {/* Certs */}
-          {topCerts.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
-              {topCerts.map(c => <CertPill key={c.id} name={c.cert_name} V={V} />)}
-              {certs.length > 3 && (
-                <span style={{ fontSize: 11, color: V.dim, fontFamily: V.mono, alignSelf: 'center' }}>
-                  +{certs.length - 3} more
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Footer */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <VerticalBadge vertical={company.vertical} V={V} />
-            <TierBadge tier={company.membership_tier} V={V} />
-            {company.employee_count && (
-              <span style={{ fontSize: 11, color: V.dim, fontFamily: V.mono }}>
-                {company.employee_count} employees
-              </span>
-            )}
-            {reviewStat && reviewStat.count > 0 && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 3, marginLeft: 'auto' }}>
-                <span style={{ fontSize: 11, color: '#F59E0B' }}>
-                  {'★'.repeat(Math.round(reviewStat.avg))}
-                </span>
-                <span style={{ fontSize: 10, color: V.dim, fontFamily: V.mono }}>
-                  ({reviewStat.count})
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
+        )}
+      </div>
+      {/* Arrow */}
+      <div className="co-arrow">
+        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
       </div>
     </Link>
   );
@@ -817,15 +690,10 @@ function SourcingDirectoryInner() {
   }, [companies]);
 
   return (
-    <div style={{ minHeight: '100vh', background: V.bg, color: V.text, overflowX: 'hidden', maxWidth: '100vw' }}>
+    <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }
-        * { box-sizing: border-box; }
-        a { color: inherit; }
-        input::placeholder { color: ${V.dim}; }
-        input:focus { border-color: ${V.accent} !important; box-shadow: 0 0 0 2px ${V.accentDim}; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
       `}</style>
 
       <SourcingNav
@@ -836,200 +704,63 @@ function SourcingDirectoryInner() {
         brandColor={tenant?.brand_color}
       />
 
-      {/* Hero Banner with industry image */}
-      {tenant ? (
-        <div style={{
-          position: 'relative',
-          width: '100%',
-          minHeight: 200,
-          backgroundImage: `linear-gradient(to top, ${V.bg} 0%, rgba(0,0,0,0.55) 40%, rgba(0,0,0,0.3) 100%), url(${getVerticalImage(tenant.vertical)})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'center',
-        }}>
-          <div style={{ padding: '48px 24px 32px', maxWidth: 900, width: '100%', textAlign: 'center' }}>
-            {/* Tenant logo */}
-            {tenant.slug === 'space-rising' && (
-              <img src="/images/space-rising/logo-white.png" alt="Space Rising" style={{
-                height: 56, objectFit: 'contain', marginBottom: 16, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
-              }} />
-            )}
-            {tenant.slug === 's3c-semiconductor' && (
-              <img src="/images/s3c/logo.png" alt="S3C" style={{
-                height: 56, objectFit: 'contain', marginBottom: 16, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))',
-              }} />
-            )}
-            <div style={{
-              fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: tenant.brand_color || V.accent,
-              letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 10,
-              textShadow: '0 1px 4px rgba(0,0,0,0.4)',
-            }}>
-              {tenant.nav_label || tenant.name}
-            </div>
-            <h1 style={{
-              fontSize: 'clamp(28px, 5vw, 48px)',
-              fontWeight: tenant.slug === 'space-rising' ? 700 : 800,
-              fontFamily: tenantBrand?.headingFont || V.syne,
-              textTransform: tenantBrand ? 'uppercase' : undefined,
-              letterSpacing: tenantBrand ? '0.04em' : undefined,
-              color: '#fff', lineHeight: 1.15, margin: '0 0 10px',
-              textShadow: '0 2px 8px rgba(0,0,0,0.4)',
-            }}>
-              {tenant.name}
-            </h1>
-            <p style={{
-              fontSize: 16,
-              color: 'rgba(255,255,255,0.8)',
-              fontFamily: tenantBrand?.bodyFont || V.space,
-              maxWidth: 580, margin: '0 auto 28px', lineHeight: 1.6,
-              textShadow: '0 1px 4px rgba(0,0,0,0.3)',
-            }}>
-              {tenant.hero_text || "Verified companies, certifications, and capabilities in one place."}
-            </p>
-            <SearchBar
-              value={searchInput}
-              onChange={setSearchInput}
-              onSearch={handleSearch}
-              loading={loading}
-              aiLoading={aiLoading}
-              V={V}
-            />
-          </div>
+      {/* v10 Browse Hero */}
+      <div className="browse-hero" style={tenant ? { minHeight: 280 } : { minHeight: 200 }}>
+        <div className="browse-hero-bg" style={{ backgroundImage: `url(${tenant ? getVerticalImage(tenant.vertical) : 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&q=80'})` }} />
+        <div className="browse-hero-overlay" />
+        <div className="browse-hero-content">
+          <Link to="/" className="browse-back" style={{ textDecoration: 'none' }}>
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+            Back
+          </Link>
+          <div className="browse-title">{tenant?.name || 'Find Certified Suppliers'}</div>
+          <div className="browse-sub">{tenant?.hero_text || "Verified companies, certifications, and capabilities in one place."}</div>
         </div>
-      ) : (
-        <div style={{ padding: '52px 24px 36px', maxWidth: 900, margin: '0 auto', textAlign: 'center' }}>
-          <div style={{
-            fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.accent,
-            letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 14,
-          }}>
-            sourcing.directory -- Arizona
-          </div>
-          <h1 style={{
-            fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, fontFamily: V.syne,
-            color: V.heading, lineHeight: 1.15, margin: '0 0 14px',
-          }}>
-            Find Certified Suppliers & Partners
-          </h1>
-          <p style={{
-            fontSize: 16, color: V.muted, fontFamily: V.space,
-            maxWidth: 580, margin: '0 auto 32px', lineHeight: 1.6,
-          }}>
-            Arizona's semiconductor, space, and advanced industry directory. Verified companies, certifications, and capabilities in one place.
-          </p>
-          <SearchBar
-            value={searchInput}
-            onChange={setSearchInput}
-            onSearch={handleSearch}
-            loading={loading}
-            aiLoading={aiLoading}
-            V={V}
-          />
-        </div>
-      )}
+      </div>
 
-      {/* Vertical Tabs */}
-      <div style={{
-        padding: '0 12px 0', maxWidth: 900, margin: '0 auto',
-        display: 'flex', gap: 6,
-        overflowX: 'auto',
-        WebkitOverflowScrolling: 'touch',
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none',
-      }}
-        className="hide-scrollbar"
-      >
+      {/* v10 Search */}
+      <div className="browse-search">
+        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input
+          type="text"
+          value={searchInput}
+          onChange={e => setSearchInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSearch()}
+          placeholder='Search companies, certifications...'
+          autoComplete="off"
+          spellCheck="false"
+        />
+        {(loading || aiLoading) && <div className="spinner" />}
+      </div>
+
+      {/* v10 Section Chips */}
+      <div className="chips" style={{ paddingBottom: 4 }}>
+        <div className="chip on">Companies</div>
+        <Link to={`/${tenantSlug}/jobs`} className="chip" style={{ textDecoration: 'none' }}>Jobs</Link>
+        <Link to={`/${tenantSlug}/events`} className="chip" style={{ textDecoration: 'none' }}>Events</Link>
+        <Link to={`/${tenantSlug}/reports`} className="chip" style={{ textDecoration: 'none' }}>Reports</Link>
+        <Link to={`/${tenantSlug}/marketplace`} className="chip" style={{ textDecoration: 'none' }}>Marketplace</Link>
+        <Link to={`/${tenantSlug}/membership`} className="chip" style={{ textDecoration: 'none' }}>Membership</Link>
+      </div>
+
+      {/* Vertical filter chips */}
+      <div className="chips">
         {VERTICALS.map(v => (
-          <button
+          <div
             key={v.key}
+            className={`chip ${!showSaved && vertical === v.key ? 'on' : ''}`}
             onClick={() => { handleVerticalChange(v.key); setShowSaved(false); }}
-            style={{
-              background: !showSaved && vertical === v.key ? `${v.color}20` : 'transparent',
-              border: `1px solid ${!showSaved && vertical === v.key ? v.color : V.border}`,
-              color: !showSaved && vertical === v.key ? v.color : V.muted,
-              borderRadius: 6, padding: '7px 14px', fontSize: 12,
-              fontWeight: 600, fontFamily: V.space, cursor: 'pointer',
-              whiteSpace: 'nowrap', transition: 'all 0.15s',
-            }}
           >
             {v.label}
-          </button>
+          </div>
         ))}
-
-        {/* Saved tab */}
-        <button
+        <div
+          className={`chip ${showSaved ? 'on' : ''}`}
           onClick={() => setShowSaved(s => !s)}
-          style={{
-            background: showSaved ? 'rgba(239,68,68,0.12)' : 'transparent',
-            border: `1px solid ${showSaved ? 'rgba(239,68,68,0.4)' : V.border}`,
-            color: showSaved ? '#EF4444' : V.muted,
-            borderRadius: 6, padding: '7px 14px', fontSize: 12,
-            fontWeight: 600, fontFamily: V.space, cursor: 'pointer',
-            whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5,
-            transition: 'all 0.15s',
-          }}
+          style={showSaved ? { borderColor: 'rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.08)', color: '#EF4444' } : {}}
         >
-          {showSaved ? '♥' : '♡'}
-          Saved
-          {favorites.length > 0 && (
-            <span style={{
-              background: '#EF4444', color: '#fff', borderRadius: 10,
-              fontSize: 9, fontWeight: 800, padding: '1px 5px',
-            }}>
-              {favorites.length}
-            </span>
-          )}
-        </button>
-
-        <div style={{ flex: 1 }} />
-
-        {/* Map toggle */}
-        <button
-          onClick={() => setShowMap(m => !m)}
-          title={showMap ? 'Grid view' : 'Map view'}
-          style={{
-            background: showMap ? V.accentDim : 'transparent',
-            border: `1px solid ${showMap ? V.accentBrd : V.border}`,
-            color: showMap ? V.accent : V.muted,
-            borderRadius: 6, padding: '7px 10px', fontSize: 12,
-            fontWeight: 600, fontFamily: V.space, cursor: 'pointer',
-            display: 'flex', alignItems: 'center', gap: 5,
-            transition: 'all 0.15s',
-          }}
-        >
-          <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-            <path d="M1 6l7-4 8 4 7-4v16l-7 4-8-4-7 4V6z"/><path d="M8 2v16M16 6v16"/>
-          </svg>
-          Map
-        </button>
-
-        {availableCerts.length > 0 && (
-          <button
-            onClick={() => setShowFilters(f => !f)}
-            style={{
-              background: showFilters ? V.accentDim : 'transparent',
-              border: `1px solid ${showFilters ? V.accentBrd : V.border}`,
-              color: showFilters ? V.accent : V.muted,
-              borderRadius: 6, padding: '7px 14px', fontSize: 12,
-              fontWeight: 600, fontFamily: V.space, cursor: 'pointer',
-              whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 5,
-            }}
-          >
-            <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-            </svg>
-            Filters
-            {selectedCerts.length > 0 && (
-              <span style={{
-                background: V.accent, color: '#fff', borderRadius: 10,
-                fontSize: 9, fontWeight: 800, padding: '1px 5px',
-              }}>
-                {selectedCerts.length}
-              </span>
-            )}
-          </button>
-        )}
+          {showSaved ? '♥' : '♡'} Saved {favorites.length > 0 ? `(${favorites.length})` : ''}
+        </div>
       </div>
 
       {/* Cert Filters */}
@@ -1076,35 +807,25 @@ function SourcingDirectoryInner() {
       )}
 
       {/* Results */}
-      <div style={{ padding: '20px 24px 60px', maxWidth: 900, margin: '0 auto' }}>
-        {/* Scout AI Answer Card -- streaming text response above the grid */}
-        <ScoutAnswerCard text={scoutAnswer} streaming={scoutStreaming} V={V} />
-
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          marginBottom: 16,
-        }}>
-          <div style={{ fontSize: 13, color: V.muted, fontFamily: V.space }}>
-            {loading ? 'Searching...' : (
-              <>
-                <span style={{ color: V.text, fontWeight: 600 }}>{filteredCompanies.length}</span>
-                {' '}compan{filteredCompanies.length === 1 ? 'y' : 'ies'} found
-                {query && <> for <span style={{ color: V.accent }}>"{query}"</span></>}
-              </>
-            )}
+      <div style={{ padding: '0 0 80px' }}>
+        {/* Scout AI Answer */}
+        {(scoutAnswer || scoutStreaming) && (
+          <div style={{ padding: '12px 20px' }}>
+            <ScoutAnswerCard text={scoutAnswer} streaming={scoutStreaming} V={V} />
           </div>
-          <Link
-            to={tenantSlug ? `/${tenantSlug}/signup` : '/signup'}
-            style={{
-              fontSize: 12, color: V.muted, fontFamily: V.space,
-              textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5,
-            }}
-          >
-            <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-            Add your company
-          </Link>
+        )}
+
+        {/* Section header */}
+        <div className="sec-hdr">
+          <div className="sec-title">
+            {loading ? 'Searching...' : `${filteredCompanies.length} Companies`}
+            {query && !loading && <span style={{ color: 'var(--cyan)', fontWeight: 400 }}> for "{query}"</span>}
+          </div>
+          <div className="sec-count">
+            <Link to={tenantSlug ? `/${tenantSlug}/signup` : '/signup'} style={{ textDecoration: 'none', color: 'var(--cyan)', fontSize: 12, fontWeight: 600 }}>
+              + Add Company
+            </Link>
+          </div>
         </div>
 
         {!supabase && (
@@ -1136,26 +857,13 @@ function SourcingDirectoryInner() {
         )}
 
         {(loading && supabase && !fetchError && !aiLoading) && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
-            {[1,2,3,4,5,6].map(i => (
-              <div key={i} style={{
-                background: V.card, border: `1px solid ${V.border}`,
-                borderRadius: 10, padding: '18px 20px',
-                display: 'flex', flexDirection: 'column', gap: 12,
-                animation: 'pulse 1.5s ease-in-out infinite',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 8, background: V.card2, flexShrink: 0 }} />
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <div style={{ height: 14, borderRadius: 4, background: V.card2, width: '65%' }} />
-                    <div style={{ height: 10, borderRadius: 4, background: V.card2, width: '45%' }} />
-                  </div>
-                </div>
-                <div style={{ height: 11, borderRadius: 4, background: V.card2, width: '100%' }} />
-                <div style={{ height: 11, borderRadius: 4, background: V.card2, width: '85%' }} />
-                <div style={{ display: 'flex', gap: 6 }}>
-                  <div style={{ height: 20, borderRadius: 4, background: V.card2, width: 70 }} />
-                  <div style={{ height: 20, borderRadius: 4, background: V.card2, width: 50 }} />
+          <div className="co-list">
+            {[1,2,3,4,5].map(i => (
+              <div key={i} className="co-card" style={{ pointerEvents: 'none' }}>
+                <div className="skel" style={{ width: 44, height: 44, borderRadius: 'var(--r-sm)', flexShrink: 0 }} />
+                <div className="co-body">
+                  <div className="skel" style={{ height: 14, width: '60%', marginBottom: 6 }} />
+                  <div className="skel" style={{ height: 10, width: '40%' }} />
                 </div>
               </div>
             ))}
@@ -1204,7 +912,7 @@ function SourcingDirectoryInner() {
         })()}
 
         {!loading && filteredCompanies.length > 0 && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 12 }}>
+          <div className="co-list">
             {filteredCompanies.map(company => (
               <CompanyCard
                 key={company.id}
@@ -1221,36 +929,18 @@ function SourcingDirectoryInner() {
         )}
 
         {!loading && supabase && filteredCompanies.length === 0 && (
-          <div style={{
-            textAlign: 'center', padding: '60px 24px',
-            background: V.card, border: `1px solid ${V.border}`,
-            borderRadius: 12,
-          }}>
-            {showSaved ? (
-              <div style={{ fontSize: 32, marginBottom: 12 }}>♡</div>
-            ) : (
-              <svg width="56" height="56" fill="none" stroke={V.dim} strokeWidth="1.5" viewBox="0 0 24 24" style={{ marginBottom: 16, opacity: 0.5 }}>
-                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-              </svg>
-            )}
-            <div style={{ fontSize: 18, fontWeight: 700, fontFamily: V.syne, color: V.text, marginBottom: 8 }}>
+          <div className="empty-state">
+            <svg width="32" height="32" fill="none" stroke="var(--tx3)" strokeWidth="1.5" viewBox="0 0 24 24">
+              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--tx)' }}>
               {showSaved ? 'No saved companies yet' : 'No companies found'}
             </div>
-            <div style={{ fontSize: 14, color: V.muted, fontFamily: V.space, marginBottom: 24, maxWidth: 360, margin: '0 auto 24px' }}>
+            <div style={{ fontSize: 13, color: 'var(--tx2)' }}>
               {showSaved
-                ? 'Click ♡ on any listing to save it.'
-                : (query ? `No results for "${query}". Try different keywords or broaden your filters.` : 'No companies in this vertical yet. Be the first to join.')}
+                ? 'Tap the heart on any listing to save it.'
+                : (query ? `No results for "${query}".` : 'No companies in this vertical yet.')}
             </div>
-            <Link
-              to={tenantSlug ? `/${tenantSlug}/signup` : '/signup'}
-              style={{
-                background: V.accent, color: '#fff', textDecoration: 'none',
-                borderRadius: 7, padding: '10px 20px', fontSize: 13,
-                fontWeight: 700, fontFamily: V.space, display: 'inline-block',
-              }}
-            >
-              Add Your Company
-            </Link>
           </div>
         )}
 

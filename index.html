@@ -37,9 +37,9 @@
       /* v10 page enter animation */
       @keyframes v10-fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
       .v10-page { animation: v10-fadeUp 0.25s cubic-bezier(0.16,1,0.3,1); }
-      /* Desktop: constrain to phone width for app feel */
+      /* Desktop: let content breathe */
       @media (min-width: 768px) {
-        #root { max-width: 480px; margin: 0 auto; border-left: 1px solid var(--bd); border-right: 1px solid var(--bd); }
+        #root { max-width: 960px; margin: 0 auto; }
       }
     </style>
     <div id="root"></div>
