@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>sourcing.directory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Barlow+Condensed:wght@400;600;700;800&family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --space: #E5451F;
+  --s3c: #C0784A;
+  --green: #10b981;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; background:#000; color:#f0f0f0; font-family:'Space Grotesk',sans-serif; }
+
+.app { height:100dvh; position:relative; overflow:hidden; }
+
+/* ═══ LANDING ═══ */
+.land { position:absolute; inset:0; display:flex; flex-direction:column; transition:opacity 0.5s, transform 0.5s cubic-bezier(0.16,1,0.3,1); z-index:1; }
+.land.out { opacity:0; transform:scale(0.92); pointer-events:none; }
+
+/* Full-screen split - each directory is half the screen */
+.land-top { padding:env(safe-area-inset-top,14px) 24px 0; display:flex; justify-content:space-between; align-items:center; position:absolute; top:0; left:0; right:0; z-index:10; }
+.land-mark { font-family:'Syne',sans-serif; font-weight:800; font-size:10px; letter-spacing:0.25em; color:rgba(255,255,255,0.5); text-transform:uppercase; }
+.land-dot { width:7px; height:7px; border-radius:50%; background:var(--green); }
+
+.land-split { flex:1; display:flex; flex-direction:column; }
+.land-half { flex:1; position:relative; overflow:hidden; cursor:pointer; }
+.land-half:active .land-half-bg { transform:scale(1.04); }
+.land-half-bg { position:absolute; inset:0; background-size:cover; background-position:center; transition:transform 0.6s cubic-bezier(0.16,1,0.3,1); }
+.land-half-overlay { position:absolute; inset:0; }
+.land-half-content { position:absolute; inset:0; display:flex; flex-direction:column; justify-content:flex-end; padding:0 28px 28px; }
+
+.lh-eyebrow { font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:0.18em; text-transform:uppercase; margin-bottom:8px; }
+.lh-name { font-weight:800; font-size:clamp(24px,7vw,36px); color:#fff; line-height:0.92; letter-spacing:-0.02em; margin-bottom:10px; }
+.lh-row { display:flex; align-items:center; gap:16px; }
+.lh-stat { font-family:'JetBrains Mono',monospace; font-size:11px; }
+.lh-stat b { font-size:16px; font-family:'Syne',sans-serif; font-weight:800; }
+.lh-enter { margin-left:auto; width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:transform 0.15s; }
+.lh-enter:active { transform:scale(0.9); }
+
+.land-half.space .land-half-bg { background-image:url('https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?w=900&q=85'); }
+.land-half.space .land-half-overlay { background:linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.15) 100%); }
+.land-half.space .lh-eyebrow { color:var(--space); }
+.land-half.space .lh-name { font-family:'Oswald',sans-serif; font-weight:700; }
+.land-half.space .lh-stat { color:rgba(255,255,255,0.4); }
+.land-half.space .lh-stat b { color:var(--space); }
+.land-half.space .lh-enter { background:var(--space); color:#fff; }
+
+.land-divider { height:1px; background:rgba(255,255,255,0.06); flex-shrink:0; position:relative; z-index:2; }
+
+.land-half.s3c .land-half-bg { background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?w=900&q=85'); }
+.land-half.s3c .land-half-overlay { background:linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0.15) 100%); }
+.land-half.s3c .lh-eyebrow { color:var(--s3c); }
+.land-half.s3c .lh-name { font-family:'Barlow Condensed',sans-serif; font-weight:800; }
+.land-half.s3c .lh-stat { color:rgba(255,255,255,0.4); }
+.land-half.s3c .lh-stat b { color:var(--s3c); }
+.land-half.s3c .lh-enter { background:var(--s3c); color:#fff; }
+
+/* ═══ DIRECTORY ═══ */
+.dir { position:absolute; inset:0; background:#000; z-index:5; display:flex; flex-direction:column; transform:translateY(100%); transition:transform 0.45s cubic-bezier(0.16,1,0.3,1); }
+.dir.open { transform:translateY(0); }
+
+.dir-head { flex-shrink:0; padding:env(safe-area-inset-top,12px) 20px 0; }
+.dir-head-row { display:flex; align-items:center; gap:14px; margin-bottom:14px; }
+.dir-close { width:40px; height:40px; border-radius:50%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.5); display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; }
+.dir-close:active { background:rgba(255,255,255,0.1); }
+.dir-head-info { flex:1; }
+.dir-head-name { font-family:'Syne',sans-serif; font-weight:800; font-size:20px; color:#fff; letter-spacing:-0.01em; }
+.dir-head-tag { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:0.1em; text-transform:uppercase; margin-top:2px; }
+
+.dir-search-wrap { position:relative; margin-bottom:12px; }
+.dir-search { width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); color:#fff; border-radius:14px; padding:14px 18px 14px 44px; font-size:15px; font-family:'Space Grotesk',sans-serif; outline:none; letter-spacing:-0.01em; }
+.dir-search:focus { border-color:var(--green); background:rgba(16,185,129,0.02); }
+.dir-search::placeholder { color:rgba(255,255,255,0.15); }
+.dir-search-icon { position:absolute; left:16px; top:50%; transform:translateY(-50%); color:rgba(255,255,255,0.2); }
+
+.dir-tabs { display:flex; gap:0; overflow-x:auto; scrollbar-width:none; margin:0 -20px; padding:0 20px; }
+.dir-tabs::-webkit-scrollbar { display:none; }
+.dir-tab { flex-shrink:0; padding:12px 20px; background:none; border:none; font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:600; color:rgba(255,255,255,0.2); cursor:pointer; position:relative; white-space:nowrap; letter-spacing:-0.01em; }
+.dir-tab.on { color:#fff; }
+.dir-tab.on::after { content:''; position:absolute; bottom:0; left:20px; right:20px; height:2px; background:var(--green); border-radius:1px; }
+.dir-tab sup { font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--green); margin-left:3px; vertical-align:super; }
+.dir-tab-line { height:1px; background:rgba(255,255,255,0.04); margin:0 -20px; }
+
+/* Cards - big, breathing room */
+.dir-feed { flex:1; overflow-y:auto; padding:8px 20px; scrollbar-width:none; }
+.dir-feed::-webkit-scrollbar { display:none; }
+
+.cx { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); border-radius:16px; padding:18px; margin-bottom:10px; cursor:pointer; transition:border-color 0.15s, background 0.15s; }
+.cx:active { background:rgba(255,255,255,0.04); border-color:rgba(255,255,255,0.08); }
+.cx-top { display:flex; align-items:center; gap:14px; margin-bottom:10px; }
+.cx-logo { width:48px; height:48px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-weight:800; font-size:19px; flex-shrink:0; }
+.cx-info { flex:1; min-width:0; }
+.cx-name { font-size:16px; font-weight:700; color:#fff; letter-spacing:-0.01em; }
+.cx-loc { font-size:12px; color:rgba(255,255,255,0.35); margin-top:2px; }
+.cx-arrow { width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.2); flex-shrink:0; }
+.cx-bottom { display:flex; gap:6px; flex-wrap:wrap; }
+.cx-chip { font-family:'JetBrains Mono',monospace; font-size:9px; padding:4px 10px; border-radius:6px; font-weight:500; letter-spacing:0.02em; }
+.cx-chip.cert { background:rgba(16,185,129,0.05); color:rgba(16,185,129,0.6); border:1px solid rgba(16,185,129,0.08); }
+.cx-chip.feat { background:rgba(255,255,255,0.03); color:rgba(255,255,255,0.4); border:1px solid rgba(255,255,255,0.06); }
+.cx-chip.emp { background:none; color:rgba(255,255,255,0.2); border:none; padding-left:0; }
+
+/* Bottom */
+.dir-foot { flex-shrink:0; padding:12px 20px env(safe-area-inset-bottom,12px); background:#000; border-top:1px solid rgba(255,255,255,0.04); }
+.dir-cta { width:100%; padding:16px; border-radius:14px; border:none; background:#fff; color:#000; font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:700; cursor:pointer; letter-spacing:-0.01em; }
+.dir-cta:active { opacity:0.85; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- LANDING -->
+  <div class="land" id="land">
+    <div class="land-top">
+      <div class="land-mark">Sourcing.Directory</div>
+      <div class="land-dot"></div>
+    </div>
+    <div class="land-split">
+      <div class="land-half space" onclick="go('space')">
+        <div class="land-half-bg"></div>
+        <div class="land-half-overlay"></div>
+        <div class="land-half-content">
+          <div class="lh-eyebrow">Space &amp; Aerospace</div>
+          <div class="lh-name">Space<br>Rising</div>
+          <div class="lh-row">
+            <div class="lh-stat"><b>26</b> companies</div>
+            <div class="lh-stat"><b>8</b> jobs</div>
+            <div class="lh-enter"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+          </div>
+        </div>
+      </div>
+      <div class="land-divider"></div>
+      <div class="land-half s3c" onclick="go('s3c')">
+        <div class="land-half-bg"></div>
+        <div class="land-half-overlay"></div>
+        <div class="land-half-content">
+          <div class="lh-eyebrow">Semiconductor</div>
+          <div class="lh-name">S3C<br>Arizona</div>
+          <div class="lh-row">
+            <div class="lh-stat"><b>36</b> companies</div>
+            <div class="lh-stat"><b>22</b> jobs</div>
+            <div class="lh-enter"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIRECTORY -->
+  <div class="dir" id="dir">
+    <div class="dir-head">
+      <div class="dir-head-row">
+        <button class="dir-close" onclick="back()"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button>
+        <div class="dir-head-info">
+          <div class="dir-head-name" id="d-name">Space Rising</div>
+          <div class="dir-head-tag" id="d-tag" style="color:var(--space)">Space &amp; Aerospace</div>
+        </div>
+      </div>
+      <div class="dir-search-wrap">
+        <div class="dir-search-icon"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+        <input class="dir-search" type="text" placeholder="Search companies, certifications...">
+      </div>
+      <div class="dir-tabs">
+        <button class="dir-tab on">All<sup id="d-count">26</sup></button>
+        <button class="dir-tab">Jobs<sup>22</sup></button>
+        <button class="dir-tab">Events<sup>3</sup></button>
+        <button class="dir-tab">Articles</button>
+        <button class="dir-tab">Marketplace</button>
+        <button class="dir-tab">Grants<sup>5</sup></button>
+        <button class="dir-tab">Reports</button>
+      </div>
+      <div class="dir-tab-line"></div>
+    </div>
+
+    <div class="dir-feed" id="d-feed"></div>
+
+    <div class="dir-foot">
+      <button class="dir-cta">List Your Company</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const D = {
+  space: {
+    name:'Space Rising', tag:'Space & Aerospace', tagColor:'var(--space)', count:26,
+    list:[
+      {n:'Raytheon Missiles & Defense',c:'Tucson, AZ',e:'10,000+',b:['ITAR','DoD Secret'],f:1,bg:'#0d1428',fg:'#5B8DEF'},
+      {n:'Northrop Grumman',c:'Chandler, AZ',e:'2,000+',b:['AS9100D'],f:1,bg:'#1a0d28',fg:'#A78BFA'},
+      {n:'World View Enterprises',c:'Tucson, AZ',e:'200+',b:['FAA Part 145'],f:1,bg:'#0d1f17',fg:'#34D399'},
+      {n:'Phantom Space Corp',c:'Tucson, AZ',e:'50+',b:['ITAR'],bg:'#1f1a0d',fg:'#FBBF24'},
+      {n:'FreeFall Aerospace',c:'Tucson, AZ',e:'11-50',b:['ITAR'],bg:'#1f0d0d',fg:'#F87171'},
+      {n:'SAIC Arizona',c:'Tucson, AZ',e:'500+',b:['DoD','TS/SCI'],bg:'#0d1a1f',fg:'#22D3EE'},
+      {n:'Kratos Defense',c:'Tucson, AZ',e:'200+',b:['ITAR'],bg:'#1f130d',fg:'#FB923C'},
+      {n:'L3Harris Technologies',c:'Tempe, AZ',e:'1,000+',b:['AS9100D'],bg:'#0d1428',fg:'#5B8DEF'},
+    ]
+  },
+  s3c: {
+    name:'S3C Arizona', tag:'Semiconductor', tagColor:'var(--s3c)', count:36,
+    list:[
+      {n:'Intel Chandler',c:'Chandler, AZ',e:'10,000+',b:['ITAR','ISO 9001'],f:1,bg:'#0d1428',fg:'#5B8DEF'},
+      {n:'TSMC Arizona',c:'Phoenix, AZ',e:'2,000+',b:['ISO 14001'],f:1,bg:'#0d1f17',fg:'#34D399'},
+      {n:'Microchip Technology',c:'Chandler, AZ',e:'5,000+',b:['AS9100D'],f:1,bg:'#1a0d28',fg:'#A78BFA'},
+      {n:'Honeywell Aerospace',c:'Phoenix, AZ',e:'10,000+',b:['AS9100D','ITAR'],f:1,bg:'#1f0d0d',fg:'#F87171'},
+      {n:'onsemi',c:'Scottsdale, AZ',e:'5,000+',b:['ISO 9001'],bg:'#0d1428',fg:'#5B8DEF'},
+      {n:'Amkor Technology',c:'Tempe, AZ',e:'2,000+',b:['ISO 9001'],bg:'#1f1a0d',fg:'#FBBF24'},
+      {n:'NXP Semiconductors',c:'Chandler, AZ',e:'1,000+',b:['AEC-Q100'],bg:'#1f0d0d',fg:'#F87171'},
+      {n:'Benchmark Electronics',c:'Tempe, AZ',e:'500+',b:['ITAR'],bg:'#0d1a1f',fg:'#22D3EE'},
+      {n:'Rogers Corporation',c:'Chandler, AZ',e:'200+',b:['ISO 14001'],bg:'#0d1f17',fg:'#34D399'},
+      {n:'Qorvo',c:'Chandler, AZ',e:'500+',b:['ITAR'],bg:'#1f130d',fg:'#FB923C'},
+      {n:'Applied Materials',c:'Tucson, AZ',e:'1,000+',b:[],bg:'#1a0d28',fg:'#A78BFA'},
+      {n:'Analog Devices',c:'Chandler, AZ',e:'500+',b:['ISO 9001'],bg:'#0d1f17',fg:'#34D399'},
+    ]
+  }
+};
+
+function go(k) {
+  const d = D[k];
+  document.getElementById('d-name').textContent = d.name;
+  document.getElementById('d-tag').textContent = d.tag;
+  document.getElementById('d-tag').style.color = d.tagColor;
+  document.getElementById('d-count').textContent = d.count;
+  document.getElementById('d-feed').innerHTML = d.list.map(c => `
+    <div class="cx">
+      <div class="cx-top">
+        <div class="cx-logo" style="background:${c.bg};color:${c.fg}">${c.n[0]}</div>
+        <div class="cx-info">
+          <div class="cx-name">${c.n}</div>
+          <div class="cx-loc">${c.c}</div>
+        </div>
+        <div class="cx-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+      </div>
+      <div class="cx-bottom">
+        ${c.f ? '<span class="cx-chip feat">FEATURED</span>' : ''}
+        ${c.b.map(b=>`<span class="cx-chip cert">${b}</span>`).join('')}
+        <span class="cx-chip emp">${c.e} employees</span>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('land').classList.add('out');
+  document.getElementById('dir').classList.add('open');
+}
+
+function back() {
+  document.getElementById('dir').classList.remove('open');
+  document.getElementById('land').classList.remove('out');
+}
+</script>
+</body>
+</html>

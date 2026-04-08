@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>sourcing.directory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Barlow+Condensed:wght@400;600;700;800&family=Oswald:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --space-red: #E5451F;
+  --s3c-copper: #C0784A;
+  --emerald: #10b981;
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --surface2: #111111;
+  --border: #1a1a1a;
+  --text: #f5f5f5;
+  --muted: #737373;
+  --dim: #404040;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:'Space Grotesk',sans-serif; }
+button { cursor:pointer; }
+
+.app { height:100dvh; display:flex; flex-direction:column; position:relative; overflow:hidden; }
+
+/* ═══ SCREEN: LANDING ═══ */
+.screen { position:absolute; inset:0; display:flex; flex-direction:column; transition:opacity 0.4s, transform 0.4s cubic-bezier(0.16,1,0.3,1); }
+.screen.hidden { opacity:0; pointer-events:none; transform:scale(1.04); }
+
+.landing { background:var(--bg); }
+.landing-header { padding:env(safe-area-inset-top,16px) 24px 0; display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+.landing-logo { font-family:'Syne',sans-serif; font-weight:800; font-size:11px; letter-spacing:0.2em; color:var(--text); text-transform:uppercase; }
+.landing-login { font-size:12px; color:var(--muted); background:none; border:none; font-family:'Space Grotesk',sans-serif; padding:8px 0; }
+
+.landing-hero { flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:0 32px; text-align:center; gap:6px; }
+.landing-hero h1 { font-family:'Syne',sans-serif; font-weight:800; font-size:clamp(32px,8vw,48px); color:#fff; line-height:0.95; letter-spacing:-0.02em; }
+.landing-hero h1 span { display:block; font-size:clamp(12px,3vw,15px); font-weight:400; font-family:'JetBrains Mono',monospace; color:var(--muted); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:8px; line-height:1; }
+.landing-hero p { font-size:13px; color:var(--muted); max-width:280px; line-height:1.5; margin-top:4px; }
+
+.landing-cards { flex-shrink:0; padding:0 20px 0; display:flex; flex-direction:column; gap:10px; }
+
+/* Directory cards - big, immersive */
+.dcard { height:clamp(140px,22vh,200px); border-radius:16px; overflow:hidden; position:relative; cursor:pointer; }
+.dcard:active { transform:scale(0.985); }
+.dcard { transition:transform 0.12s; }
+.dcard-img { position:absolute; inset:0; background-size:cover; background-position:center; }
+.dcard-grad { position:absolute; inset:0; }
+.dcard-inner { position:absolute; inset:0; display:flex; align-items:flex-end; padding:20px 22px; }
+.dcard-text { flex:1; }
+.dcard-label { font-family:'JetBrains Mono',monospace; font-size:9px; color:rgba(255,255,255,0.45); letter-spacing:0.12em; text-transform:uppercase; margin-bottom:6px; }
+.dcard-name { font-weight:800; font-size:clamp(18px,5vw,26px); color:#fff; line-height:1.05; letter-spacing:-0.01em; }
+.dcard-stats { display:flex; gap:16px; margin-top:8px; }
+.dcard-stat { font-family:'JetBrains Mono',monospace; font-size:10px; color:rgba(255,255,255,0.55); }
+.dcard-stat strong { font-weight:700; font-size:14px; margin-right:3px; }
+.dcard-go { width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); flex-shrink:0; align-self:flex-end; }
+
+.dcard.space .dcard-img { background-image:url('https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?w=900&q=80'); }
+.dcard.space .dcard-grad { background:linear-gradient(to top, #000 0%, rgba(0,0,0,0.75) 40%, rgba(0,0,0,0.1) 100%); }
+.dcard.space .dcard-name { font-family:'Oswald',sans-serif; font-weight:700; }
+.dcard.space .dcard-stat strong { color:var(--space-red); }
+.dcard.space .dcard-go { background:rgba(229,69,31,0.2); border:1px solid rgba(229,69,31,0.3); color:var(--space-red); }
+
+.dcard.s3c .dcard-img { background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475?w=900&q=80'); }
+.dcard.s3c .dcard-grad { background:linear-gradient(to top, #000 0%, rgba(0,0,0,0.75) 40%, rgba(0,0,0,0.1) 100%); }
+.dcard.s3c .dcard-name { font-family:'Barlow Condensed',sans-serif; font-weight:800; }
+.dcard.s3c .dcard-stat strong { color:var(--s3c-copper); }
+.dcard.s3c .dcard-go { background:rgba(192,120,74,0.2); border:1px solid rgba(192,120,74,0.3); color:var(--s3c-copper); }
+
+.landing-bottom { flex-shrink:0; padding:16px 20px env(safe-area-inset-bottom,16px); text-align:center; }
+.landing-bottom p { font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--dim); letter-spacing:0.06em; }
+
+/* ═══ SCREEN: DIRECTORY ═══ */
+.directory { background:var(--bg); }
+.directory.hidden { transform:translateX(100%) scale(1); opacity:1; }
+
+.dir-top { flex-shrink:0; padding:env(safe-area-inset-top,12px) 16px 0; }
+.dir-topbar { display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+.dir-back { width:36px; height:36px; border-radius:12px; background:var(--surface2); border:1px solid var(--border); color:var(--muted); display:flex; align-items:center; justify-content:center; }
+.dir-title-block { flex:1; }
+.dir-title { font-family:'Syne',sans-serif; font-weight:800; font-size:18px; color:#fff; letter-spacing:-0.01em; }
+.dir-subtitle { font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--dim); letter-spacing:0.08em; text-transform:uppercase; margin-top:1px; }
+
+.dir-search-row { display:flex; gap:8px; margin-bottom:10px; }
+.dir-search { flex:1; background:var(--surface); border:1px solid var(--border); color:var(--text); border-radius:12px; padding:12px 16px; font-size:14px; font-family:'Space Grotesk',sans-serif; outline:none; }
+.dir-search:focus { border-color:var(--emerald); box-shadow:0 0 0 3px rgba(16,185,129,0.08); }
+.dir-search::placeholder { color:var(--dim); }
+.dir-filter-btn { width:46px; border-radius:12px; background:var(--surface); border:1px solid var(--border); color:var(--muted); display:flex; align-items:center; justify-content:center; }
+
+/* Section nav - big clear buttons */
+.dir-nav-row { display:flex; gap:0; overflow-x:auto; scrollbar-width:none; margin:0 -16px; padding:0 16px; }
+.dir-nav-row::-webkit-scrollbar { display:none; }
+.dir-nav-btn { flex-shrink:0; padding:10px 18px; background:none; border:none; font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:600; color:var(--dim); position:relative; white-space:nowrap; }
+.dir-nav-btn.active { color:#fff; }
+.dir-nav-btn.active::after { content:''; position:absolute; bottom:0; left:18px; right:18px; height:2px; background:var(--emerald); border-radius:1px; }
+.dir-nav-btn .count { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--emerald); margin-left:4px; }
+.dir-nav-line { height:1px; background:var(--border); margin:0 -16px; }
+
+/* Company list - spacious, clean */
+.dir-list { flex:1; overflow-y:auto; padding:6px 16px; scrollbar-width:none; }
+.dir-list::-webkit-scrollbar { display:none; }
+
+.co { display:flex; align-items:center; gap:14px; padding:14px 0; border-bottom:1px solid var(--border); cursor:pointer; }
+.co:last-child { border-bottom:none; }
+.co:active { opacity:0.7; }
+.co-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-family:'Syne',sans-serif; font-weight:800; font-size:17px; flex-shrink:0; }
+.co-body { flex:1; min-width:0; }
+.co-name { font-size:14px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.co-meta { font-size:11px; color:var(--muted); margin-top:2px; }
+.co-tags { display:flex; gap:4px; margin-top:5px; }
+.co-tag { font-family:'JetBrains Mono',monospace; font-size:8px; padding:3px 7px; border-radius:4px; font-weight:500; letter-spacing:0.03em; }
+.co-tag.cert { background:rgba(16,185,129,0.06); color:rgba(16,185,129,0.7); border:1px solid rgba(16,185,129,0.1); }
+.co-tag.feat { background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.5); border:1px solid rgba(255,255,255,0.08); }
+.co-chevron { color:var(--dim); flex-shrink:0; }
+
+/* Bottom bar */
+.dir-bottom { flex-shrink:0; padding:10px 16px env(safe-area-inset-bottom,10px); display:flex; gap:8px; background:var(--bg); border-top:1px solid var(--border); }
+.dir-btn { flex:1; padding:13px; border-radius:12px; border:none; font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:6px; }
+.dir-btn.primary { background:#fff; color:#000; }
+.dir-btn.secondary { background:var(--surface); border:1px solid var(--border); color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- ═══ LANDING ═══ -->
+  <div class="screen landing" id="landing">
+    <div class="landing-header">
+      <div class="landing-logo">Sourcing</div>
+      <button class="landing-login">Sign in</button>
+    </div>
+    <div class="landing-hero">
+      <h1><span>Arizona</span>Industry<br>Directory</h1>
+      <p>Verified suppliers and certified companies across Arizona's advanced industries.</p>
+    </div>
+    <div class="landing-cards">
+      <div class="dcard space" onclick="openDir('space')">
+        <div class="dcard-img"></div>
+        <div class="dcard-grad"></div>
+        <div class="dcard-inner">
+          <div class="dcard-text">
+            <div class="dcard-label">Space &amp; Aerospace</div>
+            <div class="dcard-name">Space Rising<br>Arizona</div>
+            <div class="dcard-stats">
+              <div class="dcard-stat"><strong>26</strong>cos</div>
+              <div class="dcard-stat"><strong>8</strong>jobs</div>
+              <div class="dcard-stat"><strong>12</strong>events</div>
+            </div>
+          </div>
+          <div class="dcard-go"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        </div>
+      </div>
+      <div class="dcard s3c" onclick="openDir('s3c')">
+        <div class="dcard-img"></div>
+        <div class="dcard-grad"></div>
+        <div class="dcard-inner">
+          <div class="dcard-text">
+            <div class="dcard-label">Semiconductor</div>
+            <div class="dcard-name">S3C Arizona<br>Semiconductor</div>
+            <div class="dcard-stats">
+              <div class="dcard-stat"><strong>36</strong>cos</div>
+              <div class="dcard-stat"><strong>22</strong>jobs</div>
+              <div class="dcard-stat"><strong>5</strong>grants</div>
+            </div>
+          </div>
+          <div class="dcard-go"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg></div>
+        </div>
+      </div>
+    </div>
+    <div class="landing-bottom"><p>Ahead of Market &middot; Phoenix, AZ</p></div>
+  </div>
+
+  <!-- ═══ DIRECTORY ═══ -->
+  <div class="screen directory hidden" id="directory">
+    <div class="dir-top">
+      <div class="dir-topbar">
+        <button class="dir-back" onclick="goBack()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+        <div class="dir-title-block">
+          <div class="dir-title" id="dt-title">S3C Arizona</div>
+          <div class="dir-subtitle" id="dt-sub">36 verified companies</div>
+        </div>
+      </div>
+      <div class="dir-search-row">
+        <input class="dir-search" type="text" placeholder="Search companies, certs...">
+        <button class="dir-filter-btn"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/></svg></button>
+      </div>
+      <div class="dir-nav-row">
+        <button class="dir-nav-btn active">Directory<span class="count" id="dt-count">36</span></button>
+        <button class="dir-nav-btn">Jobs<span class="count">22</span></button>
+        <button class="dir-nav-btn">Events<span class="count">3</span></button>
+        <button class="dir-nav-btn">Articles</button>
+        <button class="dir-nav-btn">Marketplace</button>
+        <button class="dir-nav-btn">Grants<span class="count">5</span></button>
+        <button class="dir-nav-btn">Reports</button>
+      </div>
+      <div class="dir-nav-line"></div>
+    </div>
+
+    <div class="dir-list" id="dt-list"></div>
+
+    <div class="dir-bottom">
+      <button class="dir-btn secondary">Membership</button>
+      <button class="dir-btn primary">+ List Your Company</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DB = {
+  s3c: {
+    title:'S3C Arizona', sub:'36 verified companies', count:'36',
+    items:[
+      {n:'Intel Chandler',c:'Chandler, AZ',e:'10,000+ employees',b:['ITAR','ISO 9001'],f:true,bg:'#1a2744',fg:'#5B8DEF'},
+      {n:'TSMC Arizona',c:'Phoenix, AZ',e:'2,000+',b:['ISO 14001'],f:true,bg:'#0f2a20',fg:'#34D399'},
+      {n:'Microchip Technology',c:'Chandler, AZ',e:'5,000+',b:['AS9100D'],f:true,bg:'#231535',fg:'#A78BFA'},
+      {n:'Honeywell Aerospace',c:'Phoenix, AZ',e:'10,000+',b:['AS9100D','ITAR'],f:true,bg:'#2a1215',fg:'#F87171'},
+      {n:'onsemi',c:'Scottsdale, AZ',e:'5,000+',b:['ISO 9001'],bg:'#1a2744',fg:'#5B8DEF'},
+      {n:'Amkor Technology',c:'Tempe, AZ',e:'2,000+',b:['ISO 9001'],bg:'#2a2010',fg:'#FBBF24'},
+      {n:'NXP Semiconductors',c:'Chandler, AZ',e:'1,000+',b:['AEC-Q100'],bg:'#2a1215',fg:'#F87171'},
+      {n:'Benchmark Electronics',c:'Tempe, AZ',e:'500+',b:['ITAR'],bg:'#0f2228',fg:'#22D3EE'},
+      {n:'Rogers Corporation',c:'Chandler, AZ',e:'200+',b:['ISO 14001'],bg:'#0f2a20',fg:'#34D399'},
+      {n:'Qorvo',c:'Chandler, AZ',e:'500+',b:['ITAR'],bg:'#2a1a0f',fg:'#FB923C'},
+      {n:'Applied Materials',c:'Tucson, AZ',e:'1,000+',b:[],bg:'#231535',fg:'#A78BFA'},
+      {n:'Analog Devices',c:'Chandler, AZ',e:'500+',b:['ISO 9001'],bg:'#0f2a20',fg:'#34D399'},
+    ]
+  },
+  space: {
+    title:'Space Rising', sub:'26 verified companies', count:'26',
+    items:[
+      {n:'Raytheon Missiles & Defense',c:'Tucson, AZ',e:'10,000+',b:['ITAR','DoD Secret'],f:true,bg:'#1a2744',fg:'#5B8DEF'},
+      {n:'Northrop Grumman',c:'Chandler, AZ',e:'2,000+',b:['AS9100D'],f:true,bg:'#231535',fg:'#A78BFA'},
+      {n:'World View Enterprises',c:'Tucson, AZ',e:'200+',b:['FAA Part 145'],f:true,bg:'#0f2a20',fg:'#34D399'},
+      {n:'Phantom Space Corp',c:'Tucson, AZ',e:'50+',b:['ITAR'],bg:'#2a2010',fg:'#FBBF24'},
+      {n:'FreeFall Aerospace',c:'Tucson, AZ',e:'11-50',b:['ITAR'],bg:'#2a1215',fg:'#F87171'},
+      {n:'SAIC Arizona',c:'Tucson, AZ',e:'500+',b:['DoD','TS/SCI'],bg:'#0f2228',fg:'#22D3EE'},
+      {n:'Kratos Defense',c:'Tucson, AZ',e:'200+',b:['ITAR'],bg:'#2a1a0f',fg:'#FB923C'},
+      {n:'L3Harris Technologies',c:'Tempe, AZ',e:'1,000+',b:['AS9100D'],bg:'#1a2744',fg:'#5B8DEF'},
+    ]
+  }
+};
+
+function openDir(key) {
+  const d = DB[key];
+  document.getElementById('dt-title').textContent = d.title;
+  document.getElementById('dt-sub').textContent = d.sub;
+  document.getElementById('dt-count').textContent = d.count;
+  document.getElementById('dt-list').innerHTML = d.items.map(c => `
+    <div class="co">
+      <div class="co-icon" style="background:${c.bg};color:${c.fg}">${c.n[0]}</div>
+      <div class="co-body">
+        <div class="co-name">${c.n}</div>
+        <div class="co-meta">${c.c} &middot; ${c.e}</div>
+        <div class="co-tags">
+          ${c.f ? '<span class="co-tag feat">FEATURED</span>' : ''}
+          ${c.b.map(b=>`<span class="co-tag cert">${b}</span>`).join('')}
+        </div>
+      </div>
+      <div class="co-chevron"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></div>
+    </div>
+  `).join('');
+  document.getElementById('landing').classList.add('hidden');
+  document.getElementById('directory').classList.remove('hidden');
+}
+
+function goBack() {
+  document.getElementById('directory').classList.add('hidden');
+  document.getElementById('landing').classList.remove('hidden');
+}
+</script>
+</body>
+</html>
