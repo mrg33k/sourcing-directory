@@ -450,6 +450,17 @@ function SourcingAdminInner() {
   const [pendingArticles, setPendingArticles] = useState([]);
   const [articleCompanyMap, setArticleCompanyMap] = useState({});
 
+  // Directory Reports state
+  const [reports, setReports] = useState([]);
+  const [reportsLoading, setReportsLoading] = useState(false);
+  const [showReportForm, setShowReportForm] = useState(false);
+  const [editingReport, setEditingReport] = useState(null);
+  const [reportForm, setReportForm] = useState({
+    title: '', category: '', access: 'public', description: '', published_at: '', file_url: '',
+  });
+  const [reportFormStatus, setReportFormStatus] = useState('');
+  const [reportFileUploading, setReportFileUploading] = useState(false);
+
   // Analytics + Messages state
   const [analyticsData, setAnalyticsData] = useState(null);
   const [contacts, setContacts] = useState([]);
@@ -738,6 +749,110 @@ function SourcingAdminInner() {
       fetchContacts();
     }
   }, [authed, selectedTenantId, fetchAnalytics, fetchContacts]);
+
+  const fetchReports = useCallback(async () => {
+    if (!adminSupabase) return;
+    setReportsLoading(true);
+    try {
+      let q = adminSupabase.from('directory_reports').select('*').order('created_at', { ascending: false });
+      if (selectedTenantId) q = q.eq('tenant_id', selectedTenantId);
+      const { data } = await q;
+      setReports(data || []);
+    } catch (err) {
+      console.error('Reports fetch error:', err);
+    } finally {
+      setReportsLoading(false);
+    }
+  }, [selectedTenantId]);
+
+  useEffect(() => {
+    if (authed) fetchReports();
+  }, [authed, fetchReports]);
+
+  const handleReportFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !adminSupabase) return;
+    setReportFileUploading(true);
+    setReportFormStatus('Uploading file...');
+    try {
+      const filePath = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+      const { data: uploadData, error: uploadError } = await adminSupabase.storage
+        .from('reports')
+        .upload(filePath, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = adminSupabase.storage.from('reports').getPublicUrl(uploadData.path);
+      setReportForm(prev => ({ ...prev, file_url: publicUrl }));
+      setReportFormStatus('File uploaded.');
+    } catch (err) {
+      setReportFormStatus('Upload error: ' + err.message);
+    } finally {
+      setReportFileUploading(false);
+    }
+  };
+
+  const handleReportSubmit = async (e) => {
+    e.preventDefault();
+    if (!adminSupabase) return;
+    setReportFormStatus('Saving...');
+    try {
+      const payload = {
+        title: reportForm.title,
+        category: reportForm.category || null,
+        access: reportForm.access || 'public',
+        description: reportForm.description || null,
+        file_url: reportForm.file_url || null,
+        published_at: reportForm.published_at || null,
+        tenant_id: selectedTenantId,
+      };
+      if (editingReport) {
+        const { error } = await adminSupabase.from('directory_reports').update(payload).eq('id', editingReport.id);
+        if (error) throw error;
+      } else {
+        const { error } = await adminSupabase.from('directory_reports').insert(payload);
+        if (error) throw error;
+      }
+      setReportFormStatus(editingReport ? 'Updated.' : 'Created.');
+      setEditingReport(null);
+      setShowReportForm(false);
+      setReportForm({ title: '', category: '', access: 'public', description: '', published_at: '', file_url: '' });
+      await fetchReports();
+    } catch (err) {
+      setReportFormStatus('Error: ' + err.message);
+    }
+  };
+
+  const handleReportEdit = (report) => {
+    setEditingReport(report);
+    setReportForm({
+      title: report.title || '',
+      category: report.category || '',
+      access: report.access || 'public',
+      description: report.description || '',
+      published_at: report.published_at ? report.published_at.slice(0, 10) : '',
+      file_url: report.file_url || '',
+    });
+    setReportFormStatus('');
+    setShowReportForm(true);
+  };
+
+  const handleReportDelete = async (report) => {
+    if (!adminSupabase) return;
+    if (!window.confirm(`Delete "${report.title}"?`)) return;
+    try {
+      // Delete file from storage if present
+      if (report.file_url) {
+        const url = new URL(report.file_url);
+        const pathParts = url.pathname.split('/object/public/reports/');
+        if (pathParts.length === 2) {
+          await adminSupabase.storage.from('reports').remove([pathParts[1]]);
+        }
+      }
+      await adminSupabase.from('directory_reports').delete().eq('id', report.id);
+      await fetchReports();
+    } catch (err) {
+      console.error('Delete report error:', err);
+    }
+  };
 
   const handleContactStatusUpdate = async (id, status) => {
     if (!adminSupabase) return;
@@ -1257,6 +1372,7 @@ function SourcingAdminInner() {
     { key: 'add',        label: '+ Add Company' },
     { key: 'orgs',       label: 'Organizations' },
     { key: 'listings',   label: 'Listings' },
+    { key: 'reports',    label: 'Reports' },
     { key: 'analytics',  label: 'Analytics' },
     { key: 'messages',   label: `Messages${newContactCount > 0 ? ` (${newContactCount})` : ''}` },
     { key: 'actions',    label: 'Quick Actions' },
@@ -1936,6 +2052,247 @@ function SourcingAdminInner() {
                   Showing 50 of {filteredListings.length}
                 </div>
               )}
+            </div>
+          </AdminSection>
+        )}
+
+        {/* Directory Reports */}
+        {!loading && activeTab === 'reports' && (
+          <AdminSection
+            title="Directory Reports"
+            V={V}
+            action={
+              <button
+                onClick={() => {
+                  setEditingReport(null);
+                  setReportForm({ title: '', category: '', access: 'public', description: '', published_at: '', file_url: '' });
+                  setReportFormStatus('');
+                  setShowReportForm(s => !s);
+                }}
+                style={{
+                  background: V.accentDim, border: `1px solid ${V.accentBrd}`,
+                  color: V.accent, borderRadius: 6, padding: '5px 12px',
+                  fontSize: 12, fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
+                }}
+              >
+                {showReportForm && !editingReport ? 'Cancel' : '+ New Report'}
+              </button>
+            }
+          >
+            {/* Create / Edit form */}
+            {showReportForm && (
+              <form onSubmit={handleReportSubmit} style={{
+                background: V.card, border: `1px solid ${V.border}`,
+                borderRadius: 10, padding: '20px 24px', marginBottom: 24,
+                display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14,
+              }}>
+                <div style={{ gridColumn: '1 / -1', fontSize: 13, fontWeight: 700, fontFamily: V.syne, color: V.heading, marginBottom: 4 }}>
+                  {editingReport ? 'Edit Report' : 'New Report'}
+                </div>
+                {/* Title */}
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Title *</div>
+                  <input
+                    required
+                    value={reportForm.title}
+                    onChange={e => setReportForm(p => ({ ...p, title: e.target.value }))}
+                    placeholder="Report title"
+                    style={{
+                      width: '100%', background: V.card2, border: `1px solid ${V.border}`,
+                      borderRadius: 6, padding: '8px 10px', color: V.text,
+                      fontSize: 13, fontFamily: V.space, outline: 'none',
+                    }}
+                  />
+                </div>
+                {/* Category */}
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Category</div>
+                  <input
+                    value={reportForm.category}
+                    onChange={e => setReportForm(p => ({ ...p, category: e.target.value }))}
+                    placeholder="e.g. semiconductor, market, quarterly"
+                    style={{
+                      width: '100%', background: V.card2, border: `1px solid ${V.border}`,
+                      borderRadius: 6, padding: '8px 10px', color: V.text,
+                      fontSize: 13, fontFamily: V.space, outline: 'none',
+                    }}
+                  />
+                </div>
+                {/* Access */}
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Access</div>
+                  <select
+                    value={reportForm.access}
+                    onChange={e => setReportForm(p => ({ ...p, access: e.target.value }))}
+                    style={{
+                      width: '100%', background: V.card2, border: `1px solid ${V.border}`,
+                      borderRadius: 6, padding: '8px 10px', color: V.text,
+                      fontSize: 13, fontFamily: V.space, outline: 'none', cursor: 'pointer',
+                    }}
+                  >
+                    <option value="public">Public</option>
+                    <option value="members">Members only</option>
+                    <option value="paid">Paid</option>
+                  </select>
+                </div>
+                {/* Published At */}
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Published Date</div>
+                  <input
+                    type="date"
+                    value={reportForm.published_at}
+                    onChange={e => setReportForm(p => ({ ...p, published_at: e.target.value }))}
+                    style={{
+                      width: '100%', background: V.card2, border: `1px solid ${V.border}`,
+                      borderRadius: 6, padding: '8px 10px', color: V.text,
+                      fontSize: 13, fontFamily: V.space, outline: 'none',
+                    }}
+                  />
+                </div>
+                {/* File upload */}
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>File (PDF / doc)</div>
+                  <input
+                    type="file"
+                    accept=".pdf,.doc,.docx,.pptx,.xlsx,.csv"
+                    onChange={handleReportFileChange}
+                    disabled={reportFileUploading}
+                    style={{
+                      width: '100%', background: V.card2, border: `1px solid ${V.border}`,
+                      borderRadius: 6, padding: '7px 10px', color: V.muted,
+                      fontSize: 12, fontFamily: V.space, cursor: 'pointer',
+                    }}
+                  />
+                  {reportForm.file_url && (
+                    <div style={{ fontSize: 11, color: V.accent, fontFamily: V.mono, marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {reportForm.file_url}
+                    </div>
+                  )}
+                </div>
+                {/* Description */}
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Description</div>
+                  <textarea
+                    value={reportForm.description}
+                    onChange={e => setReportForm(p => ({ ...p, description: e.target.value }))}
+                    placeholder="Brief description of the report"
+                    rows={3}
+                    style={{
+                      width: '100%', background: V.card2, border: `1px solid ${V.border}`,
+                      borderRadius: 6, padding: '8px 10px', color: V.text,
+                      fontSize: 13, fontFamily: V.space, outline: 'none', resize: 'vertical',
+                    }}
+                  />
+                </div>
+                {/* Actions */}
+                <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <button
+                    type="submit"
+                    disabled={reportFileUploading}
+                    style={{
+                      background: V.accent, border: 'none', color: '#fff',
+                      borderRadius: 6, padding: '8px 20px', fontSize: 13,
+                      fontWeight: 700, fontFamily: V.space, cursor: reportFileUploading ? 'not-allowed' : 'pointer',
+                      opacity: reportFileUploading ? 0.6 : 1,
+                    }}
+                  >
+                    {editingReport ? 'Save Changes' : 'Create Report'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setShowReportForm(false); setEditingReport(null); setReportFormStatus(''); }}
+                    style={{
+                      background: 'transparent', border: `1px solid ${V.border}`, color: V.muted,
+                      borderRadius: 6, padding: '8px 16px', fontSize: 13,
+                      fontWeight: 600, fontFamily: V.space, cursor: 'pointer',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  {reportFormStatus && (
+                    <span style={{ fontSize: 12, color: reportFormStatus.startsWith('Error') ? '#FCA5A5' : V.accent, fontFamily: V.mono }}>
+                      {reportFormStatus}
+                    </span>
+                  )}
+                </div>
+              </form>
+            )}
+
+            {/* Reports table */}
+            <div style={{ background: V.card, border: `1px solid ${V.border}`, borderRadius: 8, overflow: 'hidden' }}>
+              {/* Header */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 80px 100px 120px', gap: 12, padding: '8px 16px', background: V.card2 }}>
+                {['Title', 'Category', 'Access', 'Published', 'Actions'].map(h => (
+                  <div key={h} style={{ fontSize: 10, fontWeight: 700, fontFamily: V.mono, color: V.dim, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{h}</div>
+                ))}
+              </div>
+              {reportsLoading && (
+                <div style={{ padding: '24px 16px', color: V.dim, fontSize: 13, fontFamily: V.space }}>Loading...</div>
+              )}
+              {!reportsLoading && reports.length === 0 && (
+                <div style={{ padding: '24px 16px', color: V.dim, fontSize: 13, fontFamily: V.space }}>No reports yet.</div>
+              )}
+              {!reportsLoading && reports.map(report => (
+                <div key={report.id} style={{
+                  display: 'grid', gridTemplateColumns: '1fr 100px 80px 100px 120px',
+                  gap: 12, padding: '11px 16px', alignItems: 'center',
+                  borderBottom: `1px solid ${V.border}`,
+                }}>
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, fontFamily: V.space, color: V.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {report.title}
+                    </div>
+                    {report.file_url && (
+                      <a href={report.file_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: V.accent, fontFamily: V.mono, textDecoration: 'none' }}>
+                        View file
+                      </a>
+                    )}
+                    {report.description && (
+                      <div style={{ fontSize: 11, color: V.dim, fontFamily: V.space, marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {report.description}
+                      </div>
+                    )}
+                  </div>
+                  <div style={{ fontSize: 11, color: V.muted, fontFamily: V.mono }}>{report.category || '--'}</div>
+                  <div>
+                    <span style={{
+                      background: report.access === 'public' ? 'rgba(34,197,94,0.1)' : report.access === 'paid' ? 'rgba(234,179,8,0.1)' : 'rgba(59,130,246,0.1)',
+                      border: `1px solid ${report.access === 'public' ? 'rgba(34,197,94,0.4)' : report.access === 'paid' ? 'rgba(234,179,8,0.4)' : 'rgba(59,130,246,0.4)'}`,
+                      color: report.access === 'public' ? '#86EFAC' : report.access === 'paid' ? '#FDE68A' : '#93C5FD',
+                      fontSize: 10, fontWeight: 700, fontFamily: V.mono,
+                      padding: '2px 7px', borderRadius: 3,
+                      textTransform: 'uppercase', letterSpacing: '0.08em',
+                    }}>
+                      {report.access || 'public'}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 11, color: V.dim, fontFamily: V.mono }}>
+                    {report.published_at ? new Date(report.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--'}
+                  </div>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    <button
+                      onClick={() => handleReportEdit(report)}
+                      style={{
+                        background: V.accentDim, border: `1px solid ${V.accentBrd}`,
+                        color: V.accent, borderRadius: 5, padding: '4px 8px',
+                        fontSize: 11, fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleReportDelete(report)}
+                      style={{
+                        background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
+                        color: '#FCA5A5', borderRadius: 5, padding: '4px 8px',
+                        fontSize: 11, fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           </AdminSection>
         )}
