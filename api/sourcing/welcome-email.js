@@ -160,13 +160,15 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Resend error:', data);
-      return res.status(500).json({ error: data.message || 'Email send failed' });
+      console.error('Resend error (domain may not be verified yet):', data);
+      // Return success anyway - signup shouldn't fail because of email
+      return res.status(200).json({ ok: true, email_skipped: true, reason: data.message });
     }
 
     return res.status(200).json({ ok: true, id: data.id });
   } catch (err) {
     console.error('welcome-email error:', err);
-    return res.status(500).json({ error: err.message });
+    // Don't fail the signup flow over email
+    return res.status(200).json({ ok: true, email_skipped: true, reason: err.message });
   }
 }

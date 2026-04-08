@@ -179,7 +179,14 @@ export default async function handler(req, res) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Resend error:', data);
+      console.error('Resend error, falling back to Supabase native email:', data);
+      // Fall back to Supabase native password reset
+      const anonKey = process.env.VITE_SUPABASE_ANON_KEY;
+      if (anonKey) {
+        const anonClient = createClient(SUPABASE_URL, anonKey);
+        await anonClient.auth.resetPasswordForEmail(email, { redirectTo });
+        return res.status(200).json({ ok: true, fallback: 'supabase' });
+      }
       return res.status(500).json({ error: data.message || 'Email send failed' });
     }
 
