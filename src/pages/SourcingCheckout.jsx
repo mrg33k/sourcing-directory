@@ -92,26 +92,24 @@ function SourcingCheckoutInner() {
     }
   }, [orgSlug, companySlug]);
 
-  const tierToDb = (name) => {
-    const n = name.toLowerCase();
-    if (n.includes('enterprise') || n.includes('premier') || n.includes('sponsor')) return 'enterprise';
-    if (n.includes('pro') || n.includes('member')) return 'pro';
-    return 'basic';
-  };
-
   const handleComplete = async () => {
-    if (!supabase) { setError('Supabase not configured. Run migrations first.'); return; }
     if (!form.company_name.trim()) { setError('Company name is required.'); return; }
 
     setLoading(true);
     setError('');
     try {
       if (company) {
-        const { error: updateErr } = await supabase
-          .from('directory_companies')
-          .update({ membership_tier: tierToDb(tierName) })
-          .eq('id', company.id);
-        if (updateErr) throw updateErr;
+        const res = await fetch('/api/sourcing/upgrade-membership', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            company_id: company.id,
+            tier_name: tierName,
+            seat_count: 1,
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Membership update failed');
       }
       setDone(true);
     } catch (err) {
@@ -276,16 +274,6 @@ function SourcingCheckoutInner() {
               </div>
             </div>
           </div>
-
-          {!supabase && (
-            <div style={{
-              background: V.accentDim, border: `1px solid ${V.accentBrd}`,
-              borderRadius: 7, padding: '12px 14px', marginBottom: 16,
-              fontSize: 12, color: V.accent, fontFamily: V.space,
-            }}>
-              Supabase not configured. Run migrations to enable this.
-            </div>
-          )}
 
           {error && (
             <div style={{ color: '#EF4444', fontSize: 13, fontFamily: V.space, marginBottom: 16 }}>{error}</div>
