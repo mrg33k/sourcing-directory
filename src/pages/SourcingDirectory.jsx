@@ -497,6 +497,9 @@ function SourcingDirectoryInner() {
   // Reviews map: company slug -> { avg, count }
   const [reviewStats, setReviewStats] = useState({});
 
+  // Reports from directory_reports table (tenant-scoped)
+  const [reports, setReports] = useState([]);
+
   // ─── Tenant brand tokens (Space Rising + S3C) ──────────────────────────────
   const tenantBrand = useMemo(() => {
     if (!tenant) return null;
@@ -778,6 +781,17 @@ function SourcingDirectoryInner() {
       return next;
     });
   }, []);
+
+  // Fetch reports for tenant
+  useEffect(() => {
+    if (!supabase || !tenant?.id) { setReports([]); return; }
+    supabase
+      .from('directory_reports')
+      .select('*')
+      .eq('tenant_id', tenant.id)
+      .order('published_at', { ascending: false })
+      .then(({ data }) => { setReports(data || []); });
+  }, [tenant?.id]);
 
   // Fetch review stats for visible companies
   useEffect(() => {
@@ -1237,6 +1251,109 @@ function SourcingDirectoryInner() {
             >
               Add Your Company
             </Link>
+          </div>
+        )}
+
+        {/* Reports / Resources section -- shown when tenant has reports */}
+        {reports.length > 0 && (
+          <div style={{ marginTop: 40 }}>
+            <div style={{
+              fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted,
+              letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 14,
+            }}>
+              Resources & Reports
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {reports.map(report => (
+                <div
+                  key={report.id}
+                  style={{
+                    background: V.card,
+                    border: `1px solid ${V.border}`,
+                    borderRadius: 8,
+                    padding: '14px 18px',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 14,
+                  }}
+                >
+                  {/* Icon */}
+                  <div style={{
+                    width: 36, height: 36, borderRadius: 7, flexShrink: 0,
+                    background: V.accentDim, border: `1px solid ${V.accentBrd}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <svg width="16" height="16" fill="none" stroke={V.accent} strokeWidth="1.8" viewBox="0 0 24 24">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                  </div>
+
+                  {/* Content */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
+                      <span style={{
+                        fontSize: 14, fontWeight: 600, fontFamily: V.space, color: V.text,
+                      }}>
+                        {report.title}
+                      </span>
+                      {report.category && (
+                        <span style={{
+                          background: 'rgba(255,255,255,0.06)', border: `1px solid ${V.border}`,
+                          color: V.muted, fontSize: 10, fontFamily: V.mono, fontWeight: 600,
+                          padding: '2px 7px', borderRadius: 3,
+                          textTransform: 'uppercase', letterSpacing: '0.08em',
+                        }}>
+                          {report.category}
+                        </span>
+                      )}
+                      <span style={{
+                        background: report.access === 'free' ? 'rgba(34,197,94,0.1)' : 'rgba(59,130,246,0.1)',
+                        border: `1px solid ${report.access === 'free' ? 'rgba(34,197,94,0.3)' : 'rgba(59,130,246,0.3)'}`,
+                        color: report.access === 'free' ? '#86EFAC' : '#93C5FD',
+                        fontSize: 10, fontFamily: V.mono, fontWeight: 700,
+                        padding: '2px 7px', borderRadius: 3,
+                        textTransform: 'uppercase', letterSpacing: '0.08em',
+                      }}>
+                        {report.access === 'free' ? 'Free' : 'Member'}
+                      </span>
+                    </div>
+                    {report.description && (
+                      <div style={{
+                        fontSize: 13, color: V.muted, fontFamily: V.space, lineHeight: 1.5,
+                      }}>
+                        {report.description}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Download link */}
+                  {report.file_url && (
+                    <a
+                      href={report.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        flexShrink: 0,
+                        background: V.accentDim, border: `1px solid ${V.accentBrd}`,
+                        color: V.accent, borderRadius: 6,
+                        padding: '6px 12px', fontSize: 11,
+                        fontWeight: 700, fontFamily: V.mono,
+                        textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                      </svg>
+                      Download
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
