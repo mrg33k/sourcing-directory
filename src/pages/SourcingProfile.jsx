@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
+import { SourcingNav } from './SourcingMarketplace.jsx';
 import { trackEvent } from './sourcingAnalytics.js';
 import { getVerticalImage } from './SourcingLanding.jsx';
 
@@ -840,6 +841,7 @@ function SourcingProfileInner() {
   const [tenant, setTenant] = useState(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [activeTab, setActiveTab] = useState('about');
 
   // SEO meta tags
   useEffect(() => {
@@ -1007,195 +1009,67 @@ function SourcingProfileInner() {
   }, {});
 
   return (
-    <div style={{ minHeight: '100vh', background: V.bg, color: V.text, overflowX: 'hidden', maxWidth: '100vw' }}>
-      <style>{`* { box-sizing: border-box; } a { color: inherit; }`}</style>
-
-      {/* Nav */}
-      <div style={{
-        borderBottom: `1px solid ${V.border}`,
-        padding: '0 24px',
-        display: 'flex', alignItems: 'center', gap: 16, height: 60,
-        background: V.navBg,
-      }}>
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <span style={{ fontSize: 13, fontWeight: 800, fontFamily: V.syne, color: V.accent, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            AOM
-          </span>
-        </Link>
-        <span style={{ color: V.dim, fontSize: 13 }}>/</span>
-        <Link to={tenantSlug ? `/${tenantSlug}` : '/'} style={{ textDecoration: 'none', fontSize: 13, color: V.muted, fontFamily: V.space }}>
-          Directory
-        </Link>
-        <span style={{ color: V.dim, fontSize: 13 }}>/</span>
-        <span style={{ fontSize: 13, color: V.text, fontFamily: V.space }}>
-          {company.name}
-        </span>
-      </div>
-
-      {/* Profile Hero Banner with industry background */}
-      <div style={{
-        position: 'relative',
-        width: '100%',
-        minHeight: 180,
-        backgroundImage: `linear-gradient(to top, ${V.bg} 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.35) 100%), url(${getVerticalImage(company.vertical)})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}>
-        <div style={{
-          maxWidth: 860, margin: '0 auto', padding: '32px 24px 0',
-          display: 'flex', alignItems: 'flex-end', gap: 20,
-          position: 'relative',
-        }}>
-          {/* Logo / Avatar - overlapping the banner bottom */}
-          {company.logo_url ? (
-            <img
-              src={company.logo_url}
-              alt={company.name}
-              style={{
-                width: 96, height: 96, borderRadius: 16,
-                objectFit: 'contain', background: V.bg,
-                border: `3px solid ${V.bg}`,
-                boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
-                flexShrink: 0,
-                position: 'relative',
-                top: 24,
-              }}
-            />
-          ) : (
-            <div style={{
-              width: 96, height: 96, borderRadius: 16, flexShrink: 0,
-              background: V.bg,
-              border: `3px solid ${V.bg}`,
-              boxShadow: '0 4px 16px rgba(0,0,0,0.3)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 38, fontWeight: 800, fontFamily: V.syne, color: vColor,
-              position: 'relative',
-              top: 24,
-            }}>
-              {company.name.charAt(0)}
+    <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
+      {/* v10 Profile Hero */}
+      <div className="prof-hero">
+        <div className="prof-hero-bg" style={{ backgroundImage: `url(${getVerticalImage(company.vertical)})` }} />
+        <div className="prof-hero-overlay" />
+        <div className="prof-hero-content">
+          <Link to={tenantSlug ? `/${tenantSlug}` : '/'} className="browse-back" style={{ textDecoration: 'none' }}>
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+            Back
+          </Link>
+          <div className="prof-card">
+            <div className="prof-logo" style={{ background: `${vColor}20`, color: vColor }}>
+              {company.logo_url
+                ? <img src={company.logo_url} alt="" style={{ width: 60, height: 60, borderRadius: 12, objectFit: 'contain' }} />
+                : company.name.charAt(0)
+              }
             </div>
-          )}
-
-          <div style={{ flex: 1, minWidth: 0, paddingBottom: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 4 }}>
-              <h1 style={{
-                fontSize: 'clamp(22px, 4vw, 32px)', fontWeight: 800, fontFamily: V.syne,
-                color: '#fff', margin: 0, lineHeight: 1.1,
-                textShadow: '0 2px 8px rgba(0,0,0,0.4)',
-              }}>
-                {company.name}
-              </h1>
-              {company.claimed && (
-                <span style={{
-                  background: 'rgba(34,197,94,0.2)', border: '1px solid rgba(34,197,94,0.5)',
-                  color: '#86EFAC', fontSize: 10, fontWeight: 700, fontFamily: V.mono,
-                  padding: '2px 8px', borderRadius: 4, textTransform: 'uppercase', letterSpacing: '0.1em',
-                  display: 'flex', alignItems: 'center', gap: 4,
-                }}>
-                  ✓ Verified Listing
-                </span>
-              )}
-              {company.featured && (
-                <span style={{
-                  background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.5)',
-                  color: '#6ee7b7', fontSize: 10, fontWeight: 700, fontFamily: V.mono,
-                  padding: '2px 8px', borderRadius: 4, textTransform: 'uppercase', letterSpacing: '0.1em',
-                }}>
-                  Featured
-                </span>
-              )}
+            <div>
+              <div className="prof-name">{company.name}</div>
+              <div className="prof-loc">{[company.city, company.state].filter(Boolean).join(', ')}</div>
+              <div className="prof-tier" style={{ background: tierColor.bg, color: tierColor.text, border: `1px solid ${tierColor.border}` }}>
+                {company.membership_tier}
+                {company.featured && <span style={{ marginLeft: 6, color: 'var(--amber)' }}>Featured</span>}
+              </div>
             </div>
-            <div style={{
-              fontSize: 14, color: 'rgba(255,255,255,0.75)', fontFamily: V.space, lineHeight: 1.5,
-              textShadow: '0 1px 4px rgba(0,0,0,0.3)',
-            }}>
-              {[company.city, company.state, company.country !== 'US' ? company.country : null].filter(Boolean).join(', ')}
-              {company.year_founded && ` · Founded ${company.year_founded}`}
-              {company.employee_count && ` · ${company.employee_count} employees`}
-              {company.website && (
-                <>
-                  {' · '}
-                  <a href={company.website} target="_blank" rel="noreferrer" style={{ color: 'rgba(255,255,255,0.85)', textDecoration: 'underline' }}>
-                    {company.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
-                  </a>
-                </>
-              )}
-            </div>
-          </div>
-
-          {/* Contact CTA */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flexShrink: 0, paddingBottom: 12 }}>
-            {company.website && (
-              <a
-                href={company.website}
-                target="_blank"
-                rel="noreferrer"
-                style={{
-                  background: V.accent, color: '#fff', textDecoration: 'none',
-                  borderRadius: 7, padding: '8px 16px', fontSize: 13,
-                  fontWeight: 700, fontFamily: V.space, textAlign: 'center',
-                }}
-              >
-                Visit Website
-              </a>
-            )}
-            {company.email && (
-              <a
-                href={`mailto:${company.email}`}
-                style={{
-                  background: 'rgba(255,255,255,0.1)', color: '#fff', textDecoration: 'none',
-                  border: '1px solid rgba(255,255,255,0.2)', borderRadius: 7, padding: '7px 16px',
-                  fontSize: 13, fontWeight: 600, fontFamily: V.space, textAlign: 'center',
-                  backdropFilter: 'blur(4px)',
-                }}
-              >
-                Send Email
-              </a>
-            )}
           </div>
         </div>
       </div>
 
-      <div style={{ maxWidth: 860, margin: '0 auto', padding: '0 24px' }}>
-        {/* Unclaimed Banner */}
-        {!company.claimed && (
-          <div style={{ paddingTop: 20 }}>
-            <UnclaimedBanner slug={company.slug} tenantSlug={tenantSlug} V={V} />
-          </div>
-        )}
-
-        {/* Chips below hero */}
-        <div style={{
-          padding: company.claimed ? '32px 0 28px' : '12px 0 28px',
-          borderBottom: `1px solid ${V.border}`,
-          marginBottom: 32,
-          display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap',
-        }}>
-          <Chip color={vColor} V={V}>{vLabel}</Chip>
-          <span style={{
-            background: tierColor.bg, border: `1px solid ${tierColor.border}`,
-            color: tierColor.text, fontSize: 10, fontWeight: 700,
-            fontFamily: V.mono, padding: '3px 8px', borderRadius: 4,
-            textTransform: 'uppercase', letterSpacing: '0.07em',
-          }}>
-            {company.membership_tier} member
-          </span>
-          {reviews.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              <StarRating rating={Math.round(reviews.reduce((s, r) => s + r.rating, 0) / reviews.length)} size={13} />
-              <span style={{ fontSize: 12, color: V.muted, fontFamily: V.mono }}>
-                {(reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1)} ({reviews.length} review{reviews.length !== 1 ? 's' : ''})
-              </span>
-            </div>
-          )}
-          {org && (
-            <span style={{ fontSize: 12, color: V.muted, fontFamily: V.space }}>
-              via {org.name}
-            </span>
-          )}
+      {/* v10 Stats Grid */}
+      <div className="prof-stats">
+        <div className="prof-stat">
+          <div className="prof-stat-num" style={{ color: 'var(--cyan)' }}>{company.employee_count || '--'}</div>
+          <div className="prof-stat-label">Employees</div>
         </div>
+        <div className="prof-stat">
+          <div className="prof-stat-num">{company.year_founded || '--'}</div>
+          <div className="prof-stat-label">Founded</div>
+        </div>
+        <div className="prof-stat">
+          <div className="prof-stat-num" style={{ color: 'var(--emerald)' }}>{certs.length}</div>
+          <div className="prof-stat-label">Certifications</div>
+        </div>
+      </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 24, alignItems: 'start' }}>
+      {/* v10 Tabs */}
+      <div className="prof-tabs">
+        <div className={`prof-tab ${activeTab === 'about' ? 'on' : ''}`} onClick={() => setActiveTab('about')}>About</div>
+        <div className={`prof-tab ${activeTab === 'certs' ? 'on' : ''}`} onClick={() => setActiveTab('certs')}>Certifications</div>
+        <div className={`prof-tab ${activeTab === 'contact' ? 'on' : ''}`} onClick={() => setActiveTab('contact')}>Contact</div>
+      </div>
+
+      {/* Unclaimed Banner */}
+      {!company.claimed && (
+        <div style={{ padding: '16px 20px 0' }}>
+          <UnclaimedBanner slug={company.slug} tenantSlug={tenantSlug} V={V} />
+        </div>
+      )}
+
+      <div style={{ padding: '0 20px 80px' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto' }}>
           {/* Left column */}
           <div>
             {company.description && (
@@ -1380,7 +1254,7 @@ function SourcingProfileInner() {
         </div>
       </div>
 
-      <div style={{ height: 60 }} />
+      <SourcingNav active="profile" tenantSlug={tenantSlug} />
     </div>
   );
 }
