@@ -196,7 +196,7 @@ function SourcingJobsPostInner() {
 
   if (done) {
     return (
-      <div style={{ minHeight: '100vh', background: V.bg, color: V.text }}>
+      <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
         <style>{`* { box-sizing: border-box; }`}</style>
         <SourcingNav active="jobs" tenantSlug={tenantSlug} />
         <div style={{ maxWidth: 520, margin: '80px auto', padding: '0 24px', textAlign: 'center' }}>
@@ -227,7 +227,7 @@ function SourcingJobsPostInner() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: V.bg, color: V.text }}>
+    <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
       <style>{`
         * { box-sizing: border-box; }
         input::placeholder, textarea::placeholder { color: ${V.dim}; }

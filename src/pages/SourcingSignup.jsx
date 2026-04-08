@@ -273,49 +273,27 @@ function SourcingSignupInner() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: V.bg, color: V.text, overflowX: 'hidden', maxWidth: '100vw' }}>
+    <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
       <style>{`
-        * { box-sizing: border-box; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        input::placeholder, textarea::placeholder { color: ${V.dim}; }
-        input:focus, textarea:focus, select:focus {
-          border-color: ${V.accent} !important;
-          box-shadow: 0 0 0 2px ${V.accentDim};
-        }
       `}</style>
 
-      {/* Nav */}
-      <div style={{
-        borderBottom: `1px solid ${V.border}`,
-        padding: '0 24px',
-        display: 'flex', alignItems: 'center', gap: 16, height: 60,
-        background: V.navBg,
-      }}>
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <span style={{ fontSize: 13, fontWeight: 800, fontFamily: V.syne, color: V.accent, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            AOM
-          </span>
-        </Link>
-        <span style={{ color: V.dim, fontSize: 13 }}>/</span>
-        <Link to={basePath} style={{ textDecoration: 'none', fontSize: 13, color: V.muted, fontFamily: V.space }}>
-          Sourcing Directory
-        </Link>
-        <span style={{ color: V.dim, fontSize: 13 }}>/</span>
-        <span style={{ fontSize: 13, color: V.text, fontFamily: V.space }}>Add Your Company</span>
+      {/* v10 Hero */}
+      <div className="browse-hero" style={{ minHeight: 160 }}>
+        <div className="browse-hero-bg" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&q=80')" }} />
+        <div className="browse-hero-overlay" />
+        <div className="browse-hero-content">
+          <Link to={basePath} className="browse-back" style={{ textDecoration: 'none' }}>
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+            Back
+          </Link>
+        </div>
       </div>
 
-      <div style={{ maxWidth: 560, margin: '0 auto', padding: '48px 24px 80px' }}>
-        <div style={{ marginBottom: 32, textAlign: 'center' }}>
-          <div style={{ fontSize: 11, color: V.accent, fontFamily: V.mono, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 10 }}>
-            Free Listing
-          </div>
-          <h1 style={{ fontSize: 28, fontWeight: 800, fontFamily: V.syne, color: V.heading, margin: '0 0 10px', lineHeight: 1.15 }}>
-            List Your Company
-          </h1>
-          <p style={{ fontSize: 14, color: V.muted, fontFamily: V.space, margin: 0, lineHeight: 1.6 }}>
-            Get found by procurement teams, contractors, and partners in Arizona's advanced industries.
-          </p>
-        </div>
+      <div className="login-wrap" style={{ paddingTop: 24, maxWidth: 560 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--cyan)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>Free Listing</div>
+        <div className="login-title" style={{ marginBottom: 4 }}>List Your Company</div>
+        <div className="login-sub" style={{ marginBottom: 24 }}>Get found by procurement teams and partners.</div>
 
         {step < 3 && <StepBar step={step} total={3} V={V} />}
 

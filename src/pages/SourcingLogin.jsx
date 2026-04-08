@@ -122,91 +122,43 @@ function SourcingLoginInner() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: V.bg, color: V.text, overflowX: 'hidden' }}>
-      <style>{`
-        * { box-sizing: border-box; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        input::placeholder { color: ${V.dim}; }
-        input:focus {
-          border-color: ${V.accent} !important;
-          box-shadow: 0 0 0 2px ${V.accentDim};
-        }
-      `}</style>
-
-      {/* Nav */}
-      <div style={{
-        borderBottom: `1px solid ${V.border}`,
-        padding: '0 24px',
-        display: 'flex', alignItems: 'center', gap: 16, height: 60,
-        background: V.navBg,
-      }}>
-        <Link to="/" style={{ textDecoration: 'none' }}>
-          <span style={{ fontSize: 13, fontWeight: 800, fontFamily: V.syne, color: V.accent, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-            AOM
-          </span>
-        </Link>
-        <span style={{ color: V.dim, fontSize: 13 }}>/</span>
-        <Link to={basePath} style={{ textDecoration: 'none', fontSize: 13, color: V.muted, fontFamily: V.space }}>
-          {tenant?.nav_label || tenant?.name || 'Sourcing Directory'}
-        </Link>
-        <span style={{ color: V.dim, fontSize: 13 }}>/</span>
-        <span style={{ fontSize: 13, color: V.text, fontFamily: V.space }}>Sign In</span>
+    <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
+      {/* v10 Hero */}
+      <div className="browse-hero" style={{ minHeight: 180 }}>
+        <div className="browse-hero-bg" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80')" }} />
+        <div className="browse-hero-overlay" />
+        <div className="browse-hero-content">
+          <Link to={basePath} className="browse-back" style={{ textDecoration: 'none' }}>
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+            Back
+          </Link>
+        </div>
       </div>
 
-      <div style={{ maxWidth: 420, margin: '0 auto', padding: '80px 24px' }}>
-        <div style={{ textAlign: 'center', marginBottom: 36 }}>
-          <div style={{ fontSize: 11, color: V.accent, fontFamily: V.mono, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 10 }}>
-            Member Portal
-          </div>
-          <h1 style={{ fontSize: 28, fontWeight: 800, fontFamily: V.syne, color: V.heading, margin: '0 0 10px', lineHeight: 1.15 }}>
-            Sign In
-          </h1>
-          <p style={{ fontSize: 14, color: V.muted, fontFamily: V.space, margin: 0, lineHeight: 1.6 }}>
-            Access your company profile and manage listings.
-          </p>
-        </div>
+      <div className="login-wrap" style={{ paddingTop: 24 }}>
+        <div className="login-card">
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--cyan)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>sourcing.directory</div>
+          <div className="login-title">Welcome back</div>
+          <div className="login-sub">Sign in to manage your company and post content.</div>
 
-        <form onSubmit={handleLogin} style={{
-          background: V.card, border: `1px solid ${V.border}`,
-          borderRadius: 12, padding: '32px 28px',
-          display: 'flex', flexDirection: 'column', gap: 18,
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-            <label style={{ fontSize: 12, color: V.muted, fontFamily: V.space, fontWeight: 600 }}>
-              Email <span style={{ color: V.accent }}>*</span>
-            </label>
+          <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column' }}>
+            <label className="login-label">Email</label>
             <input
+              className="login-input"
               type="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="you@company.com"
               autoFocus
-              style={{
-                background: V.card2, border: `1px solid ${V.border}`,
-                color: V.text, borderRadius: 7, padding: '12px 14px',
-                fontSize: 14, fontFamily: V.space, outline: 'none',
-                width: '100%',
-              }}
             />
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-            <label style={{ fontSize: 12, color: V.muted, fontFamily: V.space, fontWeight: 600 }}>
-              Password <span style={{ color: V.accent }}>*</span>
-            </label>
+            <label className="login-label">Password</label>
             <input
+              className="login-input"
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
-              placeholder="Your password"
-              style={{
-                background: V.card2, border: `1px solid ${V.border}`,
-                color: V.text, borderRadius: 7, padding: '12px 14px',
-                fontSize: 14, fontFamily: V.space, outline: 'none',
-                width: '100%',
-              }}
+              placeholder="Enter password"
             />
-          </div>
 
           <div style={{ textAlign: 'right', marginTop: -8 }}>
             <button
@@ -283,37 +235,16 @@ function SourcingLoginInner() {
             </div>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            style={{
-              width: '100%', background: loading ? `${V.accent}60` : V.accent,
-              border: 'none', color: '#fff', borderRadius: 8, padding: '13px 0',
-              fontSize: 15, fontWeight: 700, fontFamily: V.space,
-              cursor: loading ? 'not-allowed' : 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              transition: 'all 0.15s',
-            }}
-          >
-            {loading ? (
-              <>
-                <div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTop: '2px solid #fff', animation: 'spin 0.8s linear infinite' }} />
-                Signing in...
-              </>
-            ) : 'Sign In'}
+          <button className="login-btn" type="submit" disabled={loading}>
+            {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
-
-        <div style={{ textAlign: 'center', marginTop: 20 }}>
-          <span style={{ fontSize: 13, color: V.muted, fontFamily: V.space }}>
-            Don't have an account?{' '}
-          </span>
-          <Link
-            to={`${basePath}/signup`}
-            style={{ fontSize: 13, color: V.accent, fontFamily: V.space, textDecoration: 'none', fontWeight: 600 }}
-          >
-            Sign up
-          </Link>
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <a href="#" onClick={(e) => { e.preventDefault(); setShowReset(!showReset); setResetEmail(email); setResetMessage(''); }} style={{ color: 'var(--cyan)', fontSize: 13, textDecoration: 'none' }}>Forgot password?</a>
+          </div>
+          <div style={{ textAlign: 'center', marginTop: 12, fontSize: 13, color: 'var(--tx3)' }}>
+            Don't have an account? <Link to={`${basePath}/signup`} style={{ color: 'var(--cyan)', textDecoration: 'none' }}>Sign up</Link>
+          </div>
         </div>
       </div>
     </div>

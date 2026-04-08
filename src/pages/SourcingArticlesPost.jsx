@@ -161,7 +161,7 @@ function SourcingArticlesPostInner() {
 
   if (done) {
     return (
-      <div style={{ minHeight: '100vh', background: V.bg, color: V.text }}>
+      <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
         <SourcingNav active="articles" tenantSlug={tenantSlug} />
         <div style={{ maxWidth: 560, margin: '0 auto', padding: '80px 24px', textAlign: 'center' }}>
           <div style={{
@@ -206,7 +206,7 @@ function SourcingArticlesPostInner() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: V.bg, color: V.text }}>
+    <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
       <style>{`
         * { box-sizing: border-box; }
         input::placeholder, textarea::placeholder { color: ${V.dim}; }
