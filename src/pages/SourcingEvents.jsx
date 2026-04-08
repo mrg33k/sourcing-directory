@@ -397,77 +397,55 @@ function SourcingEventsInner() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: V.bg, color: V.text }}>
+    <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
-        * { box-sizing: border-box; }
-        a { color: inherit; }
-        input::placeholder { color: ${V.dim}; }
-        input:focus { border-color: ${V.accent} !important; box-shadow: 0 0 0 2px ${V.accentDim}; }
-        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.6); cursor: pointer; }
         @media (min-width: 640px) { .events-filters-panel { display: flex !important; } .events-filters-toggle { display: none !important; } }
       `}</style>
 
       <SourcingNav active="events" tenantSlug={tenantSlug} tenantName={tenant?.nav_label || tenant?.name} features={tenant?.features} brandColor={tenant?.brand_color} />
 
-      <div style={{ padding: '40px 24px 28px', maxWidth: 860, margin: '0 auto' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.accent, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 10 }}>
-          Event Listings
-        </div>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 24 }}>
-          <div>
-            <h1 style={{ fontSize: 'clamp(22px, 4vw, 36px)', fontWeight: 800, fontFamily: V.syne, color: V.heading, margin: '0 0 6px', lineHeight: 1.15 }}>
-              Industry Events
-            </h1>
-            <p style={{ fontSize: 14, color: V.muted, fontFamily: V.space, margin: 0 }}>
-              Conferences, meetups, and webinars for Arizona's advanced industries.
-            </p>
-          </div>
-          <Link to={`${tenantSlug ? `/${tenantSlug}` : '/'}/events/post`} style={{
-            background: V.accent, color: '#fff', textDecoration: 'none',
-            borderRadius: 7, padding: '9px 18px', fontSize: 13,
-            fontWeight: 700, fontFamily: V.space, whiteSpace: 'nowrap', flexShrink: 0,
-          }}>
-            + Post an Event
+      {/* v10 Hero */}
+      <div className="browse-hero" style={{ minHeight: 200 }}>
+        <div className="browse-hero-bg" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=800&q=80')" }} />
+        <div className="browse-hero-overlay" />
+        <div className="browse-hero-content">
+          <Link to={tenantSlug ? `/${tenantSlug}` : '/'} className="browse-back" style={{ textDecoration: 'none' }}>
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+            Back
           </Link>
+          <div className="browse-title">Industry Events</div>
+          <div className="browse-sub">Conferences, meetups, and networking</div>
+        </div>
+      </div>
+
+      {/* v10 Search */}
+      <div className="browse-search">
+        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input
+          type="text"
+          value={searchInput}
+          onChange={e => setSearchInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSearch()}
+          placeholder="Search events, organizers, locations..."
+          autoComplete="off" spellCheck="false"
+        />
+        {loading && <div className="spinner" />}
+      </div>
+
+      <div style={{ padding: '0 24px 80px', maxWidth: 860, margin: '0 auto' }}>
+        <div className="sec-hdr" style={{ padding: '12px 0' }}>
+          <div className="sec-title">Upcoming</div>
+          <Link to={`${tenantSlug ? `/${tenantSlug}` : '/'}/events/post`} style={{ textDecoration: 'none', color: 'var(--cyan)', fontSize: 12, fontWeight: 600 }}>+ Post an Event</Link>
         </div>
 
-        {/* Search row */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-          <div style={{ flex: 1, position: 'relative' }}>
-            <input
-              type="text"
-              value={searchInput}
-              onChange={e => setSearchInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSearch()}
-              placeholder="Search events, organizers, locations..."
-              style={{
-                width: '100%',
-                background: V.card2, border: `1px solid ${V.border}`,
-                color: V.text, borderRadius: 8, padding: '10px 42px 10px 14px',
-                fontSize: 14, fontFamily: V.space, outline: 'none',
-              }}
-            />
-            <div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: V.muted }}>
-              {loading
-                ? <div style={{ width: 14, height: 14, borderRadius: '50%', border: `2px solid ${V.dim}`, borderTop: `2px solid ${V.accent}`, animation: 'spin 0.8s linear infinite' }} />
-                : <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              }
-            </div>
-          </div>
-          <button onClick={handleSearch} style={{
-            background: V.accent, border: 'none', color: '#fff',
-            borderRadius: 8, padding: '0 18px', fontSize: 13,
-            fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
-          }}>
-            Search
-          </button>
-          <div style={{ display: 'flex', background: V.card, border: `1px solid ${V.border}`, borderRadius: 8, overflow: 'hidden' }}>
+          <div style={{ display: 'flex', background: 'var(--s1)', border: '1px solid var(--bd)', borderRadius: 8, overflow: 'hidden' }}>
             {[{ key: 'list', icon: '☰' }, { key: 'calendar', icon: '▦' }].map(mode => (
               <button key={mode.key} onClick={() => setViewMode(mode.key)} style={{
-                background: viewMode === mode.key ? V.accentDim : 'transparent',
-                border: 'none', color: viewMode === mode.key ? V.accent : V.dim,
+                background: viewMode === mode.key ? 'var(--cyan-dim)' : 'transparent',
+                border: 'none', color: viewMode === mode.key ? 'var(--cyan)' : 'var(--tx3)',
                 padding: '0 14px', fontSize: 16, cursor: 'pointer', transition: 'all 0.15s',
               }}>
                 {mode.icon}

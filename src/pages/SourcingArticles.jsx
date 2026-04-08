@@ -333,85 +333,60 @@ function SourcingArticlesInner() {
   ].filter(Boolean).length;
 
   return (
-    <div style={{ minHeight: '100vh', background: V.bg, color: V.text }}>
+    <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
-        * { box-sizing: border-box; }
-        a { color: inherit; }
-        input::placeholder { color: ${V.dim}; }
-        input:focus { border-color: ${V.accentBrd} !important; box-shadow: 0 0 0 2px ${V.accentDim}; }
         @media (min-width: 640px) { .articles-filters-panel { display: flex !important; } .articles-filters-toggle { display: none !important; } }
       `}</style>
 
       <SourcingNav active="articles" tenantSlug={tenantSlug} tenantName={tenant?.nav_label || tenant?.name} features={tenant?.features} brandColor={tenant?.brand_color} />
 
-      {/* Hero */}
-      <div style={{ padding: '40px 24px 28px', maxWidth: 960, margin: '0 auto' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.accent, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 10 }}>
-          Industry Articles
-        </div>
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap', marginBottom: 24 }}>
-          <div>
-            <h1 style={{ fontSize: 'clamp(22px, 4vw, 36px)', fontWeight: 800, fontFamily: V.syne, color: V.heading, margin: '0 0 6px', lineHeight: 1.15 }}>
-              News & Insights
-            </h1>
-            <p style={{ fontSize: 14, color: V.muted, fontFamily: V.space, margin: 0 }}>
-              Articles and industry news from Arizona's advanced tech companies.
-            </p>
-          </div>
-          <Link
-            to={`${tenantSlug ? `/${tenantSlug}` : '/'}/articles/post`}
-            style={{
-              background: V.accent, color: '#fff', textDecoration: 'none',
-              borderRadius: 7, padding: '9px 18px', fontSize: 13,
-              fontWeight: 700, fontFamily: V.space, whiteSpace: 'nowrap', flexShrink: 0,
-            }}
-          >
-            + Post an Article
+      {/* v10 Hero */}
+      <div className="browse-hero" style={{ minHeight: 200 }}>
+        <div className="browse-hero-bg" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1504711434969-e33886168d5c?w=800&q=80')" }} />
+        <div className="browse-hero-overlay" />
+        <div className="browse-hero-content">
+          <Link to={tenantSlug ? `/${tenantSlug}` : '/'} className="browse-back" style={{ textDecoration: 'none' }}>
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+            Back
           </Link>
+          <div className="browse-title">News & Insights</div>
+          <div className="browse-sub">Articles and industry news from Arizona's advanced tech companies</div>
+        </div>
+      </div>
+
+      {/* v10 Search */}
+      <div className="browse-search">
+        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input
+          type="text"
+          value={searchInput}
+          onChange={e => setSearchInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSearch()}
+          placeholder="Search articles, topics, companies..."
+          autoComplete="off" spellCheck="false"
+        />
+        {loading && <div className="spinner" />}
+      </div>
+
+      <div style={{ padding: '0 24px 80px', maxWidth: 960, margin: '0 auto' }}>
+        <div className="sec-hdr" style={{ padding: '12px 0' }}>
+          <div className="sec-title">Latest Articles</div>
+          <Link to={`${tenantSlug ? `/${tenantSlug}` : '/'}/articles/post`} style={{ textDecoration: 'none', color: 'var(--cyan)', fontSize: 12, fontWeight: 600 }}>+ Post an Article</Link>
         </div>
 
-        {/* Search */}
         <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-          <div style={{ flex: 1, position: 'relative' }}>
-            <input
-              type="text"
-              value={searchInput}
-              onChange={e => setSearchInput(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSearch()}
-              placeholder="Search articles, topics, companies..."
-              style={{
-                width: '100%',
-                background: V.card2, border: `1px solid ${V.border}`,
-                color: V.text, borderRadius: 8, padding: '10px 42px 10px 14px',
-                fontSize: 14, fontFamily: V.space, outline: 'none',
-              }}
-            />
-            <div style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', color: V.muted }}>
-              {loading
-                ? <div style={{ width: 14, height: 14, borderRadius: '50%', border: `2px solid ${V.dim}`, borderTop: `2px solid ${V.accent}`, animation: 'spin 0.8s linear infinite' }} />
-                : <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-              }
-            </div>
-          </div>
-          <button onClick={handleSearch} style={{
-            background: V.accent, border: 'none', color: '#fff',
-            borderRadius: 8, padding: '0 18px', fontSize: 13,
-            fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
-          }}>
-            Search
-          </button>
           {/* Mobile filters toggle */}
           <button
             className="articles-filters-toggle"
             onClick={() => setFiltersOpen(o => !o)}
             style={{
-              background: activeFilterCount > 0 ? V.accentDim : V.card2,
-              border: `1px solid ${activeFilterCount > 0 ? V.accentBrd : V.border}`,
-              color: activeFilterCount > 0 ? V.accent : V.muted,
+              background: activeFilterCount > 0 ? 'var(--cyan-dim)' : 'var(--s2)',
+              border: `1px solid ${activeFilterCount > 0 ? 'var(--cyan-brd)' : 'var(--bd)'}`,
+              color: activeFilterCount > 0 ? 'var(--cyan)' : 'var(--tx2)',
               borderRadius: 8, padding: '0 14px', fontSize: 13,
-              fontWeight: 600, fontFamily: V.space, cursor: 'pointer',
+              fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
               display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap',
             }}
           >
