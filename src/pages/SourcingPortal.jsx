@@ -47,7 +47,7 @@ function SourcingPortalInner() {
   });
   const [listingStatus, setListingStatus] = useState('');
 
-  // Check auth on mount
+  // Check auth on mount -- Ben sees admin, not member portal
   useEffect(() => {
     if (!supabase) { setLoading(false); return; }
     const checkAuth = async () => {
@@ -56,7 +56,8 @@ function SourcingPortalInner() {
         navigate(`${basePath}/login`, { replace: true });
         return;
       }
-      setAuthUser(session.user);
+      // Redirect authenticated users to admin panel
+      navigate('/admin', { replace: true });
     };
     checkAuth();
   }, [navigate, basePath]);
