@@ -104,53 +104,38 @@ function SourcingReportsInner() {
   );
 
   return (
-    <div style={{ minHeight: '100vh', background: V.bg, color: V.text }}>
-      <SourcingNav
-        active="reports"
-        tenantSlug={tenantSlug}
-        tenantName={tenant?.nav_label || tenant?.name}
-        features={tenant?.features}
-        brandColor={tenant?.brand_color}
-      />
+    <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
+      <SourcingNav active="reports" tenantSlug={tenantSlug} tenantName={tenant?.nav_label || tenant?.name} features={tenant?.features} brandColor={tenant?.brand_color} />
 
-      {/* Hero */}
-      <section style={{ padding: 'clamp(40px, 6vw, 64px) 24px', maxWidth: 900, margin: '0 auto' }}>
-        <div style={{
-          fontSize: 11, color: accent, fontFamily: V.mono, fontWeight: 700,
-          letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 10,
-        }}>
-          Reports & Intelligence
+      {/* v10 Hero */}
+      <div className="browse-hero" style={{ minHeight: 200 }}>
+        <div className="browse-hero-bg" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80')" }} />
+        <div className="browse-hero-overlay" />
+        <div className="browse-hero-content">
+          <Link to={tenantSlug ? `/${tenantSlug}` : '/'} className="browse-back" style={{ textDecoration: 'none' }}>
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+            Back
+          </Link>
+          <div className="browse-title">Reports & Intelligence</div>
+          <div className="browse-sub">Government affairs, acquisition analysis, quarterly intelligence</div>
         </div>
-        <h1 style={{
-          fontSize: 'clamp(24px, 4vw, 36px)', fontWeight: 800,
-          fontFamily: "'Syne', sans-serif", color: '#fff',
-          margin: '0 0 12px', lineHeight: 1.15,
-        }}>
-          Industry Reports & Resources
-        </h1>
-        <p style={{
-          fontSize: 14, color: 'rgba(255,255,255,0.5)', fontFamily: V.space,
-          margin: '0 0 32px', maxWidth: 560, lineHeight: 1.7,
-        }}>
-          Government affairs, acquisition analysis, economic development resources, and quarterly intelligence reports from Arsenal and our research partners.
-        </p>
+      </div>
+
+      <section style={{ padding: '0 24px 80px', maxWidth: 900, margin: '0 auto' }}>
+        <div className="sec-hdr" style={{ padding: '12px 0' }}>
+          <div className="sec-title">Latest Reports</div>
+        </div>
 
         {/* Category filters */}
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 32 }}>
+        <div className="chips" style={{ padding: '0 0 20px' }}>
           {CATEGORIES.map(cat => (
-            <button
+            <div
               key={cat.key}
+              className={`chip ${category === cat.key ? 'on' : ''}`}
               onClick={() => setCategory(cat.key)}
-              style={{
-                background: category === cat.key ? accent : 'transparent',
-                color: category === cat.key ? '#fff' : V.muted,
-                border: `1px solid ${category === cat.key ? accent : V.border}`,
-                borderRadius: 20, padding: '6px 16px', fontSize: 12,
-                fontWeight: 600, fontFamily: V.space, cursor: 'pointer',
-              }}
             >
               {cat.label}
-            </button>
+            </div>
           ))}
         </div>
 

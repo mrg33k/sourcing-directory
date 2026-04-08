@@ -312,31 +312,28 @@ function SourcingGrantsInner() {
   ].filter(Boolean).length;
 
   return (
-    <div style={{ minHeight: '100vh', background: V.bg, color: V.text }}>
+    <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
-        * { box-sizing: border-box; }
-        a { color: inherit; }
-        input::placeholder { color: ${V.dim}; }
-        input:focus { border-color: ${V.accentBrd} !important; box-shadow: 0 0 0 2px ${V.accentDim}; }
         .grants-articles-strip::-webkit-scrollbar { display: none; }
         @media (min-width: 640px) { .grants-filters-panel { display: flex !important; } .grants-filters-toggle { display: none !important; } }
       `}</style>
 
       <SourcingNav active="grants" tenantSlug={tenantSlug} tenantName={tenant?.nav_label || tenant?.name} features={tenant?.features} brandColor={tenant?.brand_color} />
 
-      {/* Hero */}
-      <div style={{ padding: '40px 24px 28px', maxWidth: 960, margin: '0 auto' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.accent, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 10 }}>
-          Grants Database
+      {/* v10 Hero */}
+      <div className="browse-hero" style={{ minHeight: 200 }}>
+        <div className="browse-hero-bg" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80')" }} />
+        <div className="browse-hero-overlay" />
+        <div className="browse-hero-content">
+          <Link to={tenantSlug ? `/${tenantSlug}` : '/'} className="browse-back" style={{ textDecoration: 'none' }}>
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+            Back
+          </Link>
+          <div className="browse-title">Funding & Grants</div>
+          <div className="browse-sub">Federal, state, and private grants for Arizona's advanced technology companies</div>
         </div>
-        <h1 style={{ fontSize: 'clamp(22px, 4vw, 36px)', fontWeight: 800, fontFamily: V.syne, color: V.heading, margin: '0 0 8px', lineHeight: 1.15 }}>
-          Funding & Grants
-        </h1>
-        <p style={{ fontSize: 14, color: V.muted, fontFamily: V.space, margin: 0 }}>
-          Federal, state, and private grants for Arizona's advanced technology companies.
-        </p>
       </div>
 
       {/* Grant Articles Strip */}
