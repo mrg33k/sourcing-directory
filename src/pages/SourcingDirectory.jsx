@@ -730,18 +730,11 @@ function SourcingDirectoryInner() {
       <div className="browse-hero" style={tenant ? { minHeight: 280 } : { minHeight: 200 }}>
         <div className="browse-hero-bg" style={{ backgroundImage: `url(${tenant ? getVerticalImage(tenant.vertical) : 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&q=80'})` }} />
         <div className="browse-hero-overlay" />
-        <div className="browse-hero-content">
+        <div className="browse-hero-content" style={{ position: 'relative' }}>
           <Link to="/" className="browse-back" style={{ textDecoration: 'none' }}>
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
             Back
           </Link>
-          {/* Tenant logo */}
-          {tenant?.slug === 'space-rising' && (
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" style={{ height: 40, objectFit: 'contain', marginBottom: 12, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }} />
-          )}
-          {tenant?.slug === 's3c-semiconductor' && (
-            <img src="/images/s3c/logo.png" alt="S3C" style={{ height: 36, objectFit: 'contain', marginBottom: 12, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }} />
-          )}
           <div className="browse-title" style={tenantBrand ? {
             fontFamily: tenantBrand.headingFont,
             textTransform: 'uppercase',
@@ -750,6 +743,13 @@ function SourcingDirectoryInner() {
             {tenant?.name || 'Find Certified Suppliers'}
           </div>
           <div className="browse-sub">{tenant?.hero_text || "Verified companies, certifications, and capabilities in one place."}</div>
+          {/* Tenant logo -- bottom right of hero */}
+          {tenant?.slug === 'space-rising' && (
+            <img src="/images/space-rising/logo-white.png" alt="Space Rising" style={{ position: 'absolute', right: 0, bottom: 0, height: 44, objectFit: 'contain', opacity: 0.7, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }} />
+          )}
+          {tenant?.slug === 's3c-semiconductor' && (
+            <img src="/images/s3c/logo.png" alt="S3C" style={{ position: 'absolute', right: 0, bottom: 0, height: 38, objectFit: 'contain', opacity: 0.7, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }} />
+          )}
         </div>
       </div>
 
