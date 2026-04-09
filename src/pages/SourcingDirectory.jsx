@@ -1135,7 +1135,7 @@ function SourcingDirectoryInner() {
             {/* Content */}
             <div style={{ padding: '20px 24px max(env(safe-area-inset-bottom),24px)', textAlign: 'center' }}>
               <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', marginBottom: 8, letterSpacing: '-0.03em' }}>
-                List your company
+                Join {tenant?.nav_label || tenant?.name || 'the Directory'}
               </div>
               <div style={{ fontSize: 14, color: 'var(--tx2)', lineHeight: 1.5, maxWidth: 320, margin: '0 auto 20px' }}>
                 Get found by procurement teams, contractors, and partners in {tenant?.name || 'this directory'}.
