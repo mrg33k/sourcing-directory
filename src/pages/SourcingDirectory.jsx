@@ -1086,6 +1086,11 @@ function SourcingDirectoryInner() {
         )}
       </div>
 
+      {/* Last updated timestamp */}
+      <p style={{ textAlign: 'center', color: '#666', fontSize: '12px', padding: '20px 0', borderTop: '1px solid #eee' }}>
+        Directory last updated: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+      </p>
+
       {/* Welcome modal */}
       {showWelcome && (
         <>
