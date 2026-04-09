@@ -1,7 +1,36 @@
-import React, { lazy, Suspense } from 'react'
+import React, { lazy, Suspense, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
 import './v10.css'
+
+// Fade wrapper -- fades in on every route change
+function PageTransition({ children }) {
+  const location = useLocation()
+  const [visible, setVisible] = useState(true)
+  const [displayLocation, setDisplayLocation] = useState(location)
+
+  useEffect(() => {
+    if (location.pathname !== displayLocation.pathname) {
+      setVisible(false)
+      const t = setTimeout(() => {
+        setDisplayLocation(location)
+        setVisible(true)
+        window.scrollTo(0, 0)
+      }, 150)
+      return () => clearTimeout(t)
+    }
+  }, [location, displayLocation])
+
+  return (
+    <div style={{
+      opacity: visible ? 1 : 0,
+      transition: 'opacity 0.15s ease',
+      minHeight: '100dvh',
+    }}>
+      {children}
+    </div>
+  )
+}
 
 // Lazy-load all pages
 const SourcingLanding = lazy(() => import('./pages/SourcingLanding.jsx'))
@@ -30,15 +59,14 @@ const SourcingCreate = lazy(() => import('./pages/SourcingCreate.jsx'))
 const GlobalSignup = lazy(() => import('./pages/GlobalSignup.jsx'))
 
 const Loading = () => (
-  <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#0f1419', color: '#9ca3af', fontFamily: "'Space Grotesk', sans-serif" }}>
-    Loading...
-  </div>
+  <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
 )
 
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <Suspense fallback={<Loading />}>
+        <PageTransition>
         <Routes>
           {/* Global */}
           <Route path="/" element={<SourcingLanding />} />
@@ -69,6 +97,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/:tenantSlug/settings" element={<SourcingSettings />} />
           <Route path="/:tenantSlug/:slug" element={<SourcingProfile />} />
         </Routes>
+        </PageTransition>
       </Suspense>
     </BrowserRouter>
   </React.StrictMode>,
