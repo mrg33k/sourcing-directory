@@ -726,7 +726,7 @@ function SourcingDirectoryInner() {
         brandColor={tenant?.brand_color}
       />
 
-      {/* v10 Browse Hero */}
+      {/* v10 Browse Hero -- with tenant brand */}
       <div className="browse-hero" style={tenant ? { minHeight: 280 } : { minHeight: 200 }}>
         <div className="browse-hero-bg" style={{ backgroundImage: `url(${tenant ? getVerticalImage(tenant.vertical) : 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&q=80'})` }} />
         <div className="browse-hero-overlay" />
@@ -735,7 +735,20 @@ function SourcingDirectoryInner() {
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
             Back
           </Link>
-          <div className="browse-title">{tenant?.name || 'Find Certified Suppliers'}</div>
+          {/* Tenant logo */}
+          {tenant?.slug === 'space-rising' && (
+            <img src="/images/space-rising/logo-white.png" alt="Space Rising" style={{ height: 40, objectFit: 'contain', marginBottom: 12, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }} />
+          )}
+          {tenant?.slug === 's3c-semiconductor' && (
+            <img src="/images/s3c/logo.png" alt="S3C" style={{ height: 36, objectFit: 'contain', marginBottom: 12, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }} />
+          )}
+          <div className="browse-title" style={tenantBrand ? {
+            fontFamily: tenantBrand.headingFont,
+            textTransform: 'uppercase',
+            letterSpacing: '0.03em',
+          } : {}}>
+            {tenant?.name || 'Find Certified Suppliers'}
+          </div>
           <div className="browse-sub">{tenant?.hero_text || "Verified companies, certifications, and capabilities in one place."}</div>
         </div>
       </div>
@@ -755,7 +768,10 @@ function SourcingDirectoryInner() {
         {(loading || aiLoading) && <div className="spinner" />}
       </div>
 
-      {/* v10 Section Chips */}
+      {/* v10 Section Chips -- branded accent if tenant has one */}
+      <style>{tenantBrand ? `
+        .chip.on { border-color: ${tenantBrand.accent}40 !important; background: ${tenantBrand.accent}12 !important; color: ${tenantBrand.accent} !important; }
+      ` : ''}</style>
       <div className="chips" style={{ paddingBottom: 4 }}>
         <div className="chip on">Companies</div>
         <Link to={`/${tenantSlug}/jobs`} className="chip" style={{ textDecoration: 'none' }}>Jobs</Link>

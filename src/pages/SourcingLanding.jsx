@@ -18,6 +18,20 @@ const TENANT_THEMES = {
   'space-rising': 'space',
   's3c-semiconductor': 'semi',
 };
+const TENANT_BRANDS = {
+  'space-rising': {
+    logo: '/images/space-rising/logo-white.png',
+    accent: '#E5451F',
+    headingFont: "'Oswald', sans-serif",
+    fontImport: 'https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap',
+  },
+  's3c-semiconductor': {
+    logo: '/images/s3c/logo.png',
+    accent: '#A0522D',
+    headingFont: "'Barlow Condensed', sans-serif",
+    fontImport: 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&display=swap',
+  },
+};
 const PRIORITY_SLUGS = ['space-rising', 's3c-semiconductor'];
 
 // ─── Inner component ──────────────────────────────────────────────────────────
@@ -29,6 +43,15 @@ function SourcingLandingInner() {
 
   useEffect(() => {
     document.title = 'sourcing.directory | Find Your Supply Chain Partner';
+    // Load tenant brand fonts
+    Object.values(TENANT_BRANDS).forEach(brand => {
+      if (brand.fontImport && !document.querySelector(`link[href="${brand.fontImport}"]`)) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = brand.fontImport;
+        document.head.appendChild(link);
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -142,13 +165,20 @@ function SourcingLandingInner() {
         ) : tenants.length > 0 ? (
           tenants.map(tenant => {
             const cls = TENANT_THEMES[tenant.slug] || 'semi';
+            const brand = TENANT_BRANDS[tenant.slug];
             return (
               <Link key={tenant.id} to={`/${tenant.slug}`} className={`dir-card ${cls}`}>
                 <div className="dir-card-bg" />
                 <div className="dir-card-overlay" />
                 <div className="dir-card-body">
+                  {/* Tenant logo */}
+                  {brand?.logo && (
+                    <img src={brand.logo} alt="" style={{ height: 28, objectFit: 'contain', marginBottom: 10, filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.5))' }} />
+                  )}
                   <div className="dir-card-tag">{tenant.vertical || tenant.slug}</div>
-                  <div className="dir-card-name">{tenant.nav_label || tenant.name}</div>
+                  <div className="dir-card-name" style={brand?.headingFont ? { fontFamily: brand.headingFont, textTransform: 'uppercase', letterSpacing: '0.03em' } : {}}>
+                    {tenant.nav_label || tenant.name}
+                  </div>
                   <div className="dir-card-desc">
                     {(tenant.hero_text || tenant.description || '').substring(0, 100)}
                     {(tenant.hero_text || tenant.description || '').length > 100 ? '...' : ''}
@@ -158,7 +188,7 @@ function SourcingLandingInner() {
                       <div className="dir-card-count-num">{tenant.company_count || '--'}</div>
                       <div className="dir-card-count-label">companies</div>
                     </div>
-                    <div className="dir-card-arrow">
+                    <div className="dir-card-arrow" style={brand?.accent ? { background: `${brand.accent}30`, borderColor: `${brand.accent}40` } : {}}>
                       <svg width="18" height="18" fill="none" stroke="#fff" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                     </div>
                   </div>
