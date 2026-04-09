@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens, useTenant } from './SourcingTheme.jsx';
@@ -20,6 +20,37 @@ function SourcingLoginInner() {
   const [resetEmail, setResetEmail] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
+
+  // Password recovery flow
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [newPw, setNewPw] = useState('');
+  const [newPwLoading, setNewPwLoading] = useState(false);
+  const [newPwError, setNewPwError] = useState('');
+  const [newPwDone, setNewPwDone] = useState(false);
+
+  useEffect(() => {
+    if (!supabase) return;
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') setShowNewPw(true);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSetNewPassword = async (e) => {
+    e.preventDefault();
+    if (newPw.length < 6) { setNewPwError('Password must be at least 6 characters.'); return; }
+    setNewPwLoading(true);
+    setNewPwError('');
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPw });
+      if (error) throw error;
+      setNewPwDone(true);
+    } catch (err) {
+      setNewPwError(err.message || 'Failed to update password.');
+    } finally {
+      setNewPwLoading(false);
+    }
+  };
 
   const handlePasswordReset = async (e) => {
     e.preventDefault();
@@ -107,6 +138,49 @@ function SourcingLoginInner() {
       setLoading(false);
     }
   };
+
+  // Password recovery screen
+  if (showNewPw) {
+    return (
+      <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div className="login-card" style={{ width: '100%', maxWidth: 400 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--cyan)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>sourcing.directory</div>
+          {newPwDone ? (
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 28, marginBottom: 12 }}>
+                <svg width="40" height="40" fill="none" stroke="var(--emerald)" strokeWidth="2" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+              </div>
+              <div className="login-title">Password updated</div>
+              <div className="login-sub" style={{ marginBottom: 20 }}>You can now sign in with your new password.</div>
+              <Link to={basePath + '/login'} className="login-btn" style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }} onClick={() => { setShowNewPw(false); setNewPwDone(false); }}>
+                Sign In
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="login-title">Set new password</div>
+              <div className="login-sub">Choose a new password for your account.</div>
+              <form onSubmit={handleSetNewPassword}>
+                <label className="login-label">New Password</label>
+                <input
+                  className="login-input"
+                  type="password"
+                  placeholder="Minimum 6 characters"
+                  value={newPw}
+                  onChange={e => setNewPw(e.target.value)}
+                  autoFocus
+                />
+                {newPwError && <div style={{ color: '#FB7185', fontSize: 13, marginBottom: 12 }}>{newPwError}</div>}
+                <button className="login-btn" type="submit" disabled={newPwLoading}>
+                  {newPwLoading ? 'Saving...' : 'Save Password'}
+                </button>
+              </form>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   if (tenantLoading) {
     return (
