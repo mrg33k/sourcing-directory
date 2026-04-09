@@ -404,7 +404,7 @@ function SourcingSignupInner() {
                 Basic directory listing and read access to all public content.
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {['Company listing in directory', 'View all companies & events', 'Access public reports & grants'].map(f => (
+                {['Company listing in directory', 'View all companies & events', 'Access public reports'].map(f => (
                   <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--tx2)' }}>
                     <svg width="14" height="14" fill="none" stroke="var(--emerald)" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
                     {f}

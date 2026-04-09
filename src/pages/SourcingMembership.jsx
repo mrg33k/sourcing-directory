@@ -113,7 +113,7 @@ const COMPARISON = [
   { feature: 'Government Affairs & Arsenal',   free: true,  paid: true },
   { feature: 'Community Access',               free: true,  paid: true },
   { feature: 'View Jobs, Events & Articles',   free: true,  paid: true },
-  { feature: 'Grants Access',                  free: true,  paid: true },
+  { feature: 'Grants Access',                  free: false, paid: true },
   { feature: 'Post Articles',                  free: false, paid: true },
   { feature: 'Post Job Listings',              free: false, paid: true },
   { feature: 'Post Events',                    free: false, paid: true },
