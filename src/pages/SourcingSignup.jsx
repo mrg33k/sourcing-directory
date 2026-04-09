@@ -17,13 +17,12 @@ const EMP_RANGES = ['1-10', '11-50', '51-200', '200-500', '500-2000', '2000+', '
 
 // ─── Typeform-style step wrapper ────────────────────────────────────────────
 function Step({ active, children }) {
+  if (!active) return null;
   return (
     <div style={{
-      position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
-      justifyContent: 'center', padding: '0 28px',
-      opacity: active ? 1 : 0, pointerEvents: active ? 'all' : 'none',
-      transform: active ? 'translateY(0)' : 'translateY(20px)',
-      transition: 'all 0.4s cubic-bezier(0.16,1,0.3,1)',
+      display: 'flex', flexDirection: 'column',
+      justifyContent: 'center', padding: '0 28px', minHeight: 'calc(100dvh - 120px)',
+      animation: 'fadeUp 0.35s cubic-bezier(0.16,1,0.3,1)',
     }}>
       {children}
     </div>
@@ -215,7 +214,7 @@ function SourcingSignupInner() {
       )}
 
       {/* Steps container */}
-      <div style={{ position: 'relative', zIndex: 10, flex: 1, minHeight: 'calc(100dvh - 120px)' }}>
+      <div style={{ position: 'relative', zIndex: 10 }}>
 
         {/* Step 0: Choose directory -- branded cards like home page */}
         <Step active={step === 0}>
