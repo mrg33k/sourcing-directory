@@ -367,6 +367,19 @@ function SourcingDirectoryInner() {
   // Map toggle
   const [showMap, setShowMap] = useState(false);
 
+  // Welcome modal -- shows once per session after 3.5s
+  const [showWelcome, setShowWelcome] = useState(false);
+  useEffect(() => {
+    if (!tenantSlug) return;
+    const key = `sourcing_welcomed_${tenantSlug}`;
+    if (sessionStorage.getItem(key)) return;
+    const timer = setTimeout(() => {
+      setShowWelcome(true);
+      sessionStorage.setItem(key, '1');
+    }, 3500);
+    return () => clearTimeout(timer);
+  }, [tenantSlug]);
+
   // Reviews map: company slug -> { avg, count }
   const [reviewStats, setReviewStats] = useState({});
 
@@ -1056,6 +1069,56 @@ function SourcingDirectoryInner() {
           </div>
         )}
       </div>
+
+      {/* Welcome modal */}
+      {showWelcome && (
+        <>
+          <div
+            onClick={() => setShowWelcome(false)}
+            style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
+              zIndex: 300, animation: 'fadeIn 0.2s',
+            }}
+          />
+          <div style={{
+            position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 301,
+            background: 'var(--s1)', borderTop: '1px solid var(--bd2)',
+            borderRadius: '20px 20px 0 0', padding: '28px 24px max(env(safe-area-inset-bottom),24px)',
+            animation: 'slideUp 0.35s cubic-bezier(0.16,1,0.3,1)',
+          }}>
+            <style>{`
+              @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+              @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+            `}</style>
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--bd2)', margin: '0 auto 20px' }} />
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', marginBottom: 8, letterSpacing: '-0.03em' }}>
+                List your company
+              </div>
+              <div style={{ fontSize: 14, color: 'var(--tx2)', lineHeight: 1.5, marginBottom: 24, maxWidth: 320, margin: '0 auto 24px' }}>
+                Get found by procurement teams, contractors, and partners in {tenant?.name || 'this directory'}.
+              </div>
+              <Link
+                to={tenantSlug ? `/${tenantSlug}/signup` : '/signup'}
+                onClick={() => setShowWelcome(false)}
+                className="login-btn"
+                style={{ display: 'block', textAlign: 'center', textDecoration: 'none', marginBottom: 12 }}
+              >
+                Sign Up Free
+              </Link>
+              <button
+                onClick={() => setShowWelcome(false)}
+                style={{
+                  background: 'none', border: 'none', color: 'var(--tx3)',
+                  fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '8px 0', width: '100%',
+                }}
+              >
+                Maybe later
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
