@@ -217,34 +217,48 @@ function SourcingSignupInner() {
       {/* Steps container */}
       <div style={{ position: 'relative', zIndex: 10, flex: 1, minHeight: 'calc(100dvh - 120px)' }}>
 
-        {/* Step 0: Choose directory */}
+        {/* Step 0: Choose directory -- branded cards like home page */}
         <Step active={step === 0}>
           <StepQuestion>Which directory do you want to join?</StepQuestion>
           <StepHint>Choose the industry that best fits your company.</StepHint>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {VERTICALS.map(v => (
-              <div
-                key={v.key}
-                onClick={() => { set('vertical', v.key); setTimeout(next, 300); }}
-                style={{
-                  background: form.vertical === v.key ? `${v.color}15` : 'var(--s1)',
-                  border: `2px solid ${form.vertical === v.key ? v.color : 'var(--bd)'}`,
-                  borderRadius: 'var(--r)', padding: '20px', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 16, transition: 'all 0.2s',
-                }}
-              >
-                <div style={{ fontSize: 32 }}>{v.icon}</div>
-                <div>
-                  <div style={{ fontSize: 17, fontWeight: 800, color: '#fff' }}>{v.label}</div>
-                  <div style={{ fontSize: 12, color: 'var(--tx2)', marginTop: 2 }}>
-                    {v.key === 'semiconductor' ? 'Chips, wafers, fabrication, testing' : 'Launch, satellites, defense, aerospace'}
+          <div className="dir-cards" style={{ padding: 0 }}>
+            {VERTICALS.map(v => {
+              const cls = v.key === 'space' ? 'space' : 'semi';
+              const selected = form.vertical === v.key;
+              return (
+                <div
+                  key={v.key}
+                  className={`dir-card ${cls}`}
+                  onClick={() => { set('vertical', v.key); setTimeout(next, 400); }}
+                  style={selected ? { border: `2px solid ${v.color}`, transform: 'scale(0.98)' } : {}}
+                >
+                  <div className="dir-card-bg" />
+                  <div className="dir-card-overlay" />
+                  <div className="dir-card-body">
+                    <div className="dir-card-tag">{v.key === 'space' ? 'space & aerospace' : 'semiconductor'}</div>
+                    <div className="dir-card-name">{v.label}</div>
+                    <div className="dir-card-desc">
+                      {v.key === 'semiconductor'
+                        ? 'Chips, wafers, fabrication, testing, and electronics supply chain'
+                        : 'Launch providers, satellites, defense contractors, and R&D firms'}
+                    </div>
+                    <div className="dir-card-foot">
+                      <div className="dir-card-count">
+                        <div className="dir-card-count-label" style={{ fontSize: 13 }}>
+                          {selected ? 'Selected' : 'Tap to select'}
+                        </div>
+                      </div>
+                      <div className="dir-card-arrow">
+                        {selected
+                          ? <svg width="18" height="18" fill="none" stroke="#fff" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                          : <svg width="18" height="18" fill="none" stroke="#fff" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                        }
+                      </div>
+                    </div>
                   </div>
                 </div>
-                {form.vertical === v.key && (
-                  <svg width="20" height="20" fill="none" stroke={v.color} strokeWidth="2.5" viewBox="0 0 24 24" style={{ marginLeft: 'auto' }}><path d="M20 6L9 17l-5-5"/></svg>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </Step>
 
