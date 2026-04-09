@@ -1083,19 +1083,44 @@ function SourcingDirectoryInner() {
           <div style={{
             position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 301,
             background: 'var(--s1)', borderTop: '1px solid var(--bd2)',
-            borderRadius: '20px 20px 0 0', padding: '28px 24px max(env(safe-area-inset-bottom),24px)',
+            borderRadius: '20px 20px 0 0', overflow: 'hidden',
             animation: 'slideUp 0.35s cubic-bezier(0.16,1,0.3,1)',
           }}>
             <style>{`
               @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
               @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
             `}</style>
-            <div style={{ width: 36, height: 4, borderRadius: 2, background: 'var(--bd2)', margin: '0 auto 20px' }} />
-            <div style={{ textAlign: 'center' }}>
+            {/* Hero image */}
+            <div style={{
+              position: 'relative', height: 140, overflow: 'hidden',
+            }}>
+              <div style={{
+                position: 'absolute', inset: 0,
+                backgroundImage: `url(${tenant ? getVerticalImage(tenant.vertical) : 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&q=80'})`,
+                backgroundSize: 'cover', backgroundPosition: 'center',
+              }} />
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(180deg, rgba(14,14,20,0.3) 0%, rgba(14,14,20,0.7) 60%, var(--s1) 100%)',
+              }} />
+              <div style={{ position: 'absolute', bottom: 16, left: 0, right: 0, textAlign: 'center' }}>
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6,
+                  background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(255,255,255,0.1)', borderRadius: 100,
+                  padding: '4px 12px 4px 8px', fontSize: 11, fontWeight: 600, color: 'var(--tx2)',
+                }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--emerald)', boxShadow: '0 0 10px var(--emerald)' }} />
+                  Free listing available
+                </div>
+              </div>
+            </div>
+            {/* Content */}
+            <div style={{ padding: '20px 24px max(env(safe-area-inset-bottom),24px)', textAlign: 'center' }}>
               <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', marginBottom: 8, letterSpacing: '-0.03em' }}>
                 List your company
               </div>
-              <div style={{ fontSize: 14, color: 'var(--tx2)', lineHeight: 1.5, marginBottom: 24, maxWidth: 320, margin: '0 auto 24px' }}>
+              <div style={{ fontSize: 14, color: 'var(--tx2)', lineHeight: 1.5, maxWidth: 320, margin: '0 auto 20px' }}>
                 Get found by procurement teams, contractors, and partners in {tenant?.name || 'this directory'}.
               </div>
               <Link

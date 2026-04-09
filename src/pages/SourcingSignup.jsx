@@ -76,12 +76,12 @@ function SourcingSignupInner() {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const totalSteps = 7;
+  const totalSteps = 8;
 
   const [form, setForm] = useState({
     vertical: '', name: '', description: '', city: '', state: 'AZ',
     website: '', employee_count: '', year_founded: '',
-    selectedCerts: [],
+    selectedCerts: [], membership_tier: 'free',
     full_name: '', auth_email: '', auth_password: '',
   });
 
@@ -116,6 +116,7 @@ function SourcingSignupInner() {
           year_founded: form.year_founded || null,
           tenant_id: tenant?.id || null,
           selectedCerts: form.selectedCerts,
+          membership_tier: form.membership_tier,
         }),
       });
       const data = await res.json();
@@ -380,8 +381,81 @@ function SourcingSignupInner() {
           <NextBtn onClick={next} label={form.selectedCerts.length > 0 ? `Continue with ${form.selectedCerts.length} selected` : 'Skip for now'} />
         </Step>
 
-        {/* Step 5: Your name */}
+        {/* Step 5: Membership tier */}
         <Step active={step === 5}>
+          <StepQuestion>Choose your membership</StepQuestion>
+          <StepHint>Free gets you listed. Paid unlocks everything.</StepHint>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {/* Free tier */}
+            <div
+              onClick={() => { set('membership_tier', 'free'); setTimeout(next, 300); }}
+              style={{
+                background: form.membership_tier === 'free' ? 'rgba(52,211,153,0.08)' : 'var(--s1)',
+                border: `2px solid ${form.membership_tier === 'free' ? 'var(--emerald)' : 'var(--bd)'}`,
+                borderRadius: 'var(--r)', padding: '20px', cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--emerald)' }}>Free</div>
+                <div style={{ fontSize: 24, fontWeight: 900, color: '#fff' }}>$0</div>
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--tx2)', lineHeight: 1.5, marginBottom: 14 }}>
+                Basic directory listing and read access to all public content.
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {['Company listing in directory', 'View all companies & events', 'Access public reports & grants'].map(f => (
+                  <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--tx2)' }}>
+                    <svg width="14" height="14" fill="none" stroke="var(--emerald)" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                    {f}
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* Paid tier */}
+            <div
+              onClick={() => { set('membership_tier', 'paid'); setTimeout(next, 300); }}
+              style={{
+                background: form.membership_tier === 'paid' ? 'var(--cyan-dim)' : 'var(--s1)',
+                border: `2px solid ${form.membership_tier === 'paid' ? 'var(--cyan)' : 'var(--bd)'}`,
+                borderRadius: 'var(--r)', padding: '20px', cursor: 'pointer',
+                transition: 'all 0.2s', position: 'relative',
+              }}
+            >
+              <div style={{
+                position: 'absolute', top: -10, right: 16,
+                background: 'var(--cyan)', color: '#000', fontSize: 10, fontWeight: 800,
+                padding: '3px 10px', borderRadius: 10, letterSpacing: '0.06em', textTransform: 'uppercase',
+              }}>
+                Recommended
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--cyan)' }}>Paid Member</div>
+                <div>
+                  <span style={{ fontSize: 24, fontWeight: 900, color: '#fff' }}>$1,000</span>
+                  <span style={{ fontSize: 12, color: 'var(--tx3)', marginLeft: 4 }}>/seat/yr</span>
+                </div>
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--tx2)', lineHeight: 1.5, marginBottom: 14 }}>
+                Full platform access. Post content, access intelligence, VIP events.
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {['Everything in Free', 'Post jobs, events, articles', 'Monthly intelligence reports', 'KPI dashboard & analytics', 'Space Congress VIP access'].map(f => (
+                  <div key={f} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: 'var(--tx2)' }}>
+                    <svg width="14" height="14" fill="none" stroke="var(--cyan)" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                    {f}
+                  </div>
+                ))}
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--tx3)', marginTop: 12 }}>
+                Volume: 5-14 seats $850/seat, 15-49 $700/seat, 50+ custom
+              </div>
+            </div>
+          </div>
+        </Step>
+
+        {/* Step 6: Your name */}
+        <Step active={step === 6}>
           <StepQuestion>What's your name?</StepQuestion>
           <StepHint>This is who we'll address in emails and on your profile.</StepHint>
           <input
@@ -396,8 +470,8 @@ function SourcingSignupInner() {
           <NextBtn onClick={next} disabled={!form.full_name.trim()} />
         </Step>
 
-        {/* Step 6: Email + password */}
-        <Step active={step === 6}>
+        {/* Step 7: Email + password */}
+        <Step active={step === 7}>
           <StepQuestion>Create your account</StepQuestion>
           <StepHint>You'll use this to sign in and manage your listing.</StepHint>
           <input
