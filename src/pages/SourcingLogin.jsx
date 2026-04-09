@@ -115,16 +115,51 @@ function SourcingLoginInner() {
         .eq('tenant_id', tenant?.id)
         .single();
 
+      let activeMember = member;
+
+      // Auto-provision member if auth succeeded but no member record exists
       if (memberErr || !member) {
-        setError('No member account found for this directory. Please sign up first.');
-        return;
+        if (!tenant?.id) {
+          setError('No member account found. Please sign up first.');
+          return;
+        }
+
+        // Find their company in this tenant
+        const { data: companies } = await supabase
+          .from('directory_companies')
+          .select('id')
+          .eq('email', authData.user.email)
+          .eq('tenant_id', tenant.id)
+          .limit(1);
+
+        const { data: newMember, error: provisionErr } = await supabase
+          .from('directory_members')
+          .insert({
+            tenant_id: tenant.id,
+            auth_user_id: authData.user.id,
+            email: authData.user.email,
+            full_name: authData.user.user_metadata?.full_name || authData.user.email.split('@')[0],
+            company_id: companies?.[0]?.id || null,
+            status: 'approved',
+            role: 'member',
+          })
+          .select()
+          .single();
+
+        if (provisionErr) {
+          console.error('Auto-provision member failed:', provisionErr);
+          setError('Could not set up your account. Please contact support.');
+          return;
+        }
+
+        activeMember = newMember;
       }
 
-      if (member.status === 'approved') {
-        navigate(member.role === 'admin' ? '/admin' : `${basePath}/portal`);
-      } else if (member.status === 'pending') {
+      if (activeMember.status === 'approved') {
+        navigate(activeMember.role === 'admin' ? '/admin' : `${basePath}/portal`);
+      } else if (activeMember.status === 'pending') {
         setStatusMessage('Your account is pending review. You will receive an email when approved.');
-      } else if (member.status === 'rejected') {
+      } else if (activeMember.status === 'rejected') {
         setStatusMessage('Your application was not approved. Please contact the directory administrator.');
       }
     } catch (err) {

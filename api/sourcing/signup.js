@@ -89,19 +89,34 @@ export default async function handler(req, res) {
       throw companyErr;
     }
 
-    // 4. Insert member record
-    if (tenant_id) {
+    // 4. Insert member record (always -- login requires this)
+    let effectiveTenantId = tenant_id;
+    if (!effectiveTenantId) {
+      // No tenant passed from frontend -- look up default for this vertical
+      const { data: fallbackTenant } = await sb
+        .from('directory_tenants')
+        .select('id')
+        .eq('vertical', vertical || 'semiconductor')
+        .eq('status', 'active')
+        .limit(1)
+        .single();
+      effectiveTenantId = fallbackTenant?.id;
+    }
+
+    if (effectiveTenantId) {
       const { error: memberErr } = await sb
         .from('directory_members')
         .insert({
-          tenant_id,
+          tenant_id: effectiveTenantId,
           company_id: company.id,
           email: auth_email.trim(),
           full_name: full_name.trim(),
-          status: 'pending',
+          status: 'approved',
           auth_user_id: userId,
         });
       if (memberErr) console.error('Member insert error:', memberErr.message);
+    } else {
+      console.error('No tenant found for member insert -- vertical:', vertical);
     }
 
     // 5. Insert certifications

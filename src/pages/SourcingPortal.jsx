@@ -74,20 +74,47 @@ function SourcingPortalInner() {
         .eq('tenant_id', tenant.id)
         .single();
 
+      let resolvedMember = memberData;
+
+      // Auto-provision member if auth succeeded but no record exists
       if (memberErr || !memberData) {
-        setError('No member account found for this directory.');
-        setLoading(false);
-        return;
+        const { data: companies } = await supabase
+          .from('directory_companies')
+          .select('id')
+          .eq('email', authUser.email)
+          .eq('tenant_id', tenant.id)
+          .limit(1);
+
+        const { data: newMember, error: provisionErr } = await supabase
+          .from('directory_members')
+          .insert({
+            tenant_id: tenant.id,
+            auth_user_id: authUser.id,
+            email: authUser.email,
+            full_name: authUser.user_metadata?.full_name || authUser.email.split('@')[0],
+            company_id: companies?.[0]?.id || null,
+            status: 'approved',
+            role: 'member',
+          })
+          .select()
+          .single();
+
+        if (provisionErr) {
+          setError('Could not set up your account. Please contact support.');
+          setLoading(false);
+          return;
+        }
+        resolvedMember = newMember;
       }
 
-      setMember(memberData);
+      setMember(resolvedMember);
 
       // Get company
-      if (memberData.company_id) {
+      if (resolvedMember.company_id) {
         const { data: companyData } = await supabase
           .from('directory_companies')
           .select('*')
-          .eq('id', memberData.company_id)
+          .eq('id', resolvedMember.company_id)
           .single();
         if (companyData) {
           setCompany(companyData);
@@ -105,7 +132,7 @@ function SourcingPortalInner() {
         const { data: listingsData } = await supabase
           .from('directory_listings')
           .select('*')
-          .eq('company_id', memberData.company_id)
+          .eq('company_id', resolvedMember.company_id)
           .eq('tenant_id', tenant.id)
           .order('created_at', { ascending: false });
         setListings(listingsData || []);
