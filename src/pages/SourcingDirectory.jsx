@@ -1097,7 +1097,8 @@ function SourcingDirectoryInner() {
             }}
           />
           <div style={{
-            position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 301,
+            position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
+            width: '100%', maxWidth: 480, zIndex: 301,
             background: 'var(--s1)', borderTop: '1px solid var(--bd2)',
             borderRadius: '20px 20px 0 0', overflow: 'hidden',
             animation: 'slideUp 0.35s cubic-bezier(0.16,1,0.3,1)',
@@ -1127,7 +1128,7 @@ function SourcingDirectoryInner() {
                   padding: '4px 12px 4px 8px', fontSize: 11, fontWeight: 600, color: 'var(--tx2)',
                 }}>
                   <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--emerald)', boxShadow: '0 0 10px var(--emerald)' }} />
-                  Free listing available
+                  Free and paid listings available
                 </div>
               </div>
             </div>
