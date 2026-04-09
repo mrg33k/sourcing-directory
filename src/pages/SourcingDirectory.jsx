@@ -743,12 +743,12 @@ function SourcingDirectoryInner() {
             {tenant?.name || 'Find Certified Suppliers'}
           </div>
           <div className="browse-sub">{tenant?.hero_text || "Verified companies, certifications, and capabilities in one place."}</div>
-          {/* Tenant logo -- bottom right of hero */}
+          {/* Tenant logo -- top-right on mobile, bottom-right on tablet+ */}
           {tenant?.slug === 'space-rising' && (
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" style={{ position: 'absolute', right: 0, bottom: 0, height: 44, objectFit: 'contain', opacity: 0.7, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }} />
+            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" style={{ height: 44, objectFit: 'contain', opacity: 0.7, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }} />
           )}
           {tenant?.slug === 's3c-semiconductor' && (
-            <img src="/images/s3c/logo.png" alt="S3C" style={{ position: 'absolute', right: 0, bottom: 0, height: 38, objectFit: 'contain', opacity: 0.7, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }} />
+            <img src="/images/s3c/logo.png" alt="S3C" className="tenant-hero-logo" style={{ height: 38, objectFit: 'contain', opacity: 0.7, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }} />
           )}
         </div>
       </div>

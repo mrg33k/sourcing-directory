@@ -204,6 +204,12 @@
 .v10-nav-btn.on .v10-nav-icon { background:var(--cyan-dim); color:var(--cyan); }
 .v10-nav-btn.on .v10-nav-label { color:var(--cyan); }
 
+/* Tenant hero logo -- mobile: top-right, tablet+: bottom-right */
+.tenant-hero-logo { position:absolute; right:0; top:0; }
+@media (min-width:768px) {
+  .tenant-hero-logo { top:auto; bottom:0; }
+}
+
 /* Desktop: scale up nicely */
 @media (min-width:768px) {
   .home-hero { min-height:480px; }
