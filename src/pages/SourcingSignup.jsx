@@ -4,109 +4,65 @@ import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens, useTenant } from './SourcingTheme.jsx';
 
 const VERTICALS = [
-  { key: 'semiconductor', label: 'Semiconductor', color: '#29B6F6', icon: '💡' },
-  { key: 'space',         label: 'Space & Aerospace', color: '#7C3AED', icon: '🚀' },
+  { key: 'semiconductor', label: 'Semiconductor', color: '#29B6F6', icon: '💡', bg: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=800&q=80' },
+  { key: 'space',         label: 'Space & Aerospace', color: '#7C3AED', icon: '🚀', bg: 'https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?w=800&q=80' },
 ];
 
 const VERTICAL_CERTS = {
   semiconductor: ['ISO 9001', 'ISO 14001', 'ISO 45001', 'ITAR Registered', 'AS9100D', 'ANSI/ESD S20.20', 'AEC-Q100', 'IPC-7711/7721', 'JEDEC Standards'],
-  space:         ['AS9100D', 'AS9110', 'AS9120B', 'ITAR Registered', 'ISO 9001', 'MIL-STD-810', 'NADCAP', 'FAA FAR Part 145', 'DoD Secret Cleared', 'DFAR Compliant', 'Certified for Space Commerce', 'SpaceTEC Certified', 'NASA Aerospace Medical Certification'],
+  space:         ['AS9100D', 'AS9110', 'AS9120B', 'ITAR Registered', 'ISO 9001', 'MIL-STD-810', 'NADCAP', 'FAA FAR Part 145', 'DoD Secret Cleared', 'DFAR Compliant'],
 };
 
-const EMP_RANGES = [
-  { value: '1-10',     label: '1-10' },
-  { value: '11-50',    label: '11-50' },
-  { value: '51-200',   label: '51-200' },
-  { value: '200-500',  label: '200-500' },
-  { value: '500-2000', label: '500-2000' },
-  { value: '2000+',    label: '2000+' },
-  { value: '10000+',   label: '10,000+' },
-];
+const EMP_RANGES = ['1-10', '11-50', '51-200', '200-500', '500-2000', '2000+', '10,000+'];
 
-function slugify(str) {
-  return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-}
-
-function InputField({ label, required, V, ...props }) {
+// ─── Typeform-style step wrapper ────────────────────────────────────────────
+function Step({ active, children }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-      <label style={{ fontSize: 12, color: V.muted, fontFamily: V.space, fontWeight: 600 }}>
-        {label}{required && <span style={{ color: V.accent }}> *</span>}
-      </label>
-      <input
-        {...props}
-        style={{
-          background: V.card2, border: `1px solid ${V.border}`,
-          color: V.text, borderRadius: 7, padding: '10px 12px',
-          fontSize: 14, fontFamily: V.space, outline: 'none',
-          width: '100%', boxSizing: 'border-box',
-          ...(props.style || {}),
-        }}
-      />
+    <div style={{
+      position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column',
+      justifyContent: 'center', padding: '0 28px',
+      opacity: active ? 1 : 0, pointerEvents: active ? 'all' : 'none',
+      transform: active ? 'translateY(0)' : 'translateY(20px)',
+      transition: 'all 0.4s cubic-bezier(0.16,1,0.3,1)',
+    }}>
+      {children}
     </div>
   );
 }
 
-function TextareaField({ label, required, V, ...props }) {
+function StepQuestion({ children }) {
+  return <div style={{ fontSize: 24, fontWeight: 900, letterSpacing: '-0.03em', color: '#fff', marginBottom: 8, lineHeight: 1.15 }}>{children}</div>;
+}
+
+function StepHint({ children }) {
+  return <div style={{ fontSize: 14, color: 'var(--tx2)', marginBottom: 28, lineHeight: 1.5 }}>{children}</div>;
+}
+
+function NextBtn({ onClick, disabled, label = 'Continue' }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-      <label style={{ fontSize: 12, color: V.muted, fontFamily: V.space, fontWeight: 600 }}>
-        {label}{required && <span style={{ color: V.accent }}> *</span>}
-      </label>
-      <textarea
-        {...props}
-        style={{
-          background: V.card2, border: `1px solid ${V.border}`,
-          color: V.text, borderRadius: 7, padding: '10px 12px',
-          fontSize: 14, fontFamily: V.space, outline: 'none',
-          width: '100%', boxSizing: 'border-box',
-          resize: 'vertical', minHeight: 80,
-          ...(props.style || {}),
-        }}
-      />
-    </div>
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className="login-btn"
+      style={{
+        marginTop: 24, opacity: disabled ? 0.4 : 1,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+      }}
+    >
+      {label} <span style={{ marginLeft: 6 }}>↓</span>
+    </button>
   );
 }
 
-function SelectField({ label, required, options, value, onChange, V }) {
+function ProgressDots({ current, total }) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-      <label style={{ fontSize: 12, color: V.muted, fontFamily: V.space, fontWeight: 600 }}>
-        {label}{required && <span style={{ color: V.accent }}> *</span>}
-      </label>
-      <select
-        value={value}
-        onChange={e => onChange(e.target.value)}
-        style={{
-          background: V.card2, border: `1px solid ${V.border}`,
-          color: value ? V.text : V.dim, borderRadius: 7, padding: '10px 12px',
-          fontSize: 14, fontFamily: V.space, outline: 'none',
-          width: '100%', boxSizing: 'border-box', appearance: 'none', cursor: 'pointer',
-        }}
-      >
-        <option value="" style={{ background: V.card2 }}>Select...</option>
-        {options.map(opt => (
-          <option key={opt.value || opt} value={opt.value || opt} style={{ background: V.card2 }}>
-            {opt.label || opt}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-}
-
-function StepBar({ step, total, V }) {
-  return (
-    <div style={{ display: 'flex', gap: 6, marginBottom: 28 }}>
+    <div style={{ display: 'flex', gap: 6, justifyContent: 'center', marginBottom: 32 }}>
       {Array.from({ length: total }, (_, i) => (
-        <div
-          key={i}
-          style={{
-            flex: 1, height: 3, borderRadius: 2,
-            background: i < step ? V.accent : i === step ? `${V.accent}60` : 'rgba(255,255,255,0.1)',
-            transition: 'all 0.3s',
-          }}
-        />
+        <div key={i} style={{
+          width: i === current ? 24 : 8, height: 8, borderRadius: 4,
+          background: i <= current ? 'var(--cyan)' : 'var(--s3)',
+          transition: 'all 0.3s',
+        }} />
       ))}
     </div>
   );
@@ -114,80 +70,35 @@ function StepBar({ step, total, V }) {
 
 // ─── Inner component ──────────────────────────────────────────────────────────
 function SourcingSignupInner() {
-  const { dark } = useSourcingTheme();
-  const V = getTokens(dark);
+  const V = getTokens(true);
   const navigate = useNavigate();
   const { tenant, tenantSlug } = useTenant();
   const basePath = tenantSlug ? `/${tenantSlug}` : '/';
   const [step, setStep] = useState(0);
-  const [orgs, setOrgs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const totalSteps = 7;
 
   const [form, setForm] = useState({
-    vertical: '',
-    org_id: '',
-    name: '',
-    website: '',
-    phone: '',
-    email: '',
-    city: '',
-    state: 'AZ',
-    employee_count: '',
-    year_founded: '',
-    description: '',
+    vertical: '', name: '', description: '', city: '', state: 'AZ',
+    website: '', employee_count: '', year_founded: '',
     selectedCerts: [],
-    // Auth fields
-    auth_email: '',
-    auth_password: '',
-    full_name: '',
+    full_name: '', auth_email: '', auth_password: '',
   });
 
-  useEffect(() => {
-    if (!form.vertical || !supabase) return;
-    supabase
-      .from('directory_organizations')
-      .select('*')
-      .eq('vertical', form.vertical)
-      .then(({ data, error }) => {
-        if (!error) setOrgs(data || []);
-        // On error, silently leave orgs empty -- org select is optional
-      });
-  }, [form.vertical]);
+  const set = (key, val) => { setForm(prev => ({ ...prev, [key]: val })); setError(''); };
 
-  const set = (key, val) => setForm(prev => ({ ...prev, [key]: val }));
-
-  const toggleCert = (cert) => {
-    set('selectedCerts', form.selectedCerts.includes(cert)
-      ? form.selectedCerts.filter(c => c !== cert)
-      : [...form.selectedCerts, cert]
-    );
-  };
-
-  const validate = () => {
-    if (step === 0 && !form.vertical) return 'Please select an industry vertical.';
-    if (step === 1) {
-      if (!form.name.trim()) return 'Company name is required.';
-      if (!form.description.trim()) return 'Description is required.';
-      if (!form.full_name.trim()) return 'Your name is required.';
-      if (!form.auth_email.trim()) return 'Login email is required.';
-      if (!form.auth_password || form.auth_password.length < 6) return 'Password must be at least 6 characters.';
-    }
-    return '';
-  };
-
-  const handleNext = () => {
-    const err = validate();
-    if (err) { setError(err); return; }
-    setError('');
-    setStep(s => s + 1);
-  };
+  const next = () => { setError(''); setStep(s => Math.min(s + 1, totalSteps)); };
+  const back = () => { setError(''); setStep(s => Math.max(s - 1, 0)); };
 
   const handleSubmit = async () => {
+    if (!form.full_name.trim()) { setError('Your name is required.'); return; }
+    if (!form.auth_email.trim()) { setError('Email is required.'); return; }
+    if (!form.auth_password || form.auth_password.length < 6) { setError('Password must be at least 6 characters.'); return; }
+
     setLoading(true);
     setError('');
     try {
-      // Server-side signup: auth user + company + member + certs in one request
       const res = await fetch('/api/sourcing/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -198,14 +109,12 @@ function SourcingSignupInner() {
           name: form.name.trim(),
           description: form.description.trim(),
           website: form.website.trim() || null,
-          phone: form.phone.trim() || null,
-          email: form.email.trim() || null,
+          email: form.auth_email.trim(),
           vertical: form.vertical,
           city: form.city.trim() || null,
           state: form.state || 'AZ',
           employee_count: form.employee_count || null,
           year_founded: form.year_founded || null,
-          org_id: form.org_id || null,
           tenant_id: tenant?.id || null,
           selectedCerts: form.selectedCerts,
         }),
@@ -213,433 +122,325 @@ function SourcingSignupInner() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Signup failed.');
 
-      setStep(3);
+      // Fire welcome email
+      fetch('/api/sourcing/welcome-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: form.auth_email.trim(),
+          company_name: form.name.trim(),
+          org_name: tenant?.name || 'AOM Sourcing Directory',
+          company_slug: data.company_slug,
+          base_url: window.location.origin,
+        }),
+      }).catch(() => {});
 
-      // Fire-and-forget welcome email
-      const emailTo = form.auth_email.trim() || form.email.trim();
-      if (emailTo) {
-        fetch('/api/sourcing/welcome-email', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: emailTo,
-            company_name: form.name.trim(),
-            org_name: tenant?.name || 'AOM Sourcing Directory',
-            company_slug: data.company_slug,
-            base_url: window.location.origin,
-          }),
-        }).catch(() => {});
-      }
+      setStep(totalSteps); // success screen
     } catch (err) {
-      console.error('Signup error:', err);
-      setError(err.message || 'Something went wrong. Please try again.');
+      setError(err.message || 'Something went wrong.');
     } finally {
       setLoading(false);
     }
   };
 
-  const availableCerts = VERTICAL_CERTS[form.vertical] || [];
   const vConfig = VERTICALS.find(v => v.key === form.vertical);
+  const availableCerts = VERTICAL_CERTS[form.vertical] || [];
 
-  // If tenant has self_service disabled, show message
+  // Self-service disabled
   if (tenant && tenant.self_service === false) {
     return (
-      <div style={{ minHeight: '100vh', background: V.bg, color: V.text, overflowX: 'hidden' }}>
-        <div style={{
-          borderBottom: `1px solid ${V.border}`,
-          padding: '0 24px',
-          display: 'flex', alignItems: 'center', gap: 16, height: 60,
-          background: V.navBg,
-        }}>
-          <Link to="/" style={{ textDecoration: 'none' }}>
-            <span style={{ fontSize: 13, fontWeight: 800, fontFamily: V.syne, color: V.accent, letterSpacing: '0.12em', textTransform: 'uppercase' }}>AOM</span>
-          </Link>
-          <span style={{ color: V.dim, fontSize: 13 }}>/</span>
-          <Link to={basePath} style={{ textDecoration: 'none', fontSize: 13, color: V.muted, fontFamily: V.space }}>Sourcing Directory</Link>
-        </div>
-        <div style={{ maxWidth: 480, margin: '0 auto', padding: '100px 24px', textAlign: 'center' }}>
-          <div style={{ fontSize: 28, fontWeight: 800, fontFamily: V.syne, color: V.heading, marginBottom: 12 }}>
-            Signup Not Available
-          </div>
-          <p style={{ fontSize: 14, color: V.muted, fontFamily: V.space, lineHeight: 1.6, marginBottom: 24 }}>
-            Signup is not available for this directory. Contact the directory administrator.
-          </p>
-          <Link to={basePath} style={{ color: V.accent, fontFamily: V.space, fontSize: 14, textDecoration: 'none', fontWeight: 600 }}>
-            Back to Directory
-          </Link>
+      <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div style={{ textAlign: 'center', maxWidth: 400 }}>
+          <div style={{ fontSize: 28, fontWeight: 900, color: '#fff', marginBottom: 12 }}>Signup Not Available</div>
+          <div style={{ fontSize: 14, color: 'var(--tx2)', marginBottom: 24 }}>Contact the directory administrator.</div>
+          <Link to={basePath} style={{ color: 'var(--cyan)', textDecoration: 'none', fontWeight: 600 }}>Back to Directory</Link>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
+    <div style={{
+      minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)',
+      position: 'relative', overflow: 'hidden',
+    }}>
       <style>{`
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes spin { to { transform: rotate(360deg); } }
       `}</style>
 
-      {/* v10 Hero */}
-      <div className="browse-hero" style={{ minHeight: 160 }}>
-        <div className="browse-hero-bg" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&q=80')" }} />
-        <div className="browse-hero-overlay" />
-        <div className="browse-hero-content">
-          <Link to={basePath} className="browse-back" style={{ textDecoration: 'none' }}>
+      {/* Background image -- changes with vertical selection */}
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 0,
+        backgroundImage: vConfig
+          ? `linear-gradient(180deg, rgba(6,6,10,0.85) 0%, rgba(6,6,10,0.95) 50%, var(--bg) 100%), url('${vConfig.bg}')`
+          : 'linear-gradient(180deg, rgba(6,6,10,0.7) 0%, var(--bg) 60%), url("https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=800&q=80")',
+        backgroundSize: 'cover', backgroundPosition: 'center',
+        transition: 'background-image 0.6s',
+      }} />
+
+      {/* Top bar */}
+      <div style={{
+        position: 'relative', zIndex: 10, display: 'flex', alignItems: 'center',
+        padding: 'max(env(safe-area-inset-top),16px) 20px 12px',
+      }}>
+        {step > 0 && step < totalSteps ? (
+          <button onClick={back} style={{
+            background: 'none', border: 'none', color: 'var(--tx2)',
+            fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: 0,
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}>
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+            Back
+          </button>
+        ) : (
+          <Link to={basePath} style={{ textDecoration: 'none', color: 'var(--tx2)', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
             Back
           </Link>
-        </div>
+        )}
+        <div style={{ flex: 1 }} />
+        {step < totalSteps && (
+          <div style={{ fontSize: 12, color: 'var(--tx3)', fontWeight: 600 }}>
+            {step + 1} of {totalSteps}
+          </div>
+        )}
       </div>
 
-      <div className="login-wrap" style={{ paddingTop: 24, maxWidth: 560 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--cyan)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>Free Listing</div>
-        <div className="login-title" style={{ marginBottom: 4 }}>List Your Company</div>
-        <div className="login-sub" style={{ marginBottom: 24 }}>Get found by procurement teams and partners.</div>
+      {/* Progress */}
+      {step < totalSteps && (
+        <div style={{ position: 'relative', zIndex: 10, padding: '0 28px' }}>
+          <ProgressDots current={step} total={totalSteps} />
+        </div>
+      )}
 
-        {step < 3 && <StepBar step={step} total={3} V={V} />}
+      {/* Steps container */}
+      <div style={{ position: 'relative', zIndex: 10, flex: 1, minHeight: 'calc(100dvh - 120px)' }}>
 
-        {/* Step 0: Choose vertical */}
-        {step === 0 && (
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 700, fontFamily: V.syne, color: V.text, marginBottom: 20 }}>
-              What industry are you in?
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 24 }}>
-              {VERTICALS.map(v => (
-                <button
-                  key={v.key}
-                  onClick={() => set('vertical', v.key)}
+        {/* Step 0: Choose directory */}
+        <Step active={step === 0}>
+          <StepQuestion>Which directory do you want to join?</StepQuestion>
+          <StepHint>Choose the industry that best fits your company.</StepHint>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            {VERTICALS.map(v => (
+              <div
+                key={v.key}
+                onClick={() => { set('vertical', v.key); setTimeout(next, 300); }}
+                style={{
+                  background: form.vertical === v.key ? `${v.color}15` : 'var(--s1)',
+                  border: `2px solid ${form.vertical === v.key ? v.color : 'var(--bd)'}`,
+                  borderRadius: 'var(--r)', padding: '20px', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 16, transition: 'all 0.2s',
+                }}
+              >
+                <div style={{ fontSize: 32 }}>{v.icon}</div>
+                <div>
+                  <div style={{ fontSize: 17, fontWeight: 800, color: '#fff' }}>{v.label}</div>
+                  <div style={{ fontSize: 12, color: 'var(--tx2)', marginTop: 2 }}>
+                    {v.key === 'semiconductor' ? 'Chips, wafers, fabrication, testing' : 'Launch, satellites, defense, aerospace'}
+                  </div>
+                </div>
+                {form.vertical === v.key && (
+                  <svg width="20" height="20" fill="none" stroke={v.color} strokeWidth="2.5" viewBox="0 0 24 24" style={{ marginLeft: 'auto' }}><path d="M20 6L9 17l-5-5"/></svg>
+                )}
+              </div>
+            ))}
+          </div>
+        </Step>
+
+        {/* Step 1: Company name */}
+        <Step active={step === 1}>
+          <StepQuestion>What's your company called?</StepQuestion>
+          <StepHint>This is how you'll appear in the directory.</StepHint>
+          <input
+            className="login-input"
+            style={{ fontSize: 18, padding: '16px', background: 'var(--s1)' }}
+            placeholder="Acme Semiconductor LLC"
+            value={form.name}
+            onChange={e => set('name', e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && form.name.trim() && next()}
+            autoFocus
+          />
+          <NextBtn onClick={next} disabled={!form.name.trim()} />
+        </Step>
+
+        {/* Step 2: Description */}
+        <Step active={step === 2}>
+          <StepQuestion>Tell us about your company</StepQuestion>
+          <StepHint>A brief description of what you do, your capabilities, and specialties.</StepHint>
+          <textarea
+            className="login-input"
+            style={{ fontSize: 15, padding: '16px', minHeight: 120, resize: 'vertical', background: 'var(--s1)' }}
+            placeholder="We specialize in..."
+            value={form.description}
+            onChange={e => set('description', e.target.value)}
+          />
+          <NextBtn onClick={next} disabled={!form.description.trim()} />
+        </Step>
+
+        {/* Step 3: Location + details */}
+        <Step active={step === 3}>
+          <StepQuestion>Where are you located?</StepQuestion>
+          <StepHint>Help procurement teams find local suppliers.</StepHint>
+          <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
+            <input
+              className="login-input"
+              style={{ flex: 1, background: 'var(--s1)' }}
+              placeholder="City"
+              value={form.city}
+              onChange={e => set('city', e.target.value)}
+            />
+            <input
+              className="login-input"
+              style={{ width: 80, background: 'var(--s1)' }}
+              placeholder="AZ"
+              value={form.state}
+              onChange={e => set('state', e.target.value)}
+              maxLength={2}
+            />
+          </div>
+          <input
+            className="login-input"
+            style={{ marginBottom: 14, background: 'var(--s1)' }}
+            placeholder="Website (optional)"
+            type="url"
+            value={form.website}
+            onChange={e => set('website', e.target.value)}
+          />
+          <div style={{ display: 'flex', gap: 10 }}>
+            <select
+              className="login-input"
+              style={{ flex: 1, background: 'var(--s1)', cursor: 'pointer' }}
+              value={form.employee_count}
+              onChange={e => set('employee_count', e.target.value)}
+            >
+              <option value="">Employees</option>
+              {EMP_RANGES.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
+            <input
+              className="login-input"
+              style={{ width: 110, background: 'var(--s1)' }}
+              placeholder="Year founded"
+              type="number"
+              min="1900"
+              max={new Date().getFullYear()}
+              value={form.year_founded}
+              onChange={e => set('year_founded', e.target.value)}
+            />
+          </div>
+          <NextBtn onClick={next} />
+        </Step>
+
+        {/* Step 4: Certifications */}
+        <Step active={step === 4}>
+          <StepQuestion>Any certifications?</StepQuestion>
+          <StepHint>Select all that apply. You can update these later.</StepHint>
+          <div style={{ maxHeight: '45vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {availableCerts.map(cert => {
+              const checked = form.selectedCerts.includes(cert);
+              return (
+                <div
+                  key={cert}
+                  onClick={() => set('selectedCerts', checked ? form.selectedCerts.filter(c => c !== cert) : [...form.selectedCerts, cert])}
                   style={{
-                    background: form.vertical === v.key ? `${v.color}15` : V.card,
-                    border: `2px solid ${form.vertical === v.key ? v.color : V.border}`,
-                    borderRadius: 10, padding: '16px 14px',
-                    display: 'flex', flexDirection: 'column', gap: 6,
-                    cursor: 'pointer', transition: 'all 0.15s', textAlign: 'left',
+                    display: 'flex', alignItems: 'center', gap: 12,
+                    background: checked ? 'var(--cyan-dim)' : 'var(--s1)',
+                    border: `1px solid ${checked ? 'var(--cyan-brd)' : 'var(--bd)'}`,
+                    borderRadius: 10, padding: '12px 14px', cursor: 'pointer',
+                    transition: 'all 0.15s',
                   }}
                 >
-                  <div style={{ fontSize: 22 }}>{v.icon}</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, fontFamily: V.syne, color: V.text }}>
-                    {v.label}
-                  </div>
-                  {form.vertical === v.key && (
-                    <div style={{ fontSize: 10, color: v.color, fontFamily: V.mono, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                      Selected
-                    </div>
-                  )}
-                </button>
-              ))}
-            </div>
-
-            {error && <div style={{ color: '#EF4444', fontSize: 13, fontFamily: V.space, marginBottom: 12 }}>{error}</div>}
-
-            <button
-              onClick={handleNext}
-              disabled={!form.vertical}
-              style={{
-                width: '100%', background: form.vertical ? V.accent : V.accentDim,
-                border: 'none', color: form.vertical ? '#fff' : V.dim,
-                borderRadius: 8, padding: '12px 0', fontSize: 15,
-                fontWeight: 700, fontFamily: V.space, cursor: form.vertical ? 'pointer' : 'not-allowed',
-                transition: 'all 0.15s',
-              }}
-            >
-              Continue →
-            </button>
-          </div>
-        )}
-
-        {/* Step 1: Company info */}
-        {step === 1 && (
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-              <span style={{ fontSize: 20 }}>{vConfig?.icon}</span>
-              <div style={{ fontSize: 16, fontWeight: 700, fontFamily: V.syne, color: V.text }}>
-                Company Information
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <InputField label="Company Name" required placeholder="Acme Semiconductor LLC" value={form.name} onChange={e => set('name', e.target.value)} V={V} />
-              <TextareaField label="Description" required placeholder="Brief description of your company, capabilities, and specialties..." value={form.description} onChange={e => set('description', e.target.value)} rows={3} V={V} />
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                <InputField label="City" placeholder="Phoenix" value={form.city} onChange={e => set('city', e.target.value)} V={V} />
-                <InputField label="State" placeholder="AZ" value={form.state} onChange={e => set('state', e.target.value)} maxLength={2} V={V} />
-              </div>
-
-              <InputField label="Website" placeholder="https://yourcompany.com" type="url" value={form.website} onChange={e => set('website', e.target.value)} V={V} />
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                <InputField label="Phone" placeholder="(480) 555-0100" type="tel" value={form.phone} onChange={e => set('phone', e.target.value)} V={V} />
-                <InputField label="Email" placeholder="info@company.com" type="email" value={form.email} onChange={e => set('email', e.target.value)} V={V} />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                <SelectField label="Employees" options={EMP_RANGES} value={form.employee_count} onChange={v => set('employee_count', v)} V={V} />
-                <InputField label="Year Founded" placeholder="2010" type="number" min="1900" max={new Date().getFullYear()} value={form.year_founded} onChange={e => set('year_founded', e.target.value)} V={V} />
-              </div>
-
-              {/* Account section */}
-              <div style={{ borderTop: `1px solid ${V.border}`, paddingTop: 16, marginTop: 4 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.accent, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>
-                  Your Account
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                  <InputField label="Your Full Name" required placeholder="Jane Smith" value={form.full_name} onChange={e => set('full_name', e.target.value)} V={V} />
-                  <InputField label="Login Email" required placeholder="you@company.com" type="email" value={form.auth_email} onChange={e => set('auth_email', e.target.value)} V={V} />
-                  <InputField label="Password" required placeholder="Minimum 6 characters" type="password" value={form.auth_password} onChange={e => set('auth_password', e.target.value)} V={V} />
-                </div>
-              </div>
-            </div>
-
-            {error && <div style={{ color: '#EF4444', fontSize: 13, fontFamily: V.space, marginTop: 12 }}>{error}</div>}
-
-            <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
-              <button
-                onClick={() => { setStep(0); setError(''); }}
-                style={{
-                  flex: 1, background: 'transparent', border: `1px solid ${V.border}`,
-                  color: V.muted, borderRadius: 8, padding: '11px 0',
-                  fontSize: 14, fontWeight: 600, fontFamily: V.space, cursor: 'pointer',
-                }}
-              >
-                ← Back
-              </button>
-              <button
-                onClick={handleNext}
-                style={{
-                  flex: 2, background: V.accent, border: 'none', color: '#fff',
-                  borderRadius: 8, padding: '11px 0',
-                  fontSize: 14, fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
-                }}
-              >
-                Continue →
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Step 2: Certs + org */}
-        {step === 2 && (
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 700, fontFamily: V.syne, color: V.text, marginBottom: 6 }}>
-              Certifications & Memberships
-            </div>
-            <div style={{ fontSize: 13, color: V.muted, fontFamily: V.space, marginBottom: 20 }}>
-              Select all certifications that apply.
-            </div>
-
-            {availableCerts.length > 0 && (
-              <div style={{ marginBottom: 24 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
-                  Certifications
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {availableCerts.map(cert => {
-                    const checked = form.selectedCerts.includes(cert);
-                    return (
-                      <label
-                        key={cert}
-                        style={{
-                          display: 'flex', alignItems: 'center', gap: 12,
-                          background: checked ? V.accentDim : V.card,
-                          border: `1px solid ${checked ? V.accentBrd : V.border}`,
-                          borderRadius: 7, padding: '10px 14px',
-                          cursor: 'pointer', transition: 'all 0.12s',
-                        }}
-                      >
-                        <div style={{
-                          width: 18, height: 18, borderRadius: 4, flexShrink: 0,
-                          background: checked ? V.accent : 'rgba(255,255,255,0.05)',
-                          border: `1px solid ${checked ? V.accent : V.border}`,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 11, color: '#fff',
-                        }}>
-                          {checked ? '✓' : ''}
-                        </div>
-                        <input type="checkbox" checked={checked} onChange={() => toggleCert(cert)} style={{ display: 'none' }} />
-                        <span style={{ fontSize: 13, fontFamily: V.mono, color: checked ? V.text : V.muted }}>
-                          {cert}
-                        </span>
-                      </label>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {orgs.length > 0 && (
-              <div style={{ marginBottom: 24 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10 }}>
-                  Member Organization (optional)
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  {orgs.map(org => {
-                    const selected = form.org_id === org.id;
-                    return (
-                      <label
-                        key={org.id}
-                        style={{
-                          display: 'flex', alignItems: 'flex-start', gap: 12,
-                          background: selected ? V.accentDim : V.card,
-                          border: `1px solid ${selected ? V.accentBrd : V.border}`,
-                          borderRadius: 7, padding: '12px 14px', cursor: 'pointer',
-                          transition: 'all 0.12s',
-                        }}
-                      >
-                        <div style={{
-                          width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
-                          background: selected ? V.accent : 'rgba(255,255,255,0.05)',
-                          border: `1px solid ${selected ? V.accent : V.border}`,
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 9, color: '#fff', marginTop: 1,
-                        }}>
-                          {selected ? '●' : ''}
-                        </div>
-                        <input type="radio" name="org" checked={selected} onChange={() => set('org_id', org.id)} style={{ display: 'none' }} />
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 700, fontFamily: V.space, color: V.text, marginBottom: 2 }}>{org.name}</div>
-                          {org.description && (
-                            <div style={{ fontSize: 12, color: V.muted, fontFamily: V.space, lineHeight: 1.4 }}>
-                              {org.description.slice(0, 100)}...
-                            </div>
-                          )}
-                        </div>
-                      </label>
-                    );
-                  })}
-                  <label style={{
-                    display: 'flex', alignItems: 'center', gap: 12,
-                    background: form.org_id === '' ? `${V.muted}15` : V.card,
-                    border: `1px solid ${form.org_id === '' ? V.muted : V.border}`,
-                    borderRadius: 7, padding: '10px 14px', cursor: 'pointer',
+                  <div style={{
+                    width: 20, height: 20, borderRadius: 5, flexShrink: 0,
+                    background: checked ? 'var(--cyan)' : 'transparent',
+                    border: `2px solid ${checked ? 'var(--cyan)' : 'var(--bd2)'}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: '#000', fontSize: 12, fontWeight: 900,
                   }}>
-                    <div style={{
-                      width: 18, height: 18, borderRadius: '50%', flexShrink: 0,
-                      background: form.org_id === '' ? V.muted : 'rgba(255,255,255,0.05)',
-                      border: `1px solid ${form.org_id === '' ? V.muted : V.border}`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 9, color: '#fff',
-                    }}>
-                      {form.org_id === '' ? '●' : ''}
-                    </div>
-                    <input type="radio" name="org" checked={form.org_id === ''} onChange={() => set('org_id', '')} style={{ display: 'none' }} />
-                    <span style={{ fontSize: 13, color: V.muted, fontFamily: V.space }}>
-                      Not a member of any organization
-                    </span>
-                  </label>
+                    {checked && '✓'}
+                  </div>
+                  <span style={{ fontSize: 14, color: checked ? 'var(--tx)' : 'var(--tx2)' }}>{cert}</span>
                 </div>
-              </div>
-            )}
-
-            {!supabase && (
-              <div style={{
-                background: V.accentDim, border: `1px solid ${V.accentBrd}`,
-                borderRadius: 7, padding: '12px 14px', marginBottom: 16,
-                fontSize: 12, color: V.accent, fontFamily: V.space,
-              }}>
-                Supabase not configured -- listing cannot be saved yet. Run the migration first.
-              </div>
-            )}
-
-            {error && <div style={{ color: '#EF4444', fontSize: 13, fontFamily: V.space, marginBottom: 12 }}>{error}</div>}
-
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button
-                onClick={() => { setStep(1); setError(''); }}
-                style={{
-                  flex: 1, background: 'transparent', border: `1px solid ${V.border}`,
-                  color: V.muted, borderRadius: 8, padding: '11px 0',
-                  fontSize: 14, fontWeight: 600, fontFamily: V.space, cursor: 'pointer',
-                }}
-              >
-                ← Back
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={loading}
-                style={{
-                  flex: 2, background: loading ? `${V.accent}60` : V.accent,
-                  border: 'none', color: '#fff', borderRadius: 8, padding: '11px 0',
-                  fontSize: 14, fontWeight: 700, fontFamily: V.space,
-                  cursor: loading ? 'not-allowed' : 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                }}
-              >
-                {loading ? (
-                  <>
-                    <div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.3)', borderTop: '2px solid #fff', animation: 'spin 0.8s linear infinite' }} />
-                    Submitting...
-                  </>
-                ) : 'Submit Listing →'}
-              </button>
-            </div>
+              );
+            })}
           </div>
-        )}
+          <NextBtn onClick={next} label={form.selectedCerts.length > 0 ? `Continue with ${form.selectedCerts.length} selected` : 'Skip for now'} />
+        </Step>
 
-        {/* Step 3: Success */}
-        {step === 3 && (
-          <div style={{ textAlign: 'center', padding: '20px 0' }}>
+        {/* Step 5: Your name */}
+        <Step active={step === 5}>
+          <StepQuestion>What's your name?</StepQuestion>
+          <StepHint>This is who we'll address in emails and on your profile.</StepHint>
+          <input
+            className="login-input"
+            style={{ fontSize: 18, padding: '16px', background: 'var(--s1)' }}
+            placeholder="Jane Smith"
+            value={form.full_name}
+            onChange={e => set('full_name', e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && form.full_name.trim() && next()}
+            autoFocus
+          />
+          <NextBtn onClick={next} disabled={!form.full_name.trim()} />
+        </Step>
+
+        {/* Step 6: Email + password */}
+        <Step active={step === 6}>
+          <StepQuestion>Create your account</StepQuestion>
+          <StepHint>You'll use this to sign in and manage your listing.</StepHint>
+          <input
+            className="login-input"
+            style={{ background: 'var(--s1)' }}
+            placeholder="you@company.com"
+            type="email"
+            value={form.auth_email}
+            onChange={e => set('auth_email', e.target.value)}
+          />
+          <input
+            className="login-input"
+            style={{ background: 'var(--s1)' }}
+            placeholder="Password (min 6 characters)"
+            type="password"
+            value={form.auth_password}
+            onChange={e => set('auth_password', e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && form.auth_email.trim() && form.auth_password.length >= 6 && handleSubmit()}
+          />
+          {error && <div style={{ color: '#FB7185', fontSize: 13, marginTop: 8 }}>{error}</div>}
+          <button
+            className="login-btn"
+            onClick={handleSubmit}
+            disabled={loading || !form.auth_email.trim() || form.auth_password.length < 6}
+            style={{ marginTop: 24, opacity: loading ? 0.6 : 1 }}
+          >
+            {loading ? 'Creating account...' : 'Create Account'}
+          </button>
+          <div style={{ textAlign: 'center', marginTop: 16, fontSize: 13, color: 'var(--tx3)' }}>
+            Already have an account? <Link to={`${basePath}/login`} style={{ color: 'var(--cyan)', textDecoration: 'none' }}>Sign in</Link>
+          </div>
+        </Step>
+
+        {/* Success */}
+        <Step active={step === totalSteps}>
+          <div style={{ textAlign: 'center' }}>
             <div style={{
-              width: 64, height: 64, borderRadius: '50%',
-              background: V.accentDim, border: `2px solid ${V.accentBrd}`,
+              width: 72, height: 72, borderRadius: '50%', margin: '0 auto 24px',
+              background: 'var(--cyan-dim)', border: '2px solid var(--cyan-brd)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 28, margin: '0 auto 20px', color: V.accent,
             }}>
-              ✓
+              <svg width="32" height="32" fill="none" stroke="var(--cyan)" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
             </div>
-            <h2 style={{ fontSize: 24, fontWeight: 800, fontFamily: V.syne, color: V.heading, margin: '0 0 12px' }}>
-              You're on the list.
-            </h2>
-            <p style={{ fontSize: 14, color: V.muted, fontFamily: V.space, maxWidth: 380, margin: '0 auto 28px', lineHeight: 1.6 }}>
-              Your listing has been submitted for review. You'll receive an email when approved.
-            </p>
-            {/* Membership upsell */}
-            <div style={{
-              background: `${V.accent}08`, border: `1px solid ${V.accent}30`,
-              borderRadius: 12, padding: '20px 24px', margin: '0 auto 24px',
-              maxWidth: 380, textAlign: 'left',
-            }}>
-              <div style={{ fontSize: 14, fontWeight: 700, fontFamily: V.syne, color: V.heading, marginBottom: 6 }}>
-                Want to post jobs, events & articles?
-              </div>
-              <div style={{ fontSize: 13, color: V.muted, fontFamily: V.space, lineHeight: 1.6, marginBottom: 14 }}>
-                Upgrade to a paid membership to unlock posting, analytics, VIP events, and more. Starting at $1,000/seat.
-              </div>
-              <Link
-                to={`${basePath}/membership`}
-                style={{
-                  display: 'inline-block', background: V.accent, color: '#fff',
-                  textDecoration: 'none', borderRadius: 6, padding: '8px 20px',
-                  fontSize: 13, fontWeight: 600, fontFamily: V.space,
-                }}
-              >
-                View Membership Options
-              </Link>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 280, margin: '0 auto' }}>
-              <Link
-                to={basePath}
-                style={{
-                  background: 'transparent', color: V.muted, textDecoration: 'none',
-                  border: `1px solid ${V.border}`, borderRadius: 8, padding: '11px 0', fontSize: 14,
-                  fontWeight: 600, fontFamily: V.space, display: 'block', textAlign: 'center',
-                }}
-              >
-                Browse the Directory
-              </Link>
-              <Link
-                to={`${basePath}/login`}
-                style={{
-                  background: 'transparent', color: V.dim, textDecoration: 'none',
-                  fontSize: 13, fontFamily: V.space, display: 'block', textAlign: 'center',
-                }}
-              >
-                Sign In
-              </Link>
-            </div>
+            <StepQuestion>You're in</StepQuestion>
+            <StepHint>
+              Your company has been listed. Check your email for a welcome message with next steps.
+            </StepHint>
+            <Link
+              to={basePath}
+              className="login-btn"
+              style={{ display: 'block', textAlign: 'center', textDecoration: 'none', marginTop: 24 }}
+            >
+              Browse the Directory
+            </Link>
           </div>
-        )}
+        </Step>
       </div>
     </div>
   );
