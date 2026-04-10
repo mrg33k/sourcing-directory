@@ -428,6 +428,13 @@ function SourcingDirectoryInner() {
   // Reports from directory_reports table (tenant-scoped)
   const [reports, setReports] = useState([]);
 
+  // Auth session and admin flag (for report upload UI)
+  const [session, setSession] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  // Per-report upload tracking
+  const [uploadingReportId, setUploadingReportId] = useState(null);
+  const [uploadError, setUploadError] = useState(null);
+
   // ─── Tenant brand tokens (Space Rising + S3C) ──────────────────────────────
   const tenantBrand = useMemo(() => {
     if (!tenant) return null;
@@ -781,6 +788,20 @@ function SourcingDirectoryInner() {
       .then(({ data }) => { setReports(data || []); });
   }, [tenant?.id]);
 
+  // Auth state — detect admin for report upload UI
+  useEffect(() => {
+    if (!supabase) return;
+    supabase.auth.getSession().then(({ data: { session: s } }) => {
+      setSession(s);
+      setIsAdmin(s?.user?.app_metadata?.role === 'admin');
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, s) => {
+      setSession(s);
+      setIsAdmin(s?.user?.app_metadata?.role === 'admin');
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   // Fetch available counties for filter (tenant-scoped)
   useEffect(() => {
     const qs = tenant?.id ? `?tenant_id=${tenant.id}` : '';
@@ -820,6 +841,78 @@ function SourcingDirectoryInner() {
         setReviewStats(stats);
       });
   }, [companies]);
+
+  // Upload a PDF document to Supabase Storage and save the URL to the report record.
+  // Only callable by admin users (guarded both here and in the API).
+  const handleReportUpload = useCallback(async (reportId, file) => {
+    if (!session || !isAdmin || !file) return;
+    if (!file.type.includes('pdf') && !file.name.toLowerCase().endsWith('.pdf')) {
+      setUploadError('Only PDF files are supported');
+      return;
+    }
+    if (file.size > 52428800) {
+      setUploadError('File too large — maximum size is 50 MB');
+      return;
+    }
+    setUploadingReportId(reportId);
+    setUploadError(null);
+    try {
+      // Step 1: Get a signed upload URL from the API (uses service role to create bucket + signed URL)
+      const initRes = await fetch('/api/sourcing/upload-report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          action: 'get-url',
+          report_id: reportId,
+          filename: file.name,
+          content_type: file.type || 'application/pdf',
+        }),
+      });
+      if (!initRes.ok) {
+        const err = await initRes.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to get upload URL');
+      }
+      const { path, token: uploadToken, publicUrl } = await initRes.json();
+
+      // Step 2: Upload file directly to Supabase Storage using the signed URL
+      const { error: uploadErr } = await supabase.storage
+        .from('sourcing-reports')
+        .uploadToSignedUrl(path, uploadToken, file, {
+          contentType: file.type || 'application/pdf',
+        });
+      if (uploadErr) throw uploadErr;
+
+      // Step 3: Persist the public URL to directory_reports.file_url
+      const saveRes = await fetch('/api/sourcing/upload-report', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          action: 'save-url',
+          report_id: reportId,
+          file_url: publicUrl,
+        }),
+      });
+      if (!saveRes.ok) {
+        const err = await saveRes.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to save file URL');
+      }
+
+      // Step 4: Update local state so the download link appears immediately
+      setReports(prev =>
+        prev.map(r => r.id === reportId ? { ...r, file_url: publicUrl } : r)
+      );
+    } catch (err) {
+      setUploadError(err.message || 'Upload failed');
+    } finally {
+      setUploadingReportId(null);
+    }
+  }, [session, isAdmin]);
 
   return (
     <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
@@ -1288,9 +1381,90 @@ function SourcingDirectoryInner() {
                       Download
                     </a>
                   )}
+
+                  {/* Admin upload button — only visible to admins */}
+                  {isAdmin && (
+                    <label style={{
+                      flexShrink: 0,
+                      background: 'transparent',
+                      border: `1px solid ${V.border}`,
+                      color: uploadingReportId === report.id ? V.muted : V.muted,
+                      borderRadius: 6,
+                      padding: '6px 12px',
+                      fontSize: 11,
+                      fontWeight: 700,
+                      fontFamily: V.mono,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 5,
+                      cursor: uploadingReportId === report.id ? 'not-allowed' : 'pointer',
+                      opacity: uploadingReportId === report.id ? 0.6 : 1,
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {uploadingReportId === report.id ? (
+                        <>
+                          <div style={{
+                            width: 10, height: 10,
+                            border: '2px solid currentColor',
+                            borderTopColor: 'transparent',
+                            borderRadius: '50%',
+                            animation: 'spin 0.8s linear infinite',
+                          }} />
+                          Uploading…
+                        </>
+                      ) : (
+                        <>
+                          <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                          </svg>
+                          Upload PDF
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        accept=".pdf,application/pdf"
+                        style={{ display: 'none' }}
+                        disabled={uploadingReportId === report.id}
+                        onChange={e => {
+                          const file = e.target.files?.[0];
+                          if (file) handleReportUpload(report.id, file);
+                          e.target.value = '';
+                        }}
+                      />
+                    </label>
+                  )}
                 </div>
               ))}
             </div>
+
+            {/* Upload error banner — shown inline below the cards */}
+            {uploadError && isAdmin && (
+              <div style={{
+                marginTop: 10,
+                padding: '8px 12px',
+                background: 'rgba(248,113,113,0.08)',
+                border: '1px solid rgba(248,113,113,0.3)',
+                borderRadius: 6,
+                color: '#f87171',
+                fontSize: 12,
+                fontFamily: V.mono,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: 8,
+              }}>
+                <span>{uploadError}</span>
+                <button
+                  onClick={() => setUploadError(null)}
+                  style={{ background: 'none', border: 'none', color: '#f87171', cursor: 'pointer', padding: 0, fontSize: 14, lineHeight: 1 }}
+                  aria-label="Dismiss error"
+                >
+                  ×
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>
