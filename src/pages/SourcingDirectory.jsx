@@ -57,6 +57,24 @@ const VERTICAL_CERTS = {
   space:         ['AS9100D', 'AS9120B', 'ITAR Registered', 'ISO 9001', 'MIL-STD-810', 'NADCAP', 'FAA FAR Part 145', 'DoD Secret Cleared'],
 };
 
+// AZ city → county mapping (mirrors api/filter-options/counties.js)
+const CITY_TO_COUNTY = {
+  'Phoenix': 'Maricopa', 'Chandler': 'Maricopa', 'Tempe': 'Maricopa',
+  'Mesa': 'Maricopa', 'Scottsdale': 'Maricopa', 'Gilbert': 'Maricopa',
+  'Glendale': 'Maricopa', 'Peoria': 'Maricopa', 'Surprise': 'Maricopa',
+  'Avondale': 'Maricopa', 'Goodyear': 'Maricopa', 'Buckeye': 'Maricopa',
+  'Queen Creek': 'Maricopa', 'Tolleson': 'Maricopa', 'El Mirage': 'Maricopa',
+  'Sun City': 'Maricopa', 'Youngtown': 'Maricopa',
+  'Tucson': 'Pima', 'Sahuarita': 'Pima', 'Marana': 'Pima', 'Oro Valley': 'Pima',
+  'South Tucson': 'Pima',
+  'Casa Grande': 'Pinal', 'Coolidge': 'Pinal', 'Florence': 'Pinal',
+  'Prescott': 'Yavapai', 'Prescott Valley': 'Yavapai', 'Cottonwood': 'Yavapai',
+  'Flagstaff': 'Coconino', 'Sedona': 'Coconino',
+  'Kingman': 'Mohave', 'Bullhead City': 'Mohave', 'Lake Havasu City': 'Mohave',
+  'Yuma': 'Yuma', 'Sierra Vista': 'Cochise', 'Douglas': 'Cochise',
+  'Nogales': 'Santa Cruz',
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function verticalColor(v) {
   return VERTICALS.find(x => x.key === v)?.color || '#9ca3af';
@@ -367,6 +385,13 @@ function SourcingDirectoryInner() {
   // Map toggle
   const [showMap, setShowMap] = useState(false);
 
+  // County filter
+  const [selectedCounties, setSelectedCounties] = useState(() => {
+    const c = searchParams.get('county');
+    return c ? c.split(',').filter(Boolean) : [];
+  });
+  const [availableCounties, setAvailableCounties] = useState([]);
+
   // Welcome modal -- shows once per session after 3.5s
   const [showWelcome, setShowWelcome] = useState(false);
   useEffect(() => {
@@ -610,6 +635,7 @@ function SourcingDirectoryInner() {
     const params = {};
     if (q) params.q = q;
     if (vertical !== 'all') params.v = vertical;
+    if (selectedCounties.length > 0) params.county = selectedCounties.join(',');
     setSearchParams(params);
 
     // Run Scout agent (streaming text answer) + standard grid in parallel
@@ -643,6 +669,7 @@ function SourcingDirectoryInner() {
     const params = {};
     if (searchInput) params.q = searchInput;
     if (v !== 'all') params.v = v;
+    if (selectedCounties.length > 0) params.county = selectedCounties.join(',');
     setSearchParams(params);
     setScoutAnswer('');
     setScoutStreaming(false);
@@ -652,12 +679,20 @@ function SourcingDirectoryInner() {
     // Use AI results if available, otherwise use standard fetch results
     let source = aiCompanies !== null ? aiCompanies : companies;
     if (showSaved) source = source.filter(c => favorites.includes(c.slug));
-    if (selectedCerts.length === 0) return source;
-    return source.filter(c => {
-      const companyCerts = (certs[c.id] || []).map(cert => cert.cert_name);
-      return selectedCerts.every(sc => companyCerts.includes(sc));
-    });
-  }, [companies, aiCompanies, certs, selectedCerts, showSaved, favorites]);
+    if (selectedCerts.length > 0) {
+      source = source.filter(c => {
+        const companyCerts = (certs[c.id] || []).map(cert => cert.cert_name);
+        return selectedCerts.every(sc => companyCerts.includes(sc));
+      });
+    }
+    if (selectedCounties.length > 0) {
+      source = source.filter(c => {
+        const county = CITY_TO_COUNTY[c.city];
+        return county && selectedCounties.includes(county);
+      });
+    }
+    return source;
+  }, [companies, aiCompanies, certs, selectedCerts, selectedCounties, showSaved, favorites]);
 
   const availableCerts = VERTICAL_CERTS[vertical] || [];
 
@@ -677,6 +712,20 @@ function SourcingDirectoryInner() {
     });
   }, []);
 
+  const handleCountyChange = useCallback((county) => {
+    setSelectedCounties(prev => {
+      const next = prev.includes(county)
+        ? prev.filter(c => c !== county)
+        : [...prev, county];
+      const params = {};
+      if (searchInput) params.q = searchInput;
+      if (vertical !== 'all') params.v = vertical;
+      if (next.length > 0) params.county = next.join(',');
+      setSearchParams(params);
+      return next;
+    });
+  }, [searchInput, vertical, setSearchParams]);
+
   // Fetch reports for tenant
   useEffect(() => {
     if (!supabase || !tenant?.id) { setReports([]); return; }
@@ -686,6 +735,15 @@ function SourcingDirectoryInner() {
       .eq('tenant_id', tenant.id)
       .order('published_at', { ascending: false })
       .then(({ data }) => { setReports(data || []); });
+  }, [tenant?.id]);
+
+  // Fetch available counties for filter (tenant-scoped)
+  useEffect(() => {
+    const qs = tenant?.id ? `?tenant_id=${tenant.id}` : '';
+    fetch(`/api/filter-options/counties${qs}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.counties) setAvailableCounties(data.counties); })
+      .catch(() => {});
   }, [tenant?.id]);
 
   // Fetch review stats for visible companies
@@ -838,6 +896,55 @@ function SourcingDirectoryInner() {
                 }}
               >
                 Clear filters
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* County Filter */}
+      {availableCounties.length > 0 && (
+        <div style={{ padding: '0 24px 14px', maxWidth: 900, margin: '0 auto' }}>
+          <div style={{
+            background: V.card, border: `1px solid ${V.border}`,
+            borderRadius: 8, padding: '14px 16px',
+          }}>
+            <div style={{ fontSize: 11, color: V.muted, fontFamily: V.mono, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10, fontWeight: 700 }}>
+              Filter by County
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {availableCounties.map(county => (
+                <button
+                  key={county}
+                  onClick={() => handleCountyChange(county)}
+                  style={{
+                    background: selectedCounties.includes(county) ? V.accentDim : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${selectedCounties.includes(county) ? V.accentBrd : V.border}`,
+                    color: selectedCounties.includes(county) ? V.accent : V.muted,
+                    borderRadius: 4, padding: '5px 10px', fontSize: 11,
+                    fontFamily: V.mono, cursor: 'pointer', transition: 'all 0.12s',
+                  }}
+                >
+                  {selectedCounties.includes(county) && '✓ '}{county} County
+                </button>
+              ))}
+            </div>
+            {selectedCounties.length > 0 && (
+              <button
+                onClick={() => {
+                  setSelectedCounties([]);
+                  const params = {};
+                  if (searchInput) params.q = searchInput;
+                  if (vertical !== 'all') params.v = vertical;
+                  setSearchParams(params);
+                }}
+                style={{
+                  marginTop: 10, background: 'none', border: 'none',
+                  color: V.accent, fontSize: 12, fontFamily: V.space,
+                  cursor: 'pointer', padding: 0,
+                }}
+              >
+                Clear county filter
               </button>
             )}
           </div>
