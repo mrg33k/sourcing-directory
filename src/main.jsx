@@ -92,6 +92,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/:tenantSlug/grants" element={<SourcingGrants />} />
           <Route path="/:tenantSlug/membership" element={<SourcingMembership />} />
           <Route path="/:tenantSlug/reports" element={<SourcingReports />} />
+          <Route path="/:tenantSlug/reports/:reportId" element={<SourcingReports />} />
           <Route path="/:tenantSlug/org/:slug" element={<SourcingOrg />} />
           <Route path="/:tenantSlug/checkout" element={<SourcingCheckout />} />
           <Route path="/:tenantSlug/settings" element={<SourcingSettings />} />

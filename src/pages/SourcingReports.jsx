@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import { SourcingNav } from './SourcingMarketplace.jsx';
 import { SourcingThemeProvider, useSourcingTheme, getTokens, useTenant } from './SourcingTheme.jsx';
@@ -53,15 +53,19 @@ function SourcingReportsInner() {
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
   const { tenant, tenantSlug } = useTenant();
+  const { reportId } = useParams();
+  const navigate = useNavigate();
   const base = tenantSlug ? `/${tenantSlug}` : '';
   const accent = tenant?.brand_color || V.accent;
   const [category, setCategory] = useState('all');
   const [authUser, setAuthUser] = useState(null);
   const [memberTier, setMemberTier] = useState('free');
+  const [authLoading, setAuthLoading] = useState(true);
+  const [premiumGateReport, setPremiumGateReport] = useState(null);
 
   useEffect(() => {
     document.title = `Reports & Intelligence | ${tenant?.name || 'sourcing.directory'}`;
-    if (!supabase) return;
+    if (!supabase) { setAuthLoading(false); return; }
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setAuthUser(user);
@@ -81,6 +85,7 @@ function SourcingReportsInner() {
           setMemberTier(company?.membership_tier || 'free');
         }
       }
+      setAuthLoading(false);
     })();
   }, [tenant]);
 
@@ -136,6 +141,144 @@ function SourcingReportsInner() {
     category === 'all' || r.category === category
   );
 
+  const handleReportClick = (report) => {
+    if (report.access === 'member' && !isPaid) {
+      setPremiumGateReport(report);
+    } else {
+      navigate(`${base}/reports/${report.id}`);
+    }
+  };
+
+  // ─── Detail view (direct navigation to /:tenantSlug/reports/:reportId) ───
+  if (reportId) {
+    const loading = reportsLoading || authLoading;
+    const report = loading ? null : reports.find(r => String(r.id) === reportId);
+    const isPremiumReport = report ? report.access === 'member' : false;
+    const canAccess = !isPremiumReport || isPaid;
+    const catLabel = report ? (CATEGORIES.find(c => c.key === report.category)?.label || report.category) : '';
+
+    return (
+      <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
+        <SourcingNav active="reports" tenantSlug={tenantSlug} tenantName={tenant?.nav_label || tenant?.name} features={tenant?.features} brandColor={tenant?.brand_color} />
+
+        {loading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+            <span className="spinner" style={{ width: 28, height: 28, borderWidth: 3 }} />
+          </div>
+        ) : !report ? (
+          <div style={{ maxWidth: 600, margin: '80px auto', textAlign: 'center', padding: '0 24px' }}>
+            <div style={{ fontSize: 16, fontWeight: 700, fontFamily: "'Syne', sans-serif", color: 'var(--tx)', marginBottom: 12 }}>
+              Report not found
+            </div>
+            <Link to={`${base}/reports`} style={{ color: accent, textDecoration: 'none', fontSize: 13 }}>
+              ← Back to Reports
+            </Link>
+          </div>
+        ) : !canAccess ? (
+          /* Premium gate wall for direct navigation */
+          <div style={{ maxWidth: 560, margin: '80px auto', padding: '0 24px', textAlign: 'center' }}>
+            <div style={{
+              background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 16,
+              padding: '48px 40px',
+            }}>
+              <div style={{
+                width: 56, height: 56, borderRadius: '50%',
+                background: `${accent}18`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                margin: '0 auto 20px',
+              }}>
+                <svg width="26" height="26" fill="none" stroke={accent} strokeWidth="2" viewBox="0 0 24 24">
+                  <rect x="3" y="11" width="18" height="11" rx="2"/>
+                  <path d="M7 11V7a5 5 0 0110 0v4"/>
+                </svg>
+              </div>
+              <h2 style={{
+                fontSize: 22, fontWeight: 700, fontFamily: "'Syne', sans-serif",
+                color: 'var(--tx)', margin: '0 0 12px',
+              }}>
+                Premium Membership Required
+              </h2>
+              <p style={{ fontSize: 14, color: 'var(--tx)', fontWeight: 600, margin: '0 0 8px', lineHeight: 1.5 }}>
+                {report.title}
+              </p>
+              <p style={{ fontSize: 13, color: 'var(--muted)', margin: '0 0 32px', lineHeight: 1.6 }}>
+                This report is available to paid members only. Upgrade your membership to access all premium intelligence reports.
+              </p>
+              <button
+                onClick={() => navigate(`${base}/membership`)}
+                style={{
+                  display: 'block', width: '100%', textAlign: 'center',
+                  background: accent, border: 'none', color: '#fff', borderRadius: 8,
+                  padding: '13px 28px', fontSize: 15, fontWeight: 700, cursor: 'pointer',
+                  marginBottom: 14,
+                }}
+              >
+                Join Now
+              </button>
+              <Link
+                to={`${base}/reports`}
+                style={{ display: 'block', textAlign: 'center', fontSize: 13, color: 'var(--muted)', textDecoration: 'none' }}
+              >
+                ← Back to Reports
+              </Link>
+            </div>
+          </div>
+        ) : (
+          /* Accessible report detail */
+          <div style={{ maxWidth: 720, margin: '0 auto', padding: '40px 24px 80px' }}>
+            <Link
+              to={`${base}/reports`}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                color: 'var(--muted)', textDecoration: 'none', fontSize: 13, marginBottom: 32,
+              }}
+            >
+              <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path d="M15 19l-7-7 7-7"/>
+              </svg>
+              Back to Reports
+            </Link>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 16 }}>
+              <span style={{
+                fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em',
+                padding: '2px 8px', borderRadius: 4,
+                background: report.access === 'free' ? 'rgba(16,185,129,0.12)' : `${accent}15`,
+                color: report.access === 'free' ? '#6EE7B7' : accent,
+              }}>
+                {report.access === 'free' ? 'Free' : 'Members Only'}
+              </span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: 'var(--dim)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                {catLabel}
+              </span>
+            </div>
+            <h1 style={{
+              fontSize: 26, fontWeight: 700, fontFamily: "'Syne', sans-serif",
+              color: 'var(--tx)', margin: '0 0 12px', lineHeight: 1.3,
+            }}>
+              {report.title}
+            </h1>
+            <p style={{ fontSize: 12, color: 'var(--dim)', marginBottom: 28 }}>
+              {new Date(report.published_at || report.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            </p>
+            <div style={{
+              background: 'var(--card)', border: '1px solid var(--border)',
+              borderRadius: 10, padding: '24px', marginBottom: 20,
+            }}>
+              <p style={{ fontSize: 14, color: 'var(--tx)', lineHeight: 1.7, margin: 0 }}>
+                {report.description}
+              </p>
+            </div>
+            <div style={{
+              background: `${accent}08`, border: `1px solid ${accent}25`,
+              borderRadius: 8, padding: '14px 18px', fontSize: 13, color: 'var(--muted)',
+            }}>
+              Full report content and PDF download coming soon.
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
       <SourcingNav active="reports" tenantSlug={tenantSlug} tenantName={tenant?.nav_label || tenant?.name} features={tenant?.features} brandColor={tenant?.brand_color} />
@@ -175,17 +318,39 @@ function SourcingReportsInner() {
         {/* Reports list */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
           {filtered.map(report => {
-            const locked = report.access === 'member' && !isPaid;
+            const isPremiumReport = report.access === 'member';
+            const locked = isPremiumReport && !isPaid;
             const catLabel = CATEGORIES.find(c => c.key === report.category)?.label || report.category;
             return (
-              <div key={report.id} style={{
-                background: V.card, border: `1px solid ${V.border}`,
-                borderRadius: 10, padding: '20px 24px',
-                opacity: locked ? 0.7 : 1,
-              }}>
+              <div
+                key={report.id}
+                onClick={() => handleReportClick(report)}
+                style={{
+                  background: V.card, border: `1px solid ${V.border}`,
+                  borderRadius: 10, padding: '20px 24px',
+                  cursor: 'pointer',
+                  transition: 'border-color 0.15s',
+                }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = accent + '66'}
+                onMouseLeave={e => e.currentTarget.style.borderColor = V.border}
+              >
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 8 }}>
+                      {isPremiumReport && (
+                        <span style={{
+                          fontSize: 10, fontWeight: 700, fontFamily: V.mono,
+                          textTransform: 'uppercase', letterSpacing: '0.06em',
+                          padding: '2px 8px', borderRadius: 4,
+                          background: `${accent}22`, color: accent,
+                          display: 'inline-flex', alignItems: 'center', gap: 4,
+                        }}>
+                          <svg width="9" height="9" fill={accent} viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                          </svg>
+                          Premium
+                        </span>
+                      )}
                       <span style={{
                         fontSize: 10, fontWeight: 700, fontFamily: V.mono,
                         textTransform: 'uppercase', letterSpacing: '0.06em',
@@ -220,29 +385,27 @@ function SourcingReportsInner() {
                   </div>
                   <div style={{ flexShrink: 0 }}>
                     {locked ? (
-                      <Link
-                        to={`${base}/membership`}
-                        style={{
-                          display: 'inline-flex', alignItems: 'center', gap: 6,
-                          background: 'transparent', border: `1px solid ${V.border}`,
-                          color: V.muted, textDecoration: 'none', borderRadius: 6,
-                          padding: '8px 14px', fontSize: 12, fontWeight: 600, fontFamily: V.space,
-                        }}
-                      >
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 6,
+                        background: 'transparent', border: `1px solid ${V.border}`,
+                        color: V.muted, borderRadius: 6,
+                        padding: '8px 14px', fontSize: 12, fontWeight: 600, fontFamily: V.space,
+                      }}>
                         <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                           <rect x="3" y="11" width="18" height="11" rx="2"/>
                           <path d="M7 11V7a5 5 0 0110 0v4"/>
                         </svg>
                         Upgrade
-                      </Link>
+                      </span>
                     ) : (
-                      <button style={{
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 6,
                         background: accent, border: 'none', color: '#fff',
                         borderRadius: 6, padding: '8px 14px', fontSize: 12,
-                        fontWeight: 600, fontFamily: V.space, cursor: 'pointer',
+                        fontWeight: 600, fontFamily: V.space,
                       }}>
                         View Report
-                      </button>
+                      </span>
                     )}
                   </div>
                 </div>
@@ -337,6 +500,84 @@ function SourcingReportsInner() {
           </div>
         </div>
       </section>
+
+      {/* ── Premium gate modal (listing page) ────────────────────────────── */}
+      {premiumGateReport && (
+        <div
+          onClick={() => setPremiumGateReport(null)}
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000,
+            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '24px',
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: V.card, border: `1px solid ${V.border}`, borderRadius: 16,
+              padding: '40px 36px', maxWidth: 480, width: '100%', textAlign: 'center',
+              position: 'relative',
+            }}
+          >
+            <button
+              onClick={() => setPremiumGateReport(null)}
+              style={{
+                position: 'absolute', top: 14, right: 14, background: 'none',
+                border: 'none', cursor: 'pointer', color: V.muted, padding: 4,
+              }}
+            >
+              <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M18 6L6 18M6 6l12 12"/>
+              </svg>
+            </button>
+            <div style={{
+              width: 52, height: 52, borderRadius: '50%',
+              background: `${accent}18`, display: 'flex', alignItems: 'center', justifyContent: 'center',
+              margin: '0 auto 18px',
+            }}>
+              <svg width="24" height="24" fill="none" stroke={accent} strokeWidth="2" viewBox="0 0 24 24">
+                <rect x="3" y="11" width="18" height="11" rx="2"/>
+                <path d="M7 11V7a5 5 0 0110 0v4"/>
+              </svg>
+            </div>
+            <h2 style={{
+              fontSize: 20, fontWeight: 700, fontFamily: "'Syne', sans-serif",
+              color: V.heading, margin: '0 0 10px',
+            }}>
+              Premium Membership Required
+            </h2>
+            <p style={{ fontSize: 13, color: V.text, fontWeight: 600, margin: '0 0 6px', lineHeight: 1.5 }}>
+              {premiumGateReport.title}
+            </p>
+            <p style={{ fontSize: 13, color: V.muted, margin: '0 0 28px', lineHeight: 1.6 }}>
+              Upgrade your membership to unlock all premium intelligence reports.
+            </p>
+            <button
+              onClick={() => navigate(`${base}/membership`)}
+              style={{
+                display: 'block', width: '100%',
+                background: accent, border: 'none', color: '#fff', borderRadius: 8,
+                padding: '13px 24px', fontSize: 15, fontWeight: 700, cursor: 'pointer',
+                marginBottom: 10,
+              }}
+            >
+              Join Now
+            </button>
+            <button
+              onClick={() => setPremiumGateReport(null)}
+              style={{
+                display: 'block', width: '100%', background: 'none',
+                border: `1px solid ${V.border}`, color: V.muted,
+                borderRadius: 8, padding: '10px 24px', fontSize: 13,
+                fontWeight: 600, cursor: 'pointer',
+              }}
+            >
+              Maybe Later
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
