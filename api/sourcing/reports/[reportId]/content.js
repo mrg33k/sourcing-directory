@@ -12,7 +12,7 @@
 //   report.is_premium = true           → same as 'paid'
 
 import { createClient } from '@supabase/supabase-js';
-import { isUserPremiumMember } from '../../lib/membership.js';
+import { canUserAccessReport } from '../../lib/reportAccess.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://kzzvjtthknsozktmpvak.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -44,26 +44,10 @@ export default async function handler(req, res) {
   if (!reportId) return res.status(400).json({ error: 'reportId is required' });
 
   try {
-    const { data: report, error: reportError } = await sb
-      .from('directory_reports')
-      .select('id, tenant_id, title, description, category, access, is_premium, file_url, published_at')
-      .eq('id', reportId)
-      .single();
+    const { canAccess, report, notFound } = await canUserAccessReport(user.id, reportId, { sb });
 
-    if (reportError || !report) return res.status(404).json({ error: 'Report not found' });
-
-    // ── Access check ──────────────────────────────────────────────────────
-    const reportAccess = report.access || 'public';
-    const isPremiumReport =
-      report.is_premium === true ||
-      reportAccess === 'paid' ||
-      reportAccess === 'members' ||
-      reportAccess === 'member';
-
-    if (isPremiumReport) {
-      const isPaidMember = await isUserPremiumMember(user.id, { sb, tenantId: report.tenant_id });
-      if (!isPaidMember) return res.status(403).json({ error: 'Paid membership required to access this report' });
-    }
+    if (notFound) return res.status(404).json({ error: 'Report not found' });
+    if (!canAccess) return res.status(403).json({ error: 'Paid membership required to access this report' });
 
     // ── Serve content ─────────────────────────────────────────────────────
     // If the report has a file_url, redirect to it.
