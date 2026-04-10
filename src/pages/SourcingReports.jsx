@@ -86,6 +86,39 @@ function SourcingReportsInner() {
 
   const [reports, setReports] = useState([]);
   const [reportsLoading, setReportsLoading] = useState(true);
+  const [downloadType, setDownloadType] = useState('companies');
+  const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState(null);
+
+  const handleDownload = async () => {
+    setDownloading(true);
+    setDownloadError(null);
+    try {
+      const params = new URLSearchParams({ type: downloadType });
+      if (tenantSlug) params.set('tenant_slug', tenantSlug);
+      const res = await fetch(`/api/sourcing/download-report?${params}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Download failed' }));
+        throw new Error(err.error || 'Download failed');
+      }
+      const blob = await res.blob();
+      const disposition = res.headers.get('Content-Disposition') || '';
+      const match = disposition.match(/filename="([^"]+)"/);
+      const filename = match ? match[1] : `report-${downloadType}-${new Date().toISOString().slice(0, 10)}.csv`;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setDownloadError(err.message);
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   useEffect(() => {
     if (!supabase) { setReports(PLACEHOLDER_REPORTS); setReportsLoading(false); return; }
@@ -231,6 +264,78 @@ function SourcingReportsInner() {
             </div>
           </div>
         )}
+
+        {/* ── Report Downloads ─────────────────────────────────────────────── */}
+        <div style={{ marginTop: 48 }}>
+          <div className="sec-hdr" style={{ padding: '12px 0' }}>
+            <div className="sec-title">Download Reports</div>
+          </div>
+          <div style={{
+            background: V.card, border: `1px solid ${V.border}`,
+            borderRadius: 10, padding: '24px',
+          }}>
+            <p style={{
+              fontSize: 13, color: V.muted, fontFamily: V.space,
+              margin: '0 0 20px', lineHeight: 1.6,
+            }}>
+              Export directory data as a CSV file. Select a report type and click Download.
+            </p>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+              <select
+                value={downloadType}
+                onChange={e => { setDownloadType(e.target.value); setDownloadError(null); }}
+                disabled={downloading}
+                style={{
+                  background: V.card2, border: `1px solid ${V.border}`,
+                  color: V.text, borderRadius: 6, padding: '8px 12px',
+                  fontSize: 13, fontFamily: V.space, cursor: downloading ? 'not-allowed' : 'pointer',
+                  outline: 'none', minWidth: 200,
+                }}
+              >
+                <option value="companies">Company Directory</option>
+                <option value="jobs">Jobs Listings</option>
+                <option value="reports">Reports Index</option>
+              </select>
+              <button
+                onClick={handleDownload}
+                disabled={downloading}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  background: downloading ? V.card2 : accent,
+                  border: `1px solid ${downloading ? V.border : 'transparent'}`,
+                  color: downloading ? V.muted : '#fff',
+                  borderRadius: 6, padding: '8px 18px', fontSize: 13,
+                  fontWeight: 600, fontFamily: V.space,
+                  cursor: downloading ? 'not-allowed' : 'pointer',
+                  transition: 'background 0.15s',
+                }}
+              >
+                {downloading ? (
+                  <>
+                    <span className="spinner" style={{ width: 14, height: 14, borderWidth: 2 }} />
+                    Generating…
+                  </>
+                ) : (
+                  <>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                    </svg>
+                    Download CSV
+                  </>
+                )}
+              </button>
+            </div>
+            {downloadError && (
+              <div style={{
+                marginTop: 14, padding: '10px 14px',
+                background: 'rgba(251,113,133,0.08)', border: '1px solid rgba(251,113,133,0.25)',
+                borderRadius: 6, fontSize: 13, color: V.rose, fontFamily: V.space,
+              }}>
+                {downloadError}
+              </div>
+            )}
+          </div>
+        </div>
       </section>
     </div>
   );
