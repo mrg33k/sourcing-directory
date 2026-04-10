@@ -12,6 +12,7 @@
 //   report.is_premium = true           → same as 'paid'
 
 import { createClient } from '@supabase/supabase-js';
+import { isUserPremiumMember } from '../../lib/membership.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://kzzvjtthknsozktmpvak.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -60,22 +61,7 @@ export default async function handler(req, res) {
       reportAccess === 'member';
 
     if (isPremiumReport) {
-      const { data: member } = await sb
-        .from('directory_members')
-        .select('company_id')
-        .eq('auth_user_id', user.id)
-        .eq('tenant_id', report.tenant_id)
-        .maybeSingle();
-
-      if (!member) return res.status(403).json({ error: 'Membership required to access this report' });
-
-      const { data: company } = await sb
-        .from('directory_companies')
-        .select('membership_tier')
-        .eq('id', member.company_id)
-        .maybeSingle();
-
-      const isPaidMember = Boolean(company && company.membership_tier && company.membership_tier !== 'free');
+      const isPaidMember = await isUserPremiumMember(user.id, { sb, tenantId: report.tenant_id });
       if (!isPaidMember) return res.status(403).json({ error: 'Paid membership required to access this report' });
     }
 
