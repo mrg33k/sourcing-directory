@@ -75,6 +75,16 @@ const CITY_TO_COUNTY = {
   'Nogales': 'Santa Cruz',
 };
 
+// Industry subsector → keywords to match against company name + description
+const SUBSECTOR_KEYWORDS = {
+  'Avionics & Flight Controls': ['avionics', 'flight control', 'flight controls', 'guidance', 'navigation'],
+  'Defense Systems': ['defense', 'missile', 'weapons', 'precision', 'itar', 'c4isr', 'military', 'tactical'],
+  'High-Altitude & Stratospheric': ['stratospheric', 'high-altitude', 'balloon', 'near space', 'airship'],
+  'Life Support & Thermal': ['life support', 'thermal control', 'environmental control', 'crewed spacecraft'],
+  'Satellite Systems': ['satellite', 'cubesat', 'smallsat', 'orbital', 'james webb'],
+  'Space Communications': ['space communication', 'space communications', 'sensor', 'sensors', 'space electronics'],
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function verticalColor(v) {
   return VERTICALS.find(x => x.key === v)?.color || '#9ca3af';
@@ -392,6 +402,13 @@ function SourcingDirectoryInner() {
   });
   const [availableCounties, setAvailableCounties] = useState([]);
 
+  // Industry subsector filter
+  const [selectedSubsectors, setSelectedSubsectors] = useState(() => {
+    const s = searchParams.get('industry_subsector');
+    return s ? s.split(',').filter(Boolean) : [];
+  });
+  const [availableSubsectors, setAvailableSubsectors] = useState([]);
+
   // Welcome modal -- shows once per session after 3.5s
   const [showWelcome, setShowWelcome] = useState(false);
   useEffect(() => {
@@ -636,6 +653,7 @@ function SourcingDirectoryInner() {
     if (q) params.q = q;
     if (vertical !== 'all') params.v = vertical;
     if (selectedCounties.length > 0) params.county = selectedCounties.join(',');
+    if (selectedSubsectors.length > 0) params.industry_subsector = selectedSubsectors.join(',');
     setSearchParams(params);
 
     // Run Scout agent (streaming text answer) + standard grid in parallel
@@ -670,6 +688,7 @@ function SourcingDirectoryInner() {
     if (searchInput) params.q = searchInput;
     if (v !== 'all') params.v = v;
     if (selectedCounties.length > 0) params.county = selectedCounties.join(',');
+    if (selectedSubsectors.length > 0) params.industry_subsector = selectedSubsectors.join(',');
     setSearchParams(params);
     setScoutAnswer('');
     setScoutStreaming(false);
@@ -691,8 +710,17 @@ function SourcingDirectoryInner() {
         return county && selectedCounties.includes(county);
       });
     }
+    if (selectedSubsectors.length > 0) {
+      source = source.filter(c => {
+        const haystack = `${c.name} ${c.description || ''}`.toLowerCase();
+        return selectedSubsectors.some(subsector => {
+          const keywords = SUBSECTOR_KEYWORDS[subsector] || [];
+          return keywords.some(kw => haystack.includes(kw.toLowerCase()));
+        });
+      });
+    }
     return source;
-  }, [companies, aiCompanies, certs, selectedCerts, selectedCounties, showSaved, favorites]);
+  }, [companies, aiCompanies, certs, selectedCerts, selectedCounties, selectedSubsectors, showSaved, favorites]);
 
   const availableCerts = VERTICAL_CERTS[vertical] || [];
 
@@ -721,10 +749,26 @@ function SourcingDirectoryInner() {
       if (searchInput) params.q = searchInput;
       if (vertical !== 'all') params.v = vertical;
       if (next.length > 0) params.county = next.join(',');
+      if (selectedSubsectors.length > 0) params.industry_subsector = selectedSubsectors.join(',');
       setSearchParams(params);
       return next;
     });
-  }, [searchInput, vertical, setSearchParams]);
+  }, [searchInput, vertical, selectedSubsectors, setSearchParams]);
+
+  const handleSubsectorChange = useCallback((subsector) => {
+    setSelectedSubsectors(prev => {
+      const next = prev.includes(subsector)
+        ? prev.filter(s => s !== subsector)
+        : [...prev, subsector];
+      const params = {};
+      if (searchInput) params.q = searchInput;
+      if (vertical !== 'all') params.v = vertical;
+      if (selectedCounties.length > 0) params.county = selectedCounties.join(',');
+      if (next.length > 0) params.industry_subsector = next.join(',');
+      setSearchParams(params);
+      return next;
+    });
+  }, [searchInput, vertical, selectedCounties, setSearchParams]);
 
   // Fetch reports for tenant
   useEffect(() => {
@@ -745,6 +789,14 @@ function SourcingDirectoryInner() {
       .then(data => { if (data?.counties) setAvailableCounties(data.counties); })
       .catch(() => {});
   }, [tenant?.id]);
+
+  // Fetch available industry subsectors for filter
+  useEffect(() => {
+    fetch('/api/filter-options/industry-subsectors')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => { if (data?.subsectors) setAvailableSubsectors(data.subsectors); })
+      .catch(() => {});
+  }, []);
 
   // Fetch review stats for visible companies
   useEffect(() => {
@@ -945,6 +997,56 @@ function SourcingDirectoryInner() {
                 }}
               >
                 Clear county filter
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Industry Subsector Filter */}
+      {availableSubsectors.length > 0 && (
+        <div style={{ padding: '0 24px 14px', maxWidth: 900, margin: '0 auto' }}>
+          <div style={{
+            background: V.card, border: `1px solid ${V.border}`,
+            borderRadius: 8, padding: '14px 16px',
+          }}>
+            <div style={{ fontSize: 11, color: V.muted, fontFamily: V.mono, textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: 10, fontWeight: 700 }}>
+              Filter by Industry Subsector
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {availableSubsectors.map(subsector => (
+                <button
+                  key={subsector}
+                  onClick={() => handleSubsectorChange(subsector)}
+                  style={{
+                    background: selectedSubsectors.includes(subsector) ? V.accentDim : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${selectedSubsectors.includes(subsector) ? V.accentBrd : V.border}`,
+                    color: selectedSubsectors.includes(subsector) ? V.accent : V.muted,
+                    borderRadius: 4, padding: '5px 10px', fontSize: 11,
+                    fontFamily: V.mono, cursor: 'pointer', transition: 'all 0.12s',
+                  }}
+                >
+                  {selectedSubsectors.includes(subsector) && '✓ '}{subsector}
+                </button>
+              ))}
+            </div>
+            {selectedSubsectors.length > 0 && (
+              <button
+                onClick={() => {
+                  setSelectedSubsectors([]);
+                  const params = {};
+                  if (searchInput) params.q = searchInput;
+                  if (vertical !== 'all') params.v = vertical;
+                  if (selectedCounties.length > 0) params.county = selectedCounties.join(',');
+                  setSearchParams(params);
+                }}
+                style={{
+                  marginTop: 10, background: 'none', border: 'none',
+                  color: V.accent, fontSize: 12, fontFamily: V.space,
+                  cursor: 'pointer', padding: 0,
+                }}
+              >
+                Clear subsector filter
               </button>
             )}
           </div>
