@@ -13,41 +13,6 @@ const CATEGORIES = [
   { key: 'quarterly',      label: 'Quarterly Intelligence' },
 ];
 
-// ─── Placeholder reports (until DB table is created) ─────────────────────────
-const PLACEHOLDER_REPORTS = [
-  {
-    id: 1,
-    title: 'Q1 2026 Arizona Semiconductor Supply Chain Report',
-    category: 'quarterly',
-    access: 'free',
-    date: '2026-03-31',
-    description: 'Quarterly overview of semiconductor supply chain developments in Arizona. TSMC, Intel, and AMD facility updates, workforce trends, and investment analysis.',
-  },
-  {
-    id: 2,
-    title: 'Federal Appropriations Tracker -- Arizona Projects',
-    category: 'government',
-    access: 'member',
-    date: '2026-03-15',
-    description: 'Tracking active federal appropriations bills affecting Arizona\'s advanced industries. Infrastructure, CHIPS Act funding, and defense allocations.',
-  },
-  {
-    id: 3,
-    title: 'Space Industry Acquisition Digest -- March 2026',
-    category: 'acquisition',
-    access: 'member',
-    date: '2026-03-28',
-    description: 'Monthly digest of mergers, acquisitions, and strategic partnerships in the aerospace and space industry.',
-  },
-  {
-    id: 4,
-    title: 'ACA Economic Growth & Workforce Report',
-    category: 'economic',
-    access: 'free',
-    date: '2026-02-28',
-    description: 'Arizona Commerce Authority report on economic development initiatives, workforce pipeline programs, and growth projections for advanced manufacturing.',
-  },
-];
 
 function SourcingReportsInner() {
   const { dark } = useSourcingTheme();
@@ -126,12 +91,12 @@ function SourcingReportsInner() {
   };
 
   useEffect(() => {
-    if (!supabase) { setReports(PLACEHOLDER_REPORTS); setReportsLoading(false); return; }
+    if (!supabase) { setReports([]); setReportsLoading(false); return; }
     (async () => {
       let q = supabase.from('directory_reports').select('*').order('published_at', { ascending: false });
       if (tenant?.id) q = q.eq('tenant_id', tenant.id);
       const { data } = await q;
-      setReports(data && data.length > 0 ? data : PLACEHOLDER_REPORTS);
+      setReports(data || []);
       setReportsLoading(false);
     })();
   }, [tenant]);
