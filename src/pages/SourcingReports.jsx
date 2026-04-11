@@ -232,12 +232,31 @@ function SourcingReportsInner() {
                 {report.description}
               </p>
             </div>
-            <div style={{
-              background: `${accent}08`, border: `1px solid ${accent}25`,
-              borderRadius: 8, padding: '14px 18px', fontSize: 13, color: 'var(--muted)',
-            }}>
-              Full report content and PDF download coming soon.
-            </div>
+            {report.file_url ? (
+              <a
+                href={report.file_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  background: accent, color: '#fff', borderRadius: 8,
+                  padding: '12px 22px', fontSize: 14, fontWeight: 700,
+                  textDecoration: 'none',
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                </svg>
+                Download Report
+              </a>
+            ) : (
+              <div style={{
+                background: `${accent}08`, border: `1px solid ${accent}25`,
+                borderRadius: 8, padding: '14px 18px', fontSize: 13, color: 'var(--muted)',
+              }}>
+                Full report content and PDF download coming soon.
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -362,16 +381,25 @@ function SourcingReportsInner() {
                         </svg>
                         Upgrade
                       </span>
-                    ) : (
-                      <span style={{
-                        display: 'inline-flex', alignItems: 'center', gap: 6,
-                        background: accent, border: 'none', color: '#fff',
-                        borderRadius: 6, padding: '8px 14px', fontSize: 12,
-                        fontWeight: 600, fontFamily: V.space,
-                      }}>
-                        View Report
-                      </span>
-                    )}
+                    ) : report.file_url ? (
+                      <a
+                        href={report.file_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 6,
+                          background: accent, border: 'none', color: '#fff',
+                          borderRadius: 6, padding: '8px 14px', fontSize: 12,
+                          fontWeight: 600, fontFamily: V.space, textDecoration: 'none',
+                        }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                        </svg>
+                        Download Report
+                      </a>
+                    ) : null}
                   </div>
                 </div>
               </div>
