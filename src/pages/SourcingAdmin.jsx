@@ -921,13 +921,8 @@ function SourcingAdminInner() {
     if (!adminSupabase) return;
     try {
       const newStatus = action === 'approve' ? 'active' : 'rejected';
-      const { data: { user } } = await adminSupabase.auth.getUser();
-      const moderatedBy = user?.email || 'admin';
-      await adminSupabase.from('directory_listings').update({
-        status: newStatus,
-        moderated_at: new Date().toISOString(),
-        moderated_by: moderatedBy,
-      }).eq('id', articleId);
+      const { error } = await adminSupabase.from('directory_listings').update({ status: newStatus }).eq('id', articleId);
+      if (error) throw error;
       await fetchData();
     } catch (err) {
       console.error('Article action error:', err);
