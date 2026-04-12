@@ -35,21 +35,31 @@ function SourcingReportsInner() {
     const trimmedFileUrl = report.file_url.trim();
     if (!trimmedFileUrl) return null;
 
+    const encodePathSegments = (path) => path
+      .split('/')
+      .filter(Boolean)
+      .map(segment => encodeURIComponent(decodeURIComponent(segment)))
+      .join('/');
+
     if (trimmedFileUrl.startsWith('http://') || trimmedFileUrl.startsWith('https://')) {
-      return trimmedFileUrl;
+      try {
+        const parsedUrl = new URL(trimmedFileUrl);
+        const encodedPath = encodePathSegments(parsedUrl.pathname);
+        parsedUrl.pathname = encodedPath ? `/${encodedPath}` : parsedUrl.pathname;
+        return parsedUrl.toString();
+      } catch {
+        return trimmedFileUrl;
+      }
     }
 
     if (trimmedFileUrl.startsWith('/')) {
-      return trimmedFileUrl;
+      const encodedPath = encodePathSegments(trimmedFileUrl);
+      return encodedPath ? `/${encodedPath}` : trimmedFileUrl;
     }
 
     const ragBaseUrl = 'https://rag.aheadofmarket.com/files/';
     const normalizedPath = trimmedFileUrl.replace(/^files\//, '').replace(/^\/+/, '');
-    const encodedPath = normalizedPath
-      .split('/')
-      .filter(Boolean)
-      .map(segment => encodeURIComponent(segment))
-      .join('/');
+    const encodedPath = encodePathSegments(normalizedPath);
 
     return encodedPath ? `${ragBaseUrl}${encodedPath}` : null;
   };
