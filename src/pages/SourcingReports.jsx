@@ -38,7 +38,10 @@ function SourcingReportsInner() {
     const encodePathSegments = (path) => path
       .split('/')
       .filter(Boolean)
-      .map(segment => encodeURIComponent(decodeURIComponent(segment)))
+      .map(segment => {
+        try { return encodeURIComponent(decodeURIComponent(segment)); }
+        catch { return encodeURIComponent(segment); }
+      })
       .join('/');
 
     if (trimmedFileUrl.startsWith('http://') || trimmedFileUrl.startsWith('https://')) {
