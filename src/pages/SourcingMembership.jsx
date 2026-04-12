@@ -186,7 +186,7 @@ function SourcingMembershipInner() {
           Back
         </Link>
       </div>
-      <div className="mem-hero">
+      <div className="home-hero">
         <div className="mem-title">Join {orgName}</div>
         <div className="mem-sub">Get full access to post jobs, events, articles, and connect with industry leaders.</div>
       </div>
