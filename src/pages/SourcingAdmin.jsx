@@ -776,12 +776,24 @@ function SourcingAdminInner() {
     setReportFileUploading(true);
     setReportFormStatus('Uploading file...');
     try {
-      const filePath = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+      // Use same sanitization as upload-report.js API endpoint
+      let safeName = file.name
+        .replace(/\s+/g, '-')           // Replace spaces with dashes
+        .replace(/[#?&%]/g, '')         // Remove problematic URL characters
+        .replace(/[^a-zA-Z0-9._-]/g, '_') // Replace any other non-safe characters with underscores
+        .replace(/-+/g, '-')            // Collapse multiple dashes to single dash
+        .replace(/^[-_.]+|[-_.]+$/g, '') // Remove leading/trailing dashes, underscores, dots
+        .slice(0, 100);
+      
+      // If filename becomes empty after sanitization, use a default
+      if (!safeName) safeName = 'report-file';
+      
+      const filePath = `${Date.now()}_${safeName}`;
       const { data: uploadData, error: uploadError } = await adminSupabase.storage
-        .from('reports')
+        .from('sourcing-reports')
         .upload(filePath, file, { upsert: true });
       if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = adminSupabase.storage.from('reports').getPublicUrl(uploadData.path);
+      const { data: { publicUrl } } = adminSupabase.storage.from('sourcing-reports').getPublicUrl(uploadData.path);
       setReportForm(prev => ({ ...prev, file_url: publicUrl }));
       setReportFormStatus('File uploaded.');
     } catch (err) {
