@@ -12,7 +12,7 @@ SELECT
   'quarterly',
   'member',
   'S3C Q1 2026 Market Intelligence Report covering Arizona semiconductor supply chain trends, fab capacity, workforce data, and investment pipeline.',
-  'https://rag.aheadofmarket.com/files/shared:sourcing/eedc3008-S3C%20Quarterly%20Market%20Intelligence%20Report.docx',
+  NULL, -- File URL will be set when report is actually uploaded via admin panel
   '2026-04-01 00:00:00+00'
 FROM directory_tenants t
 WHERE t.slug = 's3c-semiconductor'
@@ -20,7 +20,7 @@ WHERE t.slug = 's3c-semiconductor'
     SELECT 1 FROM directory_reports r WHERE r.title = 'S3C Quarterly Market Intelligence Report'
   );
 
--- Ensure the file_url is set (handles the case where the row already existed)
+-- Ensure the file_url is NULL (handles the case where the row already existed)
 UPDATE directory_reports
-  SET file_url = 'https://rag.aheadofmarket.com/files/shared:sourcing/eedc3008-S3C%20Quarterly%20Market%20Intelligence%20Report.docx'
+  SET file_url = NULL
   WHERE title = 'S3C Quarterly Market Intelligence Report';
