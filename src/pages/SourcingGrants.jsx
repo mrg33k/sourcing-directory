@@ -519,23 +519,29 @@ function SourcingGrantsInner() {
         )}
 
         {!loading && supabase && grants.length === 0 && (
-          <div style={{
-            textAlign: 'center', padding: '60px 24px',
-            background: V.card, border: `1px solid ${V.border}`,
-            borderRadius: 12,
-          }}>
-            <svg width="48" height="48" fill="none" stroke={V.dim} strokeWidth="1.5" viewBox="0 0 24 24" style={{ marginBottom: 16, opacity: 0.5 }}>
-              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-            <div style={{ fontSize: 18, fontWeight: 700, fontFamily: V.syne, color: V.heading, marginBottom: 8 }}>
-              No grants found
+          query || activeFilterCount > 0 ? (
+            <div style={{
+              textAlign: 'center', padding: '60px 24px',
+              background: V.card, border: `1px solid ${V.border}`,
+              borderRadius: 12,
+            }}>
+              <svg width="48" height="48" fill="none" stroke={V.dim} strokeWidth="1.5" viewBox="0 0 24 24" style={{ marginBottom: 16, opacity: 0.5 }}>
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <div style={{ fontSize: 18, fontWeight: 700, fontFamily: V.syne, color: V.heading, marginBottom: 8 }}>
+                No grants found
+              </div>
+              <div style={{ fontSize: 14, color: V.muted, fontFamily: V.space, maxWidth: 360, margin: '0 auto' }}>
+                {query
+                  ? `No results for "${query}". Try different keywords or clear your filters.`
+                  : 'No grants match your current filters. Try adjusting the type or size tier.'}
+              </div>
             </div>
-            <div style={{ fontSize: 14, color: V.muted, fontFamily: V.space, maxWidth: 360, margin: '0 auto' }}>
-              {query
-                ? `No results for "${query}". Try different keywords or clear your filters.`
-                : 'No grants match your current filters. Try adjusting the type or size tier.'}
-            </div>
-          </div>
+          ) : (
+            <p style={{ textAlign: 'center', color: V.muted, fontFamily: V.space, fontSize: 14, margin: 0 }}>
+              No grants available at this time.
+            </p>
+          )
         )}
       </div>
     </div>
