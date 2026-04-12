@@ -84,7 +84,17 @@ export default async function handler(req, res) {
       await ensureBucket(sb);
 
       // Build a deterministic, filesystem-safe storage path
-      const safeName = filename.replace(/[^a-zA-Z0-9._-]/g, '_').slice(0, 100);
+      // Sanitize filename: replace spaces with dashes, remove problematic URL characters
+      let safeName = filename
+        .replace(/\s+/g, '-')           // Replace spaces with dashes
+        .replace(/[#?&%]/g, '')         // Remove problematic URL characters
+        .replace(/[^a-zA-Z0-9._-]/g, '_') // Replace any other non-safe characters with underscores
+        .replace(/-+/g, '-')            // Collapse multiple dashes to single dash
+        .replace(/^[-_.]+|[-_.]+$/g, '') // Remove leading/trailing dashes, underscores, dots
+        .slice(0, 100);
+      
+      // If filename becomes empty after sanitization, use a default
+      if (!safeName) safeName = 'report-file';
       const path = `${report_id}/${Date.now()}_${safeName}`;
 
       const { data: signed, error: signErr } = await sb.storage
