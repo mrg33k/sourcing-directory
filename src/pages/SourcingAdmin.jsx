@@ -463,10 +463,10 @@ function SourcingAdminInner() {
   // Directory Reports state
   const [reports, setReports] = useState([]);
   const [reportsLoading, setReportsLoading] = useState(false);
-  const [showReportForm, setShowReportForm] = useState(false);
+  const [reportsSearch, setReportsSearch] = useState('');
   const [editingReport, setEditingReport] = useState(null);
   const [reportForm, setReportForm] = useState({
-    title: '', category: '', access: 'public', description: '', published_at: '', file_url: '',
+    title: '', category: 'government', access: 'free', description: '', published_at: '', file_url: '',
   });
   const [reportFormStatus, setReportFormStatus] = useState('');
   const [reportFileUploading, setReportFileUploading] = useState(false);
@@ -779,24 +779,35 @@ function SourcingAdminInner() {
     if (authed) fetchReports();
   }, [authed, fetchReports]);
 
+  const resetReportEditor = useCallback(() => {
+    setEditingReport(null);
+    setReportForm({
+      title: '',
+      category: 'government',
+      access: 'free',
+      description: '',
+      published_at: '',
+      file_url: '',
+    });
+    setReportFormStatus('');
+  }, []);
+
   const handleReportFileChange = async (e) => {
     const file = e.target.files[0];
     if (!file || !adminSupabase) return;
     setReportFileUploading(true);
     setReportFormStatus('Uploading file...');
     try {
-      // Use same sanitization as upload-report.js API endpoint
       let safeName = file.name
-        .replace(/\s+/g, '-')           // Replace spaces with dashes
-        .replace(/[#?&%]/g, '')         // Remove problematic URL characters
-        .replace(/[^a-zA-Z0-9._-]/g, '_') // Replace any other non-safe characters with underscores
-        .replace(/-+/g, '-')            // Collapse multiple dashes to single dash
-        .replace(/^[-_.]+|[-_.]+$/g, '') // Remove leading/trailing dashes, underscores, dots
+        .replace(/\s+/g, '-')
+        .replace(/[#?&%]/g, '')
+        .replace(/[^a-zA-Z0-9._-]/g, '_')
+        .replace(/-+/g, '-')
+        .replace(/^[-_.]+|[-_.]+$/g, '')
         .slice(0, 100);
-      
-      // If filename becomes empty after sanitization, use a default
-      if (!safeName) safeName = 'report-file';
-      
+
+      if (!safeName) safeName = 'report-file.pdf';
+
       const filePath = `${Date.now()}_${safeName}`;
       const { data: uploadData, error: uploadError } = await adminSupabase.storage
         .from('sourcing-reports')
@@ -804,9 +815,9 @@ function SourcingAdminInner() {
       if (uploadError) throw uploadError;
       const { data: { publicUrl } } = adminSupabase.storage.from('sourcing-reports').getPublicUrl(uploadData.path);
       setReportForm(prev => ({ ...prev, file_url: publicUrl }));
-      setReportFormStatus('File uploaded.');
+      setReportFormStatus('File uploaded successfully. Save changes to update this report.');
     } catch (err) {
-      setReportFormStatus('Upload error: ' + err.message);
+      setReportFormStatus('Error: ' + err.message);
     } finally {
       setReportFileUploading(false);
     }
@@ -814,29 +825,44 @@ function SourcingAdminInner() {
 
   const handleReportSubmit = async (e) => {
     e.preventDefault();
-    if (!adminSupabase) return;
+    if (!adminSupabase || !editingReport) return;
     setReportFormStatus('Saving...');
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      if (!accessToken) throw new Error('You must be signed in as an admin to update reports.');
+
       const payload = {
-        title: reportForm.title,
+        title: reportForm.title.trim(),
+        description: reportForm.description.trim() || null,
         category: reportForm.category || null,
-        access: reportForm.access || 'public',
-        description: reportForm.description || null,
-        file_url: reportForm.file_url || null,
+        access: reportForm.access || 'free',
+        file_url: reportForm.file_url.trim() || null,
         published_at: reportForm.published_at || null,
-        tenant_id: selectedTenantId,
       };
-      if (editingReport) {
-        const { error } = await adminSupabase.from('directory_reports').update(payload).eq('id', editingReport.id);
-        if (error) throw error;
-      } else {
-        const { error } = await adminSupabase.from('directory_reports').insert(payload);
-        if (error) throw error;
-      }
-      setReportFormStatus(editingReport ? 'Updated.' : 'Created.');
-      setEditingReport(null);
-      setShowReportForm(false);
-      setReportForm({ title: '', category: '', access: 'public', description: '', published_at: '', file_url: '' });
+
+      const response = await fetch(`/api/sourcing/admin-reports?id=${editingReport.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(result.error || 'Failed to update report.');
+
+      setReports(prev => prev.map(report => report.id === editingReport.id ? result : report));
+      setEditingReport(result);
+      setReportForm({
+        title: result.title || '',
+        category: result.category || 'government',
+        access: result.access || 'free',
+        description: result.description || '',
+        published_at: result.published_at ? result.published_at.slice(0, 10) : '',
+        file_url: result.file_url || '',
+      });
+      setReportFormStatus('Report updated successfully.');
       await fetchReports();
     } catch (err) {
       setReportFormStatus('Error: ' + err.message);
@@ -847,14 +873,13 @@ function SourcingAdminInner() {
     setEditingReport(report);
     setReportForm({
       title: report.title || '',
-      category: report.category || '',
-      access: report.access || 'public',
+      category: report.category || 'government',
+      access: report.access || 'free',
       description: report.description || '',
       published_at: report.published_at ? report.published_at.slice(0, 10) : '',
       file_url: report.file_url || '',
     });
     setReportFormStatus('');
-    setShowReportForm(true);
   };
 
   const handleReportDelete = async (report) => {
@@ -2089,237 +2114,282 @@ function SourcingAdminInner() {
             title="Directory Reports"
             V={V}
             action={
-              <button
-                onClick={() => {
-                  setEditingReport(null);
-                  setReportForm({ title: '', category: '', access: 'public', description: '', published_at: '', file_url: '' });
-                  setReportFormStatus('');
-                  setShowReportForm(s => !s);
-                }}
-                style={{
-                  background: V.accentDim, border: `1px solid ${V.accentBrd}`,
-                  color: V.accent, borderRadius: 6, padding: '5px 12px',
-                  fontSize: 12, fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
-                }}
-              >
-                {showReportForm && !editingReport ? 'Cancel' : '+ New Report'}
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <input
+                  value={reportsSearch}
+                  onChange={e => setReportsSearch(e.target.value)}
+                  placeholder="Search reports"
+                  style={{
+                    width: 220, maxWidth: '45vw', background: V.card2, border: `1px solid ${V.border}`,
+                    borderRadius: 6, padding: '7px 10px', color: V.text,
+                    fontSize: 12, fontFamily: V.space, outline: 'none',
+                  }}
+                />
+                <button
+                  onClick={resetReportEditor}
+                  style={{
+                    background: 'transparent', border: `1px solid ${V.border}`,
+                    color: V.muted, borderRadius: 6, padding: '5px 12px',
+                    fontSize: 12, fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
+                  }}
+                >
+                  Clear Selection
+                </button>
+              </div>
             }
           >
-            {/* Create / Edit form */}
-            {showReportForm && (
-              <form onSubmit={handleReportSubmit} style={{
-                background: V.card, border: `1px solid ${V.border}`,
-                borderRadius: 10, padding: '20px 24px', marginBottom: 24,
-                display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14,
+            {reportFormStatus && (
+              <div style={{
+                marginBottom: 16,
+                background: reportFormStatus.startsWith('Error') ? 'rgba(239,68,68,0.12)' : V.accentDim,
+                border: reportFormStatus.startsWith('Error') ? '1px solid rgba(239,68,68,0.35)' : `1px solid ${V.accentBrd}`,
+                color: reportFormStatus.startsWith('Error') ? '#FCA5A5' : V.accent,
+                borderRadius: 8,
+                padding: '12px 14px',
+                fontSize: 12,
+                fontFamily: V.mono,
               }}>
-                <div style={{ gridColumn: '1 / -1', fontSize: 13, fontWeight: 700, fontFamily: V.syne, color: V.heading, marginBottom: 4 }}>
-                  {editingReport ? 'Edit Report' : 'New Report'}
-                </div>
-                {/* Title */}
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Title *</div>
-                  <input
-                    required
-                    value={reportForm.title}
-                    onChange={e => setReportForm(p => ({ ...p, title: e.target.value }))}
-                    placeholder="Report title"
-                    style={{
-                      width: '100%', background: V.card2, border: `1px solid ${V.border}`,
-                      borderRadius: 6, padding: '8px 10px', color: V.text,
-                      fontSize: 13, fontFamily: V.space, outline: 'none',
-                    }}
-                  />
-                </div>
-                {/* Category */}
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Category</div>
-                  <input
-                    value={reportForm.category}
-                    onChange={e => setReportForm(p => ({ ...p, category: e.target.value }))}
-                    placeholder="e.g. semiconductor, market, quarterly"
-                    style={{
-                      width: '100%', background: V.card2, border: `1px solid ${V.border}`,
-                      borderRadius: 6, padding: '8px 10px', color: V.text,
-                      fontSize: 13, fontFamily: V.space, outline: 'none',
-                    }}
-                  />
-                </div>
-                {/* Access */}
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Access</div>
-                  <select
-                    value={reportForm.access}
-                    onChange={e => setReportForm(p => ({ ...p, access: e.target.value }))}
-                    style={{
-                      width: '100%', background: V.card2, border: `1px solid ${V.border}`,
-                      borderRadius: 6, padding: '8px 10px', color: V.text,
-                      fontSize: 13, fontFamily: V.space, outline: 'none', cursor: 'pointer',
-                    }}
-                  >
-                    <option value="public">Public</option>
-                    <option value="members">Members only</option>
-                    <option value="paid">Paid</option>
-                  </select>
-                </div>
-                {/* Published At */}
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Published Date</div>
-                  <input
-                    type="date"
-                    value={reportForm.published_at}
-                    onChange={e => setReportForm(p => ({ ...p, published_at: e.target.value }))}
-                    style={{
-                      width: '100%', background: V.card2, border: `1px solid ${V.border}`,
-                      borderRadius: 6, padding: '8px 10px', color: V.text,
-                      fontSize: 13, fontFamily: V.space, outline: 'none',
-                    }}
-                  />
-                </div>
-                {/* File upload */}
-                <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>File (PDF / doc)</div>
-                  <input
-                    type="file"
-                    accept=".pdf,.doc,.docx,.pptx,.xlsx,.csv"
-                    onChange={handleReportFileChange}
-                    disabled={reportFileUploading}
-                    style={{
-                      width: '100%', background: V.card2, border: `1px solid ${V.border}`,
-                      borderRadius: 6, padding: '7px 10px', color: V.muted,
-                      fontSize: 12, fontFamily: V.space, cursor: 'pointer',
-                    }}
-                  />
-                  {reportForm.file_url && (
-                    <div style={{ fontSize: 11, color: V.accent, fontFamily: V.mono, marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {reportForm.file_url}
-                    </div>
-                  )}
-                </div>
-                {/* Description */}
-                <div style={{ gridColumn: '1 / -1' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Description</div>
-                  <textarea
-                    value={reportForm.description}
-                    onChange={e => setReportForm(p => ({ ...p, description: e.target.value }))}
-                    placeholder="Brief description of the report"
-                    rows={3}
-                    style={{
-                      width: '100%', background: V.card2, border: `1px solid ${V.border}`,
-                      borderRadius: 6, padding: '8px 10px', color: V.text,
-                      fontSize: 13, fontFamily: V.space, outline: 'none', resize: 'vertical',
-                    }}
-                  />
-                </div>
-                {/* Actions */}
-                <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <button
-                    type="submit"
-                    disabled={reportFileUploading}
-                    style={{
-                      background: V.accent, border: 'none', color: '#fff',
-                      borderRadius: 6, padding: '8px 20px', fontSize: 13,
-                      fontWeight: 700, fontFamily: V.space, cursor: reportFileUploading ? 'not-allowed' : 'pointer',
-                      opacity: reportFileUploading ? 0.6 : 1,
-                    }}
-                  >
-                    {editingReport ? 'Save Changes' : 'Create Report'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => { setShowReportForm(false); setEditingReport(null); setReportFormStatus(''); }}
-                    style={{
-                      background: 'transparent', border: `1px solid ${V.border}`, color: V.muted,
-                      borderRadius: 6, padding: '8px 16px', fontSize: 13,
-                      fontWeight: 600, fontFamily: V.space, cursor: 'pointer',
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  {reportFormStatus && (
-                    <span style={{ fontSize: 12, color: reportFormStatus.startsWith('Error') ? '#FCA5A5' : V.accent, fontFamily: V.mono }}>
-                      {reportFormStatus}
-                    </span>
-                  )}
-                </div>
-              </form>
+                {reportFormStatus}
+              </div>
             )}
 
-            {/* Reports table */}
-            <div style={{ background: V.card, border: `1px solid ${V.border}`, borderRadius: 8, overflow: 'hidden' }}>
-              {/* Header */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 80px 100px 120px', gap: 12, padding: '8px 16px', background: V.card2 }}>
-                {['Title', 'Category', 'Access', 'Published', 'Actions'].map(h => (
-                  <div key={h} style={{ fontSize: 10, fontWeight: 700, fontFamily: V.mono, color: V.dim, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{h}</div>
-                ))}
-              </div>
-              {reportsLoading && (
-                <div style={{ padding: '24px 16px', color: V.dim, fontSize: 13, fontFamily: V.space }}>Loading...</div>
-              )}
-              {!reportsLoading && reports.length === 0 && (
-                <div style={{ padding: '24px 16px', color: V.dim, fontSize: 13, fontFamily: V.space }}>No reports yet.</div>
-              )}
-              {!reportsLoading && reports.map(report => (
-                <div key={report.id} style={{
-                  display: 'grid', gridTemplateColumns: '1fr 100px 80px 100px 120px',
-                  gap: 12, padding: '11px 16px', alignItems: 'center',
-                  borderBottom: `1px solid ${V.border}`,
-                }}>
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, fontFamily: V.space, color: V.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {report.title}
-                    </div>
-                    {report.file_url && (
-                      <a href={report.file_url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: V.accent, fontFamily: V.mono, textDecoration: 'none' }}>
-                        View file
-                      </a>
-                    )}
-                    {report.description && (
-                      <div style={{ fontSize: 11, color: V.dim, fontFamily: V.space, marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {report.description}
-                      </div>
-                    )}
-                  </div>
-                  <div style={{ fontSize: 11, color: V.muted, fontFamily: V.mono }}>{report.category || '--'}</div>
-                  <div>
-                    <span style={{
-                      background: report.access === 'public' ? 'rgba(34,197,94,0.1)' : report.access === 'paid' ? 'rgba(234,179,8,0.1)' : 'rgba(59,130,246,0.1)',
-                      border: `1px solid ${report.access === 'public' ? 'rgba(34,197,94,0.4)' : report.access === 'paid' ? 'rgba(234,179,8,0.4)' : 'rgba(59,130,246,0.4)'}`,
-                      color: report.access === 'public' ? '#86EFAC' : report.access === 'paid' ? '#FDE68A' : '#93C5FD',
-                      fontSize: 10, fontWeight: 700, fontFamily: V.mono,
-                      padding: '2px 7px', borderRadius: 3,
-                      textTransform: 'uppercase', letterSpacing: '0.08em',
-                    }}>
-                      {report.access || 'public'}
-                    </span>
-                  </div>
-                  <div style={{ fontSize: 11, color: V.dim, fontFamily: V.mono }}>
-                    {report.published_at ? new Date(report.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '--'}
-                  </div>
-                  <div style={{ display: 'flex', gap: 6 }}>
-                    <button
-                      onClick={() => handleReportEdit(report)}
-                      style={{
-                        background: V.accentDim, border: `1px solid ${V.accentBrd}`,
-                        color: V.accent, borderRadius: 5, padding: '4px 8px',
-                        fontSize: 11, fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
-                      }}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleReportDelete(report)}
-                      style={{
-                        background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
-                        color: '#FCA5A5', borderRadius: 5, padding: '4px 8px',
-                        fontSize: 11, fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
-                      }}
-                    >
-                      Delete
-                    </button>
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(320px, 420px) minmax(0, 1fr)', gap: 20, alignItems: 'start' }}>
+              <div style={{ background: V.card, border: `1px solid ${V.border}`, borderRadius: 10, overflow: 'hidden' }}>
+                <div style={{ padding: '12px 16px', borderBottom: `1px solid ${V.border}`, background: V.card2 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.dim, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                    Existing Reports
                   </div>
                 </div>
-              ))}
+                <div style={{ maxHeight: 620, overflowY: 'auto' }}>
+                  {reportsLoading && (
+                    <div style={{ padding: '24px 16px', color: V.dim, fontSize: 13, fontFamily: V.space }}>Loading...</div>
+                  )}
+                  {!reportsLoading && reports.filter(report => {
+                    const query = reportsSearch.trim().toLowerCase();
+                    if (!query) return true;
+                    return [report.title, report.category, report.access, report.description]
+                      .filter(Boolean)
+                      .some(value => value.toLowerCase().includes(query));
+                  }).map(report => {
+                    const isSelected = editingReport?.id === report.id;
+                    const fileName = report.file_url ? report.file_url.split('/').pop() : '';
+                    return (
+                      <button
+                        key={report.id}
+                        onClick={() => handleReportEdit(report)}
+                        style={{
+                          width: '100%', textAlign: 'left', background: isSelected ? `${V.accent}12` : 'transparent',
+                          border: 'none', borderLeft: isSelected ? `3px solid ${V.accent}` : '3px solid transparent',
+                          borderBottom: `1px solid ${V.border}`, padding: '14px 16px', cursor: 'pointer',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, marginBottom: 6 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, fontFamily: V.space, color: isSelected ? V.accent : V.text, lineHeight: 1.4 }}>
+                            {report.title}
+                          </div>
+                          <span style={{
+                            background: (report.access || 'free') === 'free' || report.access === 'public' ? 'rgba(34,197,94,0.1)' : 'rgba(59,130,246,0.1)',
+                            border: `1px solid ${(report.access || 'free') === 'free' || report.access === 'public' ? 'rgba(34,197,94,0.35)' : 'rgba(59,130,246,0.35)'}`,
+                            color: (report.access || 'free') === 'free' || report.access === 'public' ? '#86EFAC' : '#93C5FD',
+                            fontSize: 10, fontWeight: 700, fontFamily: V.mono, padding: '2px 7px', borderRadius: 999,
+                            textTransform: 'uppercase', letterSpacing: '0.08em', whiteSpace: 'nowrap',
+                          }}>
+                            {report.access === 'public' ? 'free' : (report.access || 'free')}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 6 }}>
+                          <span style={{ fontSize: 10, color: V.dim, fontFamily: V.mono, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                            {report.category || 'uncategorized'}
+                          </span>
+                          <span style={{ fontSize: 10, color: V.dim, fontFamily: V.mono }}>
+                            {report.published_at ? new Date(report.published_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'No publish date'}
+                          </span>
+                        </div>
+                        {fileName && (
+                          <div style={{ fontSize: 11, color: V.accent, fontFamily: V.mono, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {fileName}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                  {!reportsLoading && reports.filter(report => {
+                    const query = reportsSearch.trim().toLowerCase();
+                    if (!query) return true;
+                    return [report.title, report.category, report.access, report.description]
+                      .filter(Boolean)
+                      .some(value => value.toLowerCase().includes(query));
+                  }).length === 0 && (
+                    <div style={{ padding: '24px 16px', color: V.dim, fontSize: 13, fontFamily: V.space }}>No reports match your search.</div>
+                  )}
+                </div>
+              </div>
+
+              <div style={{ background: V.card, border: `1px solid ${V.border}`, borderRadius: 10, padding: '20px 24px' }}>
+                {!editingReport ? (
+                  <div style={{ minHeight: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: 24 }}>
+                    <div>
+                      <div style={{ fontSize: 16, fontWeight: 700, fontFamily: V.syne, color: V.heading, marginBottom: 8 }}>
+                        Select a report to edit
+                      </div>
+                      <div style={{ fontSize: 13, fontFamily: V.space, color: V.dim, maxWidth: 420, lineHeight: 1.6 }}>
+                        Choose a report from the list to update its title, description, category, access level, published date, or replace the attached PDF.
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <form onSubmit={handleReportSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
+                    <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 4 }}>
+                      <div>
+                        <div style={{ fontSize: 15, fontWeight: 700, fontFamily: V.syne, color: V.heading }}>Edit Report</div>
+                        <div style={{ fontSize: 11, color: V.dim, fontFamily: V.mono, marginTop: 4 }}>Report ID: {editingReport.id}</div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleReportDelete(editingReport)}
+                        style={{
+                          background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
+                          color: '#FCA5A5', borderRadius: 6, padding: '6px 10px',
+                          fontSize: 11, fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Title *</div>
+                      <input
+                        required
+                        value={reportForm.title}
+                        onChange={e => setReportForm(p => ({ ...p, title: e.target.value }))}
+                        placeholder="Report title"
+                        style={{
+                          width: '100%', background: V.card2, border: `1px solid ${V.border}`,
+                          borderRadius: 6, padding: '9px 10px', color: V.text,
+                          fontSize: 13, fontFamily: V.space, outline: 'none',
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Category</div>
+                      <select
+                        value={reportForm.category}
+                        onChange={e => setReportForm(p => ({ ...p, category: e.target.value }))}
+                        style={{
+                          width: '100%', background: V.card2, border: `1px solid ${V.border}`,
+                          borderRadius: 6, padding: '9px 10px', color: V.text,
+                          fontSize: 13, fontFamily: V.space, outline: 'none', cursor: 'pointer',
+                        }}
+                      >
+                        <option value="government">Government Affairs</option>
+                        <option value="acquisition">Acquisitions & Contracts</option>
+                        <option value="economic">Economic Development</option>
+                        <option value="quarterly">Quarterly Intelligence</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Access</div>
+                      <select
+                        value={reportForm.access}
+                        onChange={e => setReportForm(p => ({ ...p, access: e.target.value }))}
+                        style={{
+                          width: '100%', background: V.card2, border: `1px solid ${V.border}`,
+                          borderRadius: 6, padding: '9px 10px', color: V.text,
+                          fontSize: 13, fontFamily: V.space, outline: 'none', cursor: 'pointer',
+                        }}
+                      >
+                        <option value="free">Free</option>
+                        <option value="member">Members Only</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Published Date</div>
+                      <input
+                        type="date"
+                        value={reportForm.published_at}
+                        onChange={e => setReportForm(p => ({ ...p, published_at: e.target.value }))}
+                        style={{
+                          width: '100%', background: V.card2, border: `1px solid ${V.border}`,
+                          borderRadius: 6, padding: '9px 10px', color: V.text,
+                          fontSize: 13, fontFamily: V.space, outline: 'none',
+                        }}
+                      />
+                    </div>
+
+                    <div>
+                      <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Current File</div>
+                      <div style={{
+                        minHeight: 40, background: V.card2, border: `1px solid ${V.border}`,
+                        borderRadius: 6, padding: '10px', color: reportForm.file_url ? V.accent : V.dim,
+                        fontSize: 11, fontFamily: V.mono, display: 'flex', alignItems: 'center',
+                        whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                      }}>
+                        {reportForm.file_url ? reportForm.file_url.split('/').pop() : 'No file attached'}
+                      </div>
+                    </div>
+
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Replace PDF</div>
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        onChange={handleReportFileChange}
+                        disabled={reportFileUploading}
+                        style={{
+                          width: '100%', background: V.card2, border: `1px solid ${V.border}`,
+                          borderRadius: 6, padding: '8px 10px', color: V.muted,
+                          fontSize: 12, fontFamily: V.space, cursor: reportFileUploading ? 'not-allowed' : 'pointer',
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ gridColumn: '1 / -1' }}>
+                      <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Description</div>
+                      <textarea
+                        value={reportForm.description}
+                        onChange={e => setReportForm(p => ({ ...p, description: e.target.value }))}
+                        placeholder="Brief description of the report"
+                        rows={5}
+                        style={{
+                          width: '100%', background: V.card2, border: `1px solid ${V.border}`,
+                          borderRadius: 6, padding: '10px', color: V.text,
+                          fontSize: 13, fontFamily: V.space, outline: 'none', resize: 'vertical',
+                        }}
+                      />
+                    </div>
+
+                    <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'center', gap: 10, paddingTop: 4 }}>
+                      <button
+                        type="submit"
+                        disabled={reportFileUploading}
+                        style={{
+                          background: V.accent, border: 'none', color: '#fff',
+                          borderRadius: 6, padding: '9px 18px', fontSize: 13,
+                          fontWeight: 700, fontFamily: V.space, cursor: reportFileUploading ? 'not-allowed' : 'pointer',
+                          opacity: reportFileUploading ? 0.6 : 1,
+                        }}
+                      >
+                        Save Changes
+                      </button>
+                      <button
+                        type="button"
+                        onClick={resetReportEditor}
+                        style={{
+                          background: 'transparent', border: `1px solid ${V.border}`, color: V.muted,
+                          borderRadius: 6, padding: '9px 16px', fontSize: 13,
+                          fontWeight: 600, fontFamily: V.space, cursor: 'pointer',
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
             </div>
           </AdminSection>
         )}
