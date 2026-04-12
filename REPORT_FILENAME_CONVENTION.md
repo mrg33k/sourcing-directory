@@ -13,21 +13,20 @@ This document defines the canonical convention for storing report files and gene
 
 ### Storage Path Pattern
 ```
-{report_id}/{timestamp}_{sanitized-filename}.{ext}
+{report_id}-{sanitized-filename}.{ext}
 ```
 
 ### Components
 1. **`report_id`**: UUID of the report record in `directory_reports` table
-2. **`timestamp`**: Unix timestamp in milliseconds (`Date.now()`)
-3. **`sanitized-filename`**: Original filename after sanitization (see rules below)
-4. **`ext`**: Original file extension (lowercased)
+2. **`sanitized-filename`**: Original filename after sanitization (lowercased, see rules below)
+3. **`ext`**: Original file extension (lowercased)
 
 ### Examples
 | Original Filename | Stored Filename |
 |-------------------|-----------------|
-| `S3C Q1 2026 Market Report.docx` | `eedc3008-.../1744387200000_S3C-Q1-2026-Market-Report.docx` |
-| `Federal_Appropriations_Analysis.pdf` | `a1b2c3d4-.../1744473600000_Federal_Appropriations_Analysis.pdf` |
-| `Quarterly Intel #2026-Q1.pdf` | `d5e6f7a8-.../1744560000000_Quarterly-Intel-2026-Q1.pdf` |
+| `S3C Q1 2026 Market Report.docx` | `eedc3008-...-s3c-q1-2026-market-report.docx` |
+| `Federal_Appropriations_Analysis.pdf` | `a1b2c3d4-...-federal-appropriations-analysis.pdf` |
+| `Quarterly Intel #2026-Q1.pdf` | `d5e6f7a8-...-quarterly-intel-2026-q1.pdf` |
 
 ## Sanitization Rules
 
@@ -38,7 +37,8 @@ The sanitization process in `upload-report.js` applies these transformations:
 3. **Replace other unsafe characters**: `[^a-zA-Z0-9._-]` → `_`
 4. **Collapse multiple dashes**: `-+` → `-`
 5. **Trim leading/trailing special chars**: `^[-_.]+|[-_.]+$` → `''`
-6. **Length limit**: Slice to 100 characters
+6. **Convert to lowercase**: Apply `.toLowerCase()`
+7. **Length limit**: Slice to 100 characters
 
 ### Sanitization Examples
 | Original | Sanitized |
