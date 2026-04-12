@@ -186,6 +186,16 @@ function CompanyCard({ company, certs, V, tenantSlug, isFavorite, onToggleFavori
               Gov
             </span>
           )}
+          <span style={{
+            backgroundColor: '#e0e7ff',
+            color: '#4338ca',
+            fontSize: '10px',
+            padding: '2px 6px',
+            borderRadius: '4px',
+            marginLeft: '6px',
+          }}>
+            {company.grants?.length || 0}
+          </span>
         </div>
         <div className="co-loc">{[company.city, company.state].filter(Boolean).join(', ')}</div>
         {(company.featured || topCerts.length > 0) && (
