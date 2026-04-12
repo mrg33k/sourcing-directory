@@ -156,6 +156,7 @@ function logoPalette(s) {
 function CompanyCard({ company, certs, V, tenantSlug, isFavorite, onToggleFavorite, reviewStat }) {
   const topCerts = (certs || []).slice(0, 3);
   const pal = logoPalette(company.name);
+  const isGovCompany = company.source === 'arsenal' || company.source === 'government';
 
   return (
     <Link
@@ -171,7 +172,21 @@ function CompanyCard({ company, certs, V, tenantSlug, isFavorite, onToggleFavori
       </div>
       {/* Body */}
       <div className="co-body">
-        <div className="co-name">{company.name}</div>
+        <div className="co-name" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+          {company.name}
+          {isGovCompany && (
+            <span style={{
+              background: '#1e40af',
+              color: 'white',
+              fontSize: 10,
+              padding: '1px 6px',
+              borderRadius: 4,
+              marginLeft: 6,
+            }}>
+              Gov
+            </span>
+          )}
+        </div>
         <div className="co-loc">{[company.city, company.state].filter(Boolean).join(', ')}</div>
         {(company.featured || topCerts.length > 0) && (
           <div className="co-badges">
