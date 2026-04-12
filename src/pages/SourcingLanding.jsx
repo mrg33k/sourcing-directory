@@ -26,7 +26,7 @@ const TENANT_BRANDS = {
     fontImport: 'https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap',
   },
   's3c-semiconductor': {
-    logo: '/images/s3c/logo.png',
+    logo: '/images/s3c/logo-badge.png',
     accent: '#A0522D',
     headingFont: "'Barlow Condensed', sans-serif",
     fontImport: 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&display=swap',
