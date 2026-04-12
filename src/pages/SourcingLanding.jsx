@@ -130,7 +130,7 @@ function SourcingLandingInner() {
     <div style={{ minHeight: '100dvh', background: 'var(--bg)' }}>
       {/* Hero -- uses .home-hero from v10.css */}
       <div className="home-hero">
-        <div className="home-hero-content">
+        <div className="home-hero-content" style={{ maxWidth: 720, margin: '0 auto' }}>
           <div className="home-badge">
             <div className="home-badge-dot" />
             Arizona Advanced Industries
