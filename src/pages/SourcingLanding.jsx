@@ -135,7 +135,7 @@ function SourcingLandingInner() {
             <div className="home-badge-dot" />
             Arizona Advanced Industries
           </div>
-          <div className="home-title" title="Sourcing Directory">Find your <em>supply chain</em> partner</div>
+          <div className="home-title" title="Sourcing Directory - Find Your Partner">Find your <em>supply chain</em> partner</div>
           <div className="home-sub">Verified suppliers, certified companies, defense contractors, and industry events in one place.</div>
         </div>
       </div>
