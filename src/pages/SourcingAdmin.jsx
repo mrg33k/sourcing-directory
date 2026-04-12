@@ -450,6 +450,15 @@ function SourcingAdminInner() {
   const [memberCompanyMap, setMemberCompanyMap] = useState({});
   const [pendingArticles, setPendingArticles] = useState([]);
   const [articleCompanyMap, setArticleCompanyMap] = useState({});
+  
+  // All Members state
+  const [allMembers, setAllMembers] = useState([]);
+  const [allMembersLoading, setAllMembersLoading] = useState(false);
+  const [membersSearch, setMembersSearch] = useState('');
+  const [membersSort, setMembersSort] = useState({ field: 'full_name', direction: 'asc' });
+  const [editingMember, setEditingMember] = useState(null);
+  const [editMemberForm, setEditMemberForm] = useState({ full_name: '', role: 'member' });
+  const [editMemberStatus, setEditMemberStatus] = useState('');
 
   // Directory Reports state
   const [reports, setReports] = useState([]);
