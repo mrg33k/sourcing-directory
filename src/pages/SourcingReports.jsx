@@ -28,6 +28,45 @@ function SourcingReportsInner() {
   const [authLoading, setAuthLoading] = useState(true);
   const [premiumGateReport, setPremiumGateReport] = useState(null);
 
+  // Helper function to get download URL for a report
+  const getReportDownloadUrl = (report) => {
+    if (!report) return null;
+    
+    // If file_url exists and looks valid, use it
+    if (report.file_url && typeof report.file_url === 'string' && report.file_url.trim()) {
+      // Basic validation: check if it looks like a URL
+      if (report.file_url.startsWith('http') || report.file_url.startsWith('/')) {
+        return report.file_url;
+      }
+    }
+    
+    // Fallback: construct canonical URL if we have report ID
+    if (report.id) {
+      // Get SUPABASE_URL from environment (same as in supabase.js)
+      const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL || '').trim();
+      if (SUPABASE_URL) {
+        // Sanitize report title for filename
+        const sanitizedTitle = report.title
+          ? report.title
+              .replace(/\s+/g, '-')           // Replace spaces with dashes
+              .replace(/[#?&%]/g, '')         // Remove problematic URL characters
+              .replace(/[^a-zA-Z0-9._-]/g, '_') // Replace any other non-safe characters with underscores
+              .replace(/-+/g, '-')            // Collapse multiple dashes to single dash
+              .replace(/^[-_.]+|[-_.]+$/g, '') // Remove leading/trailing dashes, underscores, dots
+              .toLowerCase()                  // Convert to lowercase as per canonical convention
+              .slice(0, 100)
+          : 'report';
+        
+        // Use canonical format: {report_id}-{sanitized-filename}.pdf
+        // Default to .pdf extension since most reports are PDFs
+        const filename = `${report.id}-${sanitizedTitle}.pdf`;
+        return `${SUPABASE_URL}/storage/v1/object/public/sourcing-reports/${filename}`;
+      }
+    }
+    
+    return null;
+  };
+
   useEffect(() => {
     document.title = `Reports & Intelligence | ${tenant?.name || 'sourcing.directory'}`;
     if (!supabase) { setAuthLoading(false); return; }
@@ -232,31 +271,34 @@ function SourcingReportsInner() {
                 {report.description}
               </p>
             </div>
-            {report.file_url ? (
-              <a
-                href={report.file_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 8,
-                  background: accent, color: '#fff', borderRadius: 8,
-                  padding: '12px 22px', fontSize: 14, fontWeight: 700,
-                  textDecoration: 'none',
-                }}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
-                </svg>
-                Download Report
-              </a>
-            ) : (
-              <div style={{
-                background: `${accent}08`, border: `1px solid ${accent}25`,
-                borderRadius: 8, padding: '14px 18px', fontSize: 13, color: 'var(--muted)',
-              }}>
-                Full report content and PDF download coming soon.
-              </div>
-            )}
+            {(() => {
+              const downloadUrl = getReportDownloadUrl(report);
+              return downloadUrl ? (
+                <a
+                  href={downloadUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 8,
+                    background: accent, color: '#fff', borderRadius: 8,
+                    padding: '12px 22px', fontSize: 14, fontWeight: 700,
+                    textDecoration: 'none',
+                  }}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                  </svg>
+                  Download Report
+                </a>
+              ) : (
+                <div style={{
+                  background: `${accent}08`, border: `1px solid ${accent}25`,
+                  borderRadius: 8, padding: '14px 18px', fontSize: 13, color: 'var(--muted)',
+                }}>
+                  Full report content and PDF download coming soon.
+                </div>
+              );
+            })()}
           </div>
         )}
       </div>
@@ -381,25 +423,28 @@ function SourcingReportsInner() {
                         </svg>
                         Upgrade
                       </span>
-                    ) : report.file_url ? (
-                      <a
-                        href={report.file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={e => e.stopPropagation()}
-                        style={{
-                          display: 'inline-flex', alignItems: 'center', gap: 6,
-                          background: accent, border: 'none', color: '#fff',
-                          borderRadius: 6, padding: '8px 14px', fontSize: 12,
-                          fontWeight: 600, fontFamily: V.space, textDecoration: 'none',
-                        }}
-                      >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
-                        </svg>
-                        Download Report
-                      </a>
-                    ) : null}
+                    ) : (() => {
+                      const downloadUrl = getReportDownloadUrl(report);
+                      return downloadUrl ? (
+                        <a
+                          href={downloadUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={e => e.stopPropagation()}
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 6,
+                            background: accent, border: 'none', color: '#fff',
+                            borderRadius: 6, padding: '8px 14px', fontSize: 12,
+                            fontWeight: 600, fontFamily: V.space, textDecoration: 'none',
+                          }}
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                          </svg>
+                          Download Report
+                        </a>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
               </div>
