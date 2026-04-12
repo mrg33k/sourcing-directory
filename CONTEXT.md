@@ -59,14 +59,14 @@ Old Corner/AOM project (DO NOT USE): `mcngatprgluexjjcqpkp` -- sourcing data was
 | `SourcingMarketplace.jsx` | `/:tenantSlug/marketplace` | Equipment marketplace |
 | `SourcingMarketplacePost.jsx` | `/:tenantSlug/marketplace/post` | Post a listing (paid members only) |
 | `SourcingGrants.jsx` | `/:tenantSlug/grants` | Grants (free access) |
-| `SourcingReports.jsx` | `/:tenantSlug/reports` | Reports (placeholder data, needs DB) |
+| `SourcingReports.jsx` | `/:tenantSlug/reports` | Reports listing + download (uses directory_reports table + RAG server) |
 | `SourcingMembership.jsx` | `/:tenantSlug/membership` | Membership tiers + pricing |
 | `SourcingCheckout.jsx` | `/:tenantSlug/checkout` | Membership checkout (pre-Stripe) |
 | `SourcingSignup.jsx` | `/:tenantSlug/signup` | Company signup (3-step wizard) |
 | `SourcingLogin.jsx` | `/:tenantSlug/login` | Login + password reset |
 | `SourcingPortal.jsx` | `/:tenantSlug/portal` | Member dashboard |
 | `SourcingSettings.jsx` | `/:tenantSlug/settings` | Account settings |
-| `SourcingAdmin.jsx` | `/admin` | Admin moderation panel |
+| `SourcingAdmin.jsx` | `/admin` | Admin moderation panel (2900 lines, 12 tabs -- needs component split before major edits) |
 | `SourcingAbout.jsx` | `/about` | About page |
 | `SourcingCreate.jsx` | `/create` | Create a new directory |
 | `SourcingTheme.jsx` | (shared) | Theme system (dark/light), design tokens, tenant context |
@@ -102,6 +102,27 @@ Old Corner/AOM project (DO NOT USE): `mcngatprgluexjjcqpkp` -- sourcing data was
 | `directory_articles` | Articles |
 | `directory_marketplace` | Marketplace listings |
 | `directory_grants` | Grant opportunities |
+| `directory_reports` | Reports with file downloads (title, description, file_url, tenant_id, category, access) |
+
+### Reports & File Downloads
+- Reports are stored in `directory_reports` table with a `file_url` column
+- Files are uploaded to the RAG server at `rag.aheadofmarket.com` and stored on disk at `~/Documents/Corner/files/shared:sourcing/`
+- Filename format on disk: `{uuid}-{Original File Name With Spaces}.ext`
+- Download URL format: `https://rag.aheadofmarket.com/files/shared:sourcing/{uuid}-{filename}`
+- **CRITICAL:** Filenames on disk have SPACES. URLs must use `encodeURIComponent()` so spaces become `%20`. The RAG server also has a dash-to-space fallback for legacy URLs.
+- The download URL builder is in `SourcingReports.jsx` function `getReportDownloadUrl()`
+- Report categories: "Quarterly Intelligence", "Economic Development", "Government Affairs", "Acquisitions & Contracts"
+- Access levels: "free" (anyone) or "member" (paid members only)
+- **The RAG server is in the AOM-EA repo (scripts/rag-server.py), NOT this repo.** Changes to the RAG server require an `aom-internal` project task.
+
+### API Endpoints for Reports (`api/sourcing/`)
+| File | Method | What It Does |
+|------|--------|-------------|
+| `upload-report.js` | POST | Upload a report file to RAG server |
+| `download-report.js` | GET | CSV export of directory data (NOT report file download) |
+| `admin-reports.js` | POST/DELETE | CRUD for report records in directory_reports table |
+| `delete-blank-reports.js` | POST | Clean up empty/placeholder report records |
+| `lib/reportAccess.js` | -- | Shared logic for report access control |
 
 ### Branding
 | Tenant | Accent | Font | Logo |
