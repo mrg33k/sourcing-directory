@@ -5,7 +5,7 @@ export default function ActionsSection({ pendingCompanies, exportStatus, handleA
   return (
     <AdminSection title="Quick Actions" V={V}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
-        {pendingCompanies.length > 0 && (
+        {pendingCompanies.length > 0 ? (
           <div style={{ background: V.card, border: `1px solid rgba(234,179,8,0.25)`, borderRadius: 10, padding: '18px 20px' }}>
             <div style={{ fontSize: 14, fontWeight: 700, fontFamily: V.syne, color: V.heading, marginBottom: 8 }}>
               Approve Pending ({pendingCompanies.length})
@@ -20,6 +20,23 @@ export default function ActionsSection({ pendingCompanies, exportStatus, handleA
               fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
             }}>
               Approve All
+            </button>
+          </div>
+        ) : (
+          <div style={{ background: 'rgba(148,163,184,0.08)', border: '1px solid rgba(148,163,184,0.18)', borderRadius: 10, padding: '18px 20px', opacity: 0.7 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, fontFamily: V.syne, color: V.heading, marginBottom: 8 }}>
+              No pending companies
+            </div>
+            <div style={{ fontSize: 12, color: V.muted, fontFamily: V.space, marginBottom: 14 }}>
+              All submitted companies have already been reviewed.
+            </div>
+            <button disabled style={{
+              width: '100%', background: 'rgba(148,163,184,0.12)',
+              border: '1px solid rgba(148,163,184,0.22)', color: 'rgba(226,232,240,0.65)',
+              borderRadius: 7, padding: '9px 0', fontSize: 13,
+              fontWeight: 700, fontFamily: V.space, cursor: 'not-allowed',
+            }}>
+              Nothing to approve
             </button>
           </div>
         )}
