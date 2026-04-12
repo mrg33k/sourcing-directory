@@ -26,7 +26,14 @@ const TENANT_BRANDS = {
     fontImport: 'https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap',
   },
   's3c-semiconductor': {
-    logo: '/images/s3c/logo.png',
+    logo: '/images/s3c/logo-badge.png',
+    logoStyle: {
+      width: 40,
+      height: 40,
+      objectFit: 'contain',
+      marginBottom: 10,
+      filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.5))',
+    },
     accent: '#A0522D',
     headingFont: "'Barlow Condensed', sans-serif",
     fontImport: 'https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&display=swap',
@@ -172,10 +179,12 @@ function SourcingLandingInner() {
                 <div className="dir-card-overlay" />
                 <div className="dir-card-body">
                   {/* Tenant logo */}
-                  {brand?.logo && tenant.slug === 's3c-semiconductor' ? (
-                    <img src={brand.logo} alt="" style={{ width: 40, height: 40, objectFit: 'contain', marginBottom: 10, filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.5))' }} />
-                  ) : brand?.logo ? (
-                    <img src={brand.logo} alt="" style={{ height: 28, objectFit: 'contain', marginBottom: 10, filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.5))' }} />
+                  {brand?.logo ? (
+                    <img
+                      src={brand.logo}
+                      alt=""
+                      style={brand.logoStyle || { height: 28, objectFit: 'contain', marginBottom: 10, filter: 'drop-shadow(0 1px 4px rgba(0,0,0,0.5))' }}
+                    />
                   ) : null}
                   <div className="dir-card-tag">{tenant.vertical || tenant.slug}</div>
                   <div className="dir-card-name" style={brand?.headingFont ? { fontFamily: brand.headingFont, textTransform: 'uppercase', letterSpacing: '0.03em' } : {}}>
