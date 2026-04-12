@@ -58,9 +58,11 @@ export function StatusPill({ status }) {
 
 // ─── Company Row ──────────────────────────────────────────────────────────────
 export function CompanyRow({ company, onAction, refreshing, V }) {
+  const companySource = company.source && String(company.source).trim() ? company.source : 'manual';
+
   return (
     <div style={{
-      display: 'grid', gridTemplateColumns: '1fr 80px 80px 120px',
+      display: 'grid', gridTemplateColumns: '1fr 80px 80px 110px 120px',
       gap: 12, padding: '12px 16px', alignItems: 'center',
       borderBottom: `1px solid ${V.border}`,
       opacity: refreshing ? 0.5 : 1,
@@ -75,6 +77,7 @@ export function CompanyRow({ company, onAction, refreshing, V }) {
       </div>
       <div><StatusPill status={company.status} /></div>
       <div style={{ fontSize: 11, color: V.dim, fontFamily: V.mono }}>{company.membership_tier}</div>
+      <div style={{ fontSize: 11, color: V.dim, fontFamily: V.mono, textTransform: 'lowercase' }}>{companySource}</div>
       <div style={{ display: 'flex', gap: 6 }}>
         {company.status === 'pending' && (
           <button onClick={() => onAction(company.id, 'approve')} style={{
