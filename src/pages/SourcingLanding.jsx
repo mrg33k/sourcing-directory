@@ -26,7 +26,7 @@ const TENANT_BRANDS = {
     fontImport: 'https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&display=swap',
   },
   's3c-semiconductor': {
-    logo: '/images/s3c/logo-badge.png',
+    logo: '/images/s3c/logo.png',
     logoStyle: {
       width: 40,
       height: 40,
