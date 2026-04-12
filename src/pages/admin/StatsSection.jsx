@@ -5,7 +5,7 @@ export default function StatsSection({ stats, V }) {
   return (
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 14, marginBottom: 32 }}>
-        <StatCard label="Total Companies" value={stats.totalCompanies} V={V} />
+        <StatCard label="Total Companies" value={stats.totalCompanies} title="Total active and pending companies" V={V} />
         <StatCard label="Active Companies" value={stats.activeCompanies} color={V.accent} V={V} />
         <StatCard label="Pending Approval" value={stats.pendingCompanies} color={stats.pendingCompanies > 0 ? '#FDBA74' : V.muted} V={V} />
         <StatCard label="Organizations" value={stats.totalOrgs} color="#3B82F6" V={V} />
