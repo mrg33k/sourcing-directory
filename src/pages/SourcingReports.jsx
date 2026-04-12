@@ -30,41 +30,28 @@ function SourcingReportsInner() {
 
   // Helper function to get download URL for a report
   const getReportDownloadUrl = (report) => {
-    if (!report) return null;
-    
-    // If file_url exists and looks valid, use it
-    if (report.file_url && typeof report.file_url === 'string' && report.file_url.trim()) {
-      // Basic validation: check if it looks like a URL
-      if (report.file_url.startsWith('http') || report.file_url.startsWith('/')) {
-        return report.file_url;
-      }
+    if (!report || !report.file_url || typeof report.file_url !== 'string') return null;
+
+    const trimmedFileUrl = report.file_url.trim();
+    if (!trimmedFileUrl) return null;
+
+    if (trimmedFileUrl.startsWith('http://') || trimmedFileUrl.startsWith('https://')) {
+      return trimmedFileUrl;
     }
-    
-    // Fallback: construct canonical URL if we have report ID
-    if (report.id) {
-      // Get SUPABASE_URL from environment (same as in supabase.js)
-      const SUPABASE_URL = (import.meta.env.VITE_SUPABASE_URL || '').trim();
-      if (SUPABASE_URL) {
-        // Sanitize report title for filename
-        const sanitizedTitle = report.title
-          ? report.title
-              .replace(/\s+/g, '-')           // Replace spaces with dashes
-              .replace(/[#?&%]/g, '')         // Remove problematic URL characters
-              .replace(/[^a-zA-Z0-9._-]/g, '_') // Replace any other non-safe characters with underscores
-              .replace(/-+/g, '-')            // Collapse multiple dashes to single dash
-              .replace(/^[-_.]+|[-_.]+$/g, '') // Remove leading/trailing dashes, underscores, dots
-              .toLowerCase()                  // Convert to lowercase as per canonical convention
-              .slice(0, 100)
-          : 'report';
-        
-        // Use canonical format: {report_id}-{sanitized-filename}.pdf
-        // Default to .pdf extension since most reports are PDFs
-        const filename = `${report.id}-${sanitizedTitle}.pdf`;
-        return `${SUPABASE_URL}/storage/v1/object/public/sourcing-reports/${filename}`;
-      }
+
+    if (trimmedFileUrl.startsWith('/')) {
+      return trimmedFileUrl;
     }
-    
-    return null;
+
+    const ragBaseUrl = 'https://rag.aheadofmarket.com/files/';
+    const normalizedPath = trimmedFileUrl.replace(/^files\//, '').replace(/^\/+/, '');
+    const encodedPath = normalizedPath
+      .split('/')
+      .filter(Boolean)
+      .map(segment => encodeURIComponent(segment))
+      .join('/');
+
+    return encodedPath ? `${ragBaseUrl}${encodedPath}` : null;
   };
 
   useEffect(() => {
