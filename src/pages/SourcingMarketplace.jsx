@@ -59,6 +59,10 @@ export function SourcingNav({ active, tenantSlug, tenantName, features, brandCol
   const navigate = useNavigate();
 
   const base = tenantSlug ? `/${tenantSlug}` : '';
+  const isS3CTenant = tenantSlug === 's3c-semiconductor';
+  const tenantLogoUrl = isS3CTenant
+    ? 'https://rag.aheadofmarket.com/files/arsenal/21b3072b-c02-hexagonal-badge-nobg.png'
+    : null;
   const f = features || { jobs: true, marketplace: true, events: true, articles: true, signup: true };
 
   const isHome = active === 'home' || active === 'landing';
@@ -99,8 +103,16 @@ export function SourcingNav({ active, tenantSlug, tenantName, features, brandCol
           <div className="v10-nav-label">Home</div>
         </Link>
         <Link to={base || '/'} className={`v10-nav-btn ${(isDir && !isHome) ? 'on' : ''}`}>
-          <div className="v10-nav-icon">
-            <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          <div className="v10-nav-icon" style={tenantLogoUrl ? { padding: 0, background: 'transparent', border: 'none', boxShadow: 'none' } : undefined}>
+            {tenantLogoUrl ? (
+              <img
+                src={tenantLogoUrl}
+                alt={`${tenantName || 'S3C'} logo`}
+                style={{ width: 22, height: 22, objectFit: 'contain', display: 'block' }}
+              />
+            ) : (
+              <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            )}
           </div>
           <div className="v10-nav-label">Directory</div>
         </Link>
