@@ -136,7 +136,7 @@ function SourcingLandingInner() {
             Arizona Advanced Industries
           </div>
           <div className="home-title">Find your <em>supply chain</em> partner</div>
-          <div className="home-sub">Verified suppliers, certified companies, and industry events in one place.</div>
+          <div className="home-sub">Verified suppliers, certified companies, defense contractors, and industry events in one place.</div>
         </div>
       </div>
 
