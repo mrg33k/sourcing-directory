@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { AdminSection } from './AdminUI.jsx';
 
+const formatJoinedDate = (value) => {
+  if (!value) return '—';
+  const parsedDate = new Date(value);
+  if (Number.isNaN(parsedDate.getTime())) return '—';
+  return parsedDate.toLocaleDateString('en-US');
+};
+
 export default function MembersSection({
   pendingMembers, memberCompanyMap, handleMemberAction,
   handleMemberUpgrade, V, adminSupabase, fetchData,
@@ -69,8 +76,8 @@ export default function MembersSection({
           </div>
         ) : (
           <div style={{ background: V.card, border: `1px solid ${V.border}`, borderRadius: 10, overflow: 'hidden' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 80px 240px', gap: 12, padding: '8px 16px', background: V.card2 }}>
-              {['Member', 'Company', 'Status', 'Actions'].map(h => (
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 80px 240px 100px', gap: 12, padding: '8px 16px', background: V.card2 }}>
+              {['Member', 'Company', 'Status', 'Actions', 'Joined'].map(h => (
                 <div key={h} style={{ fontSize: 10, fontWeight: 700, fontFamily: V.mono, color: V.dim, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{h}</div>
               ))}
             </div>
@@ -81,7 +88,7 @@ export default function MembersSection({
               const emailDraft = memberEmailDraft[member.id] ?? member.email ?? '';
               return (
                 <div key={member.id} style={{
-                  display: 'grid', gridTemplateColumns: '1fr 1fr 80px 240px',
+                  display: 'grid', gridTemplateColumns: '1fr 1fr 80px 240px 100px',
                   gap: 12, padding: '12px 16px', alignItems: 'center',
                   borderBottom: `1px solid ${V.border}`,
                 }}>
@@ -197,6 +204,9 @@ export default function MembersSection({
                     {actionStatus && (
                       <div style={{ fontSize: 11, color: V.dim, fontFamily: V.space }}>{actionStatus}</div>
                     )}
+                  </div>
+                  <div style={{ fontSize: 12, color: V.dim, fontFamily: V.mono }}>
+                    {formatJoinedDate(member.created_at)}
                   </div>
                 </div>
               );
