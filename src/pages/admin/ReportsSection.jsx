@@ -143,7 +143,7 @@ export default function ReportsSection({ reports, setReports, reportsLoading, V,
           <input
             value={reportsSearch}
             onChange={e => setReportsSearch(e.target.value)}
-            placeholder="Search reports"
+            placeholder="Search reports by title or category..."
             style={{
               width: 220, maxWidth: '45vw', background: V.card2, border: `1px solid ${V.border}`,
               borderRadius: 6, padding: '7px 10px', color: V.text,
