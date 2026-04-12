@@ -965,6 +965,7 @@ function SourcingDirectoryInner() {
           onChange={e => setSearchInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && handleSearch()}
           placeholder='Search companies, certifications...'
+          aria-label="Search companies"
           autoComplete="off"
           spellCheck="false"
         />
