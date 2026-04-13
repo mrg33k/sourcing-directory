@@ -4,6 +4,18 @@ import { supabase } from '../lib/supabase.js';
 import { SourcingNav } from './SourcingMarketplace.jsx';
 import { SourcingThemeProvider, useSourcingTheme, getTokens, useTenant } from './SourcingTheme.jsx';
 
+// ─── Date helper ─────────────────────────────────────────────────────────────
+const formatReportDate = (report, format = 'short') => {
+  const raw = report?.published_at || report?.date;
+  if (!raw) return '—';
+  const d = new Date(raw);
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleDateString('en-US', format === 'long'
+    ? { month: 'long', day: 'numeric', year: 'numeric' }
+    : { month: 'short', day: 'numeric', year: 'numeric' }
+  );
+};
+
 // ─── Report categories ───────────────────────────────────────────────────────
 const CATEGORIES = [
   { key: 'all',            label: 'All Reports' },
@@ -261,7 +273,7 @@ function SourcingReportsInner() {
               {report.title}
             </h1>
             <p style={{ fontSize: 12, color: 'var(--dim)', marginBottom: 28 }}>
-              {new Date(report.published_at || report.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+              {formatReportDate(report, 'long')}
             </p>
             <div style={{
               background: 'var(--card)', border: '1px solid var(--border)',
@@ -406,7 +418,7 @@ function SourcingReportsInner() {
                       {report.description}
                     </p>
                     <span style={{ fontSize: 11, color: V.dim, fontFamily: V.mono }}>
-                      {new Date(report.published_at || report.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {formatReportDate(report)}
                     </span>
                   </div>
                   <div style={{ flexShrink: 0 }}>
