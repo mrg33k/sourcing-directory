@@ -9,7 +9,12 @@ export default function CompaniesSection({
 }) {
   return (
     <AdminSection
-      title="Companies"
+      title={
+        <div>
+          <div>Companies</div>
+          <div style={{ fontSize: '0.75rem', color: '#666', fontWeight: 400, marginTop: 2 }}>Last synced: 04-12-2026</div>
+        </div>
+      }
       V={V}
       action={
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
