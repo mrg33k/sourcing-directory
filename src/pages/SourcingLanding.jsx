@@ -217,11 +217,6 @@ function SourcingLandingInner() {
         )}
       </div>
 
-      {/* EA test note */}
-      <div style={{ textAlign: 'center', padding: '12px 24px', fontSize: 12, color: 'var(--tx3)', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-        EA test 2026-04-26
-      </div>
-
       {/* Bottom nav */}
       <SourcingNav active="home" />
     </div>
