@@ -206,6 +206,13 @@
 }
 
 @media (max-width: 768px) {
+  /* Drop the inner content's relative positioning on mobile so the absolute
+     logo resolves against .browse-hero (full viewport width) instead of the
+     centered .browse-hero-content (constrained width). */
+  [data-tenant="space-rising"] .browse-hero-content {
+    position: static !important;
+  }
+
   [data-tenant="space-rising"] .tenant-hero-logo {
     height: 72px !important;
     right: 16px !important;
