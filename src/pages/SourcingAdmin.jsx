@@ -62,6 +62,7 @@ function SourcingAdminInner() {
   const [tenants, setTenants] = useState([]);
   const [selectedTenantId, setSelectedTenantId] = useState(null); // null = global mode
   const selectedTenant = tenants.find(t => t.id === selectedTenantId) || null;
+  const [isGlobalAdmin, setIsGlobalAdmin] = useState(false);
 
   const [stats, setStats] = useState(null);
   const [companies, setCompanies] = useState([]);
@@ -169,13 +170,39 @@ function SourcingAdminInner() {
     }
   };
 
-  // Fetch tenants list
+  // Fetch tenants list, scoped to the current user's admin memberships if not global admin
   useEffect(() => {
     async function loadTenants() {
       if (!adminSupabase) return;
       try {
-        const { data } = await adminSupabase.from('directory_tenants').select('*').order('name');
-        setTenants(data || []);
+        const [tenantsRes, sessionRes] = await Promise.all([
+          adminSupabase.from('directory_tenants').select('*').order('name'),
+          supabase.auth.getSession(),
+        ]);
+        const allTenants = tenantsRes.data || [];
+        const user = sessionRes.data?.session?.user;
+        const globalAdmin = user?.app_metadata?.role === 'admin';
+        setIsGlobalAdmin(globalAdmin);
+
+        if (globalAdmin) {
+          setTenants(allTenants);
+        } else {
+          // Non-global admin: show only tenants where they have an admin member record
+          const { data: memberRows } = await supabase
+            .from('directory_members')
+            .select('tenant_id')
+            .eq('auth_user_id', user?.id)
+            .eq('role', 'admin')
+            .eq('status', 'approved');
+
+          const adminTenantIdSet = new Set((memberRows || []).map(m => m.tenant_id));
+          const scopedTenants = allTenants.filter(t => adminTenantIdSet.has(t.id));
+          setTenants(scopedTenants);
+          // Auto-select if only one allowed tenant
+          if (scopedTenants.length === 1) {
+            setSelectedTenantId(scopedTenants[0].id);
+          }
+        }
       } catch { /* ignore */ }
     }
     if (authed) loadTenants();
@@ -862,8 +889,9 @@ function SourcingAdminInner() {
         </div>
         <div style={{ flex: 1 }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-          {/* Tenant switcher */}
-          {tenants.length > 0 && (
+          {/* Tenant switcher: global admins see all tenants + "All Directories";
+              scoped admins only see their authorized tenants, no global option */}
+          {tenants.length > 0 && (isGlobalAdmin || tenants.length > 1) && (
             <select
               value={selectedTenantId || ''}
               onChange={e => setSelectedTenantId(e.target.value || null)}
@@ -875,7 +903,7 @@ function SourcingAdminInner() {
                 maxWidth: 160,
               }}
             >
-              <option value="">All Directories</option>
+              {isGlobalAdmin && <option value="">All Directories</option>}
               {tenants.map(t => (
                 <option key={t.id} value={t.id}>{t.name}</option>
               ))}
