@@ -62,6 +62,14 @@
   border-color: rgba(244, 70, 17, 0.45) !important;
 }
 
+[data-tenant="space-rising"] .browse-search input {
+  color: #f44611 !important;
+}
+
+[data-tenant="space-rising"] .browse-search input::placeholder {
+  color: rgba(244, 70, 17, 0.55) !important;
+}
+
 /* Inactive filter chips — white 75% opacity, subtle border */
 [data-tenant="space-rising"] .chip {
   font-size: 100% !important;
