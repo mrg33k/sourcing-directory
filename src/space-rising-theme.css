@@ -62,11 +62,12 @@
 }
 
 [data-tenant="space-rising"] .browse-search input {
-  color: #f44611 !important;
+  color: #ffffff !important;
+  font-weight: 500 !important;
 }
 
 [data-tenant="space-rising"] .browse-search input::placeholder {
-  color: rgba(244, 70, 17, 0.55) !important;
+  color: rgba(255, 255, 255, 0.55) !important;
 }
 
 /* Inactive filter chips — white 75% opacity, subtle border */
