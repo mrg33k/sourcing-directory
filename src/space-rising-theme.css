@@ -34,6 +34,22 @@
   ) !important;
 }
 
+/* Hero title — bigger, more confident hero treatment */
+[data-tenant="space-rising"] .browse-title {
+  font-size: 32px !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  line-height: 1.1 !important;
+  margin-bottom: 8px !important;
+}
+
+/* Hero tagline — 14px at 75% opacity for clear hierarchy */
+[data-tenant="space-rising"] .browse-sub {
+  font-size: 14px !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+  line-height: 1.5 !important;
+}
+
 /* Search bar — light backdrop blur so space photo reads through */
 [data-tenant="space-rising"] .browse-search {
   background: rgba(6, 10, 28, 0.65) !important;
@@ -46,22 +62,97 @@
   border-color: rgba(244, 70, 17, 0.45) !important;
 }
 
+/* Inactive filter chips — white 75% opacity, subtle border */
+[data-tenant="space-rising"] .chip {
+  color: rgba(255, 255, 255, 0.75) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+/* Active chip — solid orange border + orange text, translucent orange fill.
+   Higher specificity than the inline <style> chip.on rule so this wins. */
+[data-tenant="space-rising"] .chip.on {
+  border-color: #f44611 !important;
+  background: rgba(244, 70, 17, 0.12) !important;
+  color: #f44611 !important;
+}
+
+/* Section header — company count + add-company link */
+[data-tenant="space-rising"] .sec-title {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+  letter-spacing: 0.08em !important;
+}
+
+/* Company list — gapped tiles instead of hairline-separated rows */
+[data-tenant="space-rising"] .co-list {
+  gap: 6px !important;
+}
+
+/* Company card — discrete dark-glass tile with subtle border */
+[data-tenant="space-rising"] .co-card {
+  background: rgba(8, 12, 24, 0.60) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+  transition: background 0.15s, border-color 0.15s, filter 0.15s !important;
+}
+
+/* Card hover — border lifts, slight brightness boost */
+[data-tenant="space-rising"] .co-card:hover {
+  background: rgba(8, 12, 24, 0.72) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  filter: brightness(1.06) !important;
+}
+
+/* Letter avatar — slightly bigger, more rounded, letter bold */
+[data-tenant="space-rising"] .co-logo {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 10px !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  flex-shrink: 0 !important;
+}
+
+/* Company name — big, bold, near-white for maximum visibility */
+[data-tenant="space-rising"] .co-name {
+  font-size: 19px !important;
+  font-weight: 800 !important;
+  color: rgba(255, 255, 255, 0.97) !important;
+  line-height: 1.2 !important;
+}
+
+/* City/state — stays small, reduced opacity for clear name → city hierarchy */
+[data-tenant="space-rising"] .co-loc {
+  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.65) !important;
+  margin-top: 3px !important;
+}
+
+/* Badge row — a bit more breathing room below the city line */
+[data-tenant="space-rising"] .co-badges {
+  margin-top: 8px !important;
+  gap: 5px !important;
+}
+
+/* Grants-count badge — always 0 for Space Rising; hide until populated */
+[data-tenant="space-rising"] .co-name span:last-child {
+  display: none !important;
+}
+
+/* Arrow — visible but unobtrusive against the dark card */
+[data-tenant="space-rising"] .co-arrow {
+  color: rgba(255, 255, 255, 0.38) !important;
+}
+
 /* Bottom nav — deepen blur over the space background */
 [data-tenant="space-rising"] .v10-nav {
   background: rgba(2, 4, 16, 0.82) !important;
   backdrop-filter: blur(8px) saturate(1.2) !important;
   -webkit-backdrop-filter: blur(8px) saturate(1.2) !important;
   border-top-color: rgba(255, 255, 255, 0.07) !important;
-}
-
-/* Company cards — dark translucent panels (60-75% opacity) */
-[data-tenant="space-rising"] .co-card {
-  border-color: rgba(255, 255, 255, 0.07) !important;
-}
-
-/* Grants-count badge — always 0 for Space Rising; hide until populated */
-[data-tenant="space-rising"] .co-name span:last-child {
-  display: none !important;
 }
 
 /* Skeleton loaders — match the translucent surface */
@@ -73,4 +164,21 @@
     rgba(6, 10, 28, 0.72) 75%
   ) !important;
   background-size: 200% 100% !important;
+}
+
+/* ── Tablet / Desktop ───────────────────────────────────────────────────────── */
+@media (min-width: 768px) {
+  [data-tenant="space-rising"] .browse-title {
+    font-size: 42px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  [data-tenant="space-rising"] .browse-title {
+    font-size: 50px !important;
+  }
+
+  [data-tenant="space-rising"] .co-name {
+    font-size: 20px !important;
+  }
 }
