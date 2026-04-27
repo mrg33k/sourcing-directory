@@ -50,12 +50,12 @@
   line-height: 1.5 !important;
 }
 
-/* Search bar — light backdrop blur so space photo reads through */
+/* Search bar — translucent dark fill so bar reads as discrete surface over Earth photo */
 [data-tenant="space-rising"] .browse-search {
-  background: rgba(6, 10, 28, 0.65) !important;
+  background: rgba(8, 12, 24, 0.55) !important;
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  border-color: rgba(255, 255, 255, 0.14) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
 }
 
 [data-tenant="space-rising"] .browse-search:focus-within {
