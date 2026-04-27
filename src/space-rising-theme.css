@@ -3,27 +3,19 @@
    All other tenants (Arsenal etc.) are completely unaffected.
    ──────────────────────────────────────────────────────────────────────────── */
 
-/* Layer 1 — Earth-from-orbit photo; sits furthest back */
+/* Root wrapper — Earth-from-orbit photo (bottom layer) + dark veil (top layer).
+   Applied directly on the div rather than ::before/::after pseudo-elements so
+   the image paints inside the root div's own stacking level, on top of the
+   body's opaque background (which would otherwise cover negative-z-index
+   pseudo-elements with position:fixed). */
 /* Photo: NASA ISS044-E-45215, public domain */
-[data-tenant="space-rising"]::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: url('/images/space-rising/bg-space.jpg');
-  background-size: cover;
-  background-position: center center;
-  z-index: -2;
-  pointer-events: none;
-}
-
-/* Layer 2 — dark semi-transparent veil; sits above the photo, below content */
-[data-tenant="space-rising"]::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 8, 20, 0.62);
-  z-index: -1;
-  pointer-events: none;
+[data-tenant="space-rising"] {
+  background-image:
+    linear-gradient(rgba(0, 8, 20, 0.62), rgba(0, 8, 20, 0.62)),
+    url('/images/space-rising/bg-space.jpg') !important;
+  background-size: cover !important;
+  background-attachment: fixed !important;
+  background-position: center center !important;
 }
 
 /* Override browse hero image to use the locally-hosted space photo */
