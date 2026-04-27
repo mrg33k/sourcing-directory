@@ -3,24 +3,25 @@
    All other tenants (Arsenal etc.) are completely unaffected.
    ──────────────────────────────────────────────────────────────────────────── */
 
-/* Fixed starfield / orbit background — renders behind all page content */
+/* Layer 1 — Earth-from-orbit photo; sits furthest back */
+/* Photo: NASA ISS044-E-45215, public domain */
 [data-tenant="space-rising"]::before {
   content: '';
   position: fixed;
   inset: 0;
   background-image: url('/images/space-rising/bg-space.jpg');
   background-size: cover;
-  background-position: center top;
-  z-index: -1;
+  background-position: center center;
+  z-index: -2;
   pointer-events: none;
 }
 
-/* Subtle dark veil — keeps text AA-contrast while background reads through */
+/* Layer 2 — dark semi-transparent veil; sits above the photo, below content */
 [data-tenant="space-rising"]::after {
   content: '';
   position: fixed;
   inset: 0;
-  background: rgba(2, 4, 16, 0.52);
+  background: rgba(0, 8, 20, 0.62);
   z-index: -1;
   pointer-events: none;
 }
