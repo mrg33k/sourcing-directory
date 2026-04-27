@@ -64,6 +64,7 @@
 
 /* Inactive filter chips — white 75% opacity, subtle border */
 [data-tenant="space-rising"] .chip {
+  font-size: 100% !important;
   color: rgba(255, 255, 255, 0.75) !important;
   background: rgba(255, 255, 255, 0.04) !important;
   border-color: rgba(255, 255, 255, 0.10) !important;
