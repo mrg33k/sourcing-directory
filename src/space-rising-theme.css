@@ -175,6 +175,18 @@
   background-size: 200% 100% !important;
 }
 
+/* Tenant hero logo — 130px desktop, 88px mobile (proportional to hero scale) */
+[data-tenant="space-rising"] .tenant-hero-logo {
+  height: 130px !important;
+  width: auto !important;
+}
+
+@media (max-width: 768px) {
+  [data-tenant="space-rising"] .tenant-hero-logo {
+    height: 88px !important;
+  }
+}
+
 /* ── Tablet / Desktop ───────────────────────────────────────────────────────── */
 @media (min-width: 768px) {
   [data-tenant="space-rising"] .browse-title {
