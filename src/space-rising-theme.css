@@ -67,6 +67,11 @@
   border-color: rgba(255, 255, 255, 0.07) !important;
 }
 
+/* Grants-count badge — always 0 for Space Rising; hide until populated */
+[data-tenant="space-rising"] .co-name span:last-child {
+  display: none !important;
+}
+
 /* Skeleton loaders — match the translucent surface */
 [data-tenant="space-rising"] .skel {
   background: linear-gradient(
