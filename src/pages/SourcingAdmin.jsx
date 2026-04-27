@@ -27,7 +27,14 @@ import ActionsSection from './admin/ActionsSection.jsx';
 const _adminKey = (import.meta.env.VITE_SOURCING_ADMIN_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
 const _sbUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim();
 const adminSupabase = (_sbUrl && _adminKey)
-  ? createClient(_sbUrl, _adminKey)
+  ? createClient(_sbUrl, _adminKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+        storageKey: 'sd-admin-noauth',
+      },
+    })
   : supabase;
 
 // ─── Inner Component ──────────────────────────────────────────────────────────
