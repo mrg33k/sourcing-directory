@@ -1517,9 +1517,9 @@ function SourcingDirectoryInner() {
         )}
       </div>
 
-      {/* Last updated timestamp */}
-      <p style={{ textAlign: 'center', color: '#666', fontSize: '12px', padding: '20px 0', borderTop: '1px solid #eee' }}>
-        Directory last updated: {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+      {/* Made by AOM footer */}
+      <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.7)', fontSize: '13px', fontWeight: 600, padding: '12px 0 16px', margin: 0, letterSpacing: '0.02em' }}>
+        Made by <a href="https://www.aom-inhouse.com" target="_blank" rel="noopener noreferrer" style={{ color: '#f44611', textDecoration: 'underline', textUnderlineOffset: '2px', fontWeight: 700 }}>AOM</a>
       </p>
 
       {/* Welcome modal */}
