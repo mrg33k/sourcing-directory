@@ -5,6 +5,7 @@ import { SourcingNav } from './SourcingMarketplace.jsx';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
 import { trackEvent } from './sourcingAnalytics.js';
 import { getVerticalImage } from './SourcingLanding.jsx';
+import '../space-rising-theme.css';
 
 // ─── Scout Answer Card (streaming AI response) ───────────────────────────────
 function ScoutAnswerCard({ text, streaming, V }) {
@@ -466,10 +467,10 @@ function SourcingDirectoryInner() {
     if (tenant.slug === 'space-rising') return {
       headingFont: "'Oswald', sans-serif",
       bodyFont: "'Inter', sans-serif",
-      accent: '#E5451F',
-      bg: '#080808',
-      surface: '#121212',
-      surface2: '#1A1A1A',
+      accent: '#f44611',
+      bg: 'transparent',
+      surface: 'rgba(6,10,28,0.72)',
+      surface2: 'rgba(6,10,28,0.80)',
       fontImport: 'https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@400;500;600&display=swap',
     };
     if (tenant.slug === 's3c-semiconductor') return {
@@ -939,8 +940,29 @@ function SourcingDirectoryInner() {
     }
   }, [session, isAdmin]);
 
+  const isSpaceRising = tenantSlug === 'space-rising';
+
   return (
-    <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
+    <div
+      data-tenant={tenantSlug}
+      style={{
+        minHeight: '100dvh',
+        background: 'var(--bg)',
+        color: 'var(--tx)',
+        position: 'relative',
+        ...(isSpaceRising && {
+          '--bg': 'transparent',
+          '--s1': 'rgba(6,10,28,0.72)',
+          '--s2': 'rgba(6,10,28,0.80)',
+          '--s3': 'rgba(6,10,28,0.88)',
+          '--bd': 'rgba(255,255,255,0.08)',
+          '--bd2': 'rgba(255,255,255,0.13)',
+          '--cyan': '#f44611',
+          '--cyan-dim': 'rgba(244,70,17,0.10)',
+          '--cyan-brd': 'rgba(244,70,17,0.28)',
+        }),
+      }}
+    >
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }

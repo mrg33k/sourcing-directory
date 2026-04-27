@@ -1,0 +1,78 @@
+/* ── Space Rising Tenant Skin ─────────────────────────────────────────────────
+   Scoped exclusively to [data-tenant="space-rising"].
+   All other tenants (Arsenal etc.) are completely unaffected.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* Fixed starfield / orbit background — renders behind all page content */
+[data-tenant="space-rising"]::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url('/images/space-rising/bg-space.jpg');
+  background-size: cover;
+  background-position: center top;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Subtle dark veil — keeps text AA-contrast while background reads through */
+[data-tenant="space-rising"]::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 4, 16, 0.52);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Override browse hero image to use the locally-hosted space photo */
+[data-tenant="space-rising"] .browse-hero-bg {
+  background-image: url('/images/space-rising/bg-space.jpg') !important;
+  background-position: center 25% !important;
+}
+
+/* Hero overlay — slightly deeper so the title pops */
+[data-tenant="space-rising"] .browse-hero-overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(2, 4, 16, 0.15) 0%,
+    rgba(2, 4, 16, 0.72) 60%,
+    rgba(2, 4, 16, 0.95) 100%
+  ) !important;
+}
+
+/* Search bar — light backdrop blur so space photo reads through */
+[data-tenant="space-rising"] .browse-search {
+  background: rgba(6, 10, 28, 0.65) !important;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-color: rgba(255, 255, 255, 0.14) !important;
+}
+
+[data-tenant="space-rising"] .browse-search:focus-within {
+  border-color: rgba(244, 70, 17, 0.45) !important;
+}
+
+/* Bottom nav — deepen blur over the space background */
+[data-tenant="space-rising"] .v10-nav {
+  background: rgba(2, 4, 16, 0.82) !important;
+  backdrop-filter: blur(8px) saturate(1.2) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(1.2) !important;
+  border-top-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Company cards — dark translucent panels (60-75% opacity) */
+[data-tenant="space-rising"] .co-card {
+  border-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Skeleton loaders — match the translucent surface */
+[data-tenant="space-rising"] .skel {
+  background: linear-gradient(
+    90deg,
+    rgba(6, 10, 28, 0.72) 25%,
+    rgba(12, 20, 50, 0.80) 50%,
+    rgba(6, 10, 28, 0.72) 75%
+  ) !important;
+  background-size: 200% 100% !important;
+}
