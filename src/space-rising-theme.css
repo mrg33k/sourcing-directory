@@ -87,6 +87,29 @@
   color: #f44611 !important;
 }
 
+/* "+ Add Company" — chip-shaped filled-orange CTA (overrides inline styles) */
+[data-tenant="space-rising"] .sec-count a {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 7px 16px !important;
+  border-radius: 100px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+  border: 1px solid #f44611 !important;
+  background: #f44611 !important;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  transition: all 0.15s !important;
+}
+
+[data-tenant="space-rising"] .sec-count a:hover {
+  background: #d93a0d !important;
+  border-color: #d93a0d !important;
+}
+
 /* Section header — company count + add-company link */
 [data-tenant="space-rising"] .sec-title {
   font-size: 13px !important;
