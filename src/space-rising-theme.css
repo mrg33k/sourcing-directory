@@ -149,12 +149,25 @@
   flex-shrink: 0 !important;
 }
 
-/* Company name — big, bold, near-white for maximum visibility */
+/* Company name — big, bold, near-white for maximum visibility.
+   Wrap on mobile so long names ("Phantom Space Corporation",
+   "Lockheed Martin Missiles & Fire Control") don't truncate. */
 [data-tenant="space-rising"] .co-name {
   font-size: 19px !important;
   font-weight: 800 !important;
   color: rgba(255, 255, 255, 0.97) !important;
   line-height: 1.2 !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  word-break: break-word !important;
+}
+
+/* Cert badges — bump contrast on the dark glass tile */
+[data-tenant="space-rising"] .co-badge.cert {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
 }
 
 /* City/state — stays small, reduced opacity for clear name → city hierarchy */
