@@ -1543,15 +1543,21 @@ function SourcingDirectoryInner() {
             }}
           />
           <div style={{
-            position: 'fixed', bottom: 0, left: '50%', transform: 'translateX(-50%)',
+            position: 'fixed', bottom: 'var(--nav-h, 72px)', left: '50%',
             width: '100%', maxWidth: 480, zIndex: 301,
-            background: 'var(--s1)', borderTop: '1px solid var(--bd2)',
+            background: '#0E0E14', borderTop: '1px solid var(--bd2)',
             borderRadius: '20px 20px 0 0', overflow: 'hidden',
-            animation: 'slideUp 0.35s cubic-bezier(0.16,1,0.3,1)',
+            transform: 'translate(-50%, 0)',
+            animation: 'slideUpCenter 0.35s cubic-bezier(0.16,1,0.3,1) both',
+            willChange: 'transform',
+            boxShadow: '0 -12px 32px rgba(0,0,0,0.45)',
           }}>
             <style>{`
               @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-              @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+              @keyframes slideUpCenter {
+                from { transform: translate(-50%, 100%); }
+                to   { transform: translate(-50%, 0); }
+              }
             `}</style>
             {/* Hero image */}
             <div style={{
