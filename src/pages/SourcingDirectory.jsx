@@ -502,6 +502,16 @@ function SourcingDirectoryInner() {
     };
   }, [tenantBrand]);
 
+  // Frontend display-name override. DB row stays as-is; we relabel for UI only.
+  // Add a slug here when a tenant wants a different public name than what's in the DB.
+  const applyDisplayOverride = (data) => {
+    if (!data) return data;
+    if (data.slug === 'space-rising') {
+      return { ...data, name: 'Space Rising Interactive', nav_label: 'Space Rising Interactive' };
+    }
+    return data;
+  };
+
   // Fetch tenant info
   useEffect(() => {
     if (!tenantSlug) { setTenantLoading(false); return; }
@@ -512,7 +522,7 @@ function SourcingDirectoryInner() {
           const res = await fetch(`/api/sourcing/tenants?slug=${tenantSlug}`);
           if (res.ok) {
             const data = await res.json();
-            setTenant(data);
+            setTenant(applyDisplayOverride(data));
             setTenantLoading(false);
             trackEvent(data.id, 'page_view', { path: window.location.pathname });
             return;
@@ -522,7 +532,7 @@ function SourcingDirectoryInner() {
         if (supabase) {
           const { data } = await supabase.from('directory_tenants').select('*').eq('slug', tenantSlug).single();
           if (data) {
-            setTenant(data);
+            setTenant(applyDisplayOverride(data));
             trackEvent(data.id, 'page_view', { path: window.location.pathname });
           }
         }
