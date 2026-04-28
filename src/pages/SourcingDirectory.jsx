@@ -1577,7 +1577,7 @@ function SourcingDirectoryInner() {
                   display: 'inline-flex', alignItems: 'center', gap: 6,
                   background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)',
                   border: '1px solid rgba(255,255,255,0.1)', borderRadius: 100,
-                  padding: '4px 12px 4px 8px', fontSize: 11, fontWeight: 600, color: 'var(--tx2)',
+                  padding: '4px 12px 4px 8px', fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.85)',
                 }}>
                   <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--emerald)', boxShadow: '0 0 10px var(--emerald)' }} />
                   Free and paid listings available
@@ -1589,7 +1589,7 @@ function SourcingDirectoryInner() {
               <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', marginBottom: 8, letterSpacing: '-0.03em' }}>
                 Join {tenant?.nav_label || tenant?.name || 'the Directory'}
               </div>
-              <div style={{ fontSize: 14, color: 'var(--tx2)', lineHeight: 1.5, maxWidth: 320, margin: '0 auto 20px' }}>
+              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.78)', lineHeight: 1.5, maxWidth: 320, margin: '0 auto 20px' }}>
                 Get found by procurement teams, contractors, and partners in {tenant?.name || 'this directory'}.
               </div>
               <Link
@@ -1603,7 +1603,7 @@ function SourcingDirectoryInner() {
               <button
                 onClick={() => setShowWelcome(false)}
                 style={{
-                  background: 'none', border: 'none', color: 'var(--tx3)',
+                  background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)',
                   fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '8px 0', width: '100%',
                 }}
               >
