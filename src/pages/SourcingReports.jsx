@@ -323,7 +323,7 @@ function SourcingReportsInner() {
 
       {/* v10 Hero */}
       <div className="browse-hero" style={{ minHeight: 200 }}>
-        <div className="browse-hero-bg" style={{ backgroundImage: "url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80')" }} />
+        <div className="browse-hero-bg" style={{ backgroundImage: `url('${tenantSlug === 'space-rising' ? 'https://kzzvjtthknsozktmpvak.supabase.co/storage/v1/object/public/sourcing-reports/space-rising-header-1777483845.jpg' : 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80'}')` }} />
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content">
           <Link to={tenantSlug ? `/${tenantSlug}` : '/'} className="browse-back" style={{ textDecoration: 'none' }}>
