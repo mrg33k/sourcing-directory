@@ -287,16 +287,44 @@ function SourcingPortalInner() {
               Manage your company profile and listings.
             </p>
           </div>
-          <button
-            onClick={handleLogout}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <Link
+              to={`${basePath}/settings`}
+              style={{
+                background: 'transparent', border: '1px solid var(--bd)',
+                color: 'var(--tx2)', borderRadius: 7, padding: '8px 16px',
+                fontSize: 13, fontWeight: 600, fontFamily: 'inherit', textDecoration: 'none',
+                display: 'inline-flex', alignItems: 'center',
+              }}
+            >
+              Settings
+            </Link>
+            <button
+              onClick={handleLogout}
+              style={{
+                background: 'transparent', border: '1px solid var(--bd)',
+                color: 'var(--tx2)', borderRadius: 7, padding: '8px 16px',
+                fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
+              }}
+            >
+              Sign Out
+            </button>
+          </div>
+        </div>
+
+        {/* Quick actions */}
+        <div style={{ display: 'flex', gap: 10, marginBottom: 28, flexWrap: 'wrap' }}>
+          <Link
+            to={`${basePath}/articles/post`}
             style={{
-              background: 'transparent', border: '1px solid var(--bd)',
-              color: 'var(--tx2)', borderRadius: 7, padding: '8px 16px',
-              fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
+              background: 'var(--cyan-dim)', border: '1px solid var(--cyan-brd)',
+              color: 'var(--cyan)', borderRadius: 8, padding: '10px 18px',
+              fontSize: 13, fontWeight: 700, fontFamily: 'inherit', textDecoration: 'none',
+              display: 'inline-flex', alignItems: 'center', gap: 6,
             }}
           >
-            Sign Out
-          </button>
+            + Post an Article
+          </Link>
         </div>
 
         {error && (

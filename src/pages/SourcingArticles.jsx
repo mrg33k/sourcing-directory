@@ -40,7 +40,7 @@ function TagPill({ tag, V }) {
 }
 
 // ─── Article Card ─────────────────────────────────────────────────────────────
-function ArticleCard({ listing, company, V }) {
+function ArticleCard({ listing, company, V, onClick }) {
   const [hovered, setHovered] = useState(false);
   const tags = Array.isArray(listing.tags) ? listing.tags : [];
   const postedDate = new Date(listing.created_at).toLocaleDateString('en-US', {
@@ -48,9 +48,12 @@ function ArticleCard({ listing, company, V }) {
   });
 
   return (
-    <Link
-      to={`/articles/${listing.id}`}
-      style={{ textDecoration: 'none' }}
+    <div
+      onClick={onClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={e => e.key === 'Enter' && onClick && onClick()}
+      style={{ textDecoration: 'none', cursor: 'pointer' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -120,12 +123,12 @@ function ArticleCard({ listing, company, V }) {
           </div>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
 
 // ─── Article Full View ────────────────────────────────────────────────────────
-function ArticleView({ listing, company, onClose, V }) {
+function ArticleView({ listing, company, onClose, V, tenantSlug }) {
   const tags = Array.isArray(listing.tags) ? listing.tags : [];
   const postedDate = new Date(listing.created_at).toLocaleDateString('en-US', {
     month: 'long', day: 'numeric', year: 'numeric',
@@ -222,7 +225,7 @@ function ArticleView({ listing, company, onClose, V }) {
                 <div style={{ fontSize: 14, fontWeight: 700, fontFamily: V.syne, color: V.heading }}>{company.name}</div>
                 <div style={{ fontSize: 12, color: V.muted, fontFamily: V.space }}>{[company.city, company.state].filter(Boolean).join(', ')}</div>
               </div>
-              <Link to={`/${company.slug}`} style={{
+              <Link to={`/${tenantSlug ? `${tenantSlug}/` : ''}${company.slug}`} style={{
                 background: 'transparent', color: V.accent,
                 border: `1px solid ${V.accentBrd}`, textDecoration: 'none',
                 borderRadius: 6, padding: '6px 14px', fontSize: 12,
@@ -523,6 +526,7 @@ function SourcingArticlesInner() {
                 listing={listing}
                 company={companies[listing.company_id]}
                 V={V}
+                onClick={() => setSelected(listing)}
               />
             ))}
           </div>
@@ -563,6 +567,7 @@ function SourcingArticlesInner() {
           company={companies[selected.company_id]}
           onClose={() => setSelected(null)}
           V={V}
+          tenantSlug={tenantSlug}
         />
       )}
     </div>

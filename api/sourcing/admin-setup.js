@@ -20,21 +20,91 @@ const SETUP_SECRET = process.env.SETUP_SECRET;
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-setup-secret');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-setup-secret, x-admin-key');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
-
-  // Verify setup secret
-  const providedSecret = req.headers['x-setup-secret'];
-  if (!SETUP_SECRET || providedSecret !== SETUP_SECRET) {
-    return res.status(403).json({ error: 'Invalid or missing setup secret' });
-  }
 
   if (!SUPABASE_SERVICE_KEY) {
     return res.status(500).json({ error: 'SUPABASE_SERVICE_ROLE_KEY not configured' });
   }
 
-  const { email, password, full_name } = req.body || {};
+  const { mode, email, password, full_name, company_id, tenant_id } = req.body || {};
+
+  // ─── Member creation mode (called from admin dashboard Add Company flow) ───
+  if (mode === 'member') {
+    const providedAdminKey = req.headers['x-admin-key'];
+    if (!providedAdminKey || providedAdminKey !== SUPABASE_SERVICE_KEY) {
+      return res.status(403).json({ error: 'Invalid or missing admin key' });
+    }
+    if (!email) return res.status(400).json({ error: 'email is required' });
+
+    const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+
+    // Create or find the auth user
+    let memberId;
+    const { data: created, error: createErr } = await admin.auth.admin.createUser({
+      email,
+      email_confirm: true,
+      user_metadata: { full_name: full_name || '' },
+    });
+
+    if (createErr) {
+      if (createErr.message?.includes('already been registered') || createErr.code === 'email_exists') {
+        const { data: listData, error: listErr } = await admin.auth.admin.listUsers({ perPage: 1000 });
+        if (listErr) return res.status(500).json({ error: 'Failed to list users: ' + listErr.message });
+        const existing = listData?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase());
+        if (!existing) return res.status(404).json({ error: 'User not found after creation failed' });
+        memberId = existing.id;
+      } else {
+        return res.status(500).json({ error: 'Failed to create user: ' + createErr.message });
+      }
+    } else {
+      memberId = created.user.id;
+    }
+
+    // Upsert directory_members row linked to the company
+    const memberRecord = {
+      email,
+      full_name: full_name || '',
+      role: 'member',
+      status: 'approved',
+      auth_user_id: memberId,
+      ...(company_id ? { company_id } : {}),
+      ...(tenant_id ? { tenant_id } : {}),
+    };
+
+    const { data: existingMember } = await admin
+      .from('directory_members')
+      .select('id')
+      .eq('auth_user_id', memberId)
+      .maybeSingle();
+
+    if (existingMember) {
+      await admin.from('directory_members').update(memberRecord).eq('id', existingMember.id);
+    } else {
+      await admin.from('directory_members').insert(memberRecord);
+    }
+
+    return res.status(200).json({
+      ok: true,
+      user_id: memberId,
+      email,
+      role: 'member',
+      message: `Member account created for ${email}. They can use password reset to set a password.`,
+    });
+  }
+
+  // ─── Admin setup mode (original flow) ────────────────────────────────────
+  const providedSecret = req.headers['x-setup-secret'];
+  if (!SETUP_SECRET || providedSecret !== SETUP_SECRET) {
+    return res.status(403).json({ error: 'Invalid or missing setup secret' });
+  }
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'email and password are required' });
+  }
 
   if (!email || !password) {
     return res.status(400).json({ error: 'email and password are required' });

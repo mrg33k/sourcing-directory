@@ -135,6 +135,14 @@ function SourcingSignupInner() {
         }),
       }).catch(() => {});
 
+      // Sign in immediately so user lands authenticated
+      if (supabase) {
+        await supabase.auth.signInWithPassword({
+          email: form.auth_email.trim(),
+          password: form.auth_password,
+        }).catch(() => {});
+      }
+
       setStep(totalSteps); // success screen
     } catch (err) {
       setError(err.message || 'Something went wrong.');

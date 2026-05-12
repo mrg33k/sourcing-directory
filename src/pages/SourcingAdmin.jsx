@@ -11,7 +11,7 @@ import ScoutPanel from './admin/ScoutPanel.jsx';
 import StatsSection from './admin/StatsSection.jsx';
 import CompaniesSection from './admin/CompaniesSection.jsx';
 import MembersSection from './admin/MembersSection.jsx';
-import ArticlesSection from './admin/ArticlesSection.jsx';
+import PendingContentSection from './admin/PendingContentSection.jsx';
 import AddCompanySection from './admin/AddCompanySection.jsx';
 import OrganizationsSection from './admin/OrganizationsSection.jsx';
 import ListingsSection from './admin/ListingsSection.jsx';
@@ -81,8 +81,8 @@ function SourcingAdminInner() {
   const [exportStatus, setExportStatus] = useState('');
   const [pendingMembers, setPendingMembers] = useState([]);
   const [memberCompanyMap, setMemberCompanyMap] = useState({});
-  const [pendingArticles, setPendingArticles] = useState([]);
-  const [articleCompanyMap, setArticleCompanyMap] = useState({});
+  const [pendingContent, setPendingContent] = useState([]);
+  const [pendingContentCompanyMap, setPendingContentCompanyMap] = useState({});
 
   // Directory Reports state
   const [reports, setReports] = useState([]);
@@ -251,7 +251,7 @@ function SourcingAdminInner() {
       setOrgs(orgsRes.data || []);
       setListings(allListings);
       setPendingMembers(allPendingMembers);
-      setPendingArticles(allPendingArticles);
+      setPendingContent(allPendingArticles);
 
       const map = {};
       allCompanies.forEach(c => { map[c.id] = c; });
@@ -273,7 +273,7 @@ function SourcingAdminInner() {
           acMap[a.id] = map[a.company_id];
         }
       });
-      setArticleCompanyMap(acMap);
+      setPendingContentCompanyMap(acMap);
 
       const byVertical = {};
       allCompanies.forEach(c => {
@@ -834,7 +834,7 @@ function SourcingAdminInner() {
                 </button>
               </form>
               <div style={{ textAlign: 'center', marginTop: 16 }}>
-                <Link to="/sourcing" style={{ fontSize: 13, color: V.muted, fontFamily: V.space, textDecoration: 'none' }}>
+                <Link to="/" style={{ fontSize: 13, color: V.muted, fontFamily: V.space, textDecoration: 'none' }}>
                   ← Back to Directory
                 </Link>
               </div>
@@ -868,7 +868,7 @@ function SourcingAdminInner() {
     { key: 'stats',      label: 'Stats' },
     { key: 'companies',  label: `Companies${pendingCompanies.length > 0 ? ` (${pendingCompanies.length} pending)` : ''}` },
     { key: 'members',    label: `Pending Reviews${pendingMembers.length > 0 ? ` (${pendingMembers.length})` : ''}` },
-    { key: 'articles',   label: `Pending Content${pendingArticles.length > 0 ? ` (${pendingArticles.length})` : ''}` },
+    { key: 'articles',   label: `Pending Content${pendingContent.length > 0 ? ` (${pendingContent.length})` : ''}` },
     { key: 'add',        label: '+ Add Company' },
     { key: 'orgs',       label: 'Organizations' },
     { key: 'listings',   label: 'Listings' },
@@ -965,7 +965,7 @@ function SourcingAdminInner() {
           }}>
             {TABS.map(tab => {
               const isActive = tab.key === activeTab;
-              const isPending = (tab.key === 'companies' && pendingCompanies.length > 0) || (tab.key === 'members' && pendingMembers.length > 0) || (tab.key === 'articles' && pendingArticles.length > 0);
+              const isPending = (tab.key === 'companies' && pendingCompanies.length > 0) || (tab.key === 'members' && pendingMembers.length > 0) || (tab.key === 'articles' && pendingContent.length > 0);
               return (
                 <button
                   key={tab.key}
@@ -1039,9 +1039,9 @@ function SourcingAdminInner() {
 
         {/* Pending Content */}
         {!loading && activeTab === 'articles' && (
-          <ArticlesSection
-            pendingArticles={pendingArticles}
-            articleCompanyMap={articleCompanyMap}
+          <PendingContentSection
+            pendingContent={pendingContent}
+            pendingContentCompanyMap={pendingContentCompanyMap}
             handleArticleAction={handleArticleAction}
             V={V}
           />

@@ -5,7 +5,7 @@ export default function AddCompanySection({ orgs, V, adminSupabase, selectedTena
   const [addCompanyForm, setAddCompanyForm] = useState({
     name: '', website: '', city: '', vertical: 'semiconductor',
     description: '', employee_count: '', year_founded: '', email: '', phone: '',
-    membership_tier: 'free', featured: false,
+    membership_tier: 'free', featured: false, owner_email: '',
   });
   const [addCompanyStatus, setAddCompanyStatus] = useState('');
 
@@ -15,7 +15,7 @@ export default function AddCompanySection({ orgs, V, adminSupabase, selectedTena
     setAddCompanyStatus('Saving...');
     const slug = addCompanyForm.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     const orgId = orgs.find(o => o.vertical === addCompanyForm.vertical)?.id || null;
-    const { error } = await adminSupabase.from('directory_companies').insert({
+    const { data: insertedCompany, error } = await adminSupabase.from('directory_companies').insert({
       name: addCompanyForm.name,
       slug,
       website: addCompanyForm.website || null,
@@ -33,12 +33,33 @@ export default function AddCompanySection({ orgs, V, adminSupabase, selectedTena
       status: 'active',
       organization_id: orgId,
       ...(selectedTenantId ? { tenant_id: selectedTenantId } : {}),
-    });
+    }).select().single();
     if (error) {
       setAddCompanyStatus('Error: ' + error.message);
     } else {
+      // If owner email provided, create auth user + directory_members row
+      if (addCompanyForm.owner_email.trim() && insertedCompany?.id) {
+        const adminKey = (import.meta.env.VITE_SOURCING_ADMIN_KEY || '').trim();
+        const resp = await fetch('/api/sourcing/admin-setup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+          body: JSON.stringify({
+            mode: 'member',
+            email: addCompanyForm.owner_email.trim(),
+            company_id: insertedCompany.id,
+            tenant_id: selectedTenantId || null,
+          }),
+        }).catch(() => null);
+        if (!resp || !resp.ok) {
+          setAddCompanyStatus('Company added, but owner account creation failed.');
+          setTimeout(() => { setAddCompanyStatus(''); }, 3000);
+          setAddCompanyForm({ name: '', website: '', city: '', vertical: 'semiconductor', description: '', employee_count: '', year_founded: '', email: '', phone: '', membership_tier: 'free', featured: false, owner_email: '' });
+          await fetchData();
+          return;
+        }
+      }
       setAddCompanyStatus('Added!');
-      setAddCompanyForm({ name: '', website: '', city: '', vertical: 'semiconductor', description: '', employee_count: '', year_founded: '', email: '', phone: '', membership_tier: 'free', featured: false });
+      setAddCompanyForm({ name: '', website: '', city: '', vertical: 'semiconductor', description: '', employee_count: '', year_founded: '', email: '', phone: '', membership_tier: 'free', featured: false, owner_email: '' });
       setTimeout(() => { setAddCompanyStatus(''); }, 1500);
       await fetchData();
     }
@@ -57,6 +78,7 @@ export default function AddCompanySection({ orgs, V, adminSupabase, selectedTena
             { label: 'Phone', key: 'phone', type: 'text', placeholder: '(480) 555-0000' },
             { label: 'Employee Count', key: 'employee_count', type: 'text', placeholder: 'e.g. 50-200' },
             { label: 'Year Founded', key: 'year_founded', type: 'number', placeholder: '2015' },
+            { label: 'Owner Email (optional — creates login account)', key: 'owner_email', type: 'email', placeholder: 'owner@example.com' },
           ].map(({ label, key, type, placeholder }) => (
             <div key={key}>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 600, fontFamily: V.space, color: V.muted, marginBottom: 5 }}>{label}</label>

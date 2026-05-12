@@ -348,9 +348,6 @@ function SourcingLoginInner() {
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
-          <div style={{ textAlign: 'center', marginTop: 16 }}>
-            <a href="#" onClick={(e) => { e.preventDefault(); setShowReset(!showReset); setResetEmail(email); setResetMessage(''); }} style={{ color: 'var(--cyan)', fontSize: 13, textDecoration: 'none' }}>Forgot password?</a>
-          </div>
           <div style={{ textAlign: 'center', marginTop: 12, fontSize: 13, color: 'var(--tx3)' }}>
             Don't have an account? <Link to={`${basePath}/signup`} style={{ color: 'var(--cyan)', textDecoration: 'none' }}>Sign up</Link>
           </div>

@@ -130,7 +130,7 @@ export default async function handler(req, res) {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  const redirectTo = redirect_to || 'https://sourcing.directory/space-rising/login';
+  const redirectTo = redirect_to || 'https://sourcing.directory';
 
   let reset_url;
   try {
