@@ -194,8 +194,10 @@ function SourcingAdminInner() {
         if (globalAdmin) {
           setTenants(allTenants);
         } else {
-          // Non-global admin: show only tenants where they have an admin member record
-          const { data: memberRows } = await supabase
+          // Non-global admin: show only tenants where they have an admin member record.
+          // Use adminSupabase (service role) to bypass RLS — the user ID still comes from
+          // their verified session, so scoping is correct.
+          const { data: memberRows } = await adminSupabase
             .from('directory_members')
             .select('tenant_id')
             .eq('auth_user_id', user?.id)
