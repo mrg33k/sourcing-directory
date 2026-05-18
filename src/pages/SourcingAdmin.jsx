@@ -19,6 +19,7 @@ import ReportsSection from './admin/ReportsSection.jsx';
 import AnalyticsSection from './admin/AnalyticsSection.jsx';
 import MessagesSection from './admin/MessagesSection.jsx';
 import ActionsSection from './admin/ActionsSection.jsx';
+import DealBankSection from './admin/DealBankSection.jsx';
 
 // Auth is handled via Supabase Auth (email + password)
 
@@ -871,6 +872,7 @@ function SourcingAdminInner() {
     { key: 'companies',  label: `Companies${pendingCompanies.length > 0 ? ` (${pendingCompanies.length} pending)` : ''}` },
     { key: 'members',    label: `Pending Reviews${pendingMembers.length > 0 ? ` (${pendingMembers.length})` : ''}` },
     { key: 'articles',   label: `Pending Content${pendingContent.length > 0 ? ` (${pendingContent.length})` : ''}` },
+    { key: 'deal-bank',  label: 'Deal Bank' },
     { key: 'add',        label: '+ Add Company' },
     { key: 'orgs',       label: 'Organizations' },
     { key: 'listings',   label: 'Listings' },
@@ -967,7 +969,7 @@ function SourcingAdminInner() {
           }}>
             {TABS.map(tab => {
               const isActive = tab.key === activeTab;
-              const isPending = (tab.key === 'companies' && pendingCompanies.length > 0) || (tab.key === 'members' && pendingMembers.length > 0) || (tab.key === 'articles' && pendingContent.length > 0);
+              const isPending = (tab.key === 'companies' && pendingCompanies.length > 0) || (tab.key === 'members' && pendingMembers.length > 0) || (tab.key === 'articles' && pendingContent.length > 0) || (tab.key === 'deal-bank');
               return (
                 <button
                   key={tab.key}
@@ -1045,6 +1047,15 @@ function SourcingAdminInner() {
             pendingContent={pendingContent}
             pendingContentCompanyMap={pendingContentCompanyMap}
             handleArticleAction={handleArticleAction}
+            V={V}
+          />
+        )}
+
+        {/* Deal Bank */}
+        {!loading && activeTab === 'deal-bank' && (
+          <DealBankSection
+            adminSupabase={adminSupabase}
+            selectedTenantId={selectedTenantId}
             V={V}
           />
         )}
