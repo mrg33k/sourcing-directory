@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import SRWNav from './SRWNav.jsx';
 import SRWFooter from './SRWFooter.jsx';
 import { ArizonaStats } from './SRWSpaceCongress.jsx';
+import useSRWTitle from './useSRWTitle.js';
 import './srw.css';
 
 const HERO_BG = '/images/space-rising/bg-space.jpg';
@@ -18,6 +19,8 @@ const QUICK_LINKS = [
 ];
 
 export default function SRWArizona() {
+  useSRWTitle('Arizona Space Rising');
+
   return (
     <div data-srw>
       <SRWNav />

@@ -1,6 +1,7 @@
 import React from 'react';
 import SRWNav from './SRWNav.jsx';
 import SRWFooter from './SRWFooter.jsx';
+import useSRWTitle from './useSRWTitle.js';
 import './srw.css';
 
 const HERO_BG = '/images/space-rising/bg-space.jpg';
@@ -24,6 +25,8 @@ const EVENTS = [
 ];
 
 export default function SRWEvents() {
+  useSRWTitle('Events | Space Rising');
+
   return (
     <div data-srw>
       <SRWNav />

@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import SRWNav from './SRWNav.jsx';
 import SRWFooter from './SRWFooter.jsx';
+import useSRWTitle from './useSRWTitle.js';
 import './srw.css';
 
 // All assets pulled directly from spacerising.org — exact Squarespace mirror.
@@ -47,11 +48,7 @@ const SERVICES = [
 ];
 
 export default function SRWHome() {
-  useEffect(() => {
-    const prev = document.title;
-    document.title = 'Space Rising | A New Way To Space';
-    return () => { document.title = prev; };
-  }, []);
+  useSRWTitle('Space Rising | A New Way To Space');
 
   return (
     <div data-srw>
