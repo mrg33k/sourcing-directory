@@ -149,7 +149,7 @@
   border-bottom: 1px solid var(--srw-bd);
 }
 
-/* ── Hero (astronaut+cityscape JPG + text PNG overlay) ──────────────────── */
+/* ── Hero (astronaut+cityscape JPG + text PNG overlay positioned left) ──── */
 [data-srw] .srw-hero-composite {
   position: relative;
   width: 100%;
@@ -166,44 +166,48 @@
   margin: 0 auto;
 }
 
+/* Overlay PNG sits over the left ~45% of the hero, bottom-aligned — matches .org */
 [data-srw] .srw-hero-overlay {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  left: 6%;
+  bottom: 18%;
+  width: 42%;
+  max-width: 720px;
+  height: auto;
   pointer-events: none;
   z-index: 2;
+  object-fit: contain;
 }
 
 /* ── Section base ───────────────────────────────────────────────────────── */
-[data-srw] .srw-section { padding: 110px 0; }
-[data-srw] .srw-section-tight { padding: 80px 0 60px; }
+[data-srw] .srw-section { padding: 140px 0; }
+[data-srw] .srw-section-tight { padding: 120px 0 80px; }
 
 [data-srw] h1, [data-srw] h2, [data-srw] h3, [data-srw] h4 {
   margin: 0;
 }
 
+/* Big thin uppercase section headings — matches the .org's hero-feel headlines */
 [data-srw] .srw-h2-thin {
   font-family: 'Inter', sans-serif;
-  font-size: clamp(28px, 3.4vw, 44px);
-  font-weight: 300;
-  line-height: 1.15;
-  letter-spacing: 0.01em;
+  font-size: clamp(40px, 5.6vw, 78px);
+  font-weight: 200;
+  line-height: 1.1;
+  letter-spacing: 0.005em;
   text-transform: uppercase;
   color: var(--srw-text);
-  max-width: 24ch;
+  max-width: 22ch;
   margin: 0 auto;
 }
 
-[data-srw] .srw-h2-faint { color: rgba(255, 255, 255, 0.55); }
+[data-srw] .srw-h2-faint { color: rgba(255, 255, 255, 0.45); }
 
 [data-srw] .srw-section-sub-center {
-  font-size: 16px;
+  font-size: 17px;
   color: var(--srw-text);
-  margin: 18px auto 56px;
+  margin: 32px auto 80px;
   max-width: 60ch;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 /* ── Stats ──────────────────────────────────────────────────────────────── */
@@ -217,47 +221,52 @@
 
 [data-srw] .srw-stat {
   text-align: center;
-  padding: 24px 16px;
+  padding: 40px 16px;
 }
 
 [data-srw] .srw-stat-num {
   font-family: 'Inter', sans-serif;
-  font-weight: 300;
-  font-size: clamp(48px, 6vw, 84px);
+  font-weight: 200;
+  font-size: clamp(64px, 9vw, 130px);
   color: rgba(255, 255, 255, 0.55);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.015em;
 }
 
 [data-srw] .srw-stat-label {
-  font-size: 15px;
+  font-size: 19px;
+  font-weight: 300;
   color: var(--srw-text);
-  margin-top: 16px;
-  font-weight: 400;
+  margin-top: 28px;
+  line-height: 1.35;
+  max-width: 14ch;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* ── Emerging opportunities (text-only labels, no cards) ────────────────── */
+/* ── Emerging opportunities (dim cards, almost-invisible bg) ────────────── */
 [data-srw] .srw-opp-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 32px 28px;
-  max-width: 1100px;
-  margin: 56px auto 0;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 72px auto 0;
 }
 
 [data-srw] .srw-opp {
   font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  font-size: 16px;
-  color: var(--srw-text-2);
-  padding: 22px 18px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  background: rgba(255, 255, 255, 0.015);
-  min-height: 96px;
+  font-weight: 300;
+  font-size: 18px;
+  color: var(--srw-text);
+  padding: 36px 28px;
+  border: none;
+  background: #111111;
+  min-height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
+  line-height: 1.35;
 }
 
 /* ── Rocket band (orange launch image) ──────────────────────────────────── */
@@ -285,13 +294,13 @@
 }
 [data-srw] .srw-band-copy {
   font-family: 'Inter', sans-serif;
-  font-size: clamp(20px, 1.8vw, 24px);
+  font-size: clamp(22px, 2vw, 28px);
   line-height: 1.5;
   color: var(--srw-text);
   font-weight: 300;
-  margin-bottom: 36px;
+  margin-bottom: 44px;
 }
-[data-srw] .srw-band-copy strong { font-weight: 600; }
+[data-srw] .srw-band-copy strong { font-weight: 700; }
 
 /* ── Outline button (matches Squarespace ABOUT / SUBSCRIBE / SUBMIT) ───── */
 [data-srw] .srw-btn-outline {
@@ -313,9 +322,9 @@
 [data-srw] .srw-services {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 56px;
-  max-width: 1100px;
-  margin: 56px auto 0;
+  gap: 64px;
+  max-width: 1200px;
+  margin: 80px auto 0;
   text-align: left;
 }
 
@@ -323,20 +332,21 @@
   display: block;
   position: relative;
   color: var(--srw-text);
-  padding-bottom: 24px;
+  padding-bottom: 28px;
   border-bottom: 1px solid var(--srw-text);
   transition: opacity 0.18s ease;
 }
 [data-srw] .srw-service:hover { opacity: 0.85; }
 [data-srw] .srw-service h3 {
   font-family: 'Inter', sans-serif;
-  font-size: 22px;
-  font-weight: 500;
-  margin-bottom: 14px;
+  font-size: 28px;
+  font-weight: 400;
+  margin-bottom: 18px;
   color: var(--srw-text);
+  letter-spacing: 0.005em;
 }
 [data-srw] .srw-service p {
-  font-size: 15px;
+  font-size: 17px;
   color: var(--srw-text);
   line-height: 1.55;
   font-weight: 300;
