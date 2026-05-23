@@ -5,16 +5,22 @@ import './srw.css';
 
 const HERO_BG = '/images/space-rising/bg-space.jpg';
 
-// TODO: confirm dates/venues against spacerising.org as the calendar firms up.
 const EVENTS = [
-  { title: 'Arizona Space Congress™', meta: 'April 29, 2026 · Hyatt Regency, Phoenix' },
-  { title: 'Space Tank™ Innovation Competition', meta: 'April 29, 2026 · Phoenix, AZ' },
-  { title: 'Space Symposium', meta: 'April 13–16, 2026 · Colorado Springs, CO' },
-  { title: 'State of the Space Industrial Base Conference', meta: 'May 26–29, 2026' },
-  { title: 'Asteroid Day with NASA Astronauts', meta: 'June 26–27, 2026' },
-  { title: 'Arizona Aerospace Summit', meta: 'July 15, 2026 · Arizona' },
-  { title: 'SpaceFest 2026', meta: 'July 23–26, 2026' },
-  { title: 'Arizona Space Business Roundtable', meta: 'Recurring · Statewide' },
+  {
+    date: 'May 26 – May 29',
+    title: 'State of the Space Industrial Base Conference',
+    meta: 'Tue, May 26, 2026 8:00 AM – Fri, May 29, 2026 9:00 PM · Sheraton Albuquerque Airport Hotel',
+  },
+  {
+    date: 'Jun 2',
+    title: 'Arizona Space Business Roundtable',
+    meta: 'Tuesday, June 2, 2026 5:00 PM – 6:30 PM · Pima Community College',
+  },
+  {
+    date: 'Jun 26 – Jun 27',
+    title: 'Asteroid Day with NASA Astronauts',
+    meta: 'Fri, Jun 26, 2026 8:00 AM – Sat, Jun 27, 2026 5:00 PM · Meteor Crater Rd',
+  },
 ];
 
 export default function SRWEvents() {
@@ -27,22 +33,23 @@ export default function SRWEvents() {
         <div className="srw-hero-veil" />
         <div className="srw-wrap srw-hero-inner">
           <div className="srw-eyebrow">Events</div>
-          <h1>Share Your Events with Arizona's Space Community</h1>
+          <h1>Arizona Events</h1>
           <p className="srw-hero-sub">
-            Conferences, competitions, and convenings keeping the ecosystem connected.
+            Share your events with Arizona's space community.
           </p>
         </div>
       </header>
 
       <section className="srw-section">
         <div className="srw-wrap">
-          <div className="srw-eyebrow">Upcoming</div>
-          <h2>Calendar</h2>
-          <div className="srw-list" style={{ marginTop: 40 }}>
+          <div className="srw-list" style={{ marginTop: 0 }}>
             {EVENTS.map((e) => (
-              <div className="srw-list-item" key={e.title}>
-                <span className="srw-list-title">{e.title}</span>
-                <span className="srw-list-meta">{e.meta}</span>
+              <div className="srw-list-item srw-event-item" key={e.title}>
+                <div className="srw-event-date">{e.date}</div>
+                <div>
+                  <div className="srw-list-title">{e.title}</div>
+                  <div className="srw-list-meta">{e.meta}</div>
+                </div>
               </div>
             ))}
           </div>
@@ -52,7 +59,7 @@ export default function SRWEvents() {
       <section className="srw-contact">
         <div className="srw-wrap">
           <div className="srw-eyebrow">Submit an Event</div>
-          <h2>Have something to add?</h2>
+          <h2>Share your events with Arizona's space community</h2>
           <a href="mailto:info@spacerising.org" className="srw-email">info@spacerising.org</a>
         </div>
       </section>

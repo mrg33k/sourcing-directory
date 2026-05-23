@@ -7,37 +7,89 @@ import './srw.css';
 const HERO_BG = '/images/space-rising/bg-space.jpg';
 
 const QUICK_LINKS = [
-  { label: 'Agenda', to: '/srw/events' },
-  { label: 'Speakers', to: '/srw/events' },
-  { label: 'Scholars', to: '/srw/events' },
-  { label: 'Photos', to: '/srw/media' },
+  { label: "'26 Agenda", to: '/srw/arizona' },
+  { label: "'26 Speakers", to: '/srw/arizona' },
+  { label: "'26 Scholars", to: '/srw/arizona' },
+  { label: "'26 Collective", to: '/srw/arizona' },
+  { label: "'26 Photos", to: '/srw/media' },
+  { label: 'Arizona Media', to: '/srw/media' },
+  { label: 'Arizona Events', to: '/srw/events' },
 ];
 
 const STATS = [
-  { num: '62K+', label: 'Aerospace Employees' },
-  { num: '1.3K+', label: 'Supply Chain Companies' },
+  { num: '62K+', label: 'Aerospace & Defense Employees' },
+  { num: '1.3K+', label: 'Companies in the Supply Chain' },
   { num: '$29.5B', label: 'Statewide Economic Impact' },
 ];
 
 const RANKINGS = [
-  { rank: '#1', label: 'Guided missile manufacturing jobs' },
-  { rank: '#3', label: 'Aerospace attractiveness' },
-  { rank: '$120M', label: 'NASA funding per year' },
+  { rank: '#1', label: 'Guided Missile & Space Vehicle Manufacturing Jobs' },
+  { rank: '#3', label: 'Aerospace Manufacturing Attractiveness' },
+  { rank: '$120M/yr', label: 'Direct NASA Funding' },
 ];
 
 const FACTS = [
-  { title: 'Industry Leaders', body: 'Major contractors — including Boeing, Raytheon, Honeywell, and Northrop Grumman — operate significant aerospace footprints across Arizona.' },
-  { title: 'University of Arizona', body: "Research leadership in planetary science and space instrumentation, including leadership of NASA's OSIRIS-REx asteroid sample-return mission." },
-  { title: 'Aerospace Rankings', body: 'Arizona consistently ranks among the top states for aerospace manufacturing jobs and industry attractiveness.' },
-  { title: 'Arizona State University', body: 'Contributions across space science, instrumentation, and lunar/planetary exploration programs.' },
-  { title: 'Starliner Landing Site', body: "Arizona's White Sands corridor and desert geography make it a strategic site for spacecraft testing and landing." },
+  {
+    title: 'Industry Leaders',
+    body: 'Arizona hosts operations from major aerospace and defense companies, including Lockheed Martin, Boeing, Honeywell Aerospace, General Dynamics Mission Systems, Rocket Lab, Northrop Grumman, Raytheon, General Electric, and Virgin Galactic. These companies contribute significantly to Arizona\'s robust aerospace and defense sector.',
+  },
+  {
+    title: "University of Arizona's Space Leadership",
+    body: "The University of Arizona ranks among the top 10 U.S. universities for NASA-funded research expenditures. The university has a rich history in space exploration, dating back to the founding of the Lunar and Planetary Laboratory and its involvement in the Viking missions to Mars in the 1970s. In 2023, the university unveiled a new $85 million, 89,000-square-foot Applied Research Building, enhancing its research capabilities in space sciences.",
+  },
+  {
+    title: "Arizona's Aerospace & Defense Rankings",
+    body: "Aviation Maintenance: Arizona ranks 8th in the nation for aviation maintenance, with an economic impact of $2.4 billion and over 11,700 workers employed in the sector. Defense Contracts: In Fiscal Year 2023, Arizona received over $17 billion in federal defense spending, ranking 8th among all states. Optics Industry: Arizona's optics industry is valued at approximately $3 billion annually, with Southern Arizona serving as a hub for photonics research.",
+  },
+  {
+    title: "Arizona State University's Space Contributions",
+    body: "Arizona State University (ASU) has been a significant contributor to Mars missions since the NASA Viking missions in the 1970s. ASU's School of Earth and Space Exploration boasts over 40 instrument facilities and laboratories, participates in more than 25 active space missions, and collaborates with over 120 space industry partners.",
+  },
+  {
+    title: 'Starliner Landing Site',
+    body: "Arizona is home to one of the designated landing sites for Boeing's Starliner spacecraft. The Willcox Playa in Arizona is one of the potential landing locations for the Starliner, alongside sites in New Mexico and Utah.",
+  },
 ];
 
 const EDGE = [
-  { name: 'Space Science', desc: 'World-class planetary and astronomical research.' },
-  { name: 'Manufacturing', desc: 'Deep aerospace and defense production base.' },
-  { name: 'Space Data & Communications', desc: 'Satellite, sensing, and ground-station expertise.' },
-  { name: 'Humans in Space', desc: 'Training, life-support, and exploration systems.' },
+  {
+    name: 'Space Science',
+    items: [
+      'Planetary & Geological Sciences',
+      'Deep Space Missions',
+      'Microgravity & Space Environment Research',
+      'Observational Astronomy',
+    ],
+  },
+  {
+    name: 'Manufacturing',
+    items: [
+      'Satellite Components and Payload Systems',
+      'Spacecraft and Launch Vehicle Manufacturing',
+      'Subsystems and Precision Subcomponent Fabrication',
+      'In-Orbit Assembly and Additive Manufacturing',
+    ],
+  },
+  {
+    name: 'Space Data, Information and Communications',
+    items: [
+      'Space Domain Awareness',
+      'Space Debris Monitoring and Mitigation',
+      'Remote Sensing and Sensor Development',
+      'Data Analytics and Processing',
+      'Satellite Communications',
+    ],
+  },
+  {
+    name: 'Humans in Space',
+    items: [
+      'Space Medicine, Health, and Human Performance',
+      'Space and the Humanities',
+      'Space Business, Leadership, and Economy',
+      'Space Tourism',
+      'Augmented and Virtual Reality',
+    ],
+  },
 ];
 
 export function ArizonaStats() {
@@ -58,7 +110,7 @@ export function ArizonaStats() {
 
       <section className="srw-section">
         <div className="srw-wrap">
-          <div className="srw-eyebrow">National Standing</div>
+          <div className="srw-eyebrow">Leadership + Innovation</div>
           <h2>Where Arizona Ranks</h2>
           <div className="srw-grid srw-grid-3" style={{ marginTop: 40 }}>
             {RANKINGS.map((r) => (
@@ -75,7 +127,7 @@ export function ArizonaStats() {
         <div className="srw-wrap">
           <div className="srw-eyebrow">Space Facts</div>
           <h2>The Arizona Space Story</h2>
-          <div className="srw-grid srw-grid-3" style={{ marginTop: 40 }}>
+          <div className="srw-grid srw-grid-2" style={{ marginTop: 40 }}>
             {FACTS.map((f) => (
               <div className="srw-card" key={f.title}>
                 <h3 style={{ fontSize: 19 }}>{f.title}</h3>
@@ -89,13 +141,16 @@ export function ArizonaStats() {
       <section className="srw-section">
         <div className="srw-wrap">
           <div className="srw-eyebrow">Arizona's Edge</div>
-          <h2>Four Areas of Strategic Advantage</h2>
+          <h2>Arizona's Edge</h2>
           <div className="srw-grid srw-grid-4" style={{ marginTop: 40 }}>
             {EDGE.map((e, i) => (
               <div className="srw-card" key={e.name}>
-                <div className="srw-card-num">{String(i + 1).padStart(2, '0')}</div>
                 <h3 style={{ fontSize: 19 }}>{e.name}</h3>
-                <p>{e.desc}</p>
+                <ul className="srw-edge-list">
+                  {e.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
@@ -114,8 +169,6 @@ export default function SRWSpaceCongress() {
         <div className="srw-hero-bg" style={{ backgroundImage: `url(${HERO_BG})` }} />
         <div className="srw-hero-veil" />
         <div className="srw-wrap srw-hero-inner">
-          <div className="srw-eyebrow">Space Rising Presents</div>
-          <h1>Space Congress™</h1>
           <p className="srw-hero-sub">April 29, 2026 &nbsp;|&nbsp; Hyatt Regency &nbsp;|&nbsp; Phoenix, Arizona</p>
           <div className="srw-quicklinks">
             {QUICK_LINKS.map((q) => (
@@ -129,8 +182,8 @@ export default function SRWSpaceCongress() {
 
       <section className="srw-contact">
         <div className="srw-wrap">
-          <div className="srw-eyebrow">Join Us</div>
-          <h2>Be part of the convening</h2>
+          <div className="srw-eyebrow">Contact</div>
+          <h2>info@spacerising.org</h2>
           <a href="mailto:info@spacerising.org" className="srw-email">info@spacerising.org</a>
         </div>
       </section>

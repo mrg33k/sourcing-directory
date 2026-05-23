@@ -8,37 +8,36 @@ const HERO_BG = '/images/space-rising/bg-space.jpg';
 
 const STATS = [
   { num: '$2T', label: 'Global Market Projected by 2040' },
+  { num: '$570B', label: 'Current Market Size' },
   { num: '80%', label: 'Commercial Activity' },
   { num: '7.4%', label: 'Annual Growth Rate' },
-  { num: '$570B', label: 'Current Market Size' },
 ];
 
 const OPPORTUNITIES = [
-  'Launch Rideshare',
+  'Launch Rideshare + Space Trucking',
   'Orbital Construction',
   'Lunar Resource Extraction',
   'AI + Robotics',
-  'Space-Based Energy Production',
-  'Commercial Space Stations',
-  'In-Space Manufacturing',
+  'Space Based Energy Production',
+  'Commercial space stations & orbital platform',
 ];
 
 const SERVICES = [
   {
     name: 'Space Congress™',
-    desc: "Annual convening of Arizona's space leaders, builders, and policymakers.",
+    desc: 'Cross-sector convenings for regional space alignment.',
     to: '/srw/space-congress',
     cta: 'Learn more',
   },
   {
     name: 'SpaceOS™',
-    desc: 'The interactive Space Rising platform — companies, jobs, events, and resources.',
+    desc: 'The intelligence infrastructure connecting the space economy.',
     to: '/space-rising',
     cta: 'Browse the directory',
   },
   {
     name: 'Partnerships',
-    desc: 'Strategic connections across industry, government, and academia.',
+    desc: 'Commercialization initiatives partnered with businesses to enter and scale within the space economy.',
     to: '/srw/partnerships',
     cta: 'Partner with us',
   },
@@ -82,11 +81,7 @@ export default function SRWHome() {
         <div className="srw-wrap">
           <div className="srw-eyebrow">The Frontier</div>
           <h2>Emerging Opportunities for Space Infrastructure</h2>
-          <p className="srw-section-lead">
-            The next decade of growth is being built across a handful of foundational
-            industries. These are where the space economy compounds.
-          </p>
-          <div className="srw-grid srw-grid-3">
+          <div className="srw-grid srw-grid-3" style={{ marginTop: 40 }}>
             {OPPORTUNITIES.map((o, i) => (
               <div className="srw-card" key={o}>
                 <div className="srw-card-num">{String(i + 1).padStart(2, '0')}</div>
@@ -102,14 +97,13 @@ export default function SRWHome() {
         <div className="srw-band-bg" style={{ backgroundImage: `url(${HERO_BG})` }} />
         <div className="srw-band-veil" />
         <div className="srw-wrap srw-band-inner">
-          <div className="srw-eyebrow">Why Space Rising</div>
+          <div className="srw-eyebrow">About Space Rising</div>
           <h2>The connective layer across the evolving space economy</h2>
           <p>
-            Space Rising links the people, companies, capital, and institutions
-            driving the new space era — turning a fragmented ecosystem into a
-            coordinated engine for growth.
+            Space Rising serves as the connective layer across the evolving space economy.
+            We translate regional activity into coordinated strategy.
           </p>
-          <Link to="/srw/about" className="srw-link">About Space Rising →</Link>
+          <Link to="/srw/about" className="srw-link">About →</Link>
         </div>
       </section>
 

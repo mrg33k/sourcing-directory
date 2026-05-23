@@ -394,8 +394,33 @@
 [data-srw] .srw-principle-name {
   font-family: 'Oswald', sans-serif;
   font-size: 19px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
+}
+
+/* ── Edge list (Arizona's edge sub-items) ───────────────────────────────── */
+[data-srw] .srw-edge-list {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+}
+[data-srw] .srw-edge-list li {
+  font-size: 14px;
+  color: var(--srw-text-2);
+  padding: 5px 0;
+  border-bottom: 1px solid var(--srw-bd);
+  line-height: 1.4;
+}
+[data-srw] .srw-edge-list li:last-child { border-bottom: none; }
+
+/* ── Event items ────────────────────────────────────────────────────────── */
+[data-srw] .srw-event-item { align-items: flex-start; gap: 28px; }
+[data-srw] .srw-event-date {
+  font-family: 'Oswald', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--srw-accent);
+  min-width: 130px;
+  padding-top: 2px;
 }
 
 /* ── Events / media list ─────────────────────────────────────────────────── */

@@ -6,28 +6,49 @@ import './srw.css';
 const HERO_BG = '/images/space-rising/bg-space.jpg';
 
 const PILLARS = [
-  { name: 'STEM + Jobs', desc: 'Workforce development — building the talent pipeline for the space economy.' },
-  { name: 'Partnered Innovation', desc: 'Technology transfer between industry, universities, and government.' },
-  { name: 'Research Facilities', desc: 'Infrastructure expansion to support next-generation space programs.' },
-  { name: 'Power Systems', desc: 'Advancing nuclear propulsion and in-space power generation.' },
+  {
+    name: 'Mission Forward Space Congress',
+    desc: 'Convening method built to transform collective input into actionable strategy, supporting regional space economy development with national scalability.',
+  },
+  {
+    name: 'STEM + Jobs',
+    desc: 'Prepare the next generation of space-ready talent through accelerators and workforce pathways.',
+  },
+  {
+    name: 'Partnered Innovation',
+    desc: 'Accelerate technology transfer and collaboration across federal, state, and industry partners.',
+  },
+  {
+    name: 'Research Facilities',
+    desc: 'Expand research laboratory infrastructure nationwide.',
+  },
+  {
+    name: 'Power Systems',
+    desc: 'Drive advanced nuclear propulsion and emerging energy solutions to accelerate space innovation.',
+  },
 ];
 
-// TODO: replace placeholder team with real names, titles, photos, and LinkedIn URLs.
 const TEAM = [
-  { name: 'Taryn [Last Name]', title: 'Executive Director' },
-  { name: 'TBD', title: 'Director of Partnerships' },
-  { name: 'TBD', title: 'Program Director' },
-  { name: 'TBD', title: 'Director of Operations' },
-  { name: 'TBD', title: 'Community Lead' },
-  { name: 'TBD', title: 'Policy Advisor' },
-  { name: 'TBD', title: 'Communications Lead' },
+  { name: 'Ben Smith', title: 'Chief Executive Officer' },
+  { name: 'Taryn Struck', title: 'Chief Operating Officer, Co-Founder' },
+  { name: 'Tim Struck', title: 'Chief Brand Officer, Co-Founder' },
+  { name: 'Angelica Sirotin', title: 'Chief Communications Officer' },
+  { name: 'Jospeh Valdez', title: 'Chief Strategy Officer' },
+  { name: 'Robert S Katz', title: 'Strategic Advisor, CEO & Executive Director, World Innovation Network (WIN)' },
+  { name: 'Patrik Matheson', title: 'Lead Systems & Media Architect' },
 ];
 
-// TODO: confirm exact guiding principles from spacerising.org — placeholders below.
 const PRINCIPLES = [
-  'Creativity', 'Integrity', 'Action', 'Relationships',
-  'Curiosity', 'Stewardship', 'Excellence', 'Collaboration',
-  'Resilience', 'Vision',
+  'Creativity is our obligation',
+  'Respect the rules – until they limit what’s possible',
+  'Selectivity is the strategy',
+  'Integrity in every interaction',
+  'Trust something bigger when the odds are stacked against you',
+  'Action beats perfection – experiment',
+  'Relationships are the work',
+  'Progress compounds when capability is shared',
+  'Raise standards - everywhere',
+  'Growth comes through humility and service',
 ];
 
 const PersonIcon = () => (
@@ -48,9 +69,6 @@ export default function SRWAbout() {
         <div className="srw-wrap srw-hero-inner">
           <div className="srw-eyebrow">About Us</div>
           <h1>A New Way to Space</h1>
-          <p className="srw-hero-sub">
-            Building the connective infrastructure for America's space economy.
-          </p>
         </div>
       </header>
 
@@ -58,28 +76,13 @@ export default function SRWAbout() {
       <section className="srw-section">
         <div className="srw-wrap">
           <div className="srw-eyebrow">Our Vision</div>
-          <h2 style={{ maxWidth: '24ch' }}>
-            A thriving, coordinated space economy — built from Arizona outward.
+          <h2 style={{ maxWidth: '30ch' }}>
+            Become a spacefaring civilization guided by knowledge, cooperation, and stewardship
           </h2>
           <p className="srw-section-lead" style={{ fontSize: 20, marginTop: 20, maxWidth: '60ch' }}>
-            Space Rising exists to be the connective layer for the evolving space
-            economy — turning a fragmented ecosystem of companies, capital,
-            institutions, and talent into a coordinated engine for growth.
-          </p>
-        </div>
-      </section>
-
-      {/* Space Congress methodology */}
-      <section className="srw-band">
-        <div className="srw-band-bg" style={{ backgroundImage: `url(${HERO_BG})` }} />
-        <div className="srw-band-veil" />
-        <div className="srw-wrap srw-band-inner">
-          <div className="srw-eyebrow">How We Work</div>
-          <h2>From collective input to actionable strategy</h2>
-          <p>
-            Through Space Congress™, Space Rising convenes the people building the
-            space economy and translates their collective input into a shared,
-            actionable strategy for the region.
+            While empowering the next generation of leaders to carry that future forward. We serve as a
+            connective layer for the evolving space economy — translating fragmented activity into
+            coordinated ecosystem development.
           </p>
         </div>
       </section>
@@ -88,7 +91,7 @@ export default function SRWAbout() {
       <section className="srw-section srw-section-dark">
         <div className="srw-wrap">
           <div className="srw-eyebrow">Strategy</div>
-          <h2>Four Strategic Pillars</h2>
+          <h2>Mission Forward</h2>
           <div className="srw-grid srw-grid-2" style={{ marginTop: 44 }}>
             {PILLARS.map((p, i) => (
               <div className="srw-card" key={p.name}>
@@ -104,7 +107,7 @@ export default function SRWAbout() {
       {/* Leadership */}
       <section className="srw-section">
         <div className="srw-wrap">
-          <div className="srw-eyebrow">Our People</div>
+          <div className="srw-eyebrow">Leadership</div>
           <h2>Leadership</h2>
           <div className="srw-team" style={{ marginTop: 44 }}>
             {TEAM.map((m, i) => (
@@ -121,11 +124,11 @@ export default function SRWAbout() {
       {/* Guiding principles */}
       <section className="srw-section srw-section-dark">
         <div className="srw-wrap">
-          <div className="srw-eyebrow">What Guides Us</div>
+          <div className="srw-eyebrow">Principles Guiding the Way</div>
           <h2>Guiding Principles</h2>
           <div className="srw-principles" style={{ marginTop: 40 }}>
             {PRINCIPLES.map((p, i) => (
-              <div className="srw-principle" key={p}>
+              <div className="srw-principle" key={i}>
                 <span className="srw-principle-num">{String(i + 1).padStart(2, '0')}</span>
                 <span className="srw-principle-name">{p}</span>
               </div>
