@@ -29,13 +29,13 @@ const PILLARS = [
 ];
 
 const TEAM = [
-  { name: 'Ben Smith', title: 'Chief Executive Officer' },
-  { name: 'Taryn Struck', title: 'Chief Operating Officer, Co-Founder' },
-  { name: 'Tim Struck', title: 'Chief Brand Officer, Co-Founder' },
-  { name: 'Angelica Sirotin', title: 'Chief Communications Officer' },
-  { name: 'Jospeh Valdez', title: 'Chief Strategy Officer' },
-  { name: 'Robert S Katz', title: 'Strategic Advisor, CEO & Executive Director, World Innovation Network (WIN)' },
-  { name: 'Patrik Matheson', title: 'Lead Systems & Media Architect' },
+  { name: 'Ben Smith', title: 'Chief Executive Officer', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/ab10ecec-d626-4788-9267-a42d6024fd2b/1714670486972.jpeg?format=750w' },
+  { name: 'Taryn Struck', title: 'Chief Operating Officer, Co-Founder', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/f1f433e5-e351-46a0-92b7-e8ee44c63163/ChatGPT+Image+May+11%2C+2026%2C+06_57_11+PM.png?format=750w' },
+  { name: 'Tim Struck', title: 'Chief Brand Officer, Co-Founder', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/346ebcfa-f0ba-45de-ad84-d686053108be/Tim_Struck-3x5.jpg?format=750w' },
+  { name: 'Angelica Sirotin', title: 'Chief Communications Officer', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/091acca6-f199-42ba-978e-6c5776cf1814/Angelica_Sirotin_Headshot_2026.jpg?format=750w' },
+  { name: 'Joseph Valdez', title: 'Chief Strategy Officer', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/395b7154-417d-41f0-b7bc-34cd1dfe9563/1701816599744.jpeg?format=750w' },
+  { name: 'Robert S Katz', title: 'Strategic Advisor, CEO & Executive Director, World Innovation Network (WIN)', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/dfa45926-99d6-4c8e-8db9-93383577372c/Robert+S.+Katz+-+Photo+-+Profile+-+A+-+V1.png?format=750w' },
+  { name: 'Patrik Matheson', title: 'Lead Systems & Media Architect', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/743491ab-a7c1-4f32-b0f2-ba73a4bafd0d/1766092136378.jpeg?format=750w' },
 ];
 
 const PRINCIPLES = [
@@ -112,7 +112,9 @@ export default function SRWAbout() {
           <div className="srw-team" style={{ marginTop: 44 }}>
             {TEAM.map((m, i) => (
               <div className="srw-team-card" key={i}>
-                <div className="srw-team-photo"><PersonIcon /></div>
+                <div className="srw-team-photo">
+                  {m.photo ? <img src={m.photo} alt={m.name} /> : <PersonIcon />}
+                </div>
                 <div className="srw-team-name">{m.name}</div>
                 <div className="srw-team-title">{m.title}</div>
               </div>

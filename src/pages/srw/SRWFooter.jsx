@@ -7,10 +7,12 @@ export default function SRWFooter() {
       <div className="srw-wrap">
         <div className="srw-footer-inner">
           <div>
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" />
+            <img
+              src="https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/82e43967-ce2d-47fc-9d5d-efe3433d1876/SpaceRising_LOGO-WHT.png?format=1000w"
+              alt="Space Rising"
+            />
             <p className="srw-footer-mission">
-              The connective layer for the evolving space economy — mobilizing
-              Arizona's space ecosystem across industry, government, and academia.
+              <strong>Space Rising</strong> is dedicated to strengthening the nation's space ecosystem and empowering the next generation of leaders who will carry it forward.
             </p>
             <div className="srw-social">
               <a href="https://www.linkedin.com/company/space-rising/" target="_blank" rel="noreferrer" aria-label="LinkedIn">

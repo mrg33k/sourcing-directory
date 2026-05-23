@@ -4,11 +4,13 @@ import SRWNav from './SRWNav.jsx';
 import SRWFooter from './SRWFooter.jsx';
 import './srw.css';
 
-const HERO_BG = '/images/space-rising/bg-space.jpg';
+// All assets pulled directly from spacerising.org CDN — exact Squarespace copy.
+const HERO_COMPOSITE = 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/be97f7c9-2222-4898-bdf5-e893d1cfa297/Hero-Image-banner-text_no+date.png?format=2500w';
+const ROCKET_BG = 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/e4769b24-1ded-425b-b1a8-0d7e0a77a5b9/AdobeStock_1565186160.jpeg?format=2500w';
 
 const STATS = [
-  { num: '$2T', label: 'Global Market Projected by 2040' },
-  { num: '$570B', label: 'Current Market Size' },
+  { num: '$570B', label: 'Global Market' },
+  { num: '$2T', label: 'Projected by 2040' },
   { num: '80%', label: 'Commercial Activity' },
   { num: '7.4%', label: 'Annual Growth Rate' },
 ];
@@ -19,7 +21,7 @@ const OPPORTUNITIES = [
   'Lunar Resource Extraction',
   'AI + Robotics',
   'Space Based Energy Production',
-  'Commercial space stations & orbital platform',
+  'Commercial Space Stations & Orbital Platforms',
 ];
 
 const SERVICES = [
@@ -27,19 +29,16 @@ const SERVICES = [
     name: 'Space Congress™',
     desc: 'Cross-sector convenings for regional space alignment.',
     to: '/srw/space-congress',
-    cta: 'Learn more',
   },
   {
     name: 'SpaceOS™',
     desc: 'The intelligence infrastructure connecting the space economy.',
     to: '/space-rising',
-    cta: 'Browse the directory',
   },
   {
     name: 'Partnerships',
     desc: 'Commercialization initiatives partnered with businesses to enter and scale within the space economy.',
     to: '/srw/partnerships',
-    cta: 'Partner with us',
   },
 ];
 
@@ -48,27 +47,20 @@ export default function SRWHome() {
     <div data-srw>
       <SRWNav />
 
-      {/* Hero */}
-      <header className="srw-hero">
-        <div className="srw-hero-bg" style={{ backgroundImage: `url(${HERO_BG})` }} />
-        <div className="srw-hero-veil" />
-        <div className="srw-wrap srw-hero-inner">
-          <div className="srw-eyebrow">Space Rising</div>
-          <h1>The Space Economy Is Scaling</h1>
-          <p className="srw-hero-sub">
-            We are now entering a mainstream economic infrastructure — and Arizona
-            is positioned at the center of it.
-          </p>
-        </div>
+      {/* Hero — full-bleed composite from spacerising.org (text + astronaut + cityscape baked in) */}
+      <header className="srw-hero-composite">
+        <img src={HERO_COMPOSITE} alt="A new way to SPACE" />
       </header>
 
-      {/* Stats bar */}
-      <section>
+      {/* The space economy is scaling — stat block */}
+      <section className="srw-section srw-section-tight" style={{ textAlign: 'center' }}>
         <div className="srw-wrap">
+          <h2 className="srw-h2-thin">The Space Economy is Scaling</h2>
+          <p className="srw-section-sub-center"><strong>we are now entering a mainstream economic infrastructure</strong></p>
           <div className="srw-stats">
             {STATS.map((s) => (
               <div className="srw-stat" key={s.label}>
-                <div className="srw-stat-num"><span className="srw-accent">{s.num.charAt(0)}</span>{s.num.slice(1)}</div>
+                <div className="srw-stat-num">{s.num}</div>
                 <div className="srw-stat-label">{s.label}</div>
               </div>
             ))}
@@ -76,62 +68,83 @@ export default function SRWHome() {
         </div>
       </section>
 
-      {/* Opportunities grid */}
-      <section className="srw-section">
+      {/* Emerging Opportunities */}
+      <section className="srw-section" style={{ textAlign: 'center', paddingTop: 0 }}>
         <div className="srw-wrap">
-          <div className="srw-eyebrow">The Frontier</div>
-          <h2>Emerging Opportunities for Space Infrastructure</h2>
-          <div className="srw-grid srw-grid-3" style={{ marginTop: 40 }}>
-            {OPPORTUNITIES.map((o, i) => (
-              <div className="srw-card" key={o}>
-                <div className="srw-card-num">{String(i + 1).padStart(2, '0')}</div>
-                <h3>{o}</h3>
-              </div>
+          <h2 className="srw-h2-thin">Emerging Opportunities for Space Infrastructure</h2>
+          <div className="srw-opp-grid">
+            {OPPORTUNITIES.map((o) => (
+              <div className="srw-opp" key={o}>{o}</div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Value band */}
-      <section className="srw-band">
-        <div className="srw-band-bg" style={{ backgroundImage: `url(${HERO_BG})` }} />
-        <div className="srw-band-veil" />
+      {/* Connective layer — orange rocket band */}
+      <section className="srw-band srw-band-rocket">
+        <div className="srw-band-bg" style={{ backgroundImage: `url(${ROCKET_BG})` }} />
+        <div className="srw-band-veil-rocket" />
         <div className="srw-wrap srw-band-inner">
-          <div className="srw-eyebrow">About Space Rising</div>
-          <h2>The connective layer across the evolving space economy</h2>
-          <p>
-            Space Rising serves as the connective layer across the evolving space economy.
-            We translate regional activity into coordinated strategy.
+          <p className="srw-band-copy">
+            Space Rising serves as the <strong>connective layer</strong> across the evolving space economy. We translate regional activity into coordinated strategy.
           </p>
-          <Link to="/srw/about" className="srw-link">About →</Link>
+          <Link to="/srw/about" className="srw-btn-outline">ABOUT</Link>
         </div>
       </section>
 
-      {/* Services */}
-      <section className="srw-section srw-section-dark">
+      {/* We mobilize space ecosystems through */}
+      <section className="srw-section" style={{ textAlign: 'center' }}>
         <div className="srw-wrap">
-          <div className="srw-eyebrow">What We Do</div>
-          <h2>We mobilize space ecosystems through:</h2>
-          <div className="srw-grid srw-grid-3" style={{ marginTop: 44 }}>
+          <h2 className="srw-h2-thin srw-h2-faint">We Mobilize Space Ecosystems Through:</h2>
+          <div className="srw-services">
             {SERVICES.map((s) => (
-              <div className="srw-card srw-service" key={s.name}>
+              <Link to={s.to} className="srw-service" key={s.name}>
                 <h3>{s.name}</h3>
                 <p>{s.desc}</p>
-                <div className="srw-link" style={{ marginTop: 18 }}>
-                  <Link to={s.to} className="srw-link">{s.cta} →</Link>
-                </div>
-              </div>
+                <span className="srw-service-divider" />
+              </Link>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Contact */}
-      <section className="srw-contact">
+      {/* Contact form */}
+      <section className="srw-contact-form">
         <div className="srw-wrap">
-          <div className="srw-eyebrow">Get In Touch</div>
-          <h2>Contact Us</h2>
-          <a href="mailto:info@spacerising.org" className="srw-email">info@spacerising.org</a>
+          <h2 className="srw-h2-thin srw-h2-faint">Contact Us</h2>
+          <form
+            className="srw-form"
+            action="mailto:info@spacerising.org"
+            method="POST"
+            encType="text/plain"
+            onSubmit={(e) => { /* let mailto handle it */ }}
+          >
+            <div className="srw-form-row">
+              <label>
+                <span>Name <em>(required)</em></span>
+                <div className="srw-form-double">
+                  <input type="text" name="firstName" placeholder="First Name" required />
+                  <input type="text" name="lastName" placeholder="Last Name" required />
+                </div>
+                <div className="srw-form-hint">
+                  <span>First Name</span><span>Last Name</span>
+                </div>
+              </label>
+            </div>
+            <div className="srw-form-row">
+              <label>
+                <span>Email <em>(required)</em></span>
+                <input type="email" name="email" required />
+              </label>
+            </div>
+            <div className="srw-form-row">
+              <label>
+                <span>Message <em>(required)</em></span>
+                <textarea name="message" rows={6} required />
+              </label>
+            </div>
+            <button type="submit" className="srw-btn-outline">SUBMIT</button>
+          </form>
         </div>
       </section>
 
