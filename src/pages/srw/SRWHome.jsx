@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import SRWNav from './SRWNav.jsx';
 import SRWFooter from './SRWFooter.jsx';
@@ -47,6 +47,12 @@ const SERVICES = [
 ];
 
 export default function SRWHome() {
+  useEffect(() => {
+    const prev = document.title;
+    document.title = 'Space Rising | A New Way To Space';
+    return () => { document.title = prev; };
+  }, []);
+
   return (
     <div data-srw>
       <SRWNav />

@@ -4,12 +4,23 @@ import { Link } from 'react-router-dom';
 // Space Rising website navigation — mirrors the Squarespace nav exactly.
 // Logo left, centered links, cart + SUBSCRIBE button right.
 // SpaceOS links to the live Space Rising directory at /space-rising.
+// Space Congress™ and Partnerships are dropdown parents with sub-pages,
+// matching spacerising.org's nav structure.
 const LINKS = [
   { label: 'Home', to: '/srw' },
   { label: 'SpaceOS™', to: '/space-rising' },
-  { label: 'Space Congress™', to: '/srw/space-congress' },
-  { label: 'Arizona', to: '/srw/arizona' },
-  { label: 'Partnerships', to: '/srw/partnerships' },
+  {
+    label: 'Space Congress™',
+    to: '/srw/space-congress',
+    children: [
+      { label: 'Arizona', to: '/srw/arizona' },
+    ],
+  },
+  {
+    label: 'Partnerships',
+    to: '/srw/partnerships',
+    children: [],
+  },
   { label: 'About', to: '/srw/about' },
 ];
 
@@ -28,9 +39,22 @@ export default function SRWNav() {
           </Link>
 
           <div className="srw-nav-links">
-            {LINKS.map((l) => (
-              <Link key={l.label} to={l.to}>{l.label}</Link>
-            ))}
+            {LINKS.map((l) => {
+              const hasChildren = Array.isArray(l.children) && l.children.length > 0;
+              if (!hasChildren) {
+                return <Link key={l.label} to={l.to}>{l.label}</Link>;
+              }
+              return (
+                <div key={l.label} className="srw-nav-item srw-nav-item-dropdown">
+                  <Link to={l.to}>{l.label}</Link>
+                  <div className="srw-nav-submenu" role="menu">
+                    {l.children.map((c) => (
+                      <Link key={c.label} to={c.to} role="menuitem">{c.label}</Link>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           <div className="srw-nav-actions">
@@ -60,9 +84,21 @@ export default function SRWNav() {
       </nav>
 
       <div className={`srw-mobile-menu${open ? ' open' : ''}`}>
-        {LINKS.map((l) => (
-          <Link key={l.label} to={l.to} onClick={() => setOpen(false)}>{l.label}</Link>
-        ))}
+        {LINKS.map((l) => {
+          const hasChildren = Array.isArray(l.children) && l.children.length > 0;
+          return (
+            <React.Fragment key={l.label}>
+              <Link to={l.to} onClick={() => setOpen(false)}>{l.label}</Link>
+              {hasChildren && (
+                <div className="srw-mobile-submenu">
+                  {l.children.map((c) => (
+                    <Link key={c.label} to={c.to} onClick={() => setOpen(false)}>{c.label}</Link>
+                  ))}
+                </div>
+              )}
+            </React.Fragment>
+          );
+        })}
       </div>
     </>
   );
