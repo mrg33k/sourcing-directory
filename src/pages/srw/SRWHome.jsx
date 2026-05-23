@@ -5,7 +5,9 @@ import SRWFooter from './SRWFooter.jsx';
 import './srw.css';
 
 // All assets pulled directly from spacerising.org CDN — exact Squarespace copy.
-const HERO_COMPOSITE = 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/be97f7c9-2222-4898-bdf5-e893d1cfa297/Hero-Image-banner-text_no+date.png?format=2500w';
+// HERO_BG is the astronaut + cityscape photo; HERO_OVERLAY is the "a new way to SPACE" text PNG layered on top.
+const HERO_BG = 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/341f4645-4175-4b09-a77f-0c2ba6d6b47f/Hero-Image-banner.jpg?format=2500w';
+const HERO_OVERLAY = 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/be97f7c9-2222-4898-bdf5-e893d1cfa297/Hero-Image-banner-text_no+date.png?format=2500w';
 const ROCKET_BG = 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/e4769b24-1ded-425b-b1a8-0d7e0a77a5b9/AdobeStock_1565186160.jpeg?format=2500w';
 
 const STATS = [
@@ -47,9 +49,10 @@ export default function SRWHome() {
     <div data-srw>
       <SRWNav />
 
-      {/* Hero — full-bleed composite from spacerising.org (text + astronaut + cityscape baked in) */}
+      {/* Hero — astronaut + cityscape photo with "a new way to SPACE" text overlay */}
       <header className="srw-hero-composite">
-        <img src={HERO_COMPOSITE} alt="A new way to SPACE" />
+        <img className="srw-hero-bg-img" src={HERO_BG} alt="" aria-hidden="true" />
+        <img className="srw-hero-overlay" src={HERO_OVERLAY} alt="A new way to SPACE" />
       </header>
 
       {/* The space economy is scaling — stat block */}

@@ -149,20 +149,31 @@
   border-bottom: 1px solid var(--srw-bd);
 }
 
-/* ── Hero (full-bleed composite — the .org PNG has text baked in) ───────── */
+/* ── Hero (astronaut+cityscape JPG + text PNG overlay) ──────────────────── */
 [data-srw] .srw-hero-composite {
   position: relative;
   width: 100%;
   background: #000;
   display: block;
   overflow: hidden;
+  isolation: isolate;
 }
 
-[data-srw] .srw-hero-composite img {
+[data-srw] .srw-hero-bg-img {
   display: block;
   width: 100%;
   height: auto;
   margin: 0 auto;
+}
+
+[data-srw] .srw-hero-overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  z-index: 2;
 }
 
 /* ── Section base ───────────────────────────────────────────────────────── */
