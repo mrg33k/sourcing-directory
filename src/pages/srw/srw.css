@@ -6,25 +6,36 @@
    Move to AWS = copy folder, swap router root.
    ───────────────────────────────────────────────────────────────────────────── */
 
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
+/* Spacerising.org uses Roboto everywhere — load it via Google Fonts for the SRW scope. */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700&display=swap');
 
+/* Squarespace palette tokens lifted from the live .org via CDP getComputedStyle:
+   --accent-hsl: 0,0%,0% (true black)
+   --darkAccent-hsl: 204,0%,15% (#262626)
+   --lightAccent-hsl: 60,7.46%,86.86% (#dedddc — cream)
+   --black-hsl: 14,100%,34% (#ad2800 — brick red, body text where light bg)
+   --white-hsl: 0,0%,100% */
 [data-srw] {
   --srw-bg: #000000;
   --srw-bg-2: #0a0a0a;
   --srw-bg-3: #141414;
-  --srw-accent: #e5451f;
-  --srw-accent-dim: rgba(229, 69, 31, 0.12);
+  --srw-accent: #ad2800;            /* brick red (body text color on light bg) */
+  --srw-accent-dim: rgba(173, 40, 0, 0.12);
+  --srw-orange: #e5451f;            /* the SPACE-headline / rocket band hot orange */
+  --srw-cream: #e0e0db;             /* stat numbers, soft accents */
+  --srw-darkAccent: #262626;        /* card / divider darker shade */
+  --srw-lightAccent: #dedddc;       /* lightest fill */
   --srw-text: #ffffff;
-  --srw-text-2: #b8b8b8;
-  --srw-text-3: #6e6e6e;
-  --srw-bd: rgba(255, 255, 255, 0.08);
+  --srw-text-2: #c0c0bf;
+  --srw-text-3: #7c7c7a;
+  --srw-bd: rgba(255, 255, 255, 0.10);
   --srw-bd-2: rgba(255, 255, 255, 0.22);
-  --srw-nav-h: 96px;
+  --srw-nav-h: 88px;
   --srw-max: 1280px;
 
   background: var(--srw-bg);
   color: var(--srw-text);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Roboto', system-ui, -apple-system, sans-serif;
   font-weight: 300;
   min-height: 100dvh;
   -webkit-font-smoothing: antialiased;
@@ -80,10 +91,10 @@
 }
 
 [data-srw] .srw-nav-links a {
-  font-family: 'Inter', sans-serif;
-  font-weight: 400;
-  font-size: 14px;
-  letter-spacing: 0.01em;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+  font-size: 16px;
+  letter-spacing: 0;
   color: var(--srw-text);
   padding-bottom: 4px;
   border-bottom: 1px solid transparent;
@@ -107,11 +118,12 @@
 [data-srw] .srw-nav-cart-count { font-size: 14px; }
 
 [data-srw] .srw-nav-subscribe {
-  font-family: 'Inter', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  padding: 14px 28px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  padding: 12px 26px;
   border: 1px solid var(--srw-text);
   color: var(--srw-text);
   background: transparent;
@@ -149,7 +161,7 @@
   border-bottom: 1px solid var(--srw-bd);
 }
 
-/* ── Hero (astronaut+cityscape JPG + text PNG overlay positioned left) ──── */
+/* ── Hero (looped video bg + "a new way to SPACE" text PNG overlay) ─────── */
 [data-srw] .srw-hero-composite {
   position: relative;
   width: 100%;
@@ -157,16 +169,19 @@
   display: block;
   overflow: hidden;
   isolation: isolate;
+  aspect-ratio: 16 / 9;
+  max-height: 90vh;
 }
 
-[data-srw] .srw-hero-bg-img {
+[data-srw] .srw-hero-bg-video {
   display: block;
   width: 100%;
-  height: auto;
-  margin: 0 auto;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 
-/* Overlay PNG sits over the left ~45% of the hero, bottom-aligned — matches .org */
+/* Overlay PNG sits over the left ~42% of the hero, bottom-aligned — matches .org */
 [data-srw] .srw-hero-overlay {
   position: absolute;
   left: 6%;
@@ -187,27 +202,41 @@
   margin: 0;
 }
 
-/* Big thin uppercase section headings — matches the .org's hero-feel headlines */
+/* H1-scale section headings (.org: 53.44px Roboto thin) — THE SPACE ECONOMY, WE MOBILIZE */
 [data-srw] .srw-h2-thin {
-  font-family: 'Inter', sans-serif;
-  font-size: clamp(40px, 5.6vw, 78px);
+  font-family: 'Roboto', sans-serif;
+  font-size: clamp(38px, 4.2vw, 54px);
   font-weight: 200;
-  line-height: 1.1;
-  letter-spacing: 0.005em;
-  text-transform: uppercase;
+  line-height: 1.16;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--srw-text);
   max-width: 22ch;
   margin: 0 auto;
 }
 
-[data-srw] .srw-h2-faint { color: rgba(255, 255, 255, 0.45); }
+/* H2-scale section headings (.org: 30.4px Roboto thin) — EMERGING OPPORTUNITIES, CONTACT US */
+[data-srw] .srw-h2-mid {
+  font-family: 'Roboto', sans-serif;
+  font-size: clamp(24px, 2.4vw, 32px);
+  font-weight: 200;
+  line-height: 1.25;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--srw-text);
+  max-width: 22ch;
+  margin: 0 auto;
+}
+
+/* "WE MOBILIZE" prints in true black on the dark body bg — appears soft / nearly transparent */
+[data-srw] .srw-h2-faint { color: #000; }
 
 [data-srw] .srw-section-sub-center {
   font-size: 17px;
   color: var(--srw-text);
-  margin: 32px auto 80px;
+  margin: 22px auto 72px;
   max-width: 60ch;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* ── Stats ──────────────────────────────────────────────────────────────── */
@@ -225,20 +254,21 @@
 }
 
 [data-srw] .srw-stat-num {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-weight: 200;
-  font-size: clamp(64px, 9vw, 130px);
-  color: rgba(255, 255, 255, 0.55);
-  line-height: 1;
-  letter-spacing: -0.015em;
+  font-size: clamp(38px, 4.2vw, 54px);
+  color: var(--srw-cream);          /* #e0e0db — exact .org stat color */
+  line-height: 1.16;
+  letter-spacing: 0;
 }
 
 [data-srw] .srw-stat-label {
-  font-size: 19px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
   font-weight: 300;
   color: var(--srw-text);
-  margin-top: 28px;
-  line-height: 1.35;
+  margin-top: 18px;
+  line-height: 1.4;
   max-width: 14ch;
   margin-left: auto;
   margin-right: auto;
@@ -254,7 +284,7 @@
 }
 
 [data-srw] .srw-opp {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-weight: 300;
   font-size: 18px;
   color: var(--srw-text);
@@ -293,23 +323,41 @@
   max-width: 56ch;
 }
 [data-srw] .srw-band-copy {
-  font-family: 'Inter', sans-serif;
-  font-size: clamp(22px, 2vw, 28px);
-  line-height: 1.5;
+  font-family: 'Roboto', sans-serif;
+  font-size: clamp(20px, 1.9vw, 25px);
+  line-height: 1.4;
   color: var(--srw-text);
-  font-weight: 300;
-  margin-bottom: 44px;
+  font-weight: 200;
+  margin-bottom: 30px;
 }
 [data-srw] .srw-band-copy strong { font-weight: 700; }
 
-/* ── Outline button (matches Squarespace ABOUT / SUBSCRIBE / SUBMIT) ───── */
+/* ── Plain "ABOUT" link in the rocket band — Roboto 16/300, no border, white */
+[data-srw] .srw-link-plain {
+  display: inline-block;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  padding: 0;
+  border: none;
+  color: var(--srw-text);
+  background: transparent;
+  cursor: pointer;
+  transition: opacity 0.18s ease;
+}
+[data-srw] .srw-link-plain:hover { opacity: 0.8; }
+
+/* ── Outline button (SUBSCRIBE in nav, SUBMIT in form) — Roboto 16/400 ──── */
 [data-srw] .srw-btn-outline {
   display: inline-block;
-  font-family: 'Inter', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  padding: 16px 32px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  padding: 12px 28px;
   border: 1px solid var(--srw-text);
   color: var(--srw-text);
   background: transparent;
@@ -338,15 +386,16 @@
 }
 [data-srw] .srw-service:hover { opacity: 0.85; }
 [data-srw] .srw-service h3 {
-  font-family: 'Inter', sans-serif;
-  font-size: 28px;
-  font-weight: 400;
-  margin-bottom: 18px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 24px;
+  font-weight: 300;
+  margin-bottom: 16px;
   color: var(--srw-text);
-  letter-spacing: 0.005em;
+  letter-spacing: 0;
 }
 [data-srw] .srw-service p {
-  font-size: 17px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
   color: var(--srw-text);
   line-height: 1.55;
   font-weight: 300;
@@ -369,11 +418,11 @@
 [data-srw] .srw-form label { display: block; }
 [data-srw] .srw-form label > span {
   display: block;
-  font-family: 'Inter', sans-serif;
-  font-size: 22px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
   color: var(--srw-text);
   margin-bottom: 12px;
-  font-weight: 400;
+  font-weight: 300;
 }
 [data-srw] .srw-form label > span em {
   font-style: normal;
@@ -388,8 +437,9 @@
   border: none;
   border-bottom: 1px solid rgba(255,255,255,0.45);
   color: var(--srw-text);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 16px;
+  font-weight: 300;
   padding: 10px 0 8px;
   outline: none;
   transition: border-color 0.15s ease;
@@ -411,7 +461,7 @@
 [data-srw] .srw-contact { text-align: center; padding: 100px 0; }
 [data-srw] .srw-contact h2 { margin: 0 auto 18px; }
 [data-srw] .srw-contact a.srw-email {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: clamp(22px, 3vw, 34px);
   color: var(--srw-text);
   letter-spacing: 0.02em;
@@ -419,7 +469,7 @@
 
 /* ── Shared eyebrow / inline accent helpers (other pages) ───────────────── */
 [data-srw] .srw-eyebrow {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.22em;
   font-size: 13px;
@@ -449,7 +499,7 @@
   letter-spacing: 0.12em;
 }
 [data-srw] .srw-card h3 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: 19px;
   font-weight: 500;
   margin-bottom: 10px;
@@ -467,7 +517,7 @@
   background: var(--srw-bg);
 }
 [data-srw] .srw-hero-sm h1 {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-weight: 300;
   font-size: clamp(36px, 5vw, 68px);
   text-transform: uppercase;
@@ -495,7 +545,7 @@
 }
 [data-srw] .srw-team-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
 [data-srw] .srw-team-photo svg { width: 46px; height: 46px; color: var(--srw-text-3); }
-[data-srw] .srw-team-name { font-family: 'Inter', sans-serif; font-size: 17px; font-weight: 500; }
+[data-srw] .srw-team-name { font-family: 'Roboto', sans-serif; font-size: 17px; font-weight: 500; }
 [data-srw] .srw-team-title { font-size: 13px; color: var(--srw-text-3); margin-top: 4px; }
 
 /* ── Principles list ────────────────────────────────────────────────────── */
@@ -583,7 +633,7 @@
 
 /* Generic section heading helper (kept for other pages) */
 [data-srw] .srw-section h2:not(.srw-h2-thin) {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-size: clamp(28px, 4vw, 46px);
   font-weight: 300;
   text-transform: uppercase;

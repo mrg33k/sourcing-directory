@@ -8,6 +8,7 @@ const LINKS = [
   { label: 'Home', to: '/srw' },
   { label: 'SpaceOS™', to: '/space-rising' },
   { label: 'Space Congress™', to: '/srw/space-congress' },
+  { label: 'Arizona', to: '/srw/arizona' },
   { label: 'Partnerships', to: '/srw/partnerships' },
   { label: 'About', to: '/srw/about' },
 ];

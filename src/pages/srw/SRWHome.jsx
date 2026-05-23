@@ -4,9 +4,11 @@ import SRWNav from './SRWNav.jsx';
 import SRWFooter from './SRWFooter.jsx';
 import './srw.css';
 
-// All assets pulled directly from spacerising.org CDN — exact Squarespace copy.
-// HERO_BG is the astronaut + cityscape photo; HERO_OVERLAY is the "a new way to SPACE" text PNG layered on top.
-const HERO_BG = 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/341f4645-4175-4b09-a77f-0c2ba6d6b47f/Hero-Image-banner.jpg?format=2500w';
+// All assets pulled directly from spacerising.org — exact Squarespace mirror.
+// HERO_VIDEO is the actual Squarespace background video; HERO_POSTER is the
+// astronaut/city fallback frame; HERO_OVERLAY is the "a new way to SPACE" text PNG.
+const HERO_VIDEO = '/videos/spacerising-hero.mp4';
+const HERO_POSTER = 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/341f4645-4175-4b09-a77f-0c2ba6d6b47f/Hero-Image-banner.jpg?format=2500w';
 const HERO_OVERLAY = 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/be97f7c9-2222-4898-bdf5-e893d1cfa297/Hero-Image-banner-text_no+date.png?format=2500w';
 const ROCKET_BG = 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/e4769b24-1ded-425b-b1a8-0d7e0a77a5b9/AdobeStock_1565186160.jpeg?format=2500w';
 
@@ -49,17 +51,27 @@ export default function SRWHome() {
     <div data-srw>
       <SRWNav />
 
-      {/* Hero — astronaut + cityscape photo with "a new way to SPACE" text overlay */}
+      {/* Hero — looped background video (8s) with "a new way to SPACE" text overlay */}
       <header className="srw-hero-composite">
-        <img className="srw-hero-bg-img" src={HERO_BG} alt="" aria-hidden="true" />
+        <video
+          className="srw-hero-bg-video"
+          src={HERO_VIDEO}
+          poster={HERO_POSTER}
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="auto"
+          aria-hidden="true"
+        />
         <img className="srw-hero-overlay" src={HERO_OVERLAY} alt="A new way to SPACE" />
       </header>
 
       {/* The space economy is scaling — stat block */}
       <section className="srw-section srw-section-tight" style={{ textAlign: 'center' }}>
         <div className="srw-wrap">
-          <h2 className="srw-h2-thin">The Space Economy is Scaling</h2>
-          <p className="srw-section-sub-center"><strong>we are now entering a mainstream economic infrastructure</strong></p>
+          <h1 className="srw-h2-thin">THE SPACE ECONOMY IS SCALING</h1>
+          <p className="srw-section-sub-center">we are now entering a mainstream economic infrastructure</p>
           <div className="srw-stats">
             {STATS.map((s) => (
               <div className="srw-stat" key={s.label}>
@@ -74,7 +86,7 @@ export default function SRWHome() {
       {/* Emerging Opportunities */}
       <section className="srw-section" style={{ textAlign: 'center', paddingTop: 0 }}>
         <div className="srw-wrap">
-          <h2 className="srw-h2-thin">Emerging Opportunities for Space Infrastructure</h2>
+          <h2 className="srw-h2-mid">EMERGING OPPORTUNITIES FOR SPACE INFRASTRUCTURE</h2>
           <div className="srw-opp-grid">
             {OPPORTUNITIES.map((o) => (
               <div className="srw-opp" key={o}>{o}</div>
@@ -91,14 +103,14 @@ export default function SRWHome() {
           <p className="srw-band-copy">
             Space Rising serves as the <strong>connective layer</strong> across the evolving space economy. We translate regional activity into coordinated strategy.
           </p>
-          <Link to="/srw/about" className="srw-btn-outline">ABOUT</Link>
+          <Link to="/srw/about" className="srw-link-plain">ABOUT</Link>
         </div>
       </section>
 
       {/* We mobilize space ecosystems through */}
       <section className="srw-section" style={{ textAlign: 'center' }}>
         <div className="srw-wrap">
-          <h2 className="srw-h2-thin srw-h2-faint">We Mobilize Space Ecosystems Through:</h2>
+          <h1 className="srw-h2-thin srw-h2-faint">WE MOBILIZE SPACE ECOSYSTEMS THROUGH:</h1>
           <div className="srw-services">
             {SERVICES.map((s) => (
               <Link to={s.to} className="srw-service" key={s.name}>
@@ -114,7 +126,7 @@ export default function SRWHome() {
       {/* Contact form */}
       <section className="srw-contact-form">
         <div className="srw-wrap">
-          <h2 className="srw-h2-thin srw-h2-faint">Contact Us</h2>
+          <h2 className="srw-h2-mid srw-h2-faint" style={{ textAlign: 'left', margin: '0 0 32px', maxWidth: 'none' }}>CONTACT US</h2>
           <form
             className="srw-form"
             action="mailto:info@spacerising.org"
