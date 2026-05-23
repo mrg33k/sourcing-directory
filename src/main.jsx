@@ -58,6 +58,17 @@ const SourcingProfile = lazy(() => import('./pages/SourcingProfile.jsx'))
 const SourcingCreate = lazy(() => import('./pages/SourcingCreate.jsx'))
 const GlobalSignup = lazy(() => import('./pages/GlobalSignup.jsx'))
 
+// Space Rising Website (SRW) — self-contained marketing site under /srw.
+// Mirrors spacerising.org; built to detach to AWS as the front door later.
+const SRWHome = lazy(() => import('./pages/srw/SRWHome.jsx'))
+const SRWSpaceOS = lazy(() => import('./pages/srw/SRWSpaceOS.jsx'))
+const SRWSpaceCongress = lazy(() => import('./pages/srw/SRWSpaceCongress.jsx'))
+const SRWArizona = lazy(() => import('./pages/srw/SRWArizona.jsx'))
+const SRWAbout = lazy(() => import('./pages/srw/SRWAbout.jsx'))
+const SRWPartnerships = lazy(() => import('./pages/srw/SRWPartnerships.jsx'))
+const SRWEvents = lazy(() => import('./pages/srw/SRWEvents.jsx'))
+const SRWMedia = lazy(() => import('./pages/srw/SRWMedia.jsx'))
+
 const Loading = () => (
   <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
 )
@@ -76,6 +87,15 @@ createRoot(document.getElementById('root')).render(
           <Route path="/admin/new" element={<SourcingAdmin />} />
           <Route path="/admin/settings/:tenantSlug" element={<SourcingAdmin />} />
           <Route path="/create" element={<SourcingCreate />} />
+          {/* Space Rising Website (SRW) — placed before tenant catch-all so static segments win */}
+          <Route path="/srw" element={<SRWHome />} />
+          <Route path="/srw/spaceos" element={<SRWSpaceOS />} />
+          <Route path="/srw/space-congress" element={<SRWSpaceCongress />} />
+          <Route path="/srw/arizona" element={<SRWArizona />} />
+          <Route path="/srw/about" element={<SRWAbout />} />
+          <Route path="/srw/partnerships" element={<SRWPartnerships />} />
+          <Route path="/srw/events" element={<SRWEvents />} />
+          <Route path="/srw/media" element={<SRWMedia />} />
           {/* Tenant-scoped routes */}
           <Route path="/:tenantSlug" element={<SourcingDirectory />} />
           <Route path="/:tenantSlug/login" element={<SourcingLogin />} />
