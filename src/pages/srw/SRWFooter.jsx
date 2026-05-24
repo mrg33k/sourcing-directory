@@ -1,19 +1,26 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 
+// Space Rising footer — matches spacerising.org layout exactly:
+// Big ghost logo on the left (oversized, dimmed), mission text + social icons
+// + SUBSCRIBE button stacked on the right. Bottom strip shows Photo Credits
+// (NASA) on the left and copyright/email on the right, single line.
 export default function SRWFooter() {
   return (
     <footer className="srw-footer">
-      <div className="srw-wrap">
-        <div className="srw-footer-inner">
-          <div>
-            <img
-              src="https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/82e43967-ce2d-47fc-9d5d-efe3433d1876/SpaceRising_LOGO-WHT.png?format=1000w"
-              alt="Space Rising"
-            />
-            <p className="srw-footer-mission">
-              <strong>Space Rising</strong> is dedicated to strengthening the nation's space ecosystem and empowering the next generation of leaders who will carry it forward.
-            </p>
+      <div className="srw-footer-inner">
+        <div className="srw-footer-logo">
+          <img
+            src="https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/82e43967-ce2d-47fc-9d5d-efe3433d1876/SpaceRising_LOGO-WHT.png?format=1500w"
+            alt="Space Rising"
+          />
+        </div>
+
+        <div className="srw-footer-right">
+          <p className="srw-footer-mission">
+            <strong>Space Rising</strong> is dedicated to strengthening the nation's space ecosystem and empowering the next generation of leaders who will carry it forward.
+          </p>
+
+          <div className="srw-footer-actions">
             <div className="srw-social">
               <a href="https://www.linkedin.com/company/space-rising/" target="_blank" rel="noreferrer" aria-label="LinkedIn">
                 <svg viewBox="0 0 24 24" fill="currentColor">
@@ -26,22 +33,14 @@ export default function SRWFooter() {
                 </svg>
               </a>
             </div>
-          </div>
-
-          <div className="srw-footer-col">
-            <Link to="/srw/spaceos">SpaceOS™</Link>
-            <Link to="/srw/space-congress">Space Congress™</Link>
-            <Link to="/srw/events">Events</Link>
-            <Link to="/srw/media">Reports & Media</Link>
-            <Link to="/srw/partnerships">Partnerships</Link>
-            <a href="mailto:info@spacerising.org">Subscribe</a>
+            <a href="mailto:info@spacerising.org" className="srw-footer-subscribe">SUBSCRIBE</a>
           </div>
         </div>
       </div>
 
       <div className="srw-footer-bottom">
-        <span>© {new Date().getFullYear()} Space Rising. All rights reserved.</span>
-        <a href="mailto:info@spacerising.org">info@spacerising.org</a>
+        <span><strong>Photo Credits:</strong> NASA</span>
+        <span>© {new Date().getFullYear()} All rights reserved. | <a href="mailto:info@spacerising.org">info@spacerising.org</a></span>
       </div>
     </footer>
   );

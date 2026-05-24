@@ -67,7 +67,7 @@
   height: var(--srw-nav-h);
   display: flex;
   align-items: center;
-  background: transparent;
+  background: #000;
 }
 
 [data-srw] .srw-nav-inner {
@@ -237,8 +237,8 @@
   display: block;
   overflow: hidden;
   isolation: isolate;
-  aspect-ratio: 16 / 9;
-  max-height: 90vh;
+  height: min(100vh, 900px);
+  min-height: 560px;
 }
 
 [data-srw] .srw-hero-bg-video {
@@ -379,6 +379,7 @@
 [data-srw] .srw-band-bg {
   position: absolute; inset: 0;
   background-size: cover; background-position: center;
+  background-attachment: fixed;  /* parallax — bg holds position while page scrolls */
   z-index: 0;
 }
 [data-srw] .srw-band-veil-rocket {
@@ -402,22 +403,22 @@
 }
 [data-srw] .srw-band-copy strong { font-weight: 700; }
 
-/* ── Plain "ABOUT" link in the rocket band — Roboto 16/300, no border, white */
+/* ── "ABOUT" button in the rocket band — bordered, matches .org button style */
 [data-srw] .srw-link-plain {
   display: inline-block;
   font-family: 'Roboto', sans-serif;
-  font-size: 16px;
-  font-weight: 300;
-  letter-spacing: 0.01em;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  padding: 0;
-  border: none;
+  padding: 16px 32px;
+  border: 1px solid var(--srw-text);
   color: var(--srw-text);
   background: transparent;
   cursor: pointer;
-  transition: opacity 0.18s ease;
+  transition: background 0.18s ease, color 0.18s ease;
 }
-[data-srw] .srw-link-plain:hover { opacity: 0.8; }
+[data-srw] .srw-link-plain:hover { background: var(--srw-text); color: #000; }
 
 /* ── Outline button (SUBSCRIBE in nav, SUBMIT in form) — Roboto 16/400 ──── */
 [data-srw] .srw-btn-outline {
@@ -436,40 +437,70 @@
 }
 [data-srw] .srw-btn-outline:hover { background: var(--srw-text); color: var(--srw-bg); }
 
-/* ── Services row (3 columns under "WE MOBILIZE...") ────────────────────── */
-[data-srw] .srw-services {
+/* ── Mobilize section (white bg, 2-col: heading left + services stacked right) */
+[data-srw] .srw-mobilize-section {
+  background: #ffffff;
+  color: #000000;
+  padding: 140px 0;
+}
+
+[data-srw] .srw-mobilize-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 64px;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
   max-width: 1200px;
-  margin: 80px auto 0;
+  margin: 0 auto;
   text-align: left;
+}
+
+[data-srw] .srw-mobilize-heading {
+  font-family: 'Roboto', sans-serif;
+  font-size: clamp(42px, 4.7vw, 61px);
+  font-weight: 200;
+  line-height: 1.16;
+  letter-spacing: 0.01em;
+  color: #000000;
+  max-width: 12ch;
+  margin: 0;
+}
+
+/* Services list inside the mobilize section — stacked, brick-red names, body
+   text black with bold accents, thin horizontal line under each. Matches .org. */
+[data-srw] .srw-services {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin: 0;
 }
 
 [data-srw] .srw-service {
   display: block;
   position: relative;
-  color: var(--srw-text);
-  padding-bottom: 28px;
-  border-bottom: 1px solid var(--srw-text);
+  color: #000000;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #bcbcbc;
   transition: opacity 0.18s ease;
 }
 [data-srw] .srw-service:hover { opacity: 0.85; }
 [data-srw] .srw-service h3 {
   font-family: 'Roboto', sans-serif;
-  font-size: 24px;
-  font-weight: 300;
-  margin-bottom: 16px;
-  color: var(--srw-text);
+  font-size: 18px;
+  font-weight: 500;
+  margin: 0 0 10px;
+  color: var(--srw-accent);  /* brick red #ad2800 — matches .org service heads */
   letter-spacing: 0;
 }
 [data-srw] .srw-service p {
   font-family: 'Roboto', sans-serif;
   font-size: 16px;
-  color: var(--srw-text);
+  color: #000000;
   line-height: 1.55;
   font-weight: 300;
-  min-height: 5em;
+}
+[data-srw] .srw-service p strong {
+  font-weight: 700;
+  color: #000000;
 }
 [data-srw] .srw-service-divider { display: none; }
 
@@ -720,38 +751,72 @@
   margin-bottom: 44px;
 }
 
-/* ── Footer ─────────────────────────────────────────────────────────────── */
+/* ── Footer (matches spacerising.org — ghost logo left, mission+social right) */
 [data-srw] .srw-footer {
-  background: var(--srw-bg-2);
-  border-top: 1px solid var(--srw-bd);
-  padding: 80px 0 48px;
+  background: #1a1a1a;
+  padding: 80px 0 32px;
 }
 [data-srw] .srw-footer-inner {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 40px;
-  align-items: start;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  max-width: var(--srw-max);
+  margin: 0 auto;
+  padding: 0 32px;
 }
-[data-srw] .srw-footer img { height: 96px; margin-bottom: 18px; }
-[data-srw] .srw-footer-mission { color: var(--srw-text); font-size: 15px; max-width: 50ch; line-height: 1.55; }
-[data-srw] .srw-footer-col { display: flex; flex-direction: column; gap: 12px; }
-[data-srw] .srw-footer-col a { color: var(--srw-text); font-size: 14px; transition: color 0.18s ease; }
-[data-srw] .srw-footer-col a:hover { color: var(--srw-text-2); }
-[data-srw] .srw-social { display: flex; gap: 14px; margin-top: 6px; }
+/* Big ghost logo on the left — dim, oversized */
+[data-srw] .srw-footer-logo img {
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+  opacity: 0.22;
+  display: block;
+}
+[data-srw] .srw-footer-right { display: flex; flex-direction: column; gap: 28px; }
+[data-srw] .srw-footer-mission {
+  color: var(--srw-text);
+  font-family: 'Roboto', sans-serif;
+  font-size: 15px;
+  max-width: 50ch;
+  line-height: 1.55;
+  font-weight: 300;
+  margin: 0;
+}
+[data-srw] .srw-footer-mission strong { font-style: italic; font-weight: 400; }
+
+[data-srw] .srw-footer-actions { display: flex; align-items: center; gap: 22px; }
+[data-srw] .srw-social { display: flex; gap: 14px; }
 [data-srw] .srw-social a {
-  width: 38px; height: 38px;
-  border: 1px solid var(--srw-bd-2);
+  width: 42px; height: 42px;
+  background: #4a4a4a;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  transition: all 0.18s ease;
+  color: var(--srw-text);
+  transition: background 0.18s ease;
 }
-[data-srw] .srw-social a:hover { border-color: var(--srw-accent); }
+[data-srw] .srw-social a:hover { background: var(--srw-accent); }
 [data-srw] .srw-social svg { width: 18px; height: 18px; }
+[data-srw] .srw-footer-subscribe {
+  display: inline-block;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 14px 38px;
+  border: 1px solid #6a6a6a;
+  color: #6a6a6a;
+  background: transparent;
+  transition: border-color 0.18s ease, color 0.18s ease;
+}
+[data-srw] .srw-footer-subscribe:hover { border-color: var(--srw-text); color: var(--srw-text); }
+
+/* Bottom strip — single line: photo credits left, copyright + email right */
 [data-srw] .srw-footer-bottom {
   max-width: var(--srw-max);
-  margin: 48px auto 0;
-  padding: 24px 32px 0;
-  border-top: 1px solid var(--srw-bd);
+  margin: 56px auto 0;
+  padding: 0 32px;
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -759,6 +824,8 @@
   color: var(--srw-text-3);
   font-size: 13px;
 }
+[data-srw] .srw-footer-bottom strong { color: var(--srw-text); font-weight: 600; }
+[data-srw] .srw-footer-bottom a { color: var(--srw-text-3); }
 
 /* ── Mobile ─────────────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
@@ -776,10 +843,15 @@
   [data-srw] .srw-nav-toggle { display: block; }
   [data-srw] .srw-stats { grid-template-columns: repeat(2, 1fr); gap: 24px; }
   [data-srw] .srw-opp-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
-  [data-srw] .srw-services { grid-template-columns: 1fr; gap: 32px; }
+  [data-srw] .srw-services { gap: 28px; }
+  [data-srw] .srw-mobilize-grid { grid-template-columns: 1fr; gap: 40px; }
+  [data-srw] .srw-mobilize-section { padding: 72px 0; }
   [data-srw] .srw-team { grid-template-columns: repeat(2, 1fr); }
   [data-srw] .srw-section { padding: 72px 0; }
   [data-srw] .srw-band { padding: 100px 0; }
+  [data-srw] .srw-band-bg { background-attachment: scroll; }
+  [data-srw] .srw-footer-inner { grid-template-columns: 1fr; gap: 40px; }
+  [data-srw] .srw-footer-logo img { max-width: 280px; }
 }
 
 @media (max-width: 560px) {
@@ -788,7 +860,7 @@
   [data-srw] .srw-team { grid-template-columns: 1fr; }
   [data-srw] .srw-principles,
   [data-srw] .srw-partners { grid-template-columns: 1fr; }
-  [data-srw] .srw-footer-inner { grid-template-columns: 1fr; }
   [data-srw] .srw-form-double { grid-template-columns: 1fr; }
   [data-srw] .srw-form-hint { grid-template-columns: 1fr; }
+  [data-srw] .srw-footer-bottom { flex-direction: column; align-items: flex-start; }
 }

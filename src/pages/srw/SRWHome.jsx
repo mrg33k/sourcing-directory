@@ -29,20 +29,21 @@ const OPPORTUNITIES = [
   'Commercial Space Stations & Orbital Platforms',
 ];
 
+// Order + bold accents match spacerising.org exactly (SpaceOS → Space Congress → Partnerships).
 const SERVICES = [
   {
-    name: 'Space Congress™',
-    desc: 'Cross-sector convenings for regional space alignment.',
-    to: '/srw/space-congress',
-  },
-  {
     name: 'SpaceOS™',
-    desc: 'The intelligence infrastructure connecting the space economy.',
+    desc: (<>The <strong>intelligence infrastructure</strong> connecting the space economy.</>),
     to: '/space-rising',
   },
   {
+    name: 'Space Congress™',
+    desc: (<>Cross-sector convenings for <strong>regional space alignment.</strong></>),
+    to: '/srw/space-congress',
+  },
+  {
     name: 'Partnerships',
-    desc: 'Commercialization initiatives partnered with businesses to enter and scale within the space economy.',
+    desc: (<><strong>Commercialization initiatives</strong> partnered with businesses to enter and scale within the space economy.</>),
     to: '/srw/partnerships',
   },
 ];
@@ -110,18 +111,20 @@ export default function SRWHome() {
         </div>
       </section>
 
-      {/* We mobilize space ecosystems through */}
-      <section className="srw-section" style={{ textAlign: 'center' }}>
+      {/* We mobilize space ecosystems through — white bg, 2-column (heading L, services R)
+          Matches spacerising.org: brick-red service names, black body with bold accents. */}
+      <section className="srw-mobilize-section">
         <div className="srw-wrap">
-          <h1 className="srw-h2-thin srw-h2-faint">WE MOBILIZE SPACE ECOSYSTEMS THROUGH:</h1>
-          <div className="srw-services">
-            {SERVICES.map((s) => (
-              <Link to={s.to} className="srw-service" key={s.name}>
-                <h3>{s.name}</h3>
-                <p>{s.desc}</p>
-                <span className="srw-service-divider" />
-              </Link>
-            ))}
+          <div className="srw-mobilize-grid">
+            <h2 className="srw-mobilize-heading">WE MOBILIZE SPACE ECOSYSTEMS THROUGH:</h2>
+            <div className="srw-services">
+              {SERVICES.map((s) => (
+                <Link to={s.to} className="srw-service" key={s.name}>
+                  <h3>{s.name}</h3>
+                  <p>{s.desc}</p>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </section>
