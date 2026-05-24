@@ -6,11 +6,19 @@ import { Link } from 'react-router-dom';
 // SpaceOS links to the live Space Rising directory at /space-rising.
 // Space Congress™ and Partnerships are dropdown parents with sub-pages,
 // matching spacerising.org's nav structure.
+// Matches spacerising.org top-level nav exactly: 5 items. Arizona is a child
+// of Space Congress (dropdown), not its own top-level link. Patrik confirmed
+// .org renders only 5 items + cart + SUBSCRIBE button at top.
 const LINKS = [
   { label: 'Home', to: '/srw' },
   { label: 'SpaceOS™', to: '/space-rising' },
-  { label: 'Space Congress™', to: '/srw/space-congress' },
-  { label: 'Arizona', to: '/srw/arizona' },
+  {
+    label: 'Space Congress™',
+    to: '/srw/space-congress',
+    children: [
+      { label: 'Arizona', to: '/srw/arizona' },
+    ],
+  },
   { label: 'Partnerships', to: '/srw/partnerships' },
   { label: 'About', to: '/srw/about' },
 ];
