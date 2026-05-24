@@ -96,9 +96,9 @@ const EDGE = [
 export function ArizonaStats() {
   return (
     <>
-      <section>
+      <section className="srw-section srw-section-tight">
         <div className="srw-wrap">
-          <div className="srw-stats" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+          <div className="srw-stats srw-stats-3">
             {STATS.map((s) => (
               <div className="srw-stat" key={s.label}>
                 <div className="srw-stat-num">{s.num}</div>

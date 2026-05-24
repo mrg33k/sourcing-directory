@@ -1022,3 +1022,11 @@
   /* Sub-page sections breathe less on mobile */
   [data-srw] .srw-section { padding: 56px 0; }
 }
+
+/* Stats variant: 3-up on desktop, collapses 1-up on mobile via existing rule */
+[data-srw] .srw-stats-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 900px) {
+  [data-srw] .srw-stats-3 { grid-template-columns: 1fr; gap: 12px; }
+  [data-srw] .srw-stats-3 .srw-stat { padding: 18px 8px; }
+  [data-srw] .srw-stats-3 .srw-stat-num { font-size: clamp(38px, 12vw, 64px); }
+}
