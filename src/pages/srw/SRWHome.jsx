@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import SRWNav from './SRWNav.jsx';
 import SRWFooter from './SRWFooter.jsx';
@@ -53,6 +53,33 @@ const SERVICES = [
 export default function SRWHome() {
   useSRWTitle('Space Rising | A New Way To Space');
 
+  // Reverse parallax for the rocket band: image translates UPWARD as the
+  // user scrolls down through the section (opposite of background-attachment:fixed).
+  const bandRef = useRef(null);
+  useEffect(() => {
+    const band = bandRef.current;
+    if (!band) return;
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const rect = band.getBoundingClientRect();
+        const vh = window.innerHeight;
+        // progress: 0 when band top reaches viewport bottom, 1 when band bottom leaves the top
+        const progress = (vh - rect.top) / (vh + rect.height);
+        const clamped = Math.max(0, Math.min(1, progress));
+        band.style.setProperty('--srw-band-shift', `${-clamped * 140}px`);
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
     <div data-srw>
       <SRWNav />
@@ -101,11 +128,13 @@ export default function SRWHome() {
         </div>
       </section>
 
-      {/* Connective layer — orange rocket band (parallax bg via attachment:fixed) */}
+      {/* Connective layer — orange rocket band (reverse parallax driven by JS) */}
       <section
+        ref={bandRef}
         className="srw-band srw-band-rocket"
         style={{ '--srw-band-bg-image': `url(${ROCKET_BG})` }}
       >
+        <div className="srw-band-bg" />
         <div className="srw-band-veil-rocket" />
         <div className="srw-wrap srw-band-inner">
           <p className="srw-band-copy">
@@ -136,10 +165,9 @@ export default function SRWHome() {
         </div>
       </section>
 
-      {/* Contact form */}
+      {/* Contact form — no heading; .org goes straight into the form fields. */}
       <section className="srw-contact-form">
         <div className="srw-wrap">
-          <h2 className="srw-h2-mid srw-h2-faint" style={{ textAlign: 'left', margin: '0 0 32px', maxWidth: 'none' }}>CONTACT US</h2>
           <form
             className="srw-form"
             action="mailto:info@spacerising.org"
