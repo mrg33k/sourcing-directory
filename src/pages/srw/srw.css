@@ -399,24 +399,31 @@
   line-height: 1.35;
 }
 
-/* ── Rocket band (orange launch image) ──────────────────────────────────── */
+/* ── Rocket band (orange launch image) — parallax via background-attachment ─ */
+/* Bg lives DIRECTLY on .srw-band (not a child) so background-attachment: fixed
+   actually paints against the viewport without being clipped by an
+   overflow:hidden ancestor. */
 [data-srw] .srw-band {
   position: relative;
   padding: 140px 0;
+  background-image: var(--srw-band-bg-image);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;   /* parallax — image stays viewport-anchored */
+  background-repeat: no-repeat;
   overflow: hidden;
 }
 [data-srw] .srw-band-rocket { min-height: 520px; }
+/* Legacy child kept for backward compat but no longer paints (no bg) */
 [data-srw] .srw-band-bg {
-  position: absolute; inset: 0;
-  background-size: cover; background-position: center;
-  background-attachment: fixed;  /* parallax — bg holds position while page scrolls */
-  z-index: 0;
+  display: none;
 }
 [data-srw] .srw-band-veil-rocket {
   position: absolute; inset: 0;
   background:
-    linear-gradient(90deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.15) 55%, rgba(0,0,0,0.0) 100%);
+    linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.10) 55%, rgba(0,0,0,0.0) 100%);
   z-index: 1;
+  pointer-events: none;
 }
 [data-srw] .srw-band-inner {
   position: relative;
@@ -433,22 +440,24 @@
 }
 [data-srw] .srw-band-copy strong { font-weight: 700; }
 
-/* ── "ABOUT" button in the rocket band — bordered, matches .org button style */
+/* "ABOUT" link in the rocket band — plain text (NO border), Roboto 16/300.
+   Matches .org exactly: white text, no border, faint underline on hover. */
 [data-srw] .srw-link-plain {
   display: inline-block;
   font-family: 'Roboto', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  letter-spacing: 0.16em;
+  font-size: 16px;
+  font-weight: 300;
+  letter-spacing: 0;
   text-transform: uppercase;
-  padding: 16px 32px;
-  border: 1px solid var(--srw-text);
+  padding: 2px 0;
+  border: none;
+  border-bottom: 1px solid transparent;
   color: var(--srw-text);
   background: transparent;
   cursor: pointer;
-  transition: background 0.18s ease, color 0.18s ease;
+  transition: border-color 0.18s ease;
 }
-[data-srw] .srw-link-plain:hover { background: var(--srw-text); color: #000; }
+[data-srw] .srw-link-plain:hover { border-bottom-color: var(--srw-text); }
 
 /* ── Outline button (SUBSCRIBE in nav, SUBMIT in form) — Roboto 16/400 ──── */
 [data-srw] .srw-btn-outline {
@@ -486,10 +495,10 @@
 
 [data-srw] .srw-mobilize-heading {
   font-family: 'Roboto', sans-serif;
-  font-size: clamp(42px, 4.7vw, 61px);
+  font-size: clamp(38px, 4.2vw, 54px);
   font-weight: 200;
   line-height: 1.16;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   color: #000000;
   max-width: 12ch;
   margin: 0;
@@ -504,33 +513,36 @@
   margin: 0;
 }
 
+/* Service row — single <p> with brick-red <strong class="srw-service-name"> at
+   start, line break, then black body text. Matches .org exactly:
+   - Service name: brick red (#ad2800), Roboto 18.88/700
+   - Body text: black, Roboto 18.88/300
+   - Inline <strong> highlights inside body: black, weight 700
+   - Thin horizontal line beneath each row. */
 [data-srw] .srw-service {
   display: block;
   position: relative;
   color: #000000;
-  padding-bottom: 22px;
-  border-bottom: 1px solid #bcbcbc;
+  padding: 12px 0 24px;
+  border-bottom: 1px solid #c8c8c8;
   transition: opacity 0.18s ease;
 }
 [data-srw] .srw-service:hover { opacity: 0.85; }
-[data-srw] .srw-service h3 {
-  font-family: 'Roboto', sans-serif;
-  font-size: 18px;
-  font-weight: 500;
-  margin: 0 0 10px;
-  color: var(--srw-accent);  /* brick red #ad2800 — matches .org service heads */
-  letter-spacing: 0;
-}
 [data-srw] .srw-service p {
   font-family: 'Roboto', sans-serif;
-  font-size: 16px;
+  font-size: 19px;
   color: #000000;
-  line-height: 1.55;
+  line-height: 1.4;
   font-weight: 300;
+  margin: 0;
 }
 [data-srw] .srw-service p strong {
   font-weight: 700;
   color: #000000;
+}
+[data-srw] .srw-service-name {
+  color: var(--srw-accent);   /* brick red #ad2800 */
+  font-weight: 700;
 }
 [data-srw] .srw-service-divider { display: none; }
 
@@ -848,10 +860,11 @@
    keep the bg slightly lighter so it reads as a separate block. */
 [data-srw] .srw-section-dark { background: #0a0a0a; }
 
-/* ── Footer — white panel, ghost logo left, mission+social right ────────── */
+/* ── Footer — white panel, BRICK RED text (matches .org exactly), ghost
+   logo left, mission+social+SUBSCRIBE right. Bottom strip in muted red. */
 [data-srw] .srw-footer {
   background: #ffffff;
-  color: #1a1a1a;
+  color: var(--srw-accent);   /* brick red #ad2800 — .org's "black" token */
   padding: 80px 0 32px;
 }
 [data-srw] .srw-footer-inner {
@@ -864,68 +877,73 @@
   padding: 0 32px;
 }
 /* Big ghost logo on the left — dim against white, oversized */
+/* Ghost logo on white bg — inverted + tinted brick red to match .org's
+   subtle wash. Big size makes it act as a background brand watermark. */
 [data-srw] .srw-footer-logo img {
   width: 100%;
-  max-width: 460px;
+  max-width: 520px;
   height: auto;
-  opacity: 0.18;
-  filter: invert(1);                  /* white logo flips to dark on white bg */
+  opacity: 0.22;
+  /* invert turns the white wordmark into a dark silhouette; sepia + hue-rotate
+     + saturate shifts it toward brick red so it harmonizes with the text. */
+  filter: invert(1) sepia(1) saturate(8) hue-rotate(-15deg) brightness(0.65);
   display: block;
 }
 [data-srw] .srw-footer-right { display: flex; flex-direction: column; gap: 28px; }
 [data-srw] .srw-footer-mission {
-  color: #1a1a1a;
+  color: var(--srw-accent);
   font-family: 'Roboto', sans-serif;
-  font-size: 15px;
+  font-size: 19px;
   max-width: 50ch;
-  line-height: 1.55;
+  line-height: 1.4;
   font-weight: 300;
   margin: 0;
 }
-[data-srw] .srw-footer-mission strong { font-style: italic; font-weight: 500; color: #000; }
+[data-srw] .srw-footer-mission strong { font-style: italic; font-weight: 700; color: var(--srw-accent); }
 
 [data-srw] .srw-footer-actions { display: flex; align-items: center; gap: 22px; }
 [data-srw] .srw-social { display: flex; gap: 14px; }
 [data-srw] .srw-social a {
   width: 42px; height: 42px;
-  background: #1a1a1a;
+  background: var(--srw-accent);
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   color: #ffffff;
   transition: background 0.18s ease;
 }
-[data-srw] .srw-social a:hover { background: var(--srw-accent); }
+[data-srw] .srw-social a:hover { background: #000; }
 [data-srw] .srw-social svg { width: 18px; height: 18px; }
 [data-srw] .srw-footer-subscribe {
   display: inline-block;
   font-family: 'Roboto', sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
-  letter-spacing: 0.16em;
+  letter-spacing: 0;
   text-transform: uppercase;
-  padding: 14px 38px;
-  border: 1px solid #1a1a1a;
-  color: #1a1a1a;
+  padding: 14px 32px;
+  border: 1px solid var(--srw-accent);
+  color: var(--srw-accent);
   background: transparent;
   transition: background 0.18s ease, color 0.18s ease;
 }
-[data-srw] .srw-footer-subscribe:hover { background: #1a1a1a; color: #ffffff; }
+[data-srw] .srw-footer-subscribe:hover { background: var(--srw-accent); color: #ffffff; }
 
 /* Bottom strip — single line: photo credits left, copyright + email right */
 [data-srw] .srw-footer-bottom {
   max-width: var(--srw-max);
   margin: 56px auto 0;
   padding: 24px 32px 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(173, 40, 0, 0.18);
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  color: #6a6a6a;
+  color: var(--srw-accent);
+  opacity: 0.7;
   font-size: 13px;
 }
-[data-srw] .srw-footer-bottom strong { color: #1a1a1a; font-weight: 600; }
-[data-srw] .srw-footer-bottom a { color: #6a6a6a; }
+[data-srw] .srw-footer-bottom strong { color: var(--srw-accent); font-weight: 600; opacity: 1; }
+[data-srw] .srw-footer-bottom a { color: var(--srw-accent); }
 
 /* ── Mobile ─────────────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
@@ -943,15 +961,19 @@
   [data-srw] .srw-nav-toggle { display: block; }
   [data-srw] .srw-stats { grid-template-columns: repeat(2, 1fr); gap: 24px; }
   [data-srw] .srw-opp-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
-  [data-srw] .srw-services { gap: 28px; }
-  [data-srw] .srw-mobilize-grid { grid-template-columns: 1fr; gap: 40px; }
+  [data-srw] .srw-services { gap: 0; }
+  [data-srw] .srw-mobilize-grid { grid-template-columns: 1fr; gap: 32px; }
   [data-srw] .srw-mobilize-section { padding: 72px 0; }
+  [data-srw] .srw-mobilize-heading { max-width: none; }
   [data-srw] .srw-team { grid-template-columns: repeat(2, 1fr); }
   [data-srw] .srw-section { padding: 72px 0; }
-  [data-srw] .srw-band { padding: 100px 0; }
-  [data-srw] .srw-band-bg { background-attachment: scroll; }
-  [data-srw] .srw-footer-inner { grid-template-columns: 1fr; gap: 40px; }
-  [data-srw] .srw-footer-logo img { max-width: 280px; }
+  [data-srw] .srw-band { padding: 100px 0; background-attachment: scroll; }
+  [data-srw] .srw-footer { padding: 56px 0 24px; }
+  [data-srw] .srw-footer-inner { grid-template-columns: 1fr; gap: 32px; padding: 0 24px; }
+  [data-srw] .srw-footer-logo img { max-width: 220px; }
+  [data-srw] .srw-footer-mission { font-size: 16px; }
+  [data-srw] .srw-footer-actions { flex-wrap: wrap; gap: 16px; }
+  [data-srw] .srw-footer-bottom { margin-top: 32px; padding: 16px 24px 0; flex-direction: column; gap: 6px; }
 }
 
 @media (max-width: 560px) {

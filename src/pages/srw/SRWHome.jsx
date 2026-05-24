@@ -29,21 +29,23 @@ const OPPORTUNITIES = [
   'Commercial Space Stations & Orbital Platforms',
 ];
 
-// Order + bold accents match spacerising.org exactly (SpaceOS → Space Congress → Partnerships).
+// Each service row mirrors .org exactly: a single <p> per service with a
+// brick-red <strong> "name", a line break, then black body text with black
+// inline <strong> for highlighted terms. Order matches .org left-to-right.
 const SERVICES = [
   {
-    name: 'SpaceOS™',
-    desc: (<>The <strong>intelligence infrastructure</strong> connecting the space economy.</>),
-    to: '/space-rising',
-  },
-  {
     name: 'Space Congress™',
-    desc: (<>Cross-sector convenings for <strong>regional space alignment.</strong></>),
+    body: (<>Cross-sector convenings for <strong>regional space alignment.</strong></>),
     to: '/srw/space-congress',
   },
   {
+    name: 'SpaceOS™',
+    body: (<>The <strong>intelligence infrastructure</strong> connecting the space economy.</>),
+    to: '/space-rising',
+  },
+  {
     name: 'Partnerships',
-    desc: (<><strong>Commercialization initiatives</strong> partnered with businesses to enter and scale within the space economy.</>),
+    body: (<><strong>Commercialization initiatives</strong> partnered with businesses to enter and scale within the space economy.</>),
     to: '/srw/partnerships',
   },
 ];
@@ -99,9 +101,11 @@ export default function SRWHome() {
         </div>
       </section>
 
-      {/* Connective layer — orange rocket band */}
-      <section className="srw-band srw-band-rocket">
-        <div className="srw-band-bg" style={{ backgroundImage: `url(${ROCKET_BG})` }} />
+      {/* Connective layer — orange rocket band (parallax bg via attachment:fixed) */}
+      <section
+        className="srw-band srw-band-rocket"
+        style={{ '--srw-band-bg-image': `url(${ROCKET_BG})` }}
+      >
         <div className="srw-band-veil-rocket" />
         <div className="srw-wrap srw-band-inner">
           <p className="srw-band-copy">
@@ -120,8 +124,11 @@ export default function SRWHome() {
             <div className="srw-services">
               {SERVICES.map((s) => (
                 <Link to={s.to} className="srw-service" key={s.name}>
-                  <h3>{s.name}</h3>
-                  <p>{s.desc}</p>
+                  <p>
+                    <strong className="srw-service-name">{s.name}</strong>
+                    <br /><br />
+                    {s.body}
+                  </p>
                 </Link>
               ))}
             </div>
