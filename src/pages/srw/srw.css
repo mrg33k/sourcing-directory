@@ -104,7 +104,7 @@
   gap: 32px;
 }
 
-[data-srw] .srw-logo img { height: 96px; display: block; }
+[data-srw] .srw-logo img { height: 135px; display: block; }
 
 [data-srw] .srw-nav-links {
   display: flex;
@@ -260,8 +260,10 @@
   display: block;
   overflow: hidden;
   isolation: isolate;
-  height: min(100vh, 900px);
-  min-height: 560px;
+  /* Match .org: hero ~56% of viewport height (was 848px at 1530vh on .org). */
+  height: 70vh;
+  min-height: 500px;
+  max-height: 900px;
 }
 
 [data-srw] .srw-hero-bg-video {
@@ -277,13 +279,13 @@
   transform-origin: center center;
 }
 
-/* Overlay PNG sits over the left ~42% of the hero, bottom-aligned — matches .org */
+/* Overlay PNG sits over the left ~28% of the hero, vertically centered upper third — matches .org (342x170 at x=182 of 1200vw, y=256 of 848h) */
 [data-srw] .srw-hero-overlay {
   position: absolute;
-  left: 6%;
-  bottom: 18%;
-  width: 42%;
-  max-width: 720px;
+  left: 15%;
+  top: 30%;
+  width: 28%;
+  max-width: 420px;
   height: auto;
   pointer-events: none;
   z-index: 2;
