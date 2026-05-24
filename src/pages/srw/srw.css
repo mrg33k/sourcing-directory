@@ -1006,4 +1006,19 @@
   [data-srw] .srw-hero-overlay { width: 75%; max-width: 280px; left: 6%; top: 32%; }
   [data-srw] .srw-quicklinks { gap: 8px; }
   [data-srw] .srw-chip { font-size: 11px; padding: 10px 16px; }
+  /* Sub-page grids collapse 1-up on small screens */
+  [data-srw] .srw-grid-3,
+  [data-srw] .srw-grid-4,
+  [data-srw] .srw-grid-2 { grid-template-columns: 1fr; gap: 24px; }
+  [data-srw] .srw-team { grid-template-columns: 1fr; gap: 32px; }
+}
+
+@media (max-width: 900px) {
+  /* Stats row on sub-pages: 1 column on mobile (matches home behavior) */
+  [data-srw] .srw-hero-sm { min-height: 42vh; }
+  [data-srw] .srw-grid-3,
+  [data-srw] .srw-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 28px; }
+  [data-srw] .srw-grid-2 { grid-template-columns: 1fr; gap: 32px; }
+  /* Sub-page sections breathe less on mobile */
+  [data-srw] .srw-section { padding: 56px 0; }
 }
