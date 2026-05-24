@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 // Space Rising website navigation — mirrors the Squarespace nav exactly.
@@ -26,10 +26,18 @@ const LINKS = [
 
 export default function SRWNav() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
     <>
-      <nav className="srw-nav">
+      <nav className={`srw-nav${scrolled ? ' is-scrolled' : ''}`}>
         <div className="srw-nav-inner">
           <Link to="/srw" className="srw-logo" aria-label="Space Rising home">
             <img

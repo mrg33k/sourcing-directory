@@ -58,6 +58,10 @@
 [data-srw] strong, [data-srw] b { font-weight: 600; color: var(--srw-text); }
 
 /* ── Nav (logo left / centered links / cart + SUBSCRIBE right) ──────────── */
+/* Fixed at top. On initial load + while at the top of the page: transparent
+   with a soft top-down black gradient so the white nav text reads against
+   the bright hero video. After 80px of scroll, .is-scrolled flips on and the
+   nav fades to solid black. */
 [data-srw] .srw-nav {
   position: fixed;
   top: 0;
@@ -67,8 +71,27 @@
   height: var(--srw-nav-h);
   display: flex;
   align-items: center;
+  background: transparent;
+  transition: background-color 0.3s ease;
+}
+
+/* Soft black-to-transparent gradient overlay at the very top — drives nav-text
+   legibility on the hero video without obscuring it. Disappears once scrolled. */
+[data-srw] .srw-nav::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 -40px 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.0) 100%);
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+[data-srw] .srw-nav.is-scrolled {
   background: #000;
 }
+[data-srw] .srw-nav.is-scrolled::before { opacity: 0; }
 
 [data-srw] .srw-nav-inner {
   max-width: 1480px;
@@ -510,8 +533,12 @@
 [data-srw] .srw-service-divider { display: none; }
 
 /* ── Contact form ───────────────────────────────────────────────────────── */
+/* Mid-grey panel — sits between the white "WE MOBILIZE" block and the
+   white footer for the swapped contact/footer treatment Patrik called for. */
 [data-srw] .srw-contact-form {
   padding: 110px 0 140px;
+  background: #262626;
+  color: var(--srw-text);
 }
 [data-srw] .srw-contact-form .srw-wrap { max-width: 720px; }
 [data-srw] .srw-contact-form .srw-h2-faint {
@@ -756,9 +783,10 @@
   margin-bottom: 44px;
 }
 
-/* ── Footer (matches spacerising.org — ghost logo left, mission+social right) */
+/* ── Footer — white panel, ghost logo left, mission+social right ────────── */
 [data-srw] .srw-footer {
-  background: #1a1a1a;
+  background: #ffffff;
+  color: #1a1a1a;
   padding: 80px 0 32px;
 }
 [data-srw] .srw-footer-inner {
@@ -770,17 +798,18 @@
   margin: 0 auto;
   padding: 0 32px;
 }
-/* Big ghost logo on the left — dim, oversized */
+/* Big ghost logo on the left — dim against white, oversized */
 [data-srw] .srw-footer-logo img {
   width: 100%;
   max-width: 460px;
   height: auto;
-  opacity: 0.22;
+  opacity: 0.18;
+  filter: invert(1);                  /* white logo flips to dark on white bg */
   display: block;
 }
 [data-srw] .srw-footer-right { display: flex; flex-direction: column; gap: 28px; }
 [data-srw] .srw-footer-mission {
-  color: var(--srw-text);
+  color: #1a1a1a;
   font-family: 'Roboto', sans-serif;
   font-size: 15px;
   max-width: 50ch;
@@ -788,16 +817,16 @@
   font-weight: 300;
   margin: 0;
 }
-[data-srw] .srw-footer-mission strong { font-style: italic; font-weight: 400; }
+[data-srw] .srw-footer-mission strong { font-style: italic; font-weight: 500; color: #000; }
 
 [data-srw] .srw-footer-actions { display: flex; align-items: center; gap: 22px; }
 [data-srw] .srw-social { display: flex; gap: 14px; }
 [data-srw] .srw-social a {
   width: 42px; height: 42px;
-  background: #4a4a4a;
+  background: #1a1a1a;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  color: var(--srw-text);
+  color: #ffffff;
   transition: background 0.18s ease;
 }
 [data-srw] .srw-social a:hover { background: var(--srw-accent); }
@@ -810,27 +839,28 @@
   letter-spacing: 0.16em;
   text-transform: uppercase;
   padding: 14px 38px;
-  border: 1px solid #6a6a6a;
-  color: #6a6a6a;
+  border: 1px solid #1a1a1a;
+  color: #1a1a1a;
   background: transparent;
-  transition: border-color 0.18s ease, color 0.18s ease;
+  transition: background 0.18s ease, color 0.18s ease;
 }
-[data-srw] .srw-footer-subscribe:hover { border-color: var(--srw-text); color: var(--srw-text); }
+[data-srw] .srw-footer-subscribe:hover { background: #1a1a1a; color: #ffffff; }
 
 /* Bottom strip — single line: photo credits left, copyright + email right */
 [data-srw] .srw-footer-bottom {
   max-width: var(--srw-max);
   margin: 56px auto 0;
-  padding: 0 32px;
+  padding: 24px 32px 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  color: var(--srw-text-3);
+  color: #6a6a6a;
   font-size: 13px;
 }
-[data-srw] .srw-footer-bottom strong { color: var(--srw-text); font-weight: 600; }
-[data-srw] .srw-footer-bottom a { color: var(--srw-text-3); }
+[data-srw] .srw-footer-bottom strong { color: #1a1a1a; font-weight: 600; }
+[data-srw] .srw-footer-bottom a { color: #6a6a6a; }
 
 /* ── Mobile ─────────────────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
