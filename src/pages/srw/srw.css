@@ -603,61 +603,105 @@
 }
 
 /* ── Shared eyebrow / inline accent helpers (other pages) ───────────────── */
+/* Eyebrow desaturated to soft cream — matches .org's quieter section labels. */
 [data-srw] .srw-eyebrow {
   font-family: 'Roboto', sans-serif;
   text-transform: uppercase;
-  letter-spacing: 0.22em;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--srw-accent);
-  margin-bottom: 18px;
+  letter-spacing: 0.18em;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--srw-cream);
+  opacity: 0.55;
+  margin-bottom: 22px;
 }
 
-/* ── Card grid (other pages) ────────────────────────────────────────────── */
-[data-srw] .srw-grid { display: grid; gap: 18px; }
+/* ── Card grid (other pages) — no fills, just thin bottom dividers ──────── */
+[data-srw] .srw-grid { display: grid; gap: 32px; }
 [data-srw] .srw-grid-3 { grid-template-columns: repeat(3, 1fr); }
 [data-srw] .srw-grid-4 { grid-template-columns: repeat(4, 1fr); }
 [data-srw] .srw-grid-2 { grid-template-columns: repeat(2, 1fr); }
 
 [data-srw] .srw-card {
-  background: var(--srw-bg-3);
-  border: 1px solid var(--srw-bd);
-  padding: 30px 26px;
-  transition: border-color 0.2s ease;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--srw-bd-2);
+  padding: 24px 0 28px;
+  transition: opacity 0.2s ease;
 }
-[data-srw] .srw-card:hover { border-color: var(--srw-bd-2); }
+[data-srw] .srw-card:hover { opacity: 0.85; }
 [data-srw] .srw-card-num {
-  font-size: 13px;
-  color: var(--srw-accent);
-  font-weight: 500;
-  margin-bottom: 14px;
-  letter-spacing: 0.12em;
+  font-size: 12px;
+  color: var(--srw-cream);
+  opacity: 0.55;
+  font-weight: 400;
+  margin-bottom: 16px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 [data-srw] .srw-card h3 {
   font-family: 'Roboto', sans-serif;
-  font-size: 19px;
-  font-weight: 500;
-  margin-bottom: 10px;
+  font-size: 22px;
+  font-weight: 300;
+  margin-bottom: 14px;
   color: var(--srw-text);
+  letter-spacing: 0;
 }
-[data-srw] .srw-card p { font-size: 15px; color: var(--srw-text-2); }
+[data-srw] .srw-card p {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  color: var(--srw-text-2);
+  font-weight: 300;
+  line-height: 1.55;
+}
 
-/* Other-page hero (about/events/etc.) — kept lightweight */
-[data-srw] .srw-hero-sm {
+/* Other-page hero (about/events/etc.) — full-bleed dark with editorial headline */
+[data-srw] .srw-hero {
   position: relative;
-  min-height: 360px;
+  width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+[data-srw] .srw-hero-bg {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  z-index: 0;
+}
+[data-srw] .srw-hero-veil {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.75) 100%);
+  z-index: 1;
+}
+[data-srw] .srw-hero-inner {
+  position: relative;
+  z-index: 2;
   display: flex;
-  align-items: center;
-  padding-top: var(--srw-nav-h);
-  background: var(--srw-bg);
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-top: calc(var(--srw-nav-h) + 80px);
+  padding-bottom: 80px;
+  min-height: 100%;
+}
+[data-srw] .srw-hero-sm {
+  min-height: 56vh;
+  display: flex;
+  align-items: stretch;
 }
 [data-srw] .srw-hero-sm h1 {
   font-family: 'Roboto', sans-serif;
   font-weight: 200;
-  font-size: clamp(42px, 4.7vw, 61px);
+  font-size: clamp(48px, 6vw, 88px);
   text-transform: uppercase;
-  letter-spacing: 0.01em;
+  letter-spacing: 0;
   line-height: 1.05;
+  margin: 0;
+}
+[data-srw] .srw-hero-sub {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+  font-size: clamp(15px, 1.4vw, 18px);
+  letter-spacing: 0.04em;
+  color: var(--srw-text);
+  margin: 0;
 }
 
 /* ── Team grid (about page) ─────────────────────────────────────────────── */
@@ -683,29 +727,36 @@
 [data-srw] .srw-team-name { font-family: 'Roboto', sans-serif; font-size: 17px; font-weight: 500; }
 [data-srw] .srw-team-title { font-size: 13px; color: var(--srw-text-3); margin-top: 4px; }
 
-/* ── Principles list ────────────────────────────────────────────────────── */
+/* ── Principles list — number is huge thin display, name beside it ─────── */
 [data-srw] .srw-principles {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 0;
-  border-top: 1px solid var(--srw-bd);
+  column-gap: 64px;
+  row-gap: 0;
 }
 [data-srw] .srw-principle {
-  display: flex;
+  display: grid;
+  grid-template-columns: 80px 1fr;
   align-items: center;
-  gap: 18px;
-  padding: 22px 8px;
-  border-bottom: 1px solid var(--srw-bd);
+  gap: 24px;
+  padding: 32px 0;
+  border-bottom: 1px solid var(--srw-bd-2);
 }
 [data-srw] .srw-principle-num {
-  font-size: 20px;
-  color: var(--srw-accent);
-  font-weight: 600;
-  min-width: 36px;
+  font-family: 'Roboto', sans-serif;
+  font-size: clamp(40px, 5vw, 64px);
+  color: var(--srw-cream);
+  font-weight: 200;
+  line-height: 1;
+  letter-spacing: -0.02em;
 }
 [data-srw] .srw-principle-name {
-  font-size: 17px;
-  letter-spacing: 0.02em;
+  font-family: 'Roboto', sans-serif;
+  font-size: clamp(17px, 1.4vw, 20px);
+  font-weight: 300;
+  line-height: 1.35;
+  color: var(--srw-text);
+  letter-spacing: 0;
 }
 
 /* Edge list */
@@ -766,24 +817,36 @@
   font-size: 14px;
 }
 
-/* Generic section heading helper (kept for other pages — does NOT apply when
-   one of the explicit token classes is present, since those already set size +
-   weight + letter-spacing to match spacerising.org exactly). */
+/* Generic section heading helper — big thin Roboto for sub-page sections */
 [data-srw] .srw-section h2:not(.srw-h2-thin):not(.srw-h2-mid):not(.srw-h2-faint) {
   font-family: 'Roboto', sans-serif;
-  font-size: clamp(28px, 3.3vw, 33px);
+  font-size: clamp(36px, 4.4vw, 56px);
   font-weight: 200;
-  text-transform: none;
-  margin-bottom: 12px;
-  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  letter-spacing: 0;
+  line-height: 1.1;
+  color: var(--srw-text);
+}
+
+[data-srw] .srw-section h3:not(.srw-card h3) {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
 }
 
 [data-srw] .srw-section-lead {
+  font-family: 'Roboto', sans-serif;
   font-size: 18px;
+  font-weight: 300;
   color: var(--srw-text-2);
   max-width: 60ch;
-  margin-bottom: 44px;
+  margin-bottom: 56px;
+  line-height: 1.55;
 }
+
+/* When .srw-section sits on a dark variant (about page's pillars/principles),
+   keep the bg slightly lighter so it reads as a separate block. */
+[data-srw] .srw-section-dark { background: #0a0a0a; }
 
 /* ── Footer — white panel, ghost logo left, mission+social right ────────── */
 [data-srw] .srw-footer {
@@ -900,4 +963,47 @@
   [data-srw] .srw-form-double { grid-template-columns: 1fr; }
   [data-srw] .srw-form-hint { grid-template-columns: 1fr; }
   [data-srw] .srw-footer-bottom { flex-direction: column; align-items: flex-start; }
+}
+
+/* ── Quick-links chip row (Arizona / Space Congress hero) ───────────────── */
+[data-srw] .srw-quicklinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+[data-srw] .srw-chip {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 12px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: var(--srw-text);
+  background: transparent;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+[data-srw] .srw-chip:hover { background: var(--srw-text); color: #000; border-color: var(--srw-text); }
+
+/* ── Mobile-specific hero overlay positioning ──────────────────────────── */
+@media (max-width: 900px) {
+  [data-srw] .srw-hero-composite { height: 75vh; min-height: 460px; }
+  [data-srw] .srw-hero-overlay {
+    left: 6%;
+    top: 28%;
+    width: 60%;
+    max-width: 320px;
+  }
+  [data-srw] .srw-hero-bg-video { transform: scale(1.05); }
+  [data-srw] .srw-hero-sm h1 { font-size: clamp(40px, 9vw, 56px); }
+  [data-srw] .srw-hero-inner { padding-top: calc(var(--srw-nav-h) + 48px); padding-bottom: 48px; }
+  [data-srw] .srw-principles { grid-template-columns: 1fr; column-gap: 0; }
+  [data-srw] .srw-principle { grid-template-columns: 60px 1fr; gap: 18px; padding: 24px 0; }
+}
+
+@media (max-width: 560px) {
+  [data-srw] .srw-hero-overlay { width: 75%; max-width: 280px; left: 6%; top: 32%; }
+  [data-srw] .srw-quicklinks { gap: 8px; }
+  [data-srw] .srw-chip { font-size: 11px; padding: 10px 16px; }
 }
