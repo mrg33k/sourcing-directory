@@ -73,7 +73,7 @@ export default function SRWNav() {
               </svg>
               <span className="srw-nav-cart-count">0</span>
             </a>
-            <Link to="/srw/about" className="srw-nav-subscribe">SUBSCRIBE</Link>
+            <Link to="/srw/sign-up" className="srw-nav-subscribe">SUBSCRIBE</Link>
           </div>
 
           <button

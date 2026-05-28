@@ -68,6 +68,7 @@ const SRWAbout = lazy(() => import('./pages/srw/SRWAbout.jsx'))
 const SRWPartnerships = lazy(() => import('./pages/srw/SRWPartnerships.jsx'))
 const SRWEvents = lazy(() => import('./pages/srw/SRWEvents.jsx'))
 const SRWMedia = lazy(() => import('./pages/srw/SRWMedia.jsx'))
+const SRWSignUp = lazy(() => import('./pages/srw/SRWSignUp.jsx'))
 
 const Loading = () => (
   <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
@@ -96,6 +97,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/srw/partnerships" element={<SRWPartnerships />} />
           <Route path="/srw/events" element={<SRWEvents />} />
           <Route path="/srw/media" element={<SRWMedia />} />
+          <Route path="/srw/sign-up" element={<SRWSignUp />} />
           {/* Tenant-scoped routes */}
           <Route path="/:tenantSlug" element={<SourcingDirectory />} />
           <Route path="/:tenantSlug/login" element={<SourcingLogin />} />

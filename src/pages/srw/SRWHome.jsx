@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import SRWNav from './SRWNav.jsx';
 import SRWFooter from './SRWFooter.jsx';
@@ -52,6 +52,34 @@ const SERVICES = [
 
 export default function SRWHome() {
   useSRWTitle('Space Rising | A New Way To Space');
+
+  // Contact form state
+  const [contact, setContact] = useState({ first_name: '', last_name: '', email: '', message: '' });
+  const [contactStatus, setContactStatus] = useState('idle'); // idle | submitting | success | error
+  const [contactError, setContactError] = useState('');
+
+  async function handleContact(e) {
+    e.preventDefault();
+    if (!contact.email || !contact.email.includes('@')) {
+      setContactError('Please enter a valid email address.');
+      return;
+    }
+    setContactStatus('submitting');
+    setContactError('');
+    try {
+      const res = await fetch('/api/sourcing/srw-subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ form_type: 'contact', ...contact }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Submission failed');
+      setContactStatus('success');
+    } catch (err) {
+      setContactError(err.message || 'Something went wrong. Please try again.');
+      setContactStatus('error');
+    }
+  }
 
   // Reverse parallax for the rocket band: image translates UPWARD as the
   // user scrolls down through the section (opposite of background-attachment:fixed).
@@ -165,42 +193,70 @@ export default function SRWHome() {
         </div>
       </section>
 
-      {/* Contact form — no heading; .org goes straight into the form fields. */}
+      {/* Contact form */}
       <section className="srw-contact-form">
         <div className="srw-wrap">
-          <form
-            className="srw-form"
-            action="mailto:info@spacerising.org"
-            method="POST"
-            encType="text/plain"
-            onSubmit={(e) => { /* let mailto handle it */ }}
-          >
-            <div className="srw-form-row">
-              <label>
-                <span>Name <em>(required)</em></span>
-                <div className="srw-form-double">
-                  <input type="text" name="firstName" placeholder="First Name" required />
-                  <input type="text" name="lastName" placeholder="Last Name" required />
-                </div>
-                <div className="srw-form-hint">
-                  <span>First Name</span><span>Last Name</span>
-                </div>
-              </label>
+          {contactStatus === 'success' ? (
+            <div className="srw-contact-success">
+              <p>Message received — we'll be in touch.</p>
             </div>
-            <div className="srw-form-row">
-              <label>
-                <span>Email <em>(required)</em></span>
-                <input type="email" name="email" required />
-              </label>
-            </div>
-            <div className="srw-form-row">
-              <label>
-                <span>Message <em>(required)</em></span>
-                <textarea name="message" rows={6} required />
-              </label>
-            </div>
-            <button type="submit" className="srw-btn-outline">SUBMIT</button>
-          </form>
+          ) : (
+            <form className="srw-form" onSubmit={handleContact} noValidate>
+              <div className="srw-form-row">
+                <label>
+                  <span>Name <em>(required)</em></span>
+                  <div className="srw-form-double">
+                    <input
+                      type="text"
+                      placeholder="First Name"
+                      value={contact.first_name}
+                      onChange={(e) => setContact((p) => ({ ...p, first_name: e.target.value }))}
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="Last Name"
+                      value={contact.last_name}
+                      onChange={(e) => setContact((p) => ({ ...p, last_name: e.target.value }))}
+                    />
+                  </div>
+                  <div className="srw-form-hint">
+                    <span>First Name</span><span>Last Name</span>
+                  </div>
+                </label>
+              </div>
+              <div className="srw-form-row">
+                <label>
+                  <span>Email <em>(required)</em></span>
+                  <input
+                    type="email"
+                    value={contact.email}
+                    onChange={(e) => setContact((p) => ({ ...p, email: e.target.value }))}
+                    required
+                  />
+                </label>
+              </div>
+              <div className="srw-form-row">
+                <label>
+                  <span>Message <em>(required)</em></span>
+                  <textarea
+                    rows={6}
+                    value={contact.message}
+                    onChange={(e) => setContact((p) => ({ ...p, message: e.target.value }))}
+                    required
+                  />
+                </label>
+              </div>
+              {contactError && <div className="srw-form-error">{contactError}</div>}
+              <button
+                type="submit"
+                className="srw-btn-outline"
+                disabled={contactStatus === 'submitting'}
+              >
+                {contactStatus === 'submitting' ? 'SUBMITTING...' : 'SUBMIT'}
+              </button>
+            </form>
+          )}
         </div>
       </section>
 
