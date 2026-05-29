@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import './v10.css'
 
 // Fade wrapper -- fades in on every route change
@@ -33,7 +33,6 @@ function PageTransition({ children }) {
 }
 
 // Lazy-load all pages
-const SourcingLanding = lazy(() => import('./pages/SourcingLanding.jsx'))
 const SourcingAbout = lazy(() => import('./pages/SourcingAbout.jsx'))
 const SourcingAdmin = lazy(() => import('./pages/SourcingAdmin.jsx'))
 const SourcingDirectory = lazy(() => import('./pages/SourcingDirectory.jsx'))
@@ -81,7 +80,7 @@ createRoot(document.getElementById('root')).render(
         <PageTransition>
         <Routes>
           {/* Global */}
-          <Route path="/" element={<SourcingLanding />} />
+          <Route path="/" element={<Navigate to="/space-rising" replace />} />
           <Route path="/signup" element={<GlobalSignup />} />
           <Route path="/about" element={<SourcingAbout />} />
           <Route path="/admin" element={<SourcingAdmin />} />
