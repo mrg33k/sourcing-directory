@@ -393,7 +393,10 @@ function SearchBar({ value, onChange, onSearch, loading, aiLoading, V }) {
 function SourcingDirectoryInner() {
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
-  const { tenantSlug } = useParams();
+  // V2 route is static (/space-rising-v2), so useParams() doesn't supply a
+  // tenantSlug. Hardcode it so the data-tenant attribute is set, the
+  // isSpaceRising branch fires, and the V2 theme CSS scoping matches.
+  const tenantSlug = 'space-rising-v2';
 
   // Tenant state
   const [tenant, setTenant] = useState(null);
@@ -956,7 +959,10 @@ function SourcingDirectoryInner() {
     }
   }, [session, isAdmin]);
 
-  const isSpaceRising = tenantSlug === 'space-rising';
+  // V2 fix: treat the cloned slug as space-rising so the orange-accent CSS-var
+  // overrides + theme styling apply identically to V1. The data-tenant attr
+  // below still carries the raw slug so the V2 theme file matches it.
+  const isSpaceRising = tenantSlug === 'space-rising' || tenantSlug === 'space-rising-v2';
 
   return (
     <div
