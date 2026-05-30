@@ -683,3 +683,130 @@
     padding: 14px 14px 16px !important;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   R4c (nat-geo-uplift) — Patrik live-feedback iteration 2 (2026-05-30 ~15:55)
+   - Kill letter overlays on cards (he hates album-cover letters)
+   - Remove the secondary filter row (All Industries / Semiconductor / Saved)
+   - Move SR wordmark in from the wall to the top-right with padding
+   - Page-wide subtle space bg (less blocky, more cohesive)
+   - Tighten the card grid (less spacing)
+   - Premium card name typography
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Kill the letter overlay on card covers */
+[data-tenant="space-rising-v2"] .co-card .co-logo {
+  color: transparent !important;
+  font-size: 0 !important;
+}
+[data-tenant="space-rising-v2"] .co-card .co-logo img {
+  /* If real logo uploaded, show it */
+  display: block !important;
+  width: 56px !important;
+  height: 56px !important;
+  border-radius: 8px !important;
+  background: rgba(11,11,13,0.55) !important;
+  padding: 6px !important;
+}
+
+/* Remove the secondary (verticals + saved) filter row.
+   It's the SECOND .chips div under .browse-search. We hide nth-of-type(2). */
+[data-tenant="space-rising-v2"] .browse-hero ~ .chips:nth-of-type(2),
+[data-tenant="space-rising-v2"] .chips + .chips {
+  display: none !important;
+}
+
+/* SR wordmark in the hero — was squished against the right wall.
+   Move it to a true top-right corner with padding + scale down. */
+[data-tenant="space-rising-v2"] .tenant-hero-logo {
+  position: absolute !important;
+  top: 32px !important;
+  right: 40px !important;
+  height: 28px !important;
+  opacity: 0.85 !important;
+  z-index: 4;
+}
+@media (max-width: 768px) {
+  [data-tenant="space-rising-v2"] .tenant-hero-logo {
+    top: 18px !important;
+    right: 18px !important;
+    height: 22px !important;
+  }
+}
+[data-tenant="space-rising-v2"] .browse-hero { position: relative !important; }
+
+/* Page-wide bg — a subtle starfield underneath everything so the page feels
+   cohesive instead of blocky/incomplete. */
+[data-tenant="space-rising-v2"] {
+  background-image:
+    linear-gradient(rgba(11,11,13,0.94), rgba(11,11,13,0.97)),
+    url('/v2-assets/starfield-sparse.png') !important;
+  background-size: cover !important;
+  background-attachment: fixed !important;
+  background-position: center top !important;
+}
+
+/* Tighter card grid — less spacing, less blocky */
+[data-tenant="space-rising-v2"] .co-list {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+  gap: 14px !important;
+}
+
+/* Card chrome — slimmer, more premium */
+[data-tenant="space-rising-v2"] .co-card {
+  border-radius: 8px !important;
+  box-shadow: 0 1px 0 rgba(232,228,218,0.04) inset, 0 4px 12px rgba(0,0,0,0.22);
+}
+[data-tenant="space-rising-v2"] .co-card .co-logo {
+  height: 132px !important;  /* was 168px — less blocky */
+}
+[data-tenant="space-rising-v2"] .co-card .co-body {
+  padding: 14px 16px 16px !important;
+  gap: 6px !important;
+}
+[data-tenant="space-rising-v2"] .co-card .co-name {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1.22 !important;
+  letter-spacing: -0.005em !important;
+}
+[data-tenant="space-rising-v2"] .co-card .co-loc {
+  font-size: 9px !important;
+  letter-spacing: 0.18em !important;
+  color: rgba(232,228,218,0.40) !important;
+}
+
+@media (max-width: 768px) {
+  [data-tenant="space-rising-v2"] .co-list {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px !important;
+  }
+  [data-tenant="space-rising-v2"] .co-card .co-logo { height: 100px !important; }
+  [data-tenant="space-rising-v2"] .co-card .co-body { padding: 12px 14px 14px !important; }
+}
+
+/* Reduce hero/browse padding for a tighter, more loaded feel */
+[data-tenant="space-rising-v2"] .browse-hero {
+  padding: 48px 0 32px !important;
+  min-height: 320px !important;
+}
+
+/* Slight motion drift on the hero bg image — restrained, premium */
+@keyframes srv2-hero-drift {
+  0%   { background-position: 50% 28%; }
+  50%  { background-position: 52% 34%; }
+  100% { background-position: 50% 28%; }
+}
+[data-tenant="space-rising-v2"] .browse-hero-bg {
+  animation: srv2-hero-drift 40s ease-in-out infinite !important;
+}
+
+/* Small monogram logo above the company name (real logo, white variant) */
+[data-tenant="space-rising-v2"] .co-card .co-mono-logo {
+  width: 32px !important;
+  height: 32px !important;
+  object-fit: contain !important;
+  opacity: 0.78 !important;
+  margin-bottom: 6px !important;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.45));
+}

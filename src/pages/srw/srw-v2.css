@@ -1871,3 +1871,164 @@
   font-size: 13px !important;
   color: rgba(232,228,218,0.55) !important;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   R4c (nat-geo-uplift) — SRW polish per Patrik
+   - Hero motion (slow drift on Earth bg)
+   - Emerging Opportunities titles: thicker + more presence
+   - Contact form: dramatic rework — premium tech-org feel
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* HERO MOTION — slow Earth drift, restrained */
+@keyframes srw-v2-hero-drift {
+  0%   { transform: scale(1.04) translate(0, 0); }
+  50%  { transform: scale(1.08) translate(-1.5%, 1%); }
+  100% { transform: scale(1.04) translate(0, 0); }
+}
+[data-srw="v2"] .srw-hero-v2-bg {
+  animation: srw-v2-hero-drift 36s ease-in-out infinite;
+  transform-origin: 65% center;
+  will-change: transform;
+}
+
+/* Eyebrow + headline fade-in on first paint */
+@keyframes srw-v2-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+[data-srw="v2"] .srw-hero-v2-eyebrow { animation: srw-v2-fade-up 0.7s ease-out 0.15s both; }
+[data-srw="v2"] .srw-hero-v2-headline { animation: srw-v2-fade-up 0.8s ease-out 0.32s both; }
+[data-srw="v2"] .srw-hero-v2-sub      { animation: srw-v2-fade-up 0.8s ease-out 0.52s both; }
+[data-srw="v2"] .srw-hero-v2-cta-row  { animation: srw-v2-fade-up 0.8s ease-out 0.72s both; }
+
+/* Emerging Opportunities titles — thicker, bigger, more presence */
+[data-srw="v2"] .srw-opp {
+  min-height: 200px !important;
+  padding: 32px 32px !important;
+  font-size: 24px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.12 !important;
+  color: #E8E4DA !important;
+  align-items: flex-end !important;
+}
+[data-srw="v2"] .srw-opp::before {
+  content: '— ';
+  color: var(--srv2-orange);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.18em;
+  margin-bottom: 12px;
+  display: block;
+  position: relative;
+  z-index: 2;
+}
+[data-srw="v2"] .srw-opp::after { opacity: 0.55 !important; }
+[data-srw="v2"] .srw-opp:hover::after { opacity: 0.78 !important; }
+
+/* CONTACT FORM — dramatic rebuild
+   Split-row premium feel: dark glass card centered, mono labels above
+   inline-flush inputs, slim accent line under each input, big CTA. */
+[data-srw="v2"] .srw-form {
+  background: rgba(11,11,13,0.62) !important;
+  border: 1px solid rgba(232,228,218,0.10) !important;
+  border-radius: 16px !important;
+  padding: 56px 64px !important;
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.42), inset 0 1px 0 rgba(232,228,218,0.05);
+  max-width: 880px;
+  margin: 0 auto;
+}
+@media (max-width: 768px) {
+  [data-srw="v2"] .srw-form { padding: 36px 24px !important; border-radius: 12px !important; }
+}
+
+[data-srw="v2"] .srw-form-row { margin-bottom: 28px !important; }
+
+/* Inputs — line-style, no boxy borders, just bottom accent */
+[data-srw="v2"] .srw-form input,
+[data-srw="v2"] .srw-form textarea {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(232,228,218,0.18) !important;
+  border-radius: 0 !important;
+  padding: 14px 0 !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 400 !important;
+  color: #E8E4DA !important;
+  width: 100% !important;
+  transition: border-color 0.22s ease !important;
+}
+[data-srw="v2"] .srw-form input::placeholder,
+[data-srw="v2"] .srw-form textarea::placeholder {
+  color: rgba(232,228,218,0.32) !important;
+  font-weight: 300 !important;
+}
+[data-srw="v2"] .srw-form input:focus,
+[data-srw="v2"] .srw-form textarea:focus {
+  outline: none !important;
+  border-bottom-color: var(--srv2-orange) !important;
+}
+[data-srw="v2"] .srw-form textarea {
+  min-height: 110px !important;
+  resize: vertical !important;
+}
+
+/* Form double row */
+[data-srw="v2"] .srw-form-double {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 32px !important;
+}
+@media (max-width: 640px) {
+  [data-srw="v2"] .srw-form-double { grid-template-columns: 1fr !important; gap: 24px !important; }
+}
+
+/* Premium submit button — big, confident, full-width on the row */
+[data-srw="v2"] .srw-form button[type="submit"],
+[data-srw="v2"] .srw-form-submit,
+[data-srw="v2"] .srw-btn-primary {
+  background: var(--srv2-orange) !important;
+  color: #0B0B0D !important;
+  border: none !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 14px !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  padding: 20px 40px !important;
+  border-radius: 6px !important;
+  width: 100% !important;
+  margin-top: 12px !important;
+  cursor: pointer !important;
+  transition: background 0.18s ease, transform 0.18s ease !important;
+}
+[data-srw="v2"] .srw-form button[type="submit"]:hover {
+  background: var(--srv2-orange-hover) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Form hint above (e.g., "we'll get back within 24h") */
+[data-srw="v2"] .srw-form-hint {
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 0.18em !important;
+  color: rgba(232,228,218,0.45) !important;
+  text-transform: uppercase !important;
+  margin-bottom: 24px !important;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(232,228,218,0.08);
+}
+
+/* Whole contact section: tighter premium feel with subtle bg */
+[data-srw="v2"] .srw-contact-section,
+[data-srw="v2"] section:has(.srw-form) {
+  background:
+    linear-gradient(180deg, rgba(11,11,13,0.96) 0%, rgba(11,11,13,1) 100%),
+    url(/v2-assets/starfield-dense.png) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  padding: 120px 0 !important;
+}
