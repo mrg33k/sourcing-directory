@@ -1610,3 +1610,264 @@
   border: 1px solid #E8A23A !important;
   color: #E8A23A !important;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   R4b (nat-geo-uplift) — Patrik feedback fixes (live-iter 2026-05-30 ~15:35)
+   1. Logo sizes evened out (nav + footer were huge)
+   2. Hero pushed down so nav doesn't cover the headline
+   3. Accent shifted from amber → more-orange
+   4. We Mobilize: accent-underline animation on right-column headings + bg
+   5. Footer logo: scaled down dramatically
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Accent shift — orange variant replaces amber in hero + CTA chrome */
+[data-srw="v2"] {
+  --srv2-orange: #EE7C25;
+  --srv2-orange-hover: #F58C3A;
+  --srv2-orange-dim: rgba(238,124,37,0.12);
+  --srv2-orange-brd: rgba(238,124,37,0.42);
+  --srw-nav-h: 88px;  /* was 155px — too big */
+}
+
+/* Nav logo — evened-out smaller */
+[data-srw="v2"] .srw-logo img { height: 40px !important; }
+@media (max-width: 768px) {
+  [data-srw="v2"] .srw-logo img { height: 30px !important; }
+}
+
+/* Hero — push DOWN so nav doesn't overlap headline */
+[data-srw="v2"] .srw-hero-v2 {
+  margin-top: 0 !important;
+  padding-top: calc(var(--srw-nav-h) + 80px) !important;
+  padding-bottom: 80px !important;
+  min-height: 100vh !important;
+}
+@media (max-width: 768px) {
+  [data-srw="v2"] .srw-hero-v2 {
+    padding-top: calc(var(--srw-nav-h) + 48px) !important;
+    padding-bottom: 56px !important;
+  }
+}
+
+/* Hero CTAs / dot / eyebrow → orange */
+[data-srw="v2"] .srw-hero-v2-eyebrow { color: var(--srv2-orange) !important; }
+[data-srw="v2"] .srw-hero-v2-eyebrow-mark { background: var(--srv2-orange) !important; }
+[data-srw="v2"] .srw-hero-v2-dot { color: var(--srv2-orange) !important; }
+[data-srw="v2"] .srw-hero-v2-cta-primary {
+  background: var(--srv2-orange) !important;
+  color: #0B0B0D !important;
+}
+[data-srw="v2"] .srw-hero-v2-cta-primary:hover {
+  background: var(--srv2-orange-hover) !important;
+}
+
+/* Section heading orange period */
+[data-srw="v2"] .srw-h2-thin::after,
+[data-srw="v2"] .srw-h2-mid::after {
+  color: var(--srv2-orange) !important;
+}
+
+/* Stat number → orange */
+[data-srw="v2"] .srw-stat-num { color: var(--srv2-orange) !important; }
+[data-srw="v2"] .srw-opp::before { color: var(--srv2-orange) !important; }
+[data-srw="v2"] .srw-opp:hover { background: rgba(238,124,37,0.05) !important; }
+
+/* "ABOUT" link in rocket band → orange */
+[data-srw="v2"] .srw-link-plain {
+  color: var(--srv2-orange) !important;
+  border-bottom-color: rgba(238,124,37,0.4) !important;
+}
+[data-srw="v2"] .srw-link-plain:hover {
+  border-bottom-color: var(--srv2-orange) !important;
+  color: var(--srv2-orange-hover) !important;
+}
+
+/* Band copy strong → orange */
+[data-srw="v2"] .srw-band-copy strong { color: var(--srv2-orange) !important; }
+
+/* Subscribe button in nav → orange */
+[data-srw="v2"] .srw-nav-subscribe {
+  background: var(--srv2-orange) !important;
+  color: #0B0B0D !important;
+}
+[data-srw="v2"] .srw-nav-subscribe:hover {
+  background: var(--srv2-orange-hover) !important;
+  color: #0B0B0D !important;
+}
+
+/* Footer — smaller logo (was humongous) */
+[data-srw="v2"] .srw-footer-logo img {
+  height: 64px !important;
+  width: auto !important;
+  opacity: 0.72 !important;
+}
+[data-srw="v2"] .srw-footer-inner {
+  padding: 56px 64px 32px !important;
+  gap: 48px !important;
+}
+[data-srw="v2"] .srw-footer-bottom {
+  padding: 16px 64px !important;
+  border-top: 1px solid rgba(232,228,218,0.08) !important;
+}
+@media (max-width: 768px) {
+  [data-srw="v2"] .srw-footer-logo img { height: 48px !important; }
+  [data-srw="v2"] .srw-footer-inner { padding: 40px 24px 24px !important; gap: 32px !important; }
+  [data-srw="v2"] .srw-footer-bottom { padding: 14px 24px !important; }
+}
+
+/* Opportunity tiles → background images per item via nth-child */
+[data-srw="v2"] .srw-opp {
+  position: relative !important;
+  overflow: hidden !important;
+  min-height: 140px !important;
+  display: flex !important;
+  align-items: flex-end !important;
+  padding: 26px 28px !important;
+  font-weight: 600 !important;
+  font-size: 18px !important;
+}
+[data-srw="v2"] .srw-opp::before {
+  content: '— ';
+  color: var(--srv2-orange);
+  position: relative;
+  z-index: 2;
+}
+[data-srw="v2"] .srw-opp::after {
+  content: '';
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.45;
+  transition: opacity 0.32s ease, transform 0.42s ease;
+  z-index: 0;
+}
+[data-srw="v2"] .srw-opp:hover::after {
+  opacity: 0.65;
+  transform: scale(1.04);
+}
+[data-srw="v2"] .srw-opp > * {
+  position: relative;
+  z-index: 2;
+}
+[data-srw="v2"] .srw-opp:nth-child(1)::after { background-image: linear-gradient(180deg, rgba(11,11,13,0.50), rgba(11,11,13,0.92)), url(/v2-assets/bg-opp-rideshare.png); }
+[data-srw="v2"] .srw-opp:nth-child(2)::after { background-image: linear-gradient(180deg, rgba(11,11,13,0.50), rgba(11,11,13,0.92)), url(/v2-assets/bg-opp-orbital-construction.png); }
+[data-srw="v2"] .srw-opp:nth-child(3)::after { background-image: linear-gradient(180deg, rgba(11,11,13,0.50), rgba(11,11,13,0.92)), url(/v2-assets/bg-opp-lunar.png); }
+[data-srw="v2"] .srw-opp:nth-child(4)::after { background-image: linear-gradient(180deg, rgba(11,11,13,0.50), rgba(11,11,13,0.92)), url(/v2-assets/bg-opp-ai-robotics.png); }
+[data-srw="v2"] .srw-opp:nth-child(5)::after { background-image: linear-gradient(180deg, rgba(11,11,13,0.50), rgba(11,11,13,0.92)), url(/v2-assets/bg-opp-energy.png); }
+[data-srw="v2"] .srw-opp:nth-child(6)::after { background-image: linear-gradient(180deg, rgba(11,11,13,0.50), rgba(11,11,13,0.92)), url(/v2-assets/bg-opp-stations.png); }
+
+/* WE MOBILIZE section: bg image + underlined accent headings with animation */
+[data-srw="v2"] .srw-mobilize-section {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(11,11,13,0.92), rgba(11,11,13,0.98)),
+    url(/v2-assets/bg-section-mobilize.png) !important;
+  background-size: cover !important;
+  background-position: center right !important;
+  background-attachment: fixed;
+}
+
+/* Right-column service headings — accent-orange underline + reveal animation */
+[data-srw="v2"] .srw-mobilize-section h3,
+[data-srw="v2"] .srw-mobilize-section .srw-service-name,
+[data-srw="v2"] .srw-mobilize-section strong {
+  position: relative;
+  display: inline-block;
+  color: var(--srv2-orange) !important;
+  font-weight: 700 !important;
+}
+[data-srw="v2"] .srw-mobilize-section h3::after,
+[data-srw="v2"] .srw-mobilize-section .srw-service-name::after,
+[data-srw="v2"] .srw-mobilize-section strong::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 100%;
+  height: 2px;
+  background: var(--srv2-orange);
+  transform-origin: left center;
+  animation: srv2-underline-reveal 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation-delay: 0.15s;
+  transform: scaleX(0);
+}
+@keyframes srv2-underline-reveal {
+  to { transform: scaleX(1); }
+}
+
+/* CONTACT FORM — premium tech-org redesign */
+[data-srw="v2"] .srw-form {
+  background: rgba(18,20,28,0.62) !important;
+  border: 1px solid rgba(232,228,218,0.08) !important;
+  border-radius: 12px !important;
+  padding: 40px !important;
+  backdrop-filter: blur(8px) saturate(1.1);
+  -webkit-backdrop-filter: blur(8px) saturate(1.1);
+}
+[data-srw="v2"] .srw-form input,
+[data-srw="v2"] .srw-form textarea {
+  background: rgba(11,11,13,0.55) !important;
+  border: 1px solid rgba(232,228,218,0.12) !important;
+  color: #E8E4DA !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 15px !important;
+  padding: 14px 16px !important;
+  border-radius: 6px !important;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+[data-srw="v2"] .srw-form input::placeholder,
+[data-srw="v2"] .srw-form textarea::placeholder {
+  color: rgba(232,228,218,0.38) !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+}
+[data-srw="v2"] .srw-form input:focus,
+[data-srw="v2"] .srw-form textarea:focus {
+  outline: none !important;
+  border-color: var(--srv2-orange-brd) !important;
+  background: rgba(11,11,13,0.78) !important;
+}
+[data-srw="v2"] .srw-form label,
+[data-srw="v2"] .srw-form-label {
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  color: rgba(232,228,218,0.62) !important;
+  margin-bottom: 6px !important;
+}
+[data-srw="v2"] .srw-form button,
+[data-srw="v2"] .srw-form-submit,
+[data-srw="v2"] .srw-btn-primary {
+  background: var(--srv2-orange) !important;
+  color: #0B0B0D !important;
+  border: none !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  padding: 16px 32px !important;
+  border-radius: 6px !important;
+  cursor: pointer;
+  transition: background 0.18s ease, transform 0.18s ease;
+}
+[data-srw="v2"] .srw-form button:hover,
+[data-srw="v2"] .srw-form-submit:hover,
+[data-srw="v2"] .srw-btn-primary:hover {
+  background: var(--srv2-orange-hover) !important;
+  transform: translateY(-1px);
+}
+[data-srw="v2"] .srw-form-error {
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 0.04em !important;
+  color: var(--srv2-orange) !important;
+  margin-top: 8px !important;
+}
+[data-srw="v2"] .srw-form-hint {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 13px !important;
+  color: rgba(232,228,218,0.55) !important;
+}

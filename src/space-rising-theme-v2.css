@@ -435,3 +435,251 @@
   backdrop-filter: blur(12px) saturate(1.2) !important;
   -webkit-backdrop-filter: blur(12px) saturate(1.2) !important;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   R4b (nat-geo-uplift) — Spotify-for-Space directory rebuild
+   Card-grid browse layout, rich space imagery covers per card,
+   premium hover, more-orange accent (Patrik: "make it feel more orange").
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Accent shift: amber → more-orange. Keep amber as backup token. */
+[data-tenant="space-rising-v2"] {
+  /* New primary accent: warmer orange than amber */
+  --bg: transparent;
+}
+[data-tenant="space-rising-v2"][data-tenant] {
+  /* No-op — used to bump specificity over the inline JSX styles */
+}
+
+/* The new primary orange (Patrik direction 2026-05-30) */
+[data-tenant="space-rising-v2"] {
+  --srv2-orange: #EE7C25;
+  --srv2-orange-dim: rgba(238,124,37,0.12);
+  --srv2-orange-brd: rgba(238,124,37,0.42);
+  --srv2-orange-hover: #F58C3A;
+}
+
+/* Replace amber CTAs / chips / active states with orange */
+[data-tenant="space-rising-v2"] .chip.on {
+  background: var(--srv2-orange-dim) !important;
+  border-color: var(--srv2-orange-brd) !important;
+  color: var(--srv2-orange) !important;
+}
+[data-tenant="space-rising-v2"] .sec-count a {
+  background: var(--srv2-orange) !important;
+  border-color: var(--srv2-orange) !important;
+  color: #0B0B0D !important;
+}
+[data-tenant="space-rising-v2"] .sec-count a:hover {
+  background: var(--srv2-orange-hover) !important;
+  border-color: var(--srv2-orange-hover) !important;
+}
+[data-tenant="space-rising-v2"] .browse-title::after { color: var(--srv2-orange) !important; }
+[data-tenant="space-rising-v2"] .browse-hero-content::before { color: var(--srv2-orange) !important; }
+[data-tenant="space-rising-v2"] .v10-nav-item.active,
+[data-tenant="space-rising-v2"] .v10-nav-item-active {
+  color: var(--srv2-orange) !important;
+}
+
+/* ── Spotify-style browse grid ─────────────────────────────────────────────── */
+[data-tenant="space-rising-v2"] .co-list {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+  gap: 20px !important;
+  padding: 8px 0 !important;
+}
+
+/* Card chrome — vertical browse tile with rich cover at top */
+[data-tenant="space-rising-v2"] .co-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  background: rgba(18,20,28,0.78) !important;
+  border: 1px solid rgba(232,228,218,0.06) !important;
+  border-radius: 10px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  transition: background 0.22s ease, border-color 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease !important;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+}
+[data-tenant="space-rising-v2"] .co-card:hover {
+  background: rgba(22,24,34,0.92) !important;
+  border-color: var(--srv2-orange-brd) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 14px 36px rgba(0,0,0,0.42), 0 2px 0 var(--srv2-orange-brd) inset !important;
+}
+
+/* Cover (was: letter avatar) — promoted to a tall hero block at top of card */
+[data-tenant="space-rising-v2"] .co-card .co-logo {
+  width: 100% !important;
+  height: 168px !important;
+  border-radius: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 800 !important;
+  font-size: 88px !important;
+  line-height: 1 !important;
+  color: rgba(255,255,255,0.92) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  background: linear-gradient(135deg, rgba(11,11,13,0.30), rgba(11,11,13,0.78)),
+              #1a1f2e !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+[data-tenant="space-rising-v2"] .co-card .co-logo::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(11,11,13,0.05) 0%, rgba(11,11,13,0.65) 100%);
+  pointer-events: none;
+}
+
+/* Letter overlayed huge + soft drop-shadow */
+[data-tenant="space-rising-v2"] .co-card .co-logo > * {
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 4px 24px rgba(0,0,0,0.55);
+  letter-spacing: -0.04em;
+}
+
+/* Logo img if uploaded — scale up inside the cover */
+[data-tenant="space-rising-v2"] .co-card .co-logo img {
+  width: 64px !important;
+  height: 64px !important;
+  border-radius: 6px !important;
+  z-index: 1;
+  position: relative;
+}
+
+/* Rotate real space imagery as card covers via nth-child cycle (5 covers) */
+[data-tenant="space-rising-v2"] .co-card:nth-child(5n+1) .co-logo {
+  background-image:
+    linear-gradient(135deg, rgba(11,11,13,0.32), rgba(11,11,13,0.78)),
+    url(/v2-assets/planet-blue.png) !important;
+}
+[data-tenant="space-rising-v2"] .co-card:nth-child(5n+2) .co-logo {
+  background-image:
+    linear-gradient(135deg, rgba(11,11,13,0.32), rgba(11,11,13,0.78)),
+    url(/v2-assets/rocket-ascent.png) !important;
+}
+[data-tenant="space-rising-v2"] .co-card:nth-child(5n+3) .co-logo {
+  background-image:
+    linear-gradient(135deg, rgba(11,11,13,0.32), rgba(11,11,13,0.78)),
+    url(/v2-assets/sun.png) !important;
+}
+[data-tenant="space-rising-v2"] .co-card:nth-child(5n+4) .co-logo {
+  background-image:
+    linear-gradient(135deg, rgba(11,11,13,0.32), rgba(11,11,13,0.78)),
+    url(/v2-assets/planet-red.png) !important;
+}
+[data-tenant="space-rising-v2"] .co-card:nth-child(5n+5) .co-logo {
+  background-image:
+    linear-gradient(135deg, rgba(11,11,13,0.32), rgba(11,11,13,0.78)),
+    url(/v2-assets/asteroid-close.png) !important;
+}
+
+/* Body — clean meta block */
+[data-tenant="space-rising-v2"] .co-card .co-body {
+  padding: 18px 18px 20px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  background: rgba(18,20,28,0.78) !important;
+}
+[data-tenant="space-rising-v2"] .co-card .co-name {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  line-height: 1.18 !important;
+  color: #E8E4DA !important;
+  letter-spacing: -0.008em !important;
+  display: block !important;
+  white-space: normal !important;
+}
+[data-tenant="space-rising-v2"] .co-card .co-loc {
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: rgba(232,228,218,0.45) !important;
+  margin-top: 0 !important;
+}
+[data-tenant="space-rising-v2"] .co-card .co-badges {
+  display: flex !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+  margin-top: 4px !important;
+}
+[data-tenant="space-rising-v2"] .co-card .co-badge.cert {
+  background: rgba(232,228,218,0.06) !important;
+  border: 1px solid rgba(232,228,218,0.10) !important;
+  color: rgba(232,228,218,0.66) !important;
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  font-size: 9px !important;
+  letter-spacing: 0.10em !important;
+  padding: 2px 7px !important;
+  border-radius: 2px !important;
+  text-transform: uppercase !important;
+}
+[data-tenant="space-rising-v2"] .co-card .co-badge.feat {
+  background: var(--srv2-orange) !important;
+  color: #0B0B0D !important;
+  border: 1px solid var(--srv2-orange) !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 9px !important;
+  letter-spacing: 0.14em !important;
+  padding: 3px 8px !important;
+  border-radius: 2px !important;
+  text-transform: uppercase !important;
+}
+
+/* Hide the row arrow in the grid view */
+[data-tenant="space-rising-v2"] .co-card .co-arrow {
+  display: none !important;
+}
+
+/* Skeleton loaders match the new tall card shape */
+[data-tenant="space-rising-v2"] .skel {
+  background: rgba(18,20,28,0.78) !important;
+}
+
+/* Hero — push down + larger title eyebrow + bigger negative-space breathing */
+[data-tenant="space-rising-v2"] .browse-hero {
+  padding-top: 56px !important;
+  min-height: 360px !important;
+}
+[data-tenant="space-rising-v2"] .browse-hero-content {
+  padding-top: 24px !important;
+}
+
+/* Section header for "Companies" row — period treatment + premium kerning */
+[data-tenant="space-rising-v2"] .sec-title {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 18px !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.005em !important;
+  text-transform: none !important;
+  color: #E8E4DA !important;
+}
+[data-tenant="space-rising-v2"] .sec-title::after {
+  content: '.';
+  color: var(--srv2-orange);
+}
+
+@media (max-width: 768px) {
+  [data-tenant="space-rising-v2"] .co-list {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+  [data-tenant="space-rising-v2"] .co-card .co-logo {
+    height: 128px !important;
+    font-size: 64px !important;
+  }
+  [data-tenant="space-rising-v2"] .co-card .co-body {
+    padding: 14px 14px 16px !important;
+  }
+}
