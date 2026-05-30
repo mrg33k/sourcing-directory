@@ -1704,3 +1704,113 @@
 [data-tenant="space-rising-v2"] .sec-title {
   white-space: nowrap !important;
 }
+
+/* R4i-2: sec-hdr aligns with card CONTENT, not card outer edge.
+   List padding 24 + card padding 24 = 48px from wall on desktop.
+   Mobile: 16 + 16 = 32px. */
+[data-tenant="space-rising-v2"] .sec-count {
+  padding: 0 48px !important;
+}
+@media (max-width: 768px) {
+  [data-tenant="space-rising-v2"] .sec-count {
+    padding: 0 32px !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   R4j (nat-geo-uplift) — Patrik feedback iter 5
+   - SEC-HDR is the correct wrapper (not sec-count). Style the parent.
+   - Hero bg extends below the bubbles with an elegant amount of padding
+   - sec-title LEFT aligned with card content edge, sec-count RIGHT aligned
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* The wrapper Patrik is pointing at — sec-hdr contains sec-title (left) and
+   sec-count (right). It owns the row layout + frame. */
+[data-tenant="space-rising-v2"] .sec-hdr {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  max-width: 1280px !important;
+  width: 100% !important;
+  margin: 32px auto 16px !important;
+  padding: 0 48px !important; /* aligns with card content edge (list-pad 24 + card-pad 24) */
+  box-sizing: border-box !important;
+}
+[data-tenant="space-rising-v2"] .sec-hdr .sec-title {
+  margin: 0 !important;
+  text-align: left !important;
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+[data-tenant="space-rising-v2"] .sec-hdr .sec-count {
+  margin: 0 0 0 auto !important;
+  padding: 0 !important;
+  max-width: none !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+/* HERO BG extends downward — covers the search + chips area with elegant padding */
+[data-tenant="space-rising-v2"] .browse-hero {
+  position: relative !important;
+  min-height: 420px !important;
+  padding: 48px 0 200px !important;  /* extra bottom space so bg covers below */
+  overflow: visible !important;
+}
+[data-tenant="space-rising-v2"] .browse-hero-bg {
+  height: 100% !important;
+  /* Soft fade so the rocket image dissolves into the page below the chips */
+}
+[data-tenant="space-rising-v2"] .browse-hero-overlay {
+  height: 100% !important;
+  background: linear-gradient(
+    180deg,
+    rgba(11,11,13,0.18) 0%,
+    rgba(11,11,13,0.42) 38%,
+    rgba(11,11,13,0.78) 78%,
+    rgba(11,11,13,0.94) 100%
+  ) !important;
+}
+
+/* Search pulls up into the hero zone, sitting OVER the rocket bg gracefully */
+[data-tenant="space-rising-v2"] .browse-search,
+[data-tenant="space-rising-v2"] .browse-hero + .browse-search,
+[data-tenant="space-rising-v2"] .browse-hero ~ .browse-search:first-of-type {
+  margin-top: -150px !important;
+  position: relative !important;
+  z-index: 4 !important;
+  max-width: 720px !important;
+  width: calc(100% - 48px) !important;
+  background: rgba(18,20,28,0.72) !important;
+  border: 1px solid rgba(232,228,218,0.16) !important;
+  border-radius: 999px !important;
+  padding: 14px 22px !important;
+  backdrop-filter: blur(12px) saturate(1.15) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(1.15) !important;
+}
+
+[data-tenant="space-rising-v2"] .browse-hero ~ .chips,
+[data-tenant="space-rising-v2"] .chips {
+  margin: 18px auto 0 !important;
+  position: relative !important;
+  z-index: 4 !important;
+}
+
+/* The elegant breathing room AFTER the chips — small padding before sec-hdr */
+[data-tenant="space-rising-v2"] .sec-hdr {
+  margin-top: 56px !important;
+}
+
+@media (max-width: 768px) {
+  [data-tenant="space-rising-v2"] .sec-hdr {
+    padding: 0 32px !important;
+    margin-top: 36px !important;
+  }
+  [data-tenant="space-rising-v2"] .browse-hero {
+    min-height: 360px !important;
+    padding: 32px 0 160px !important;
+  }
+  [data-tenant="space-rising-v2"] .browse-search { margin-top: -120px !important; }
+}
