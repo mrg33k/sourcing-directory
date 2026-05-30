@@ -1145,3 +1145,316 @@
   [data-tenant="space-rising-v2"] .co-card { min-height: 196px !important; }
   [data-tenant="space-rising-v2"] .co-card .co-body { padding: 18px !important; }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   R4f (nat-geo-uplift) — LIST view per Patrik
+   Card-grid out, single-column row list in. Each row identical height.
+   sec-count properly aligned within the same frame as the rows.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Force same-column layout — list, not grid */
+[data-tenant="space-rising-v2"] .co-list {
+  display: flex !important;
+  flex-direction: column !important;
+  grid-template-columns: none !important;
+  gap: 6px !important;
+  max-width: 1280px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding: 4px 24px 64px !important;
+}
+
+/* Row card — horizontal layout, fixed height, all identical */
+[data-tenant="space-rising-v2"] .co-card {
+  display: grid !important;
+  grid-template-columns: 56px 1fr auto auto !important;
+  align-items: center !important;
+  gap: 20px !important;
+  padding: 16px 22px !important;
+  height: 84px !important;
+  min-height: 84px !important;
+  background: rgba(18,20,28,0.55) !important;
+  border: 1px solid rgba(232,228,218,0.06) !important;
+  border-radius: 8px !important;
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease !important;
+  box-shadow: none !important;
+}
+[data-tenant="space-rising-v2"] .co-card:hover {
+  background: rgba(22,24,34,0.78) !important;
+  border-color: rgba(238,124,37,0.32) !important;
+  transform: none !important;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.32) !important;
+}
+
+/* Body becomes name + location stack in column 2 */
+[data-tenant="space-rising-v2"] .co-card .co-body {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  padding: 0 !important;
+  min-width: 0 !important;
+  background: transparent !important;
+  height: 100% !important;
+}
+
+/* Mono logo — fixed cell on the left */
+[data-tenant="space-rising-v2"] .co-card .co-mono-logo {
+  width: 40px !important;
+  height: 40px !important;
+  align-self: center !important;
+  margin: 0 !important;
+  opacity: 0.9 !important;
+  object-fit: contain !important;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4)) !important;
+}
+
+/* When no logo image (onError hides it), show a placeholder spot */
+[data-tenant="space-rising-v2"] .co-card .co-mono-logo[style*="display: none"] + .co-body {
+  /* nothing — col stays */
+}
+[data-tenant="space-rising-v2"] .co-card:has(.co-mono-logo[style*="display: none"]),
+[data-tenant="space-rising-v2"] .co-card:not(:has(.co-mono-logo)) {
+  /* fallback: empty left cell stays for grid alignment */
+}
+
+/* Name — single line ellipsis, premium type */
+[data-tenant="space-rising-v2"] .co-card .co-name {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+  color: #E8E4DA !important;
+  letter-spacing: -0.005em !important;
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  -webkit-line-clamp: unset !important;
+  -webkit-box-orient: unset !important;
+}
+
+/* Location */
+[data-tenant="space-rising-v2"] .co-card .co-loc {
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: rgba(232,228,218,0.42) !important;
+  margin: 0 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* Badges live in column 3 — capped to 3, horizontal */
+[data-tenant="space-rising-v2"] .co-card .co-badges {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex-wrap: nowrap !important;
+}
+[data-tenant="space-rising-v2"] .co-card .co-badges > *:nth-child(n+4) {
+  display: none !important;
+}
+[data-tenant="space-rising-v2"] .co-card .co-badge.feat,
+[data-tenant="space-rising-v2"] .co-card .co-badge.cert {
+  height: 22px !important;
+}
+
+/* Arrow in column 4 (was hidden in card-grid R4b) */
+[data-tenant="space-rising-v2"] .co-card .co-arrow {
+  display: flex !important;
+  align-items: center !important;
+  color: rgba(232,228,218,0.35) !important;
+  width: 16px !important;
+  height: 16px !important;
+  transition: color 0.16s ease, transform 0.16s ease !important;
+}
+[data-tenant="space-rising-v2"] .co-card:hover .co-arrow {
+  color: var(--srv2-orange) !important;
+  transform: translateX(2px) !important;
+}
+
+/* sec-count + chips + search bar all share the SAME 1280px frame as the list */
+[data-tenant="space-rising-v2"] .browse-hero-content,
+[data-tenant="space-rising-v2"] .browse-search,
+[data-tenant="space-rising-v2"] .chips,
+[data-tenant="space-rising-v2"] .sec-count {
+  max-width: 1280px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+}
+[data-tenant="space-rising-v2"] .sec-count {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-top: 36px !important;
+  margin-bottom: 16px !important;
+}
+[data-tenant="space-rising-v2"] .sec-count .sec-title {
+  text-align: left !important;
+  margin: 0 !important;
+}
+[data-tenant="space-rising-v2"] .sec-count a {
+  margin-left: auto !important;
+}
+
+/* Mobile: rows stay 1-up + tags wrap below */
+@media (max-width: 768px) {
+  [data-tenant="space-rising-v2"] .co-list {
+    padding: 4px 16px 48px !important;
+  }
+  [data-tenant="space-rising-v2"] .co-card {
+    grid-template-columns: 40px 1fr !important;
+    grid-template-rows: auto auto !important;
+    height: auto !important;
+    min-height: 64px !important;
+    padding: 12px 16px !important;
+    gap: 14px !important;
+  }
+  [data-tenant="space-rising-v2"] .co-card .co-badges,
+  [data-tenant="space-rising-v2"] .co-card .co-arrow {
+    display: none !important;
+  }
+  [data-tenant="space-rising-v2"] .sec-count {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   R4g (nat-geo-uplift) — fix list row layout (R4f had a grid-column collapse)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Card row: simple flex, no top-level grid */
+[data-tenant="space-rising-v2"] .co-card {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 24px !important;
+  padding: 16px 24px !important;
+  height: 84px !important;
+  min-height: 84px !important;
+  width: 100% !important;
+  grid-template-columns: none !important;
+  grid-template-rows: none !important;
+  grid-template-areas: none !important;
+  text-decoration: none !important;
+}
+
+/* .co-logo cover stays hidden (covers killed in R4e) */
+[data-tenant="space-rising-v2"] .co-card > .co-logo {
+  display: none !important;
+}
+
+/* Body becomes the horizontal grid: [mono-logo] [name+loc stack] [badges] */
+[data-tenant="space-rising-v2"] .co-card .co-body {
+  display: grid !important;
+  grid-template-columns: 44px 1fr auto !important;
+  grid-template-rows: auto auto !important;
+  grid-template-areas:
+    "logo name badges"
+    "logo loc  badges" !important;
+  column-gap: 20px !important;
+  row-gap: 2px !important;
+  align-items: center !important;
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  padding: 0 !important;
+  height: 100% !important;
+  background: transparent !important;
+}
+
+[data-tenant="space-rising-v2"] .co-card .co-mono-logo {
+  grid-area: logo !important;
+  align-self: center !important;
+  width: 44px !important;
+  height: 44px !important;
+  object-fit: contain !important;
+  margin: 0 !important;
+  opacity: 0.9 !important;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+}
+
+/* Name in its area, single-line ellipsis */
+[data-tenant="space-rising-v2"] .co-card .co-name {
+  grid-area: name !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #E8E4DA !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.005em !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  display: block !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  -webkit-line-clamp: unset !important;
+  -webkit-box-orient: unset !important;
+}
+
+[data-tenant="space-rising-v2"] .co-card .co-loc {
+  grid-area: loc !important;
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: rgba(232,228,218,0.42) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  margin: 0 !important;
+}
+
+[data-tenant="space-rising-v2"] .co-card .co-badges {
+  grid-area: badges !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 6px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  flex-wrap: nowrap !important;
+}
+
+[data-tenant="space-rising-v2"] .co-card .co-arrow {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0 !important;
+  color: rgba(232,228,218,0.35) !important;
+  transition: color 0.16s ease, transform 0.16s ease !important;
+}
+[data-tenant="space-rising-v2"] .co-card:hover .co-arrow {
+  color: var(--srv2-orange) !important;
+  transform: translateX(3px) !important;
+}
+
+/* List width consistent with sec-count above */
+[data-tenant="space-rising-v2"] .co-list {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 4px 24px 64px !important;
+}
+
+@media (max-width: 768px) {
+  [data-tenant="space-rising-v2"] .co-card { gap: 14px !important; padding: 12px 16px !important; height: auto !important; min-height: 64px !important; }
+  [data-tenant="space-rising-v2"] .co-card .co-body { grid-template-columns: 36px 1fr !important; grid-template-areas: "logo name" "logo loc" !important; }
+  [data-tenant="space-rising-v2"] .co-card .co-mono-logo { width: 36px !important; height: 36px !important; }
+  [data-tenant="space-rising-v2"] .co-card .co-badges, [data-tenant="space-rising-v2"] .co-card .co-arrow { display: none !important; }
+}
