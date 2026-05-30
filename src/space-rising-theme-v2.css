@@ -920,3 +920,228 @@
     padding-right: 16px !important;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   R4e (nat-geo-uplift) — Patrik feedback iteration 3
+   - Kill rotating space-imagery covers (repetition looked broken)
+   - Cards: minimal uniform — logo top + name + loc + tags. All same height.
+   - Search bar: narrower + centered
+   - Filter chips: centered, above the fold
+   - SR wordmark: ~2x bigger (56px)
+   - "49 Companies." left, "+ Add Company" right (proper alignment)
+   - Long names: 2-line clamp with ellipsis
+   - Badges: cap to 3 visible, consistent height
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Kill the cover entirely — no more rotating space imagery on cards */
+[data-tenant="space-rising-v2"] .co-card .co-logo {
+  display: none !important;
+}
+[data-tenant="space-rising-v2"] .co-card:nth-child(5n+1) .co-logo,
+[data-tenant="space-rising-v2"] .co-card:nth-child(5n+2) .co-logo,
+[data-tenant="space-rising-v2"] .co-card:nth-child(5n+3) .co-logo,
+[data-tenant="space-rising-v2"] .co-card:nth-child(5n+4) .co-logo,
+[data-tenant="space-rising-v2"] .co-card:nth-child(5n+5) .co-logo {
+  background: none !important;
+  background-image: none !important;
+}
+
+/* New minimal card — uniform height, clean dark glass */
+[data-tenant="space-rising-v2"] .co-card {
+  display: flex !important;
+  flex-direction: column !important;
+  background: rgba(18,20,28,0.62) !important;
+  border: 1px solid rgba(232,228,218,0.07) !important;
+  border-radius: 10px !important;
+  padding: 0 !important;
+  min-height: 232px !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+  position: relative;
+}
+[data-tenant="space-rising-v2"] .co-card:hover {
+  background: rgba(22,24,34,0.80) !important;
+  border-color: rgba(238,124,37,0.36) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.36) !important;
+}
+
+/* Body: column flex so name pushes to top, badges glue to bottom */
+[data-tenant="space-rising-v2"] .co-card .co-body {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  padding: 22px 22px 20px !important;
+  gap: 10px !important;
+  background: transparent !important;
+}
+
+/* Mono logo at top — bigger now that it's the only visual */
+[data-tenant="space-rising-v2"] .co-card .co-mono-logo {
+  width: 44px !important;
+  height: 44px !important;
+  object-fit: contain !important;
+  opacity: 0.88 !important;
+  margin: 0 0 4px 0 !important;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+  align-self: flex-start;
+}
+
+/* Company name — 2-line clamp, consistent height */
+[data-tenant="space-rising-v2"] .co-card .co-name {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.005em !important;
+  color: #E8E4DA !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  min-height: 40px !important;
+  margin: 0 !important;
+}
+
+/* Location */
+[data-tenant="space-rising-v2"] .co-card .co-loc {
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  font-size: 10px !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: rgba(232,228,218,0.45) !important;
+  margin: 0 !important;
+}
+
+/* Badges glue to the bottom of the card via margin-top: auto */
+[data-tenant="space-rising-v2"] .co-card .co-badges {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+  margin: auto 0 0 0 !important;
+  padding-top: 12px !important;
+}
+
+/* Cap visible badges to 3 (hides the 4th onward) */
+[data-tenant="space-rising-v2"] .co-card .co-badges > *:nth-child(n+4) {
+  display: none !important;
+}
+
+/* Featured badge — orange solid */
+[data-tenant="space-rising-v2"] .co-card .co-badge.feat {
+  background: var(--srv2-orange) !important;
+  color: #0B0B0D !important;
+  border: 1px solid var(--srv2-orange) !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 9px !important;
+  letter-spacing: 0.14em !important;
+  padding: 3px 9px !important;
+  border-radius: 3px !important;
+  text-transform: uppercase !important;
+  height: 20px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+[data-tenant="space-rising-v2"] .co-card .co-badge.cert {
+  background: rgba(232,228,218,0.05) !important;
+  border: 1px solid rgba(232,228,218,0.12) !important;
+  color: rgba(232,228,218,0.62) !important;
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  font-size: 9px !important;
+  letter-spacing: 0.10em !important;
+  padding: 3px 8px !important;
+  border-radius: 3px !important;
+  text-transform: uppercase !important;
+  height: 20px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+/* SR wordmark — DOUBLE the size (was 28px) */
+[data-tenant="space-rising-v2"] .tenant-hero-logo {
+  top: 28px !important;
+  right: 40px !important;
+  height: 56px !important;
+  opacity: 0.92 !important;
+}
+@media (max-width: 768px) {
+  [data-tenant="space-rising-v2"] .tenant-hero-logo {
+    top: 16px !important;
+    right: 16px !important;
+    height: 36px !important;
+  }
+}
+
+/* Hero — tighter so search + chips land above the fold */
+[data-tenant="space-rising-v2"] .browse-hero {
+  padding: 56px 0 24px !important;
+  min-height: 280px !important;
+}
+[data-tenant="space-rising-v2"] .browse-title {
+  font-size: clamp(32px, 4.4vw, 56px) !important;
+  margin-bottom: 14px !important;
+}
+[data-tenant="space-rising-v2"] .browse-hero-content::before {
+  margin-bottom: 16px !important;
+}
+[data-tenant="space-rising-v2"] .browse-sub {
+  font-size: 14px !important;
+  max-width: 50ch !important;
+}
+
+/* Search bar — NARROWER + CENTERED */
+[data-tenant="space-rising-v2"] .browse-search {
+  margin: 28px auto 0 !important;
+  max-width: 640px !important;
+  width: 100% !important;
+  padding: 14px 20px !important;
+}
+[data-tenant="space-rising-v2"] .browse-search input { font-size: 15px !important; }
+
+/* Filter chips — CENTERED */
+[data-tenant="space-rising-v2"] .chips {
+  justify-content: center !important;
+  margin: 24px auto 0 !important;
+  max-width: 880px !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+/* sec-count row: "49 Companies." LEFT, "+ Add Company" RIGHT */
+[data-tenant="space-rising-v2"] .sec-count {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-top: 48px !important;
+  margin-bottom: 24px !important;
+}
+[data-tenant="space-rising-v2"] .sec-count .sec-title {
+  text-align: left !important;
+}
+[data-tenant="space-rising-v2"] .sec-count a {
+  margin-left: auto !important;
+}
+
+/* Card grid — denser per-row since cards are now smaller */
+[data-tenant="space-rising-v2"] .co-list {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+  gap: 18px !important;
+}
+
+@media (max-width: 768px) {
+  [data-tenant="space-rising-v2"] .browse-hero { padding: 40px 0 16px !important; min-height: 220px !important; }
+  [data-tenant="space-rising-v2"] .browse-search { max-width: 100% !important; }
+  [data-tenant="space-rising-v2"] .chips { max-width: 100% !important; padding-left: 16px !important; padding-right: 16px !important; }
+  [data-tenant="space-rising-v2"] .sec-count { margin-top: 28px !important; }
+  [data-tenant="space-rising-v2"] .co-list {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+  [data-tenant="space-rising-v2"] .co-card { min-height: 196px !important; }
+  [data-tenant="space-rising-v2"] .co-card .co-body { padding: 18px !important; }
+}
