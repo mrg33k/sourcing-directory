@@ -1458,3 +1458,249 @@
   [data-tenant="space-rising-v2"] .co-card .co-mono-logo { width: 36px !important; height: 36px !important; }
   [data-tenant="space-rising-v2"] .co-card .co-badges, [data-tenant="space-rising-v2"] .co-card .co-arrow { display: none !important; }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   R4h (nat-geo-uplift) — Patrik feedback iter 4
+   - sec-count locked to same 1280px frame + 24px padding as the list
+   - Hero widened so title doesn't squeeze
+   - Search bar + filter chips pulled UP into the hero, overlay the rocket bg
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Hero — taller, with internal stacking so search/chips can live IN it */
+[data-tenant="space-rising-v2"] .browse-hero {
+  padding: 56px 0 64px !important;
+  min-height: 560px !important;
+  position: relative !important;
+  overflow: visible !important;
+}
+
+[data-tenant="space-rising-v2"] .browse-hero-bg {
+  height: 100% !important;
+}
+[data-tenant="space-rising-v2"] .browse-hero-overlay {
+  height: 100% !important;
+}
+
+/* Hero content widens */
+[data-tenant="space-rising-v2"] .browse-hero-content {
+  max-width: 1280px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 0 24px !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+[data-tenant="space-rising-v2"] .browse-title {
+  font-size: clamp(40px, 5vw, 72px) !important;
+  line-height: 0.98 !important;
+  max-width: 18ch !important;
+}
+[data-tenant="space-rising-v2"] .browse-sub {
+  font-size: 15px !important;
+  max-width: 56ch !important;
+  margin-bottom: 0 !important;
+}
+
+/* Search bar — sits INSIDE the hero zone, glass over the rocket bg */
+[data-tenant="space-rising-v2"] .browse-search {
+  position: relative !important;
+  z-index: 3 !important;
+  margin: 40px auto 0 !important;
+  max-width: 720px !important;
+  width: calc(100% - 48px) !important;
+  background: rgba(18,20,28,0.62) !important;
+  border: 1px solid rgba(232,228,218,0.14) !important;
+  backdrop-filter: blur(10px) saturate(1.1) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(1.1) !important;
+  border-radius: 999px !important;
+  padding: 14px 22px !important;
+}
+[data-tenant="space-rising-v2"] .browse-search input {
+  background: transparent !important;
+  font-size: 14px !important;
+}
+
+/* Filter chips — also in the hero zone, centered, glass styling */
+[data-tenant="space-rising-v2"] .chips {
+  position: relative !important;
+  z-index: 3 !important;
+  justify-content: center !important;
+  margin: 20px auto 0 !important;
+  max-width: 1280px !important;
+  width: 100% !important;
+  padding: 0 24px !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+[data-tenant="space-rising-v2"] .chip {
+  background: rgba(18,20,28,0.55) !important;
+  border: 1px solid rgba(232,228,218,0.14) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 9px 18px !important;
+  font-size: 12px !important;
+  border-radius: 999px !important;
+  color: rgba(232,228,218,0.78) !important;
+}
+[data-tenant="space-rising-v2"] .chip.on {
+  background: var(--srv2-orange-dim) !important;
+  border-color: var(--srv2-orange-brd) !important;
+  color: var(--srv2-orange) !important;
+}
+
+/* The browse-hero's bg extends behind ALL of the above (title + search + chips)
+   because they live in the same .browse-hero container in JSX. The hero only
+   contains .browse-hero-bg + .browse-hero-overlay + .browse-hero-content.
+   To overlap search/chips ONTO the rocket bg even though they're siblings,
+   we use negative margin to pull them up over the hero's bottom edge. */
+[data-tenant="space-rising-v2"] .browse-search,
+[data-tenant="space-rising-v2"] .chips {
+  margin-top: -1px !important; /* reset just to make sure */
+}
+
+/* The actual pull-up: shift search up to overlap the hero's bottom area */
+[data-tenant="space-rising-v2"] .browse-hero + .browse-search,
+[data-tenant="space-rising-v2"] .browse-hero ~ .browse-search:first-of-type {
+  margin-top: -260px !important;
+}
+[data-tenant="space-rising-v2"] .browse-hero ~ .chips {
+  margin-top: 16px !important;
+}
+
+/* sec-count locked tight to the SAME frame as the card list */
+[data-tenant="space-rising-v2"] .sec-count {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  max-width: 1280px !important;
+  width: 100% !important;
+  margin: 56px auto 16px !important;
+  padding: 0 24px !important;
+  box-sizing: border-box !important;
+}
+[data-tenant="space-rising-v2"] .sec-count > * {
+  margin: 0 !important;
+}
+[data-tenant="space-rising-v2"] .sec-count .sec-title {
+  text-align: left !important;
+  flex: 0 0 auto !important;
+}
+[data-tenant="space-rising-v2"] .sec-count a {
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+}
+
+/* Make sure the card list shares exactly the same horizontal frame */
+[data-tenant="space-rising-v2"] .co-list {
+  max-width: 1280px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 4px 24px 64px !important;
+  box-sizing: border-box !important;
+}
+
+@media (max-width: 768px) {
+  [data-tenant="space-rising-v2"] .browse-hero {
+    min-height: 460px !important;
+    padding: 32px 0 48px !important;
+  }
+  [data-tenant="space-rising-v2"] .browse-hero ~ .browse-search:first-of-type {
+    margin-top: -200px !important;
+    max-width: calc(100% - 32px) !important;
+  }
+  [data-tenant="space-rising-v2"] .sec-count {
+    padding: 0 16px !important;
+    margin-top: 32px !important;
+  }
+  [data-tenant="space-rising-v2"] .co-list {
+    padding: 4px 16px 48px !important;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   R4i (nat-geo-uplift) — undo R4h overlap mess, do it right
+   - Hero stays its size (no negative-margin overlap)
+   - Tighten ALL vertical gaps so search + chips + sec-count land above fold
+   - sec-count alignment locked with fixed h-padding shared by list
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Hero — tighter, not artificially tall */
+[data-tenant="space-rising-v2"] .browse-hero {
+  padding: 48px 0 28px !important;
+  min-height: 260px !important;
+}
+[data-tenant="space-rising-v2"] .browse-title {
+  font-size: clamp(36px, 4.5vw, 60px) !important;
+  margin-bottom: 12px !important;
+}
+[data-tenant="space-rising-v2"] .browse-hero-content::before {
+  margin-bottom: 14px !important;
+}
+
+/* Search — sits cleanly BELOW the hero (not overlapping) */
+[data-tenant="space-rising-v2"] .browse-search,
+[data-tenant="space-rising-v2"] .browse-hero + .browse-search,
+[data-tenant="space-rising-v2"] .browse-hero ~ .browse-search:first-of-type {
+  margin: 20px auto 0 !important;
+  max-width: 720px !important;
+  width: calc(100% - 48px) !important;
+  background: rgba(18,20,28,0.72) !important;
+  border: 1px solid rgba(232,228,218,0.10) !important;
+  border-radius: 999px !important;
+  padding: 14px 22px !important;
+  position: relative !important;
+  z-index: auto !important;
+}
+
+/* Chips immediately below search, centered, tight */
+[data-tenant="space-rising-v2"] .chips,
+[data-tenant="space-rising-v2"] .browse-hero ~ .chips {
+  margin: 14px auto 0 !important;
+  max-width: 1280px !important;
+  width: 100% !important;
+  padding: 0 24px !important;
+  gap: 8px !important;
+  justify-content: center !important;
+  flex-wrap: wrap !important;
+}
+
+/* sec-count: exact same frame as list. No tricks. */
+[data-tenant="space-rising-v2"] .sec-count {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  max-width: 1280px !important;
+  width: 100% !important;
+  margin: 36px auto 14px !important;
+  padding: 0 24px !important;
+  box-sizing: border-box !important;
+}
+
+/* List shares exact same frame */
+[data-tenant="space-rising-v2"] .co-list {
+  max-width: 1280px !important;
+  width: 100% !important;
+  margin: 0 auto !important;
+  padding: 4px 24px 64px !important;
+  box-sizing: border-box !important;
+}
+
+/* Page-wide bg continues to feel cohesive */
+[data-tenant="space-rising-v2"] {
+  background-attachment: fixed !important;
+}
+
+@media (max-width: 768px) {
+  [data-tenant="space-rising-v2"] .browse-hero { padding: 28px 0 16px !important; min-height: 200px !important; }
+  [data-tenant="space-rising-v2"] .browse-search { max-width: calc(100% - 32px) !important; }
+  [data-tenant="space-rising-v2"] .sec-count, [data-tenant="space-rising-v2"] .co-list { padding-left: 16px !important; padding-right: 16px !important; }
+  [data-tenant="space-rising-v2"] .sec-count { margin-top: 24px !important; }
+}
+
+/* tiny R4i follow-up: keep "49 Companies." on a single line */
+[data-tenant="space-rising-v2"] .sec-count .sec-title,
+[data-tenant="space-rising-v2"] .sec-title {
+  white-space: nowrap !important;
+}
