@@ -109,7 +109,7 @@ export default function SRWHomeV2() {
   }, []);
 
   return (
-    <div data-srw>
+    <div data-srw="v2">
       <SRWNavV2 />
 
       {/* Hero — looped background video (8s) with "a new way to SPACE" text overlay */}

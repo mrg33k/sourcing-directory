@@ -972,16 +972,25 @@ function SourcingDirectoryInner() {
         background: 'var(--bg)',
         color: 'var(--tx)',
         position: 'relative',
+        // R2 (nat-geo-uplift): Space Grotesk display+body (matches the SR
+        // wordmark), JetBrains Mono stays for chrome. Palette = locked
+        // Nat-Geo-uplift tokens.
+        fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
         ...(isSpaceRising && {
+          // R2 palette: deep ink ground (#0B0B0D), warm bone body (#E8E4DA),
+          // single warm amber accent (#E8A23A) — replaces the V1 orange.
           '--bg': 'transparent',
-          '--s1': 'rgba(6,10,28,0.72)',
-          '--s2': 'rgba(6,10,28,0.80)',
-          '--s3': 'rgba(6,10,28,0.88)',
-          '--bd': 'rgba(255,255,255,0.08)',
-          '--bd2': 'rgba(255,255,255,0.13)',
-          '--cyan': '#f44611',
-          '--cyan-dim': 'rgba(244,70,17,0.10)',
-          '--cyan-brd': 'rgba(244,70,17,0.28)',
+          '--tx': '#E8E4DA',
+          '--tx2': 'rgba(232,228,218,0.60)',
+          '--tx3': 'rgba(232,228,218,0.25)',
+          '--s1': 'rgba(11,11,13,0.72)',
+          '--s2': 'rgba(11,11,13,0.82)',
+          '--s3': 'rgba(11,11,13,0.92)',
+          '--bd': 'rgba(232,228,218,0.10)',
+          '--bd2': 'rgba(232,228,218,0.16)',
+          '--cyan': '#E8A23A',
+          '--cyan-dim': 'rgba(232,162,58,0.10)',
+          '--cyan-brd': 'rgba(232,162,58,0.32)',
         }),
       }}
     >

@@ -58,7 +58,7 @@
 }
 
 [data-tenant="space-rising-v2"] .browse-search:focus-within {
-  border-color: rgba(244, 70, 17, 0.45) !important;
+  border-color: rgba(232,162,58, 0.45) !important;
 }
 
 [data-tenant="space-rising-v2"] .browse-search input {
@@ -82,9 +82,9 @@
 /* Active chip — solid orange border + orange text, translucent orange fill.
    Higher specificity than the inline <style> chip.on rule so this wins. */
 [data-tenant="space-rising-v2"] .chip.on {
-  border-color: #f44611 !important;
-  background: rgba(244, 70, 17, 0.12) !important;
-  color: #f44611 !important;
+  border-color: #E8A23A !important;
+  background: rgba(232,162,58, 0.12) !important;
+  color: #E8A23A !important;
 }
 
 /* "+ Add Company" — chip-shaped filled-orange CTA (overrides inline styles) */
@@ -96,8 +96,8 @@
   font-size: 12px !important;
   font-weight: 600 !important;
   white-space: nowrap !important;
-  border: 1px solid #f44611 !important;
-  background: #f44611 !important;
+  border: 1px solid #E8A23A !important;
+  background: #E8A23A !important;
   color: #ffffff !important;
   text-decoration: none !important;
   line-height: 1 !important;
@@ -106,8 +106,8 @@
 }
 
 [data-tenant="space-rising-v2"] .sec-count a:hover {
-  background: #d93a0d !important;
-  border-color: #d93a0d !important;
+  background: #C68A2E !important;
+  border-color: #C68A2E !important;
 }
 
 /* Section header — company count + add-company link */
