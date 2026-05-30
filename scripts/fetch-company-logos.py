@@ -54,7 +54,6 @@ def fetch_companies(env):
 def domain_from_website(website):
     if not website: return None
     s = website.strip().replace("\\", "/")
-    # Fix common "http:////www.x.com" style entries
     s = re.sub(r"^https?:/+", "https://", s)
     if not re.match(r"^https?://", s): s = "https://" + s
     try:
@@ -63,6 +62,36 @@ def domain_from_website(website):
         return host or None
     except Exception:
         return None
+
+def root_domain(domain):
+    """Strip subdomain. aerospace.honeywell.com -> honeywell.com.
+       sese.asu.edu -> asu.edu. Single-name domains pass through."""
+    if not domain: return None
+    parts = domain.split(".")
+    if len(parts) <= 2: return domain
+    # Handle 3-letter ccTLDs (.co.uk, .com.au) — keep last 3 parts
+    if parts[-2] in ("co", "com", "gov", "org", "ac") and len(parts[-1]) == 2 and len(parts) >= 3:
+        return ".".join(parts[-3:])
+    return ".".join(parts[-2:])
+
+# Manual overrides for companies whose Supabase website field is missing/wrong
+NAME_TO_DOMAIN = {
+    "boeing defense phoenix": "boeing.com",
+    "honeywell aerospace": "honeywell.com",
+    "asu space and earth exploration": "asu.edu",
+    "hdr": "hdrinc.com",
+    "near space corporation": "nearspacecorp.com",
+    "orbital effects (formerly kuiper)": "orbitaleffects.com",
+    "q station": "qstation.tech",
+    "rose law group": "roselawgroup.com",
+    "yuma spaceport": "yumaspaceport.com",
+    "blacknight space labs": "blacknightspacelabs.com",
+    "test aerospace corp": "testaerospace.com",
+    "international research center": "internationalresearchcenter.com",
+    "system safety institute by redfly engineering": "redflyeng.com",
+    "sector groundswell llc": "sectorgroundswell.com",
+    "beyondtheory": "beyondtheory.com",
+}
 
 def try_image(body, expect_min_bytes=400):
     if not body or len(body) < expect_min_bytes:
@@ -81,25 +110,48 @@ def fetch_logo_image(company):
         if status == 200:
             img = try_image(body)
             if img: return img, "stored"
-    domain = domain_from_website(company.get("website"))
-    if not domain:
+    # Build a list of candidate domains to try, in priority order
+    candidates = []
+    db_domain = domain_from_website(company.get("website"))
+    if db_domain:
+        candidates.append(db_domain)
+        r = root_domain(db_domain)
+        if r and r != db_domain:
+            candidates.append(r)  # fallback to root domain
+    # Manual override by name (lowercased)
+    override = NAME_TO_DOMAIN.get((company.get("name") or "").strip().lower())
+    if override and override not in candidates:
+        candidates.append(override)
+    if not candidates:
         return None, None
-    # 2) Apple-touch-icon (often 180x180 PNG, sometimes bigger)
-    for path in ["/apple-touch-icon.png", "/apple-touch-icon-precomposed.png",
-                 "/apple-touch-icon-180x180.png", "/apple-touch-icon-152x152.png",
-                 "/favicon-512x512.png", "/favicon-192x192.png"]:
-        status, body, _ = http_get(f"https://{domain}{path}", headers=UA)
+    for domain in candidates:
+        # 2) Apple-touch-icon (often 180x180 PNG, sometimes bigger)
+        for path in ["/apple-touch-icon.png", "/apple-touch-icon-precomposed.png",
+                     "/apple-touch-icon-180x180.png", "/apple-touch-icon-152x152.png",
+                     "/favicon-512x512.png", "/favicon-192x192.png"]:
+            status, body, _ = http_get(f"https://{domain}{path}", headers=UA)
+            if status == 200:
+                img = try_image(body)
+                if img and min(img.size) >= 96:
+                    return img, f"site:{domain}{path}"
+        # 3) Google s2 favicon API at 256px (reliable baseline)
+        url = f"https://www.google.com/s2/favicons?domain={domain}&sz=256"
+        status, body, _ = http_get(url, headers=UA)
         if status == 200:
-            img = try_image(body)
-            if img and min(img.size) >= 96:
-                return img, f"site:{path}"
-    # 3) Google s2 favicon API at 256px (reliable baseline)
-    url = f"https://www.google.com/s2/favicons?domain={domain}&sz=256"
-    status, body, _ = http_get(url, headers=UA)
-    if status == 200:
-        img = try_image(body, expect_min_bytes=200)
-        if img and min(img.size) >= 32:
-            return img, f"google-s2:{domain}"
+            img = try_image(body, expect_min_bytes=120)
+            if img and min(img.size) >= 16:
+                return img, f"google-s2:{domain}"
+    # 4) Last resort: Google s2 via a derived domain from the name
+    if (company.get("name") or "").strip():
+        guess = re.sub(r"[^a-z0-9]", "", company["name"].lower())[:24]
+        if guess:
+            for tld in [".com", ".io", ".space", ".org"]:
+                url = f"https://www.google.com/s2/favicons?domain={guess}{tld}&sz=256"
+                status, body, _ = http_get(url, headers=UA)
+                if status == 200:
+                    img = try_image(body, expect_min_bytes=120)
+                    if img and min(img.size) >= 16:
+                        return img, f"guess:{guess}{tld}"
     return None, None
 
 def is_dark_bg(img):
