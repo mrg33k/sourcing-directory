@@ -1,0 +1,1199 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Space Rising Website (SRW)
+   Self-contained marketing site mirroring spacerising.org EXACTLY.
+   ALL styles scoped under [data-srw] so nothing bleeds into sourcing.directory.
+   Built to be detachable: lives entirely in src/pages/srw/ + this file.
+   Move to AWS = copy folder, swap router root.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Spacerising.org uses Roboto everywhere — load it via Google Fonts for the SRW scope. */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700&display=swap');
+
+/* Squarespace palette tokens lifted from the live .org via CDP getComputedStyle:
+   --accent-hsl: 0,0%,0% (true black)
+   --darkAccent-hsl: 204,0%,15% (#262626)
+   --lightAccent-hsl: 60,7.46%,86.86% (#dedddc — cream)
+   --black-hsl: 14,100%,34% (#ad2800 — brick red, body text where light bg)
+   --white-hsl: 0,0%,100% */
+[data-srw] {
+  --srw-bg: #000000;
+  --srw-bg-2: #0a0a0a;
+  --srw-bg-3: #141414;
+  --srw-accent: #ad2800;            /* brick red (body text color on light bg) */
+  --srw-accent-dim: rgba(173, 40, 0, 0.12);
+  --srw-orange: #e5451f;            /* the SPACE-headline / rocket band hot orange */
+  --srw-cream: #e0e0db;             /* stat numbers, soft accents */
+  --srw-darkAccent: #262626;        /* card / divider darker shade */
+  --srw-lightAccent: #dedddc;       /* lightest fill */
+  --srw-text: #ffffff;
+  --srw-text-2: #c0c0bf;
+  --srw-text-3: #7c7c7a;
+  --srw-bd: rgba(255, 255, 255, 0.10);
+  --srw-bd-2: rgba(255, 255, 255, 0.22);
+  --srw-nav-h: 155px;
+  --srw-max: 1280px;
+
+  background: var(--srw-bg);
+  color: var(--srw-text);
+  font-family: 'Roboto', system-ui, -apple-system, sans-serif;
+  font-weight: 300;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.5;
+}
+
+[data-srw] * { box-sizing: border-box; }
+[data-srw] a { color: inherit; text-decoration: none; }
+[data-srw] p { margin: 0; }
+
+[data-srw] .srw-wrap {
+  max-width: var(--srw-max);
+  margin: 0 auto;
+  padding: 0 32px;
+  width: 100%;
+}
+
+[data-srw] .srw-accent { color: var(--srw-accent); }
+
+[data-srw] strong, [data-srw] b { font-weight: 600; color: var(--srw-text); }
+
+/* ── Nav (logo left / centered links / cart + SUBSCRIBE right) ──────────── */
+/* Fixed at top. On initial load + while at the top of the page: transparent
+   with a soft top-down black gradient so the white nav text reads against
+   the bright hero video. After 80px of scroll, .is-scrolled flips on and the
+   nav fades to solid black. */
+[data-srw] .srw-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  height: var(--srw-nav-h);
+  display: flex;
+  align-items: center;
+  background: transparent;
+  transition: background-color 0.3s ease;
+}
+
+/* Soft black-to-transparent gradient overlay at the very top — drives nav-text
+   legibility on the hero video without obscuring it. Disappears once scrolled. */
+[data-srw] .srw-nav::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 -40px 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.0) 100%);
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+[data-srw] .srw-nav.is-scrolled {
+  background: #000;
+}
+[data-srw] .srw-nav.is-scrolled::before { opacity: 0; }
+
+[data-srw] .srw-nav-inner {
+  max-width: 1480px;
+  margin: 0 auto;
+  padding: 0 40px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 32px;
+}
+
+[data-srw] .srw-logo img { height: 135px; display: block; }
+
+[data-srw] .srw-nav-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+}
+
+[data-srw] .srw-nav-links a {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+  font-size: 16px;
+  letter-spacing: 0;
+  color: var(--srw-text);
+  padding-bottom: 4px;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.18s ease;
+}
+
+[data-srw] .srw-nav-links a:hover { border-bottom-color: var(--srw-text); }
+
+/* Dropdown parents (Space Congress™, Partnerships) — hover-to-open on desktop */
+[data-srw] .srw-nav-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+[data-srw] .srw-nav-item-dropdown > a::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 8px;
+  border-right: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+  transition: transform 0.18s ease;
+}
+[data-srw] .srw-nav-item-dropdown:hover > a::after {
+  transform: translateY(0) rotate(-135deg);
+}
+[data-srw] .srw-nav-submenu {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+  padding: 12px 0;
+  background: rgba(0, 0, 0, 0.92);
+  border: 1px solid var(--srw-bd);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+  z-index: 101;
+}
+[data-srw] .srw-nav-item-dropdown:hover .srw-nav-submenu,
+[data-srw] .srw-nav-item-dropdown:focus-within .srw-nav-submenu {
+  opacity: 1;
+  pointer-events: auto;
+}
+[data-srw] .srw-nav-submenu a {
+  display: block;
+  padding: 10px 22px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--srw-text);
+  border-bottom: none;
+  white-space: nowrap;
+}
+[data-srw] .srw-nav-submenu a:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-bottom: none;
+}
+
+/* Mobile dropdown — children sit indented under parent in the open mobile menu */
+[data-srw] .srw-mobile-submenu {
+  display: flex;
+  flex-direction: column;
+  padding-left: 18px;
+}
+[data-srw] .srw-mobile-submenu a {
+  font-size: 14px;
+  color: var(--srw-text-2);
+  padding: 10px 0;
+}
+
+[data-srw] .srw-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+[data-srw] .srw-nav-cart {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--srw-text);
+}
+[data-srw] .srw-nav-cart-count { font-size: 14px; }
+
+[data-srw] .srw-nav-subscribe {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  padding: 24px 35px;
+  border: 1px solid var(--srw-text);
+  color: var(--srw-text);
+  background: transparent;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+[data-srw] .srw-nav-subscribe:hover { background: var(--srw-text); color: var(--srw-bg); }
+
+[data-srw] .srw-nav-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--srw-text);
+  cursor: pointer;
+  padding: 8px;
+}
+
+[data-srw] .srw-mobile-menu {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 24px 24px;
+  background: var(--srw-bg-2);
+  border-bottom: 1px solid var(--srw-bd);
+  position: fixed;
+  top: var(--srw-nav-h);
+  left: 0;
+  right: 0;
+  z-index: 99;
+}
+[data-srw] .srw-mobile-menu.open { display: flex; }
+[data-srw] .srw-mobile-menu a {
+  font-size: 16px;
+  color: var(--srw-text);
+  padding: 14px 0;
+  border-bottom: 1px solid var(--srw-bd);
+}
+
+/* ── Hero (looped video bg + "a new way to SPACE" text PNG overlay) ─────── */
+[data-srw] .srw-hero-composite {
+  position: relative;
+  width: 100%;
+  background: #000;
+  display: block;
+  overflow: hidden;
+  isolation: isolate;
+  /* Match .org: hero ~56% of viewport height (was 848px at 1530vh on .org). */
+  height: 70vh;
+  min-height: 500px;
+  max-height: 900px;
+}
+
+[data-srw] .srw-hero-bg-video {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center center;
+  /* Slight zoom past 100% to crop any letterbox bars baked into the source. */
+  transform: scale(1.18);
+  transform-origin: center center;
+}
+
+/* Overlay PNG sits over the left ~28% of the hero, vertically centered upper third — matches .org (342x170 at x=182 of 1200vw, y=256 of 848h) */
+[data-srw] .srw-hero-overlay {
+  position: absolute;
+  left: 15%;
+  top: 30%;
+  width: 28%;
+  max-width: 420px;
+  height: auto;
+  pointer-events: none;
+  z-index: 2;
+  object-fit: contain;
+}
+
+/* ── Section base ───────────────────────────────────────────────────────── */
+[data-srw] .srw-section { padding: 140px 0; }
+[data-srw] .srw-section-tight { padding: 120px 0 80px; }
+
+[data-srw] h1, [data-srw] h2, [data-srw] h3, [data-srw] h4 {
+  margin: 0;
+}
+
+/* H1-scale section headings (.org: 60.928px Roboto thin) — THE SPACE ECONOMY, WE MOBILIZE */
+[data-srw] .srw-h2-thin {
+  font-family: 'Roboto', sans-serif;
+  font-size: clamp(42px, 4.7vw, 61px);
+  font-weight: 200;
+  line-height: 1.16;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--srw-text);
+  max-width: 22ch;
+  margin: 0 auto;
+}
+
+/* H2-scale section headings (.org: 33.28px Roboto thin) — EMERGING OPPORTUNITIES, CONTACT US */
+[data-srw] .srw-h2-mid {
+  font-family: 'Roboto', sans-serif;
+  font-size: clamp(24px, 2.6vw, 33px);
+  font-weight: 200;
+  line-height: 1.25;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  color: var(--srw-text);
+  max-width: 22ch;
+  margin: 0 auto;
+}
+
+/* "WE MOBILIZE" prints in true black on the dark body bg — appears soft / nearly transparent */
+[data-srw] .srw-h2-faint { color: #000; }
+
+[data-srw] .srw-section-sub-center {
+  font-family: 'Roboto', sans-serif;
+  font-size: clamp(20px, 2vw, 26px);
+  color: var(--srw-text);
+  margin: 22px auto 72px;
+  max-width: 60ch;
+  font-weight: 200;
+  letter-spacing: 0.01em;
+}
+
+/* ── Stats ──────────────────────────────────────────────────────────────── */
+[data-srw] .srw-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+[data-srw] .srw-stat {
+  text-align: center;
+  padding: 40px 16px;
+}
+
+[data-srw] .srw-stat-num {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 200;
+  font-size: clamp(42px, 4.7vw, 61px);
+  color: var(--srw-cream);          /* #e0e0db — exact .org stat color */
+  line-height: 1.16;
+  letter-spacing: 0.01em;
+}
+
+[data-srw] .srw-stat-label {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  color: var(--srw-text);
+  margin-top: 18px;
+  line-height: 1.4;
+  max-width: 14ch;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ── Emerging opportunities — six SQUARE tiles in a single row (desktop).
+   Mobile collapses to 3-up tablet, 2-up phone. */
+[data-srw] .srw-opp-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+  max-width: 1200px;
+  margin: 72px auto 0;
+}
+
+[data-srw] .srw-opp {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+  font-size: 13px;
+  color: var(--srw-text);
+  padding: 14px;
+  border: none;
+  background: #111111;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* ── Rocket band (orange launch image) — REVERSE parallax.
+   Image lives on an absolutely-positioned child translated by a JS-driven
+   CSS var. Direction is OPPOSITE the classic background-attachment:fixed
+   look — image rises faster than scroll instead of lagging behind. */
+[data-srw] .srw-band {
+  position: relative;
+  padding: 140px 0;
+  overflow: hidden;
+  isolation: isolate;
+  --srw-band-shift: 0px;
+}
+[data-srw] .srw-band-rocket { min-height: 520px; }
+[data-srw] .srw-band-bg {
+  position: absolute;
+  inset: -30% 0;
+  background-image: var(--srw-band-bg-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transform: translateY(var(--srw-band-shift, 0px));
+  will-change: transform;
+  z-index: 0;
+  display: block;
+}
+[data-srw] .srw-band-veil-rocket {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.10) 55%, rgba(0,0,0,0.0) 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+[data-srw] .srw-band-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 56ch;
+}
+[data-srw] .srw-band-copy {
+  font-family: 'Roboto', sans-serif;
+  font-size: clamp(20px, 1.9vw, 25px);
+  line-height: 1.4;
+  color: var(--srw-text);
+  font-weight: 200;
+  margin-bottom: 30px;
+}
+[data-srw] .srw-band-copy strong { font-weight: 700; }
+
+/* "ABOUT" link in the rocket band — plain text (NO border), Roboto 16/300.
+   Matches .org exactly: white text, no border, faint underline on hover. */
+[data-srw] .srw-link-plain {
+  display: inline-block;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  padding: 2px 0;
+  border: none;
+  border-bottom: 1px solid transparent;
+  color: var(--srw-text);
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.18s ease;
+}
+[data-srw] .srw-link-plain:hover { border-bottom-color: var(--srw-text); }
+
+/* ── Outline button (SUBSCRIBE in nav, SUBMIT in form) — Roboto 16/400 ──── */
+[data-srw] .srw-btn-outline {
+  display: inline-block;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  padding: 12px 28px;
+  border: 1px solid var(--srw-text);
+  color: var(--srw-text);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+[data-srw] .srw-btn-outline:hover { background: var(--srw-text); color: var(--srw-bg); }
+
+/* ── Mobilize section (white bg, 2-col: heading left + services stacked right) */
+[data-srw] .srw-mobilize-section {
+  background: #ffffff;
+  color: #000000;
+  padding: 140px 0;
+}
+
+[data-srw] .srw-mobilize-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+[data-srw] .srw-mobilize-heading {
+  font-family: 'Roboto', sans-serif;
+  font-size: clamp(38px, 4.2vw, 54px);
+  font-weight: 200;
+  line-height: 1.16;
+  letter-spacing: 0;
+  color: #000000;
+  max-width: 12ch;
+  margin: 0;
+}
+
+/* Services list inside the mobilize section — stacked, brick-red names, body
+   text black with bold accents, thin horizontal line under each. Matches .org. */
+[data-srw] .srw-services {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  margin: 0;
+}
+
+/* Service row — single <p> with brick-red <strong class="srw-service-name"> at
+   start, line break, then black body text. Matches .org exactly:
+   - Service name: brick red (#ad2800), Roboto 18.88/700
+   - Body text: black, Roboto 18.88/300
+   - Inline <strong> highlights inside body: black, weight 700
+   - Thin horizontal line beneath each row. */
+[data-srw] .srw-service {
+  display: block;
+  position: relative;
+  color: #000000;
+  padding: 12px 0 24px;
+  border-bottom: 1px solid #c8c8c8;
+  transition: opacity 0.18s ease;
+}
+[data-srw] .srw-service:hover { opacity: 0.85; }
+[data-srw] .srw-service p {
+  font-family: 'Roboto', sans-serif;
+  font-size: 19px;
+  color: #000000;
+  line-height: 1.4;
+  font-weight: 300;
+  margin: 0;
+}
+[data-srw] .srw-service p strong {
+  font-weight: 700;
+  color: #000000;
+}
+[data-srw] .srw-service-name {
+  color: var(--srw-accent);   /* brick red #ad2800 */
+  font-weight: 700;
+}
+[data-srw] .srw-service-divider { display: none; }
+
+/* ── Contact form ───────────────────────────────────────────────────────── */
+/* Mid-grey panel — sits between the white "WE MOBILIZE" block and the
+   white footer for the swapped contact/footer treatment Patrik called for. */
+[data-srw] .srw-contact-form {
+  padding: 110px 0 140px;
+  background: #262626;
+  color: var(--srw-text);
+}
+[data-srw] .srw-contact-form .srw-wrap { max-width: 720px; }
+[data-srw] .srw-contact-form .srw-h2-faint {
+  text-align: left;
+  margin: 0 0 36px;
+  max-width: none;
+}
+
+[data-srw] .srw-form { display: flex; flex-direction: column; gap: 32px; }
+[data-srw] .srw-form label { display: block; }
+[data-srw] .srw-form label > span {
+  display: block;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  color: var(--srw-text);
+  margin-bottom: 12px;
+  font-weight: 300;
+}
+[data-srw] .srw-form label > span em {
+  font-style: normal;
+  font-size: 13px;
+  color: var(--srw-text-3);
+  margin-left: 6px;
+}
+[data-srw] .srw-form input,
+[data-srw] .srw-form textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.45);
+  color: var(--srw-text);
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  padding: 10px 0 8px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+[data-srw] .srw-form input:focus,
+[data-srw] .srw-form textarea:focus { border-color: var(--srw-text); }
+[data-srw] .srw-form textarea { resize: vertical; }
+[data-srw] .srw-form-double { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+[data-srw] .srw-form-hint {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  font-size: 13px;
+  color: var(--srw-text-3);
+  margin-top: 4px;
+}
+
+/* ── Contact band fallback for other pages ──────────────────────────────── */
+[data-srw] .srw-contact { text-align: center; padding: 100px 0; }
+[data-srw] .srw-contact h2 { margin: 0 auto 18px; }
+[data-srw] .srw-contact a.srw-email {
+  font-family: 'Roboto', sans-serif;
+  font-size: clamp(22px, 3vw, 34px);
+  color: var(--srw-text);
+  letter-spacing: 0.02em;
+}
+
+/* ── Shared eyebrow / inline accent helpers (other pages) ───────────────── */
+/* Eyebrow desaturated to soft cream — matches .org's quieter section labels. */
+[data-srw] .srw-eyebrow {
+  font-family: 'Roboto', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--srw-cream);
+  opacity: 0.55;
+  margin-bottom: 22px;
+}
+
+/* ── Card grid (other pages) — no fills, just thin bottom dividers ──────── */
+[data-srw] .srw-grid { display: grid; gap: 32px; }
+[data-srw] .srw-grid-3 { grid-template-columns: repeat(3, 1fr); }
+[data-srw] .srw-grid-4 { grid-template-columns: repeat(4, 1fr); }
+[data-srw] .srw-grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+[data-srw] .srw-card {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--srw-bd-2);
+  padding: 24px 0 28px;
+  transition: opacity 0.2s ease;
+}
+[data-srw] .srw-card:hover { opacity: 0.85; }
+[data-srw] .srw-card-num {
+  font-size: 12px;
+  color: var(--srw-cream);
+  opacity: 0.55;
+  font-weight: 400;
+  margin-bottom: 16px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+[data-srw] .srw-card h3 {
+  font-family: 'Roboto', sans-serif;
+  font-size: 22px;
+  font-weight: 300;
+  margin-bottom: 14px;
+  color: var(--srw-text);
+  letter-spacing: 0;
+}
+[data-srw] .srw-card p {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  color: var(--srw-text-2);
+  font-weight: 300;
+  line-height: 1.55;
+}
+
+/* Other-page hero (about/events/etc.) — full-bleed dark with editorial headline */
+[data-srw] .srw-hero {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+[data-srw] .srw-hero-bg {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  z-index: 0;
+}
+[data-srw] .srw-hero-veil {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.75) 100%);
+  z-index: 1;
+}
+[data-srw] .srw-hero-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-top: calc(var(--srw-nav-h) + 80px);
+  padding-bottom: 80px;
+  min-height: 100%;
+}
+[data-srw] .srw-hero-sm {
+  min-height: 56vh;
+  display: flex;
+  align-items: stretch;
+}
+[data-srw] .srw-hero-sm h1 {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 200;
+  font-size: clamp(48px, 6vw, 88px);
+  text-transform: uppercase;
+  letter-spacing: 0;
+  line-height: 1.05;
+  margin: 0;
+}
+[data-srw] .srw-hero-sub {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+  font-size: clamp(15px, 1.4vw, 18px);
+  letter-spacing: 0.04em;
+  color: var(--srw-text);
+  margin: 0;
+}
+
+/* ── Team grid (about page) ─────────────────────────────────────────────── */
+[data-srw] .srw-team {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+}
+[data-srw] .srw-team-card { text-align: center; }
+[data-srw] .srw-team-photo {
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--srw-bg-3);
+  border: 1px solid var(--srw-bd);
+  margin-bottom: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+[data-srw] .srw-team-photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+[data-srw] .srw-team-photo svg { width: 46px; height: 46px; color: var(--srw-text-3); }
+[data-srw] .srw-team-name { font-family: 'Roboto', sans-serif; font-size: 17px; font-weight: 500; }
+[data-srw] .srw-team-title { font-size: 13px; color: var(--srw-text-3); margin-top: 4px; }
+
+/* ── Principles list — number is huge thin display, name beside it ─────── */
+[data-srw] .srw-principles {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 64px;
+  row-gap: 0;
+}
+[data-srw] .srw-principle {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: center;
+  gap: 24px;
+  padding: 32px 0;
+  border-bottom: 1px solid var(--srw-bd-2);
+}
+[data-srw] .srw-principle-num {
+  font-family: 'Roboto', sans-serif;
+  font-size: clamp(40px, 5vw, 64px);
+  color: var(--srw-cream);
+  font-weight: 200;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+[data-srw] .srw-principle-name {
+  font-family: 'Roboto', sans-serif;
+  font-size: clamp(17px, 1.4vw, 20px);
+  font-weight: 300;
+  line-height: 1.35;
+  color: var(--srw-text);
+  letter-spacing: 0;
+}
+
+/* Edge list */
+[data-srw] .srw-edge-list { list-style: none; margin: 12px 0 0; padding: 0; }
+[data-srw] .srw-edge-list li {
+  font-size: 14px;
+  color: var(--srw-text-2);
+  padding: 5px 0;
+  border-bottom: 1px solid var(--srw-bd);
+  line-height: 1.4;
+}
+[data-srw] .srw-edge-list li:last-child { border-bottom: none; }
+
+/* Event/media list */
+[data-srw] .srw-event-item { align-items: flex-start; gap: 28px; }
+[data-srw] .srw-event-date {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--srw-accent);
+  min-width: 130px;
+  padding-top: 2px;
+}
+
+[data-srw] .srw-list { border-top: 1px solid var(--srw-bd); }
+[data-srw] .srw-list-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 26px 8px;
+  border-bottom: 1px solid var(--srw-bd);
+}
+[data-srw] .srw-list-item:hover { background: var(--srw-bg-2); }
+[data-srw] .srw-list-title { font-size: 19px; font-weight: 500; }
+[data-srw] .srw-list-meta { font-size: 14px; color: var(--srw-text-3); white-space: nowrap; }
+[data-srw] .srw-year-head {
+  font-size: 26px;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin: 56px 0 8px;
+}
+[data-srw] .srw-year-head:first-child { margin-top: 0; }
+
+/* Partner placeholder */
+[data-srw] .srw-partners {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+[data-srw] .srw-partner {
+  aspect-ratio: 16/9;
+  background: var(--srw-bg-3);
+  border: 1px solid var(--srw-bd);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--srw-text-3);
+  font-size: 14px;
+}
+
+/* Generic section heading helper — big thin Roboto for sub-page sections */
+[data-srw] .srw-section h2:not(.srw-h2-thin):not(.srw-h2-mid):not(.srw-h2-faint) {
+  font-family: 'Roboto', sans-serif;
+  font-size: clamp(36px, 4.4vw, 56px);
+  font-weight: 200;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  letter-spacing: 0;
+  line-height: 1.1;
+  color: var(--srw-text);
+}
+
+[data-srw] .srw-section h3:not(.srw-card h3) {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 300;
+}
+
+[data-srw] .srw-section-lead {
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 300;
+  color: var(--srw-text-2);
+  max-width: 60ch;
+  margin-bottom: 56px;
+  line-height: 1.55;
+}
+
+/* When .srw-section sits on a dark variant (about page's pillars/principles),
+   keep the bg slightly lighter so it reads as a separate block. */
+[data-srw] .srw-section-dark { background: #0a0a0a; }
+
+/* ── Footer — black panel, white everything. Matches .org. */
+[data-srw] .srw-footer {
+  background: #000000;
+  color: #ffffff;
+  padding: 80px 0 32px;
+}
+[data-srw] .srw-footer-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  max-width: var(--srw-max);
+  margin: 0 auto;
+  padding: 0 32px;
+}
+/* Ghost logo — PNG is already white; just dim it with opacity. */
+[data-srw] .srw-footer-logo img {
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  opacity: 0.45;
+  filter: none;
+  display: block;
+}
+[data-srw] .srw-footer-right { display: flex; flex-direction: column; gap: 28px; }
+[data-srw] .srw-footer-mission {
+  color: #ffffff;
+  font-family: 'Roboto', sans-serif;
+  font-size: 19px;
+  max-width: 50ch;
+  line-height: 1.4;
+  font-weight: 300;
+  margin: 0;
+}
+[data-srw] .srw-footer-mission strong { font-style: italic; font-weight: 700; color: #ffffff; }
+
+[data-srw] .srw-footer-actions { display: flex; align-items: center; gap: 22px; }
+[data-srw] .srw-social { display: flex; gap: 14px; }
+[data-srw] .srw-social a {
+  width: 42px; height: 42px;
+  background: transparent;
+  border: 1px solid #ffffff;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: #ffffff;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+[data-srw] .srw-social a:hover { background: #ffffff; color: #000000; }
+[data-srw] .srw-social svg { width: 18px; height: 18px; }
+[data-srw] .srw-footer-subscribe {
+  display: inline-block;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  padding: 14px 32px;
+  border: 1px solid #ffffff;
+  color: #ffffff;
+  background: transparent;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+[data-srw] .srw-footer-subscribe:hover { background: #ffffff; color: #000000; }
+
+/* Bottom strip — photo credits left, copyright + email right */
+[data-srw] .srw-footer-bottom {
+  max-width: var(--srw-max);
+  margin: 56px auto 0;
+  padding: 24px 32px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: #ffffff;
+  opacity: 0.7;
+  font-size: 13px;
+}
+[data-srw] .srw-footer-bottom strong { color: #ffffff; font-weight: 600; opacity: 1; }
+[data-srw] .srw-footer-bottom a { color: #ffffff; }
+
+/* ── Mobile ─────────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  [data-srw] .srw-nav-inner { gap: 16px; padding: 0 24px; }
+  [data-srw] .srw-nav-links { gap: 24px; }
+  [data-srw] .srw-nav-links a { font-size: 13px; }
+}
+
+@media (max-width: 900px) {
+  [data-srw] { --srw-nav-h: 72px; }
+  [data-srw] .srw-logo img { height: 44px; }
+  [data-srw] .srw-nav-links { display: none; }
+  [data-srw] .srw-nav-actions { gap: 12px; }
+  [data-srw] .srw-nav-subscribe { padding: 10px 18px; font-size: 11px; }
+  [data-srw] .srw-nav-toggle { display: block; }
+  [data-srw] .srw-stats { grid-template-columns: repeat(2, 1fr); gap: 24px; }
+  [data-srw] .srw-opp-grid { grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  [data-srw] .srw-services { gap: 0; }
+  [data-srw] .srw-mobilize-grid { grid-template-columns: 1fr; gap: 32px; }
+  [data-srw] .srw-mobilize-section { padding: 72px 0; }
+  [data-srw] .srw-mobilize-heading { max-width: none; }
+  [data-srw] .srw-team { grid-template-columns: repeat(2, 1fr); }
+  [data-srw] .srw-section { padding: 72px 0; }
+  [data-srw] .srw-band { padding: 100px 0; }
+  [data-srw] .srw-band-bg { transform: none; inset: 0; }
+  [data-srw] .srw-footer { padding: 56px 0 24px; }
+  [data-srw] .srw-footer-inner { grid-template-columns: 1fr; gap: 32px; padding: 0 24px; }
+  [data-srw] .srw-footer-logo img { max-width: 220px; }
+  [data-srw] .srw-footer-mission { font-size: 16px; }
+  [data-srw] .srw-footer-actions { flex-wrap: wrap; gap: 16px; }
+  [data-srw] .srw-footer-bottom { margin-top: 32px; padding: 16px 24px 0; flex-direction: column; gap: 6px; }
+}
+
+@media (max-width: 560px) {
+  [data-srw] .srw-stats { grid-template-columns: 1fr; }
+  [data-srw] .srw-opp-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  [data-srw] .srw-team { grid-template-columns: 1fr; }
+  [data-srw] .srw-principles,
+  [data-srw] .srw-partners { grid-template-columns: 1fr; }
+  [data-srw] .srw-form-double { grid-template-columns: 1fr; }
+  [data-srw] .srw-form-hint { grid-template-columns: 1fr; }
+  [data-srw] .srw-footer-bottom { flex-direction: column; align-items: flex-start; }
+}
+
+/* ── Quick-links chip row (Arizona / Space Congress hero) ───────────────── */
+[data-srw] .srw-quicklinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 32px;
+}
+[data-srw] .srw-chip {
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 12px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: var(--srw-text);
+  background: transparent;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+[data-srw] .srw-chip:hover { background: var(--srw-text); color: #000; border-color: var(--srw-text); }
+
+/* ── Mobile-specific hero overlay positioning ──────────────────────────── */
+@media (max-width: 900px) {
+  [data-srw] .srw-hero-composite { height: 75vh; min-height: 460px; }
+  [data-srw] .srw-hero-overlay {
+    left: 6%;
+    top: 28%;
+    width: 60%;
+    max-width: 320px;
+  }
+  [data-srw] .srw-hero-bg-video { transform: scale(1.05); }
+  [data-srw] .srw-hero-sm h1 { font-size: clamp(40px, 9vw, 56px); }
+  [data-srw] .srw-hero-inner { padding-top: calc(var(--srw-nav-h) + 48px); padding-bottom: 48px; }
+  [data-srw] .srw-principles { grid-template-columns: 1fr; column-gap: 0; }
+  [data-srw] .srw-principle { grid-template-columns: 60px 1fr; gap: 18px; padding: 24px 0; }
+}
+
+@media (max-width: 560px) {
+  [data-srw] .srw-hero-overlay { width: 75%; max-width: 280px; left: 6%; top: 32%; }
+  [data-srw] .srw-quicklinks { gap: 8px; }
+  [data-srw] .srw-chip { font-size: 11px; padding: 10px 16px; }
+  /* Sub-page grids collapse 1-up on small screens */
+  [data-srw] .srw-grid-3,
+  [data-srw] .srw-grid-4,
+  [data-srw] .srw-grid-2 { grid-template-columns: 1fr; gap: 24px; }
+  [data-srw] .srw-team { grid-template-columns: 1fr; gap: 32px; }
+}
+
+@media (max-width: 900px) {
+  /* Stats row on sub-pages: 1 column on mobile (matches home behavior) */
+  [data-srw] .srw-hero-sm { min-height: 42vh; }
+  [data-srw] .srw-grid-3,
+  [data-srw] .srw-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 28px; }
+  [data-srw] .srw-grid-2 { grid-template-columns: 1fr; gap: 32px; }
+  /* Sub-page sections breathe less on mobile */
+  [data-srw] .srw-section { padding: 56px 0; }
+}
+
+/* Stats variant: 3-up on desktop, collapses 1-up on mobile via existing rule */
+[data-srw] .srw-stats-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 900px) {
+  [data-srw] .srw-stats-3 { grid-template-columns: 1fr; gap: 12px; }
+  [data-srw] .srw-stats-3 .srw-stat { padding: 18px 8px; }
+  [data-srw] .srw-stats-3 .srw-stat-num { font-size: clamp(38px, 12vw, 64px); }
+}
+
+/* ── Sign-up page ──────────────────────────────────────────────────────── */
+[data-srw] .srw-signup-hero {
+  position: relative;
+  height: 55vh;
+  min-height: 380px;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+[data-srw] .srw-signup-hero-inner {
+  position: relative;
+  z-index: 2;
+  padding-bottom: 56px;
+  padding-top: calc(var(--srw-nav-h) + 40px);
+}
+[data-srw] .srw-signup-headline {
+  font-family: 'Roboto', sans-serif;
+  font-size: clamp(36px, 6vw, 56px);
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  color: var(--srw-text);
+  margin: 0 0 10px;
+}
+[data-srw] .srw-signup-sub {
+  font-size: 16px;
+  color: rgba(255,255,255,0.7);
+  margin: 0;
+}
+[data-srw] .srw-signup-sub strong { color: var(--srw-text); }
+
+[data-srw] .srw-signup-section { background: var(--srw-bg); padding: 64px 0 96px; }
+[data-srw] .srw-signup-wrap { max-width: 640px; }
+
+[data-srw] .srw-signup-form .srw-form-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--srw-text);
+  margin-bottom: 8px;
+}
+[data-srw] .srw-signup-form .srw-form-label em {
+  font-style: normal;
+  font-weight: 300;
+  opacity: 0.5;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 12px;
+}
+
+/* Area-of-interest chips on sign-up: active = filled red */
+[data-srw] .srw-chip.active {
+  background: var(--srw-accent);
+  color: var(--srw-text);
+  border-color: var(--srw-accent);
+}
+
+/* Checkbox row */
+[data-srw] .srw-form-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: rgba(255,255,255,0.65);
+  cursor: pointer;
+}
+[data-srw] .srw-form-checkbox-row input[type=checkbox] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--srw-accent);
+  cursor: pointer;
+}
+
+/* Form error */
+[data-srw] .srw-form-error {
+  font-size: 13px;
+  color: #ff6b6b;
+  margin-bottom: 12px;
+}
+
+/* Success state */
+[data-srw] .srw-signup-success {
+  text-align: center;
+  padding: 64px 0;
+}
+[data-srw] .srw-signup-success-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 2px solid var(--srw-accent);
+  color: var(--srw-accent);
+  font-size: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+}
+[data-srw] .srw-signup-success h2 {
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--srw-text);
+  margin: 0 0 12px;
+}
+[data-srw] .srw-signup-success p {
+  font-size: 15px;
+  color: rgba(255,255,255,0.6);
+  margin: 0 0 32px;
+}
+
+/* Primary (filled) button variant */
+[data-srw] .srw-btn-primary {
+  display: inline-block;
+  padding: 14px 36px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--srw-accent);
+  color: var(--srw-text);
+  border: none;
+  text-decoration: none;
+  transition: opacity 0.18s ease;
+}
+[data-srw] .srw-btn-primary:hover { opacity: 0.85; }
+
+/* Home contact form success state */
+[data-srw] .srw-contact-success {
+  padding: 48px 0;
+  text-align: center;
+  font-size: 16px;
+  color: rgba(255,255,255,0.7);
+}
+
+@media (max-width: 560px) {
+  [data-srw] .srw-signup-hero { height: 45vh; }
+  [data-srw] .srw-form-chips { gap: 8px; }
+  [data-srw] .srw-chip { font-size: 11px; padding: 9px 14px; }
+}

@@ -1,0 +1,255 @@
+/* ── Space Rising Tenant Skin ─────────────────────────────────────────────────
+   Scoped exclusively to [data-tenant="space-rising-v2"].
+   All other tenants (Arsenal etc.) are completely unaffected.
+   ──────────────────────────────────────────────────────────────────────────── */
+
+/* Root wrapper — Earth-from-orbit photo (bottom layer) + dark veil (top layer).
+   Applied directly on the div rather than ::before/::after pseudo-elements so
+   the image paints inside the root div's own stacking level, on top of the
+   body's opaque background (which would otherwise cover negative-z-index
+   pseudo-elements with position:fixed). */
+/* Photo: NASA ISS044-E-45215, public domain */
+[data-tenant="space-rising-v2"] {
+  background-image:
+    linear-gradient(rgba(0, 8, 20, 0.62), rgba(0, 8, 20, 0.62)),
+    url('/images/space-rising/bg-space.jpg') !important;
+  background-size: cover !important;
+  background-attachment: fixed !important;
+  background-position: center center !important;
+}
+
+/* Override browse hero image to use the locally-hosted space photo */
+[data-tenant="space-rising-v2"] .browse-hero-bg {
+  background-image: url('/images/space-rising/bg-space.jpg') !important;
+  background-position: center 25% !important;
+}
+
+/* Hero overlay — slightly deeper so the title pops */
+[data-tenant="space-rising-v2"] .browse-hero-overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(2, 4, 16, 0.15) 0%,
+    rgba(2, 4, 16, 0.72) 60%,
+    rgba(2, 4, 16, 0.95) 100%
+  ) !important;
+}
+
+/* Hero title — bigger, more confident hero treatment */
+[data-tenant="space-rising-v2"] .browse-title {
+  font-size: 32px !important;
+  font-weight: 900 !important;
+  color: #ffffff !important;
+  line-height: 1.1 !important;
+  margin-bottom: 8px !important;
+}
+
+/* Hero tagline — 14px at 75% opacity for clear hierarchy */
+[data-tenant="space-rising-v2"] .browse-sub {
+  font-size: 14px !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+  line-height: 1.5 !important;
+}
+
+/* Search bar — transparent fill so bar floats over Earth photo */
+[data-tenant="space-rising-v2"] .browse-search {
+  background: transparent !important;
+  margin-top: 10px !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+[data-tenant="space-rising-v2"] .browse-search:focus-within {
+  border-color: rgba(244, 70, 17, 0.45) !important;
+}
+
+[data-tenant="space-rising-v2"] .browse-search input {
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  font-size: 20px !important;
+}
+
+[data-tenant="space-rising-v2"] .browse-search input::placeholder {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+
+/* Inactive filter chips — white 75% opacity, subtle border */
+[data-tenant="space-rising-v2"] .chip {
+  font-size: 100% !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+/* Active chip — solid orange border + orange text, translucent orange fill.
+   Higher specificity than the inline <style> chip.on rule so this wins. */
+[data-tenant="space-rising-v2"] .chip.on {
+  border-color: #f44611 !important;
+  background: rgba(244, 70, 17, 0.12) !important;
+  color: #f44611 !important;
+}
+
+/* "+ Add Company" — chip-shaped filled-orange CTA (overrides inline styles) */
+[data-tenant="space-rising-v2"] .sec-count a {
+  display: inline-flex !important;
+  align-items: center !important;
+  padding: 7px 16px !important;
+  border-radius: 100px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  white-space: nowrap !important;
+  border: 1px solid #f44611 !important;
+  background: #f44611 !important;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  transition: all 0.15s !important;
+}
+
+[data-tenant="space-rising-v2"] .sec-count a:hover {
+  background: #d93a0d !important;
+  border-color: #d93a0d !important;
+}
+
+/* Section header — company count + add-company link */
+[data-tenant="space-rising-v2"] .sec-title {
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+  letter-spacing: 0.08em !important;
+}
+
+/* Company list — gapped tiles instead of hairline-separated rows */
+[data-tenant="space-rising-v2"] .co-list {
+  gap: 6px !important;
+}
+
+/* Company card — discrete dark-glass tile with subtle border */
+[data-tenant="space-rising-v2"] .co-card {
+  background: rgba(8, 12, 24, 0.60) !important;
+  border: 1px solid rgba(255, 255, 255, 0.07) !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+  transition: background 0.15s, border-color 0.15s, filter 0.15s !important;
+}
+
+/* Card hover — border lifts, slight brightness boost */
+[data-tenant="space-rising-v2"] .co-card:hover {
+  background: rgba(8, 12, 24, 0.72) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  filter: brightness(1.06) !important;
+}
+
+/* Letter avatar — slightly bigger, more rounded, letter bold */
+[data-tenant="space-rising-v2"] .co-logo {
+  width: 48px !important;
+  height: 48px !important;
+  border-radius: 10px !important;
+  font-size: 20px !important;
+  font-weight: 900 !important;
+  flex-shrink: 0 !important;
+}
+
+/* Company name — big, bold, near-white for maximum visibility.
+   Wrap on mobile so long names ("Phantom Space Corporation",
+   "Lockheed Martin Missiles & Fire Control") don't truncate. */
+[data-tenant="space-rising-v2"] .co-name {
+  font-size: 19px !important;
+  font-weight: 800 !important;
+  color: rgba(255, 255, 255, 0.97) !important;
+  line-height: 1.2 !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  word-break: break-word !important;
+}
+
+/* Cert badges — bump contrast on the dark glass tile */
+[data-tenant="space-rising-v2"] .co-badge.cert {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.18) !important;
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+/* City/state — stays small, reduced opacity for clear name → city hierarchy */
+[data-tenant="space-rising-v2"] .co-loc {
+  font-size: 12px !important;
+  color: rgba(255, 255, 255, 0.65) !important;
+  margin-top: 3px !important;
+}
+
+/* Badge row — a bit more breathing room below the city line */
+[data-tenant="space-rising-v2"] .co-badges {
+  margin-top: 8px !important;
+  gap: 5px !important;
+}
+
+/* Grants-count badge — always 0 for Space Rising; hide until populated */
+[data-tenant="space-rising-v2"] .co-name span:last-child {
+  display: none !important;
+}
+
+/* Arrow — visible but unobtrusive against the dark card */
+[data-tenant="space-rising-v2"] .co-arrow {
+  color: rgba(255, 255, 255, 0.38) !important;
+}
+
+/* Bottom nav — deepen blur over the space background */
+[data-tenant="space-rising-v2"] .v10-nav {
+  background: rgba(2, 4, 16, 0.82) !important;
+  backdrop-filter: blur(8px) saturate(1.2) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(1.2) !important;
+  border-top-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Skeleton loaders — match the translucent surface */
+[data-tenant="space-rising-v2"] .skel {
+  background: linear-gradient(
+    90deg,
+    rgba(6, 10, 28, 0.72) 25%,
+    rgba(12, 20, 50, 0.80) 50%,
+    rgba(6, 10, 28, 0.72) 75%
+  ) !important;
+  background-size: 200% 100% !important;
+}
+
+/* Tenant hero logo — 130px desktop, 88px mobile (proportional to hero scale) */
+[data-tenant="space-rising-v2"] .tenant-hero-logo {
+  height: 130px !important;
+  width: auto !important;
+}
+
+@media (max-width: 768px) {
+  /* Drop the inner content's relative positioning on mobile so the absolute
+     logo resolves against .browse-hero (full viewport width) instead of the
+     centered .browse-hero-content (constrained width). */
+  [data-tenant="space-rising-v2"] .browse-hero-content {
+    position: static !important;
+  }
+
+  [data-tenant="space-rising-v2"] .tenant-hero-logo {
+    height: 72px !important;
+    right: 16px !important;
+    top: 16px !important;
+  }
+
+  [data-tenant="space-rising-v2"] .browse-search input {
+    font-size: 20px !important;
+  }
+}
+
+/* ── Tablet / Desktop ───────────────────────────────────────────────────────── */
+@media (min-width: 768px) {
+  [data-tenant="space-rising-v2"] .browse-title {
+    font-size: 42px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  [data-tenant="space-rising-v2"] .browse-title {
+    font-size: 50px !important;
+  }
+
+  [data-tenant="space-rising-v2"] .co-name {
+    font-size: 20px !important;
+  }
+}
