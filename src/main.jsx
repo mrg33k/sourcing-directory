@@ -48,6 +48,7 @@ const SourcingEventsPost = lazy(() => import('./pages/SourcingEventsPost.jsx'))
 const SourcingArticles = lazy(() => import('./pages/SourcingArticles.jsx'))
 const SourcingArticlesPost = lazy(() => import('./pages/SourcingArticlesPost.jsx'))
 const SourcingGrants = lazy(() => import('./pages/SourcingGrants.jsx'))
+const SourcingDealBank = lazy(() => import('./pages/SourcingDealBank.jsx'))
 const SourcingMembership = lazy(() => import('./pages/SourcingMembership.jsx'))
 const SourcingReports = lazy(() => import('./pages/SourcingReports.jsx'))
 const SourcingOrg = lazy(() => import('./pages/SourcingOrg.jsx'))
@@ -111,6 +112,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/:tenantSlug/articles" element={<SourcingArticles />} />
           <Route path="/:tenantSlug/articles/post" element={<SourcingArticlesPost />} />
           <Route path="/:tenantSlug/grants" element={<SourcingGrants />} />
+          <Route path="/:tenantSlug/deal-bank" element={<SourcingDealBank />} />
           <Route path="/:tenantSlug/membership" element={<SourcingMembership />} />
           <Route path="/:tenantSlug/reports" element={<SourcingReports />} />
           <Route path="/:tenantSlug/reports/:reportId" element={<SourcingReports />} />

@@ -1040,7 +1040,7 @@ function SourcingDirectoryInner() {
         <Link to={`/${tenantSlug}/reports`} className="chip" style={{ textDecoration: 'none' }}>Reports</Link>
         <Link to={`/${tenantSlug}/marketplace`} className="chip" style={{ textDecoration: 'none' }}>Marketplace</Link>
         <Link to={`/${tenantSlug}/membership`} className="chip" style={{ textDecoration: 'none' }}>Membership</Link>
-        <a href="https://www.aheadofmarket.com/space-rising/deal-bank/completed" className="chip" style={{ textDecoration: 'none' }}>Deal Bank</a>
+        <Link to={`/${tenantSlug}/deal-bank`} className="chip" style={{ textDecoration: 'none' }}>Deal Bank</Link>
       </div>
 
       {/* Vertical filter chips */}
