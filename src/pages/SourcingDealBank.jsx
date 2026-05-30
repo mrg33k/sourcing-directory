@@ -61,6 +61,35 @@ function formatDate(iso) {
   } catch { return iso; }
 }
 
+// Extract a short headline ("$450M", "$1.2B", "$5M") from a longer amount string
+// so the row stays clean. Long descriptors ("$450M total ($300M equity + $155M debt)")
+// move to the expanded body.
+function amountHeadline(amountStr, amountUsdM) {
+  if (typeof amountUsdM === 'number') {
+    if (amountUsdM >= 1000) {
+      const b = amountUsdM / 1000;
+      return `$${b % 1 === 0 ? b.toFixed(0) : b.toFixed(1)}B`;
+    }
+    if (amountUsdM > 0) {
+      return `$${amountUsdM % 1 === 0 ? amountUsdM.toFixed(0) : amountUsdM.toFixed(1)}M`;
+    }
+  }
+  if (!amountStr) return null;
+  // Pull the first "$NNM" or "$NN.NB" pattern out of the string
+  const m = String(amountStr).match(/\$\s*[\d.,]+\s*[MBKmbk]/);
+  if (m) return m[0].replace(/\s+/g, '');
+  // Otherwise return first ~10 chars
+  const trimmed = String(amountStr).trim();
+  return trimmed.length > 12 ? trimmed.slice(0, 10) + '…' : trimmed;
+}
+
+// Is the amount string longer than its headline? If so, the descriptor belongs in the expanded body.
+function hasAmountDescriptor(amountStr, headline) {
+  if (!amountStr || !headline) return false;
+  const a = String(amountStr).trim();
+  return a !== headline && a.length > headline.length + 1;
+}
+
 function StageBadge({ round, V }) {
   const stage = classifyStage(round);
   const c = STAGE_COLORS[stage] || STAGE_COLORS['growth'];
@@ -81,6 +110,8 @@ function DealRow({ deal, V, expanded, onToggle }) {
   const pal = letterPalette(deal.company);
   const letter = (deal.company || '?').trim().charAt(0).toUpperCase();
   const dateStr = formatDate(deal.date);
+  const headline = amountHeadline(deal.amount_raised, deal.amount_usd_m);
+  const showDescriptor = hasAmountDescriptor(deal.amount_raised, headline);
 
   return (
     <div
@@ -88,6 +119,7 @@ function DealRow({ deal, V, expanded, onToggle }) {
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onToggle(); } }}
       role="button" tabIndex={0}
       aria-expanded={expanded}
+      className="db-row"
       style={{
         background: expanded ? V.card2 : V.card,
         border: `1px solid ${expanded ? V.accentBrd : V.border}`,
@@ -99,27 +131,24 @@ function DealRow({ deal, V, expanded, onToggle }) {
       onMouseEnter={e => { if (!expanded) e.currentTarget.style.borderColor = V.accentBrd; }}
       onMouseLeave={e => { if (!expanded) e.currentTarget.style.borderColor = V.border; }}
     >
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: '52px 1fr auto',
-        gap: 16,
-        alignItems: 'center',
-      }}>
-        <div style={{
+      <div className="db-row-grid" style={{ display: 'grid', gap: 16, alignItems: 'center' }}>
+        <div className="db-row-avatar" style={{
           width: 52, height: 52, borderRadius: 12,
           background: pal.bg, color: pal.fg,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           fontFamily: V.syne || V.heading || 'Oswald, sans-serif',
           fontSize: 22, fontWeight: 700,
+          flexShrink: 0,
         }}>{letter}</div>
 
-        <div style={{ minWidth: 0 }}>
+        <div className="db-row-mid" style={{ minWidth: 0 }}>
           <div style={{
             fontSize: 17, fontWeight: 700,
             fontFamily: V.syne || V.heading || 'Oswald, sans-serif',
             color: V.heading || V.text,
             lineHeight: 1.2, marginBottom: 6,
             textTransform: 'uppercase', letterSpacing: '0.01em',
+            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
           }}>{deal.company}</div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             <StageBadge round={deal.round} V={V} />
@@ -138,13 +167,13 @@ function DealRow({ deal, V, expanded, onToggle }) {
           </div>
         </div>
 
-        <div style={{ textAlign: 'right' }}>
-          <div style={{
+        <div className="db-row-right" style={{ textAlign: 'right', flexShrink: 0 }}>
+          <div className="db-amount" style={{
             fontFamily: V.syne || V.heading || 'Oswald, sans-serif',
-            fontSize: 24, fontWeight: 700, color: V.accent,
+            fontWeight: 700, color: V.accent,
             lineHeight: 1, whiteSpace: 'nowrap',
             letterSpacing: '0.01em',
-          }}>{deal.amount_raised}</div>
+          }}>{headline || '—'}</div>
           {deal.region && (
             <div style={{ fontSize: 11, color: V.muted, marginTop: 5, fontFamily: V.mono }}>{deal.region}</div>
           )}
@@ -157,6 +186,19 @@ function DealRow({ deal, V, expanded, onToggle }) {
           borderTop: `1px solid ${V.border}`,
           display: 'flex', flexDirection: 'column', gap: 10,
         }}>
+          {showDescriptor && (
+            <div style={{
+              fontSize: 13, color: V.text, lineHeight: 1.45,
+              fontFamily: V.mono,
+            }}>
+              <span style={{
+                fontSize: 10, fontWeight: 700, color: V.muted,
+                textTransform: 'uppercase', letterSpacing: '0.08em',
+                marginRight: 8,
+              }}>Amount</span>
+              {deal.amount_raised}
+            </div>
+          )}
           {deal.short_description && (
             <div style={{ fontSize: 14, color: V.text, lineHeight: 1.55 }}>{deal.short_description}</div>
           )}
@@ -251,6 +293,21 @@ function SourcingDealBankInner() {
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%,100% { opacity: 0.5; } 50% { opacity: 1; } }
+        /* Default grid: avatar + content + amount */
+        .db-row-grid { grid-template-columns: 52px 1fr auto; }
+        .db-amount { font-size: 24px; }
+        /* Mobile: drop amount to its own row under the content, reduce font */
+        @media (max-width: 640px) {
+          .db-row-grid {
+            grid-template-columns: 44px 1fr;
+            grid-template-areas: "avatar mid" "amount amount";
+            row-gap: 10px;
+          }
+          .db-row-avatar { grid-area: avatar; width: 44px; height: 44px; font-size: 18px; border-radius: 10px; }
+          .db-row-mid { grid-area: mid; }
+          .db-row-right { grid-area: amount; text-align: left; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+          .db-amount { font-size: 20px; }
+        }
       `}</style>
 
       <SourcingNav
