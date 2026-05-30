@@ -112,20 +112,28 @@ export default function SRWHomeV2() {
     <div data-srw="v2">
       <SRWNavV2 />
 
-      {/* Hero — looped background video (8s) with "a new way to SPACE" text overlay */}
-      <header className="srw-hero-composite">
-        <video
-          className="srw-hero-bg-video"
-          src={HERO_VIDEO}
-          poster={HERO_POSTER}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
+      {/* R4 (nat-geo-uplift) — premium editorial hero. Earth-from-orbit photo as
+          full-bleed bg, editorial type lockup overlay with amber-frame label. */}
+      <header className="srw-hero-v2">
+        <div
+          className="srw-hero-v2-bg"
+          style={{ backgroundImage: `url(/v2-assets/earth.png)` }}
           aria-hidden="true"
         />
-        <img className="srw-hero-overlay" src={HERO_OVERLAY} alt="A new way to SPACE" />
+        <div className="srw-hero-v2-veil" aria-hidden="true" />
+        <div className="srw-hero-v2-inner">
+          <div className="srw-hero-v2-eyebrow">
+            <span className="srw-hero-v2-eyebrow-mark" /> THE PLATFORM OF RECORD
+          </div>
+          <h1 className="srw-hero-v2-headline">A new way to&nbsp;space<span className="srw-hero-v2-dot">.</span></h1>
+          <p className="srw-hero-v2-sub">
+            The interactive intelligence infrastructure for the global space economy. Where suppliers, manufacturers, capital, and missions find each other.
+          </p>
+          <div className="srw-hero-v2-cta-row">
+            <Link to="/space-rising-v2" className="srw-hero-v2-cta-primary">Enter SpaceOS&trade;</Link>
+            <Link to="/srw/about" className="srw-hero-v2-cta-secondary">About Space Rising</Link>
+          </div>
+        </div>
       </header>
 
       {/* The space economy is scaling — stat block */}
