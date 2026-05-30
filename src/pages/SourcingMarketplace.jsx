@@ -83,7 +83,7 @@ export function SourcingNav({ active, tenantSlug, tenantName, features, brandCol
       { label: 'Marketplace', sub: 'Equipment exchange', href: `${base}/marketplace`, icon: 'M9 21a1 1 0 100-2 1 1 0 000 2zM20 21a1 1 0 100-2 1 1 0 000 2zM1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6', color: '#FBBF24', bg: 'rgba(251,191,36,0.1)' },
       { label: 'Membership', sub: 'Upgrade your account', href: `${base}/membership`, icon: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z', color: '#FB7185', bg: 'rgba(251,113,133,0.1)' },
       { label: 'Articles', sub: 'Industry news', href: `${base}/articles`, icon: 'M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 014 17V5a2.5 2.5 0 012.5-2.5H20v17H6.5', color: '#38BDF8', bg: 'rgba(56,189,248,0.1)' },
-      { label: 'Deal Bank', sub: 'Capital formation surface', href: 'https://www.aheadofmarket.com/space-rising/deal-bank/completed', icon: 'M12 1v22M17 5H9.5a3.5 3.5 0 100 7h5a3.5 3.5 0 110 7H6', color: '#E5451F', bg: 'rgba(229,69,31,0.12)', action: () => { window.location.href = 'https://www.aheadofmarket.com/space-rising/deal-bank/completed'; } },
+      { label: 'Deal Bank', sub: 'Closed funding rounds', href: `${base}/deal-bank`, icon: 'M12 1v22M17 5H9.5a3.5 3.5 0 100 7h5a3.5 3.5 0 110 7H6', color: '#E5451F', bg: 'rgba(229,69,31,0.12)' },
     );
   }
   if (authUser) {
