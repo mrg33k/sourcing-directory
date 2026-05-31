@@ -203,6 +203,10 @@ export default function SRWHomeV2() {
     if (!video) return;
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduced) return;
+    // polish-srw-cleanup mobile follow-up: skip the parallax loop on phones
+    // entirely. Touch devices don't benefit from the effect and the scroll
+    // handler costs CPU. Matches the CSS-side mobile override.
+    if (window.matchMedia('(max-width: 768px)').matches) return;
 
     let raf = 0;
     const onScroll = () => {

@@ -2980,3 +2980,42 @@
 [data-srw="v2"] .srw-hero-v2-veil {
   inset: -1px !important;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   polish-srw-cleanup mobile follow-up (Patrik 2026-05-31)
+   (a) Chrome mobile: video sometimes doesn't autoplay (data-saver, slow net,
+       or the video element refuses to render). Earlier round removed the
+       static .srw-hero-v2-bg div, so when video fails there's just black
+       behind the headline. Restore the static earth as a CSS bg on the
+       hero CONTAINER itself — it always shows; the video element layers
+       on top when it loads. No DOM duplication (it's just a bg-image on
+       the existing element).
+   (b) Footer on mobile: the desktop grid `1fr 2fr 2fr` with !important
+       was overriding the existing `<=768px` single-column rule, so the
+       footer was forced into 3 columns and overlapped itself. Restore
+       1fr stacked on mobile.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* (a) Always-on static earth bg on the hero container — video layers on top */
+[data-srw="v2"] .srw-hero-v2 {
+  background-image: url('/v2-assets/earth.png') !important;
+  background-size: cover !important;
+  background-position: 65% center !important;
+  background-repeat: no-repeat !important;
+  background-color: #0B0B0D !important;
+}
+
+@media (max-width: 768px) {
+  /* Footer: collapse back to single column on phones */
+  [data-srw="v2"] .srw-footer-inner {
+    grid-template-columns: 1fr !important;
+    gap: 32px !important;
+  }
+  /* Hero on mobile: kill the JS parallax translate so the video stays put.
+     The translate3d set inline by JS still applies, but we force a static
+     transform with !important so the visual stays clean even if video does
+     load. (Pointer events / scroll listeners already cheap on mobile.) */
+  [data-srw="v2"] .srw-hero-v2-video {
+    transform: none !important;
+  }
+}
