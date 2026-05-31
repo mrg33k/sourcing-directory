@@ -85,7 +85,7 @@ function SourcingReportsV2Inner() {
     >
       <style>{`@keyframes spin { to { transform: rotate(360deg); } } @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }`}</style>
 
-      <div className="browse-hero" style={{ '--page-hero-bg': "url('/v2-assets/sun-corona.png')" }}>
+      <div className="browse-hero" style={{ '--page-hero-bg': "url('/v2-assets/sun.png')" }}>
         <div className="browse-hero-bg" />
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
