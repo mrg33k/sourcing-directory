@@ -758,6 +758,31 @@ function SourcingDirectoryInner() {
   const filteredCompanies = useMemo(() => {
     // Use AI results if available, otherwise use standard fetch results
     let source = aiCompanies !== null ? aiCompanies : companies;
+
+    // R4l (nat-geo-uplift) — chip-driven fuzzy live search.
+    // As the user types, filter the loaded set in-memory across every meaningful
+    // field. Whitespace splits into AND-terms (every word must appear somewhere
+    // in the haystack). No backend call required for the typed-as-you-go path;
+    // pressing Enter still fires the deeper Supabase + Scout search via
+    // handleSearch() for results beyond the loaded 100.
+    if (searchInput.trim() && aiCompanies === null) {
+      const terms = searchInput.toLowerCase().split(/\s+/).filter(Boolean);
+      source = source.filter(c => {
+        const companyCerts = (certs[c.id] || []).map(cert => cert.cert_name || '').join(' ');
+        const haystack = [
+          c.name,
+          c.description,
+          c.city,
+          c.state,
+          c.vertical,
+          c.industry_subsector,
+          c.slug,
+          companyCerts,
+        ].filter(Boolean).join(' ').toLowerCase();
+        return terms.every(t => haystack.includes(t));
+      });
+    }
+
     if (showSaved) source = source.filter(c => favorites.includes(c.slug));
     if (selectedCerts.length > 0) {
       source = source.filter(c => {
@@ -781,7 +806,7 @@ function SourcingDirectoryInner() {
       });
     }
     return source;
-  }, [companies, aiCompanies, certs, selectedCerts, selectedCounties, selectedSubsectors, showSaved, favorites]);
+  }, [companies, aiCompanies, certs, selectedCerts, selectedCounties, selectedSubsectors, showSaved, favorites, searchInput]);
 
   const availableCerts = VERTICAL_CERTS[vertical] || [];
 
@@ -1043,7 +1068,10 @@ function SourcingDirectoryInner() {
         </div>
       </div>
 
-      {/* v10 Search */}
+      {/* v10 Search — R4l: live fuzzy filter on type; AI runs invisibly in
+          the background on Enter. No aiLoading spinner in the user-facing UX
+          per Patrik 2026-05-30: "AI stuff can be happening in the background;
+          we know they're searching, not having a conversation right now." */}
       <div className="browse-search">
         <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
         <input
@@ -1056,7 +1084,7 @@ function SourcingDirectoryInner() {
           autoComplete="off"
           spellCheck="false"
         />
-        {(loading || aiLoading) && <div className="spinner" />}
+        {loading && <div className="spinner" />}
       </div>
 
       {/* v10 Section Chips -- branded accent if tenant has one */}
