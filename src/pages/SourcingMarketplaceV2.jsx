@@ -5,6 +5,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
+import { V2ChipNav } from './V2ChipNav.jsx';
 import '../space-rising-theme-v2.css';
 
 const TENANT_SLUG_V2 = 'space-rising-v2';
@@ -143,15 +144,7 @@ function SourcingMarketplaceV2Inner() {
         {loading && <div className="spinner" />}
       </div>
 
-      <div className="chips" style={{ paddingBottom: 4 }}>
-        <Link to="/space-rising-v2" className="chip" style={{ textDecoration: 'none' }}>Companies</Link>
-        <Link to="/space-rising-v2/jobs" className="chip" style={{ textDecoration: 'none' }}>Jobs</Link>
-        <Link to="/space-rising-v2/events" className="chip" style={{ textDecoration: 'none' }}>Events</Link>
-        <Link to="/space-rising-v2/reports" className="chip" style={{ textDecoration: 'none' }}>Reports</Link>
-        <div className="chip on">Marketplace</div>
-        <Link to="/space-rising-v2/membership" className="chip" style={{ textDecoration: 'none' }}>Membership</Link>
-        <Link to="/space-rising-v2/deal-bank" className="chip" style={{ textDecoration: 'none' }}>Deal Bank</Link>
-      </div>
+      <V2ChipNav active="marketplace" />
 
       <div className="sec-hdr">
         <div className="sec-title">

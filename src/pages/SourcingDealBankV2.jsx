@@ -4,6 +4,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
+import { V2ChipNav } from './V2ChipNav.jsx';
 import '../space-rising-theme-v2.css';
 
 const TENANT_SLUG_V2 = 'space-rising-v2';
@@ -111,15 +112,7 @@ function SourcingDealBankV2Inner() {
         {loading && <div className="spinner" />}
       </div>
 
-      <div className="chips" style={{ paddingBottom: 4 }}>
-        <Link to="/space-rising-v2" className="chip" style={{ textDecoration: 'none' }}>Companies</Link>
-        <Link to="/space-rising-v2/jobs" className="chip" style={{ textDecoration: 'none' }}>Jobs</Link>
-        <Link to="/space-rising-v2/events" className="chip" style={{ textDecoration: 'none' }}>Events</Link>
-        <Link to="/space-rising-v2/reports" className="chip" style={{ textDecoration: 'none' }}>Reports</Link>
-        <Link to="/space-rising-v2/marketplace" className="chip" style={{ textDecoration: 'none' }}>Marketplace</Link>
-        <Link to="/space-rising-v2/membership" className="chip" style={{ textDecoration: 'none' }}>Membership</Link>
-        <div className="chip on">Deal Bank</div>
-      </div>
+      <V2ChipNav active="deal-bank" />
 
       <div className="sec-hdr">
         <div className="sec-title">

@@ -3,6 +3,7 @@ import { Link, useSearchParams, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import { SourcingNav } from './SourcingMarketplace.jsx';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
+import { V2ChipNav } from './V2ChipNav.jsx';
 import { trackEvent } from './sourcingAnalytics.js';
 import { getVerticalImage } from './SourcingLanding.jsx';
 import '../space-rising-theme-v2.css';
@@ -1091,15 +1092,7 @@ function SourcingDirectoryInner() {
       <style>{tenantBrand ? `
         .chip.on { border-color: ${tenantBrand.accent}40 !important; background: ${tenantBrand.accent}12 !important; color: ${tenantBrand.accent} !important; }
       ` : ''}</style>
-      <div className="chips" style={{ paddingBottom: 4 }}>
-        <div className="chip on">Companies</div>
-        <Link to={`/${tenantSlug}/jobs`} className="chip" style={{ textDecoration: 'none' }}>Jobs</Link>
-        <Link to={`/${tenantSlug}/events`} className="chip" style={{ textDecoration: 'none' }}>Events</Link>
-        <Link to={`/${tenantSlug}/reports`} className="chip" style={{ textDecoration: 'none' }}>Reports</Link>
-        <Link to={`/${tenantSlug}/marketplace`} className="chip" style={{ textDecoration: 'none' }}>Marketplace</Link>
-        <Link to={`/${tenantSlug}/membership`} className="chip" style={{ textDecoration: 'none' }}>Membership</Link>
-        <Link to={`/${tenantSlug}/deal-bank`} className="chip" style={{ textDecoration: 'none' }}>Deal Bank</Link>
-      </div>
+      <V2ChipNav active="companies" />
 
       {/* Vertical filter chips */}
       <div className="chips">

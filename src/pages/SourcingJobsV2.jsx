@@ -8,6 +8,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
+import { V2ChipNav } from './V2ChipNav.jsx';
 // Loads the V2 theme + R5a hero-archetype rules. Required for /space-rising-v2/*
 // routes to pick up the locked palette, type, and card grid.
 import '../space-rising-theme-v2.css';
@@ -211,28 +212,7 @@ function SourcingJobsV2Inner() {
         {loading && <div className="spinner" />}
       </div>
 
-      {/* Chip row — Jobs active, others link to V2 siblings */}
-      <div className="chips" style={{ paddingBottom: 4 }}>
-        <Link to="/space-rising-v2" className="chip" style={{ textDecoration: 'none' }}>
-          Companies
-        </Link>
-        <div className="chip on">Jobs</div>
-        <Link to="/space-rising-v2/events" className="chip" style={{ textDecoration: 'none' }}>
-          Events
-        </Link>
-        <Link to="/space-rising-v2/reports" className="chip" style={{ textDecoration: 'none' }}>
-          Reports
-        </Link>
-        <Link to="/space-rising-v2/marketplace" className="chip" style={{ textDecoration: 'none' }}>
-          Marketplace
-        </Link>
-        <Link to="/space-rising-v2/membership" className="chip" style={{ textDecoration: 'none' }}>
-          Membership
-        </Link>
-        <Link to="/space-rising-v2/deal-bank" className="chip" style={{ textDecoration: 'none' }}>
-          Deal Bank
-        </Link>
-      </div>
+      <V2ChipNav active="jobs" />
 
       {/* Section header — count + Post CTA */}
       <div className="sec-hdr">
