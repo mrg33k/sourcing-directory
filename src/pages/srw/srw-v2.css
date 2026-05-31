@@ -2902,3 +2902,81 @@
     transition: none !important;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   polish-srw-cleanup (2026-05-31) — Patrik feedback batch
+   1. Opportunity tiles: centered titles, brighter on hover, underline-grow
+      animation, em-dash mark removed (was visually competing with center align)
+   2. Footer grid: 1fr / 2fr / 2fr (logo / promo / right) — was 1.1 / 1 / 1.1
+   3. Footer SUBSCRIBE matches nav SUBSCRIBE (orange fill, dark text)
+   4. Hero veil: inset:-1px defensive overlap so sub-pixel rounding can't
+      leave a 1px sliver where the static fallback bg shows through
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* (1) Opportunity tiles — centered + bright-hover + underline */
+[data-srw="v2"] .srw-opp {
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.02em !important;
+  color: rgba(232,228,218,0.86) !important;
+  transition: color 0.22s ease, background 0.22s ease !important;
+}
+/* Kill the em-dash mark — competed visually with centered text */
+[data-srw="v2"] .srw-opp::before { content: '' !important; display: none !important; }
+/* Underline element — sits at the bottom of the tile, animates in on hover */
+[data-srw="v2"] .srw-opp .srw-opp-rule {
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  bottom: 18px;
+  height: 1px;
+  background: var(--srv2-orange);
+  transform: scaleX(0);
+  transform-origin: center;
+  opacity: 0;
+  transition: transform 0.34s cubic-bezier(0.16,1,0.3,1), opacity 0.22s ease;
+  z-index: 2;
+  pointer-events: none;
+}
+[data-srw="v2"] .srw-opp:hover {
+  color: #ffffff !important;
+  background: rgba(238,124,37,0.10) !important;
+}
+[data-srw="v2"] .srw-opp:hover::after {
+  /* Patrik: when hovered, the box itself brightens too — open the gradient up */
+  opacity: 0.78 !important;
+}
+[data-srw="v2"] .srw-opp:hover .srw-opp-rule {
+  transform: scaleX(1);
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-srw="v2"] .srw-opp .srw-opp-rule { transition: none !important; }
+}
+
+/* (2) Footer grid — 1 / 2 / 2 proportions */
+[data-srw="v2"] .srw-footer-inner {
+  grid-template-columns: 1fr 2fr 2fr !important;
+}
+
+/* (3) Footer SUBSCRIBE matches nav SUBSCRIBE — orange fill, dark text */
+[data-srw="v2"] .srw-footer-subscribe {
+  background: var(--srv2-orange) !important;
+  border: none !important;
+  color: #0B0B0D !important;
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+[data-srw="v2"] .srw-footer-subscribe:hover {
+  background: var(--srv2-orange-hover) !important;
+  color: #0B0B0D !important;
+}
+
+/* (4) Hero veil — defensive 1px overlap to kill subpixel rounding gap */
+[data-srw="v2"] .srw-hero-v2-veil {
+  inset: -1px !important;
+}

@@ -73,7 +73,9 @@
   padding:max(env(safe-area-inset-top),0px) 20px 24px;
 }
 .browse-hero-bg { position:absolute; inset:0; background-size:cover; background-position:center; }
-.browse-hero-overlay { position:absolute; inset:0; background:linear-gradient(180deg, rgba(6,6,10,0.2) 0%, rgba(6,6,10,0.8) 60%, var(--bg) 100%); }
+/* polish-srw-cleanup (2026-05-31): inset:-1px on overlay so subpixel rounding
+   can't leave a 1px sliver of the bg image visible at any edge. */
+.browse-hero-overlay { position:absolute; inset:-1px; background:linear-gradient(180deg, rgba(6,6,10,0.2) 0%, rgba(6,6,10,0.8) 60%, var(--bg) 100%); }
 .browse-hero-content { position:relative; z-index:1; }
 .browse-back { display:inline-flex; align-items:center; gap:6px; background:none; border:none; color:var(--tx2); font-size:13px; font-weight:600; font-family:inherit; cursor:pointer; margin-bottom:12px; padding:0; }
 .browse-title { font-size:28px; font-weight:900; letter-spacing:-0.03em; color:#fff; margin-bottom:6px; }

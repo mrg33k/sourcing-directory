@@ -118,15 +118,17 @@ function SourcingMarketplaceV2Inner() {
         <div className="browse-hero-bg" />
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
-          <Link to="/space-rising-v2" className="browse-back" style={{ textDecoration: 'none' }}>
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
-            Back
-          </Link>
+          <div className="browse-hero-toprow">
+            <Link to="/space-rising-v2" className="browse-back" style={{ textDecoration: 'none' }}>
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
+              Back
+            </Link>
+            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
+          </div>
           <div className="browse-title">Marketplace.</div>
           <div className="browse-sub">
             Equipment, capacity, and capabilities from Arizona&rsquo;s space-industry suppliers.
           </div>
-          <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
         </div>
       </div>
 

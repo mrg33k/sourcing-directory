@@ -145,22 +145,18 @@ export default function SourcingCompanyV2() {
 
   return (
     <div className="srcv2-shell" data-tenant="space-rising-v2">
-      {/* Top bar (matches other V2 pages — wordmark + breadcrumb + sticky CTA) */}
+      {/* Top bar — polish-srw-cleanup (2026-05-31): unified with the rest of the
+          directory pages. Back link (left) + Space Rising logo (right) as the
+          very top row, above the eyebrow / company-name headline below.
+          Replaces the previous wordmark + breadcrumb layout. */}
       <div className="srcv2-topbar">
-        <Link to="/space-rising-v2" className="srcv2-wordmark">SPACE RISING</Link>
-        <div className="srcv2-crumbs">
-          <Link to="/space-rising-v2" className="srcv2-crumb-link">DIRECTORY</Link>
-          <span className="srcv2-crumb-sep">/</span>
-          <span className="srcv2-crumb-active">{company.name.toUpperCase()}</span>
+        <div className="browse-hero-toprow">
+          <Link to="/space-rising-v2" className="browse-back" style={{ textDecoration: 'none' }}>
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
+            Back to directory
+          </Link>
+          <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
         </div>
-        {(company.email || company.phone) && (
-          <a
-            href={company.email ? `mailto:${company.email}` : `tel:${company.phone}`}
-            className="srcv2-topbar-cta"
-          >
-            Contact
-          </a>
-        )}
       </div>
 
       {/* Hero */}
@@ -191,6 +187,13 @@ export default function SourcingCompanyV2() {
             {company.email && (
               <a href={`mailto:${company.email}`} className="srsv2-cta srsv2-cta-line">
                 Email {company.name.split(' ')[0]}
+              </a>
+            )}
+            {/* polish-srw-cleanup: Contact CTA moved here from the topbar so
+                we don't lose it when the topbar was reduced to back + logo. */}
+            {(company.email || company.phone) && !company.email && (
+              <a href={`tel:${company.phone}`} className="srsv2-cta srsv2-cta-line">
+                Contact {company.name.split(' ')[0]}
               </a>
             )}
           </div>

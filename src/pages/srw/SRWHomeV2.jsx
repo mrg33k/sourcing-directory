@@ -210,8 +210,12 @@ export default function SRWHomeV2() {
       raf = requestAnimationFrame(() => {
         raf = 0;
         const y = Math.max(0, window.scrollY);
-        // 0.4× velocity, cap at 200px so we don't overshoot the 10% over-extent
-        const offset = Math.min(y * 0.4, 200);
+        // polish-srw-cleanup: 0.2× velocity, cap at 60px. Previous 0.4×/200px
+        // overshot the 10% over-extent on most viewport heights (10% of ~600px
+        // hero = ~60px buffer) — translating 200px exposed dark page bg at the
+        // bottom edge of the hero. 60px stays safely within the buffer at any
+        // sensible viewport size.
+        const offset = Math.min(y * 0.2, 60);
         video.style.transform = `translate3d(0, ${-offset}px, 0)`;
       });
     };
@@ -253,11 +257,14 @@ export default function SRWHomeV2() {
           R7-veo3-pilot — Veo 3 Earth-from-orbit video plays over the static
           poster, fading in once buffered. Loop-with-parallax via heroVideoRef. */}
       <header className="srw-hero-v2">
-        <div
-          className="srw-hero-v2-bg"
-          style={{ backgroundImage: `url(/v2-assets/earth.png)` }}
-          aria-hidden="true"
-        />
+        {/* polish-srw-cleanup: dropped duplicate static .srw-hero-v2-bg div.
+            The <video poster="/v2-assets/earth.png"> renders the static
+            earth.png until canplay, so the bg div was visual redundancy.
+            Removing it kills the "two-image-stack reveal during parallax"
+            artifact (Patrik 2026-05-31). prefers-reduced-motion still
+            sees the poster image because the video element stays in DOM
+            via display:none only on the video itself when needed; the
+            poster keeps showing. */}
         <video
           ref={heroVideoRef}
           className="srw-hero-v2-video"
@@ -326,7 +333,10 @@ export default function SRWHomeV2() {
           <h2 className="srw-h2-mid">EMERGING OPPORTUNITIES FOR SPACE INFRASTRUCTURE</h2>
           <div ref={oppsGridRef} className="srw-opp-grid">
             {OPPORTUNITIES.map((o) => (
-              <div className="srw-opp" key={o}>{o}</div>
+              <div className="srw-opp" key={o}>
+                <span className="srw-opp-label">{o}</span>
+                <span className="srw-opp-rule" aria-hidden="true" />
+              </div>
             ))}
           </div>
         </div>
