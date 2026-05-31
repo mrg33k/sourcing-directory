@@ -2412,8 +2412,14 @@
 }
 [data-srw="v2"] .srw-pg-tile-link:hover .srw-pg-tile-arrow { opacity: 1; }
 
-/* R10b — clickable row variant for Media/Events. The row IS an <a> preserving the 3-col grid. */
-[data-srw="v2"] .srw-pg-list-item-link { padding: 0; }
+/* R10b — clickable row variant for Media/Events. The row IS an <a> preserving the 3-col grid.
+   Reset the <li>'s own grid layout when -link variant is used so the inner <a>'s
+   grid can claim full row width instead of getting squeezed into column 1. */
+[data-srw="v2"] .srw-pg-list-item-link {
+  display: block;
+  padding: 0;
+  grid-template-columns: none;
+}
 [data-srw="v2"] .srw-pg-list-link {
   display: grid;
   grid-template-columns: 140px 1fr 100px;
