@@ -5,11 +5,12 @@ import SRWFooterV2 from './SRWFooterV2.jsx';
 import useSRWTitle from './useSRWTitle.js';
 import './srw-v2.css';
 
+// R10b (nat-geo-uplift) — each tile clicks into its directory surface.
 const FEATURES = [
-  { name: 'Companies', desc: "Arizona's space companies — from primes to early-stage startups — in one searchable directory." },
-  { name: 'Jobs', desc: 'Open roles across the state aerospace sector, posted by the companies hiring.' },
-  { name: 'Events', desc: 'Conferences, roundtables, and convenings keeping the ecosystem connected.' },
-  { name: 'Resources', desc: 'Grants, reports, and tools for builders navigating the space economy.' },
+  { name: 'Companies', desc: "Arizona's space companies — from primes to early-stage startups — in one searchable directory.", to: '/space-rising-v2' },
+  { name: 'Jobs',      desc: 'Open roles across the state aerospace sector, posted by the companies hiring.',                    to: '/space-rising-v2/jobs' },
+  { name: 'Events',    desc: 'Conferences, roundtables, and convenings keeping the ecosystem connected.',                       to: '/space-rising-v2/events' },
+  { name: 'Resources', desc: 'Grants, reports, and tools for builders navigating the space economy.',                            to: '/space-rising-v2/reports' },
 ];
 
 export default function SRWSpaceOSV2() {
@@ -60,11 +61,12 @@ export default function SRWSpaceOSV2() {
           </div>
           <div className="srw-pg-tile-grid">
             {FEATURES.map((f, i) => (
-              <div className="srw-pg-tile" key={f.name}>
+              <Link to={f.to} className="srw-pg-tile srw-pg-tile-link" key={f.name}>
                 <div className="srw-pg-tile-num">SURFACE {String(i + 1).padStart(2, '0')}</div>
                 <div className="srw-pg-tile-name">{f.name}</div>
                 <div className="srw-pg-tile-body">{f.desc}</div>
-              </div>
+                <div className="srw-pg-tile-arrow">Enter →</div>
+              </Link>
             ))}
           </div>
         </div>

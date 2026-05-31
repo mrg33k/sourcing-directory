@@ -6,13 +6,10 @@ import SRWArizonaStatsV2 from './SRWArizonaStatsV2.jsx';
 import useSRWTitle from './useSRWTitle.js';
 import './srw-v2.css';
 
+// R10b: dropped 4 self-pointing chips. The 3 real navigations remain.
 const QUICK_LINKS = [
-  { label: "'26 Agenda", to: '/srw-v2/arizona' },
-  { label: "'26 Speakers", to: '/srw-v2/arizona' },
-  { label: "'26 Scholars", to: '/srw-v2/arizona' },
-  { label: "'26 Collective", to: '/srw-v2/arizona' },
-  { label: "'26 Photos", to: '/srw-v2/media' },
-  { label: 'Arizona Media', to: '/srw-v2/media' },
+  { label: "'26 Photos",     to: '/srw-v2/media' },
+  { label: 'Arizona Media',  to: '/srw-v2/media' },
   { label: 'Arizona Events', to: '/srw-v2/events' },
 ];
 

@@ -1,10 +1,27 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { supabase } from '../../lib/supabase.js';
 import { AdminSection } from './AdminUI.jsx';
 
 export default function ReportsSection({ reports, setReports, reportsLoading, V, adminSupabase, selectedTenantId, fetchReports }) {
   const [reportsSearch, setReportsSearch] = useState('');
   const [editingReport, setEditingReport] = useState(null);
+
+  const [munStats, setMunStats] = useState(null);
+
+  useEffect(() => {
+    fetch('/arsenal-municipality-data.json')
+      .then(r => r.json())
+      .then(data => {
+        const places = data.places || [];
+        const total = places.length;
+        const enriched = places.filter(p => p.contact_name || p.contact_email).length;
+        const pop50k = places.filter(p => (p.population_2020 || 0) > 50000).length;
+        const pop50kEnriched = places.filter(p => (p.population_2020 || 0) > 50000 && (p.contact_name || p.contact_email)).length;
+        const lastRun = data.metadata?.enrichment?.last_run || null;
+        setMunStats({ total, enriched, pop50k, pop50kEnriched, lastRun });
+      })
+      .catch(() => setMunStats({ error: true }));
+  }, []);
   const [reportForm, setReportForm] = useState({
     title: '', category: 'government', access: 'free', description: '', published_at: '', file_url: '',
   });
@@ -135,6 +152,53 @@ export default function ReportsSection({ reports, setReports, reportsLoading, V,
   };
 
   return (
+    <div>
+      <div style={{
+        marginBottom: 20,
+        background: V.card,
+        border: `1px solid ${V.border}`,
+        borderRadius: 10,
+        padding: '16px 20px',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12 }}>
+          <div style={{
+            fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.dim,
+            textTransform: 'uppercase', letterSpacing: '0.08em',
+          }}>
+            Municipality Data Verification
+          </div>
+          {munStats?.lastRun && (
+            <div style={{ fontSize: 11, fontFamily: V.mono, color: V.dim }}>
+              Last enrichment run: {new Date(munStats.lastRun).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </div>
+          )}
+        </div>
+        {munStats && !munStats.error ? (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px 32px' }}>
+            <div style={{ fontSize: 13, fontFamily: V.space, color: V.text }}>
+              <span style={{ color: V.muted }}>Total Municipalities: </span>
+              <span style={{ fontWeight: 700 }}>{munStats.total.toLocaleString()}</span>
+            </div>
+            <div style={{ fontSize: 13, fontFamily: V.space, color: V.text }}>
+              <span style={{ color: V.muted }}>Municipalities with Enriched Contact Data: </span>
+              <span style={{ fontWeight: 700 }}>{munStats.enriched.toLocaleString()}</span>
+            </div>
+            <div style={{ fontSize: 13, fontFamily: V.space, color: V.text }}>
+              <span style={{ color: V.muted }}>Municipalities with Population &gt; 50,000: </span>
+              <span style={{ fontWeight: 700 }}>{munStats.pop50k.toLocaleString()}</span>
+            </div>
+            <div style={{ fontSize: 13, fontFamily: V.space, color: V.text }}>
+              <span style={{ color: V.muted }}>Municipalities with Population &gt; 50,000 AND Enriched Data: </span>
+              <span style={{ fontWeight: 700 }}>{munStats.pop50kEnriched.toLocaleString()}</span>
+            </div>
+          </div>
+        ) : munStats?.error ? (
+          <div style={{ fontSize: 13, fontFamily: V.space, color: V.muted }}>Failed to load municipality data.</div>
+        ) : (
+          <div style={{ fontSize: 13, fontFamily: V.space, color: V.muted }}>Loading municipality data...</div>
+        )}
+      </div>
+
     <AdminSection
       title="Directory Reports"
       V={V}
@@ -417,5 +481,6 @@ export default function ReportsSection({ reports, setReports, reportsLoading, V,
         </div>
       </div>
     </AdminSection>
+    </div>
   );
 }

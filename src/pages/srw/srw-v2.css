@@ -213,6 +213,20 @@
 }
 [data-srw="v2"] .srw-nav-cart-count { font-size: 14px; }
 
+/* R10b — Sign In stopgap link */
+[data-srw="v2"] .srw-nav-signin {
+  font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+  text-decoration: none;
+  padding: 11px 4px;
+  transition: color 0.18s;
+}
+[data-srw="v2"] .srw-nav-signin:hover { color: #E8A23A; }
+
 [data-srw="v2"] .srw-nav-subscribe {
   font-family: 'Space Grotesk', 'Hanken Grotesk', sans-serif;
   font-size: 16px;
@@ -2375,6 +2389,48 @@
   border-top: 1px solid var(--srw-bd);
 }
 [data-srw="v2"] .srw-pg-list-item:last-child { border-bottom: 1px solid var(--srw-bd); }
+/* R10b — clickable tile variant for SpaceOS surfaces. */
+[data-srw="v2"] .srw-pg-tile-link {
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.18s, transform 0.18s;
+}
+[data-srw="v2"] .srw-pg-tile-link:hover { background: rgba(232,162,58,0.06); }
+[data-srw="v2"] .srw-pg-tile-link:hover .srw-pg-tile-name { color: #E8A23A; }
+[data-srw="v2"] .srw-pg-tile-name { transition: color 0.18s; }
+[data-srw="v2"] .srw-pg-tile-arrow {
+  margin-top: auto;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: #E8A23A;
+  opacity: 0.7;
+  transition: opacity 0.18s;
+}
+[data-srw="v2"] .srw-pg-tile-link:hover .srw-pg-tile-arrow { opacity: 1; }
+
+/* R10b — clickable row variant for Media/Events. The row IS an <a> preserving the 3-col grid. */
+[data-srw="v2"] .srw-pg-list-item-link { padding: 0; }
+[data-srw="v2"] .srw-pg-list-link {
+  display: grid;
+  grid-template-columns: 140px 1fr 100px;
+  gap: 28px;
+  align-items: baseline;
+  padding: 22px 0;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.18s;
+}
+[data-srw="v2"] .srw-pg-list-link .srw-pg-list-title { transition: color 0.18s; }
+[data-srw="v2"] .srw-pg-list-link .srw-pg-list-type { transition: color 0.18s; }
+[data-srw="v2"] .srw-pg-list-link:hover .srw-pg-list-title { color: #E8A23A; }
+[data-srw="v2"] .srw-pg-list-link:hover .srw-pg-list-type { color: #FFFFFF; }
+@media (max-width: 760px) {
+  [data-srw="v2"] .srw-pg-list-link { grid-template-columns: 1fr; gap: 8px; }
+}
 [data-srw="v2"] .srw-pg-list-date {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 11px;

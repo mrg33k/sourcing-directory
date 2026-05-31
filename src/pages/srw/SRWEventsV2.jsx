@@ -4,24 +4,37 @@ import SRWFooterV2 from './SRWFooterV2.jsx';
 import useSRWTitle from './useSRWTitle.js';
 import './srw-v2.css';
 
+// R10b (nat-geo-uplift) — scraped live from spacerising.org/events 2026-05-31.
+// Each item links to its spacerising.org event detail page (internal external
+// link — opens in new tab to preserve our editorial chrome).
 const EVENTS = [
-  {
-    date: 'May 26 – May 29',
-    title: 'State of the Space Industrial Base Conference',
-    meta: 'Tue, May 26, 2026 8:00 AM – Fri, May 29, 2026 9:00 PM · Sheraton Albuquerque Airport Hotel',
-    type: 'CONFERENCE',
-  },
   {
     date: 'Jun 2',
     title: 'Arizona Space Business Roundtable',
     meta: 'Tuesday, June 2, 2026 5:00 PM – 6:30 PM · Pima Community College',
     type: 'ROUNDTABLE',
+    url: 'https://spacerising.org/events/arizona-space-business-roundtable-3',
   },
   {
-    date: 'Jun 26 – Jun 27',
-    title: 'Asteroid Day with NASA Astronauts',
-    meta: 'Fri, Jun 26, 2026 8:00 AM – Sat, Jun 27, 2026 5:00 PM · Meteor Crater Rd',
-    type: 'PUBLIC',
+    date: 'TBA',
+    title: 'Why Study Space? UofA CATalyst Chat',
+    meta: 'University of Arizona — date TBA',
+    type: 'TALK',
+    url: 'https://spacerising.org/events/why-study-space-uofa-catalyst-chat',
+  },
+  {
+    date: 'TBA',
+    title: 'Arizona Space Commission Meeting',
+    meta: 'State commission convening — public.',
+    type: 'COMMISSION',
+    url: 'https://spacerising.org/events/arizona-space-commission-meeting-hk4xp-gxesh',
+  },
+  {
+    date: 'TBA',
+    title: 'Space Roundtable',
+    meta: 'Industry + public discussion — see event page.',
+    type: 'ROUNDTABLE',
+    url: 'https://spacerising.org/events/space-roundtable',
   },
 ];
 
@@ -49,13 +62,15 @@ export default function SRWEventsV2() {
         <div className="srw-wrap">
           <ul className="srw-pg-list">
             {EVENTS.map((e) => (
-              <li className="srw-pg-list-item" key={e.title}>
-                <div className="srw-pg-list-date">{e.date.toUpperCase()}</div>
-                <div>
-                  <div className="srw-pg-list-title">{e.title}</div>
-                  <div className="srw-pg-list-meta">{e.meta}</div>
-                </div>
-                <div className="srw-pg-list-type">{e.type}</div>
+              <li className="srw-pg-list-item srw-pg-list-item-link" key={e.title}>
+                <a className="srw-pg-list-link" href={e.url} target="_blank" rel="noopener noreferrer">
+                  <div className="srw-pg-list-date">{e.date.toUpperCase()}</div>
+                  <div>
+                    <div className="srw-pg-list-title">{e.title}</div>
+                    <div className="srw-pg-list-meta">{e.meta}</div>
+                  </div>
+                  <div className="srw-pg-list-type">{e.type}</div>
+                </a>
               </li>
             ))}
           </ul>

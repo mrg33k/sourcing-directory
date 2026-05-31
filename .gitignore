@@ -6,3 +6,15 @@ dist
 .env*.local
 .env.production
 .env.check
+
+# Worker QA / verification output — lives in the mission home, not the repo.
+# See AOM-EA/.claude/rules/screenshots-in-mission-home.md
+playwright-screenshots/
+.playwright-mcp/
+verify-*.png
+verify-*.jpg
+screenshot-*.png
+screenshot-*.jpg
+
+# Throwaway worker scripts — these belong in the mission home if they matter.
+scripts/playwright-verify-*.mjs
