@@ -2873,6 +2873,17 @@
   gap: 24px;
   margin-bottom: 28px;
   width: 100%;
+  order: -1; /* puts the back+logo row above the .browse-hero-content::before eyebrow when content is flex column */
+}
+/* polish-srw-cleanup follow-up (Patrik 2026-05-31): back+logo toprow has to
+   sit ABOVE the orange "SPACE RISING INTERACTIVE / EST. 2025" eyebrow that
+   .browse-hero-content::before renders. Flip the content container to flex
+   column so the toprow's order:-1 takes effect. The ::before defaults to
+   order 0 and now follows the toprow. */
+[data-tenant="space-rising-v2"] .browse-hero-content,
+[data-tenant="space-rising-v2"] .srcv2-topbar > .browse-hero-content {
+  display: flex !important;
+  flex-direction: column !important;
 }
 /* When the toprow lives inside the company-profile srcv2-topbar, give it
    space to breathe and remove the bottom margin (the topbar handles spacing). */
