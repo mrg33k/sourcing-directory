@@ -879,8 +879,8 @@
 }
 [data-srw="v2"] .srw-footer-inner {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
+  grid-template-columns: 1.1fr 1fr 1.1fr;
+  gap: 48px;
   align-items: center;
   max-width: var(--srw-max);
   margin: 0 auto;
@@ -889,12 +889,89 @@
 /* Ghost logo — PNG is already white; just dim it with opacity. */
 [data-srw="v2"] .srw-footer-logo img {
   width: 100%;
-  max-width: 520px;
+  max-width: 420px;
   height: auto;
   opacity: 0.45;
   filter: none;
   display: block;
 }
+
+/* R6q — middle directory-promo card */
+[data-srw="v2"] .srw-footer-promo {
+  position: relative;
+  display: block;
+  border-radius: 2px;
+  overflow: hidden;
+  min-height: 280px;
+  text-decoration: none;
+  color: inherit;
+  border: 1px solid rgba(255,255,255,0.10);
+  transition: border-color 0.22s, transform 0.22s;
+}
+[data-srw="v2"] .srw-footer-promo:hover {
+  border-color: rgba(232,162,58,0.5);
+  transform: translateY(-2px);
+}
+[data-srw="v2"] .srw-footer-promo-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('/v2-assets/earth.png');
+  background-size: cover;
+  background-position: center 35%;
+  z-index: 0;
+}
+[data-srw="v2"] .srw-footer-promo-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,8,20,0.35) 0%, rgba(0,8,20,0.78) 60%, rgba(0,8,20,0.95) 100%);
+  z-index: 1;
+}
+[data-srw="v2"] .srw-footer-promo-inner {
+  position: relative;
+  z-index: 2;
+  padding: 28px 26px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 280px;
+  justify-content: flex-end;
+}
+[data-srw="v2"] .srw-footer-promo-eyebrow {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: #E8A23A;
+  margin-bottom: 12px;
+}
+[data-srw="v2"] .srw-footer-promo-title {
+  font-size: clamp(24px, 2.4vw, 32px);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+  margin-bottom: 8px;
+}
+[data-srw="v2"] .srw-footer-promo-dot { color: #E8A23A; }
+[data-srw="v2"] .srw-footer-promo-sub {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.78);
+  margin-bottom: 18px;
+  max-width: 32ch;
+}
+[data-srw="v2"] .srw-footer-promo-cta {
+  display: inline-flex;
+  align-items: center;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #E8A23A;
+  transition: color 0.18s;
+}
+[data-srw="v2"] .srw-footer-promo:hover .srw-footer-promo-cta { color: #F0B255; }
 [data-srw="v2"] .srw-footer-right { display: flex; flex-direction: column; gap: 28px; }
 [data-srw="v2"] .srw-footer-mission {
   color: #ffffff;
@@ -982,6 +1059,8 @@
   [data-srw="v2"] .srw-footer-mission { font-size: 16px; }
   [data-srw="v2"] .srw-footer-actions { flex-wrap: wrap; gap: 16px; }
   [data-srw="v2"] .srw-footer-bottom { margin-top: 32px; padding: 16px 24px 0; flex-direction: column; gap: 6px; }
+  [data-srw="v2"] .srw-footer-promo { min-height: 220px; }
+  [data-srw="v2"] .srw-footer-promo-inner { min-height: 220px; }
 }
 
 @media (max-width: 560px) {
