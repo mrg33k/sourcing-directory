@@ -7,6 +7,60 @@ import { createClient } from '@supabase/supabase-js';
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+// Airtable — Directory Signups table mirror. Best-effort write after the
+// Supabase insert succeeds. Same PAT used by the srw-subscribe endpoint
+// (data.records:write scope, Space Rising base only). 2026-05-31.
+const AIRTABLE_PAT             = process.env.AIRTABLE_PAT;
+const AIRTABLE_BASE_ID         = process.env.AIRTABLE_BASE_ID;
+const AIRTABLE_DIRECTORY_TABLE = process.env.AIRTABLE_DIRECTORY_TABLE_ID;
+
+async function mirrorToAirtable({ company, full_name, auth_email, selectedCerts, tenant_slug, source_url }) {
+  if (!AIRTABLE_PAT || !AIRTABLE_BASE_ID || !AIRTABLE_DIRECTORY_TABLE) {
+    console.warn('Airtable directory env vars not set, skipping mirror.');
+    return { skipped: true };
+  }
+  const fields = {
+    'Company Name': company.name,
+    'Slug': company.slug,
+    'Description': company.description,
+    'Website': company.website,
+    'Company Email': company.email,
+    'Phone': company.phone,
+    'Logo URL': company.logo_url,
+    'Vertical': company.vertical,
+    'City': company.city,
+    'State': company.state,
+    'Country': company.country,
+    'Employee Count': company.employee_count,
+    'Year Founded': company.year_founded,
+    'Membership Tier': company.membership_tier,
+    'Membership Seats': company.membership_seats,
+    'Status': company.status,
+    'Featured': !!company.featured,
+    'Tenant': tenant_slug,
+    'Contact Name': full_name,
+    'Contact Email': auth_email,
+    'Certifications': Array.isArray(selectedCerts) ? selectedCerts : [],
+    'Submitted At': company.created_at || new Date().toISOString(),
+    'Updated At': company.updated_at,
+    'Supabase ID': company.id,
+    'Source URL': source_url || null,
+  };
+  Object.keys(fields).forEach((k) => (fields[k] === null || fields[k] === undefined || fields[k] === '') && delete fields[k]);
+  const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_DIRECTORY_TABLE}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${AIRTABLE_PAT}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ records: [{ fields }], typecast: true }),
+  });
+  const data = await res.json();
+  if (!res.ok) console.error('Airtable directory mirror error:', data);
+  return data;
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -137,6 +191,33 @@ export default async function handler(req, res) {
       }));
       const { error: certErr } = await sb.from('directory_certifications').insert(certRows);
       if (certErr) console.error('Cert insert error:', certErr.message);
+    }
+
+    // 6. Mirror to Airtable (best-effort, doesn't block the response)
+    try {
+      // Look up tenant slug for the Airtable row so it shows "space-rising"
+      // instead of an opaque UUID.
+      let tenant_slug = null;
+      if (effectiveTenantId) {
+        const { data: tenantRow } = await sb
+          .from('directory_tenants')
+          .select('slug')
+          .eq('id', effectiveTenantId)
+          .single();
+        tenant_slug = tenantRow?.slug || null;
+      }
+      const source_url = (req.headers['referer'] || req.headers['referrer'] || '').toString().split('?')[0] || null;
+      await mirrorToAirtable({
+        company,
+        full_name,
+        auth_email,
+        selectedCerts,
+        tenant_slug,
+        source_url,
+      });
+    } catch (err) {
+      console.error('Airtable mirror error:', err.message);
+      // Supabase already has the record — don't fail the signup over Airtable.
     }
 
     return res.status(200).json({
