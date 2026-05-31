@@ -84,6 +84,15 @@ const SourcingMembershipV2 = lazy(() => import('./pages/SourcingMembershipV2.jsx
 const SourcingSignupV2 = lazy(() => import('./pages/SourcingSignupV2.jsx'))
 const SourcingCompanyV2 = lazy(() => import('./pages/SourcingCompanyV2.jsx'))
 const SourcingSignupComplete = lazy(() => import('./pages/SourcingSignupComplete.jsx'))
+// R6 (nat-geo-uplift) — SRW marketing sub-pages cloned to V2.
+const SRWAboutV2 = lazy(() => import('./pages/srw/SRWAboutV2.jsx'))
+const SRWSpaceOSV2 = lazy(() => import('./pages/srw/SRWSpaceOSV2.jsx'))
+const SRWArizonaV2 = lazy(() => import('./pages/srw/SRWArizonaV2.jsx'))
+const SRWSpaceCongressV2 = lazy(() => import('./pages/srw/SRWSpaceCongressV2.jsx'))
+const SRWPartnershipsV2 = lazy(() => import('./pages/srw/SRWPartnershipsV2.jsx'))
+const SRWEventsV2 = lazy(() => import('./pages/srw/SRWEventsV2.jsx'))
+const SRWMediaV2 = lazy(() => import('./pages/srw/SRWMediaV2.jsx'))
+const SRWSignUpV2 = lazy(() => import('./pages/srw/SRWSignUpV2.jsx'))
 
 const Loading = () => (
   <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
@@ -115,6 +124,15 @@ createRoot(document.getElementById('root')).render(
           <Route path="/srw/sign-up" element={<SRWSignUp />} />
           {/* Nat Geo Uplift V2 clones — placed before tenant catch-all */}
           <Route path="/srw-v2" element={<SRWHomeV2 />} />
+          {/* R6 — SRW marketing sub-pages */}
+          <Route path="/srw-v2/about" element={<SRWAboutV2 />} />
+          <Route path="/srw-v2/spaceos" element={<SRWSpaceOSV2 />} />
+          <Route path="/srw-v2/arizona" element={<SRWArizonaV2 />} />
+          <Route path="/srw-v2/space-congress" element={<SRWSpaceCongressV2 />} />
+          <Route path="/srw-v2/partnerships" element={<SRWPartnershipsV2 />} />
+          <Route path="/srw-v2/events" element={<SRWEventsV2 />} />
+          <Route path="/srw-v2/media" element={<SRWMediaV2 />} />
+          <Route path="/srw-v2/sign-up" element={<SRWSignUpV2 />} />
           <Route path="/space-rising-v2" element={<SourcingDirectoryV2 />} />
           <Route path="/space-rising-v2/jobs" element={<SourcingJobsV2 />} />
           <Route path="/space-rising-v2/events" element={<SourcingEventsV2 />} />

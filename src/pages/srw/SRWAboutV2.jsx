@@ -1,0 +1,132 @@
+import React from 'react';
+import SRWNavV2 from './SRWNavV2.jsx';
+import SRWFooterV2 from './SRWFooterV2.jsx';
+import useSRWTitle from './useSRWTitle.js';
+import './srw-v2.css';
+
+const PILLARS = [
+  { name: 'Mission Forward Space Congress', desc: 'Convening method built to transform collective input into actionable strategy, supporting regional space economy development with national scalability.' },
+  { name: 'STEM + Jobs', desc: 'Prepare the next generation of space-ready talent through accelerators and workforce pathways.' },
+  { name: 'Partnered Innovation', desc: 'Accelerate technology transfer and collaboration across federal, state, and industry partners.' },
+  { name: 'Research Facilities', desc: 'Expand research laboratory infrastructure nationwide.' },
+  { name: 'Power Systems', desc: 'Drive advanced nuclear propulsion and emerging energy solutions to accelerate space innovation.' },
+];
+
+const TEAM = [
+  { name: 'Ben Smith', title: 'Chief Executive Officer', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/ab10ecec-d626-4788-9267-a42d6024fd2b/1714670486972.jpeg?format=750w' },
+  { name: 'Taryn Struck', title: 'Chief Operating Officer, Co-Founder', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/f1f433e5-e351-46a0-92b7-e8ee44c63163/ChatGPT+Image+May+11%2C+2026%2C+06_57_11+PM.png?format=750w' },
+  { name: 'Tim Struck', title: 'Chief Brand Officer, Co-Founder', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/346ebcfa-f0ba-45de-ad84-d686053108be/Tim_Struck-3x5.jpg?format=750w' },
+  { name: 'Angelica Sirotin', title: 'Chief Communications Officer', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/091acca6-f199-42ba-978e-6c5776cf1814/Angelica_Sirotin_Headshot_2026.jpg?format=750w' },
+  { name: 'Joseph Valdez', title: 'Chief Strategy Officer', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/395b7154-417d-41f0-b7bc-34cd1dfe9563/1701816599744.jpeg?format=750w' },
+  { name: 'Robert S Katz', title: 'Strategic Advisor, CEO & Executive Director, World Innovation Network (WIN)', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/dfa45926-99d6-4c8e-8db9-93383577372c/Robert+S.+Katz+-+Photo+-+Profile+-+A+-+V1.png?format=750w' },
+  { name: 'Patrik Matheson', title: 'Lead Systems & Media Architect', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/743491ab-a7c1-4f32-b0f2-ba73a4bafd0d/1766092136378.jpeg?format=750w' },
+];
+
+const PRINCIPLES = [
+  'Creativity is our obligation',
+  'Respect the rules — until they limit what\'s possible',
+  'Selectivity is the strategy',
+  'Integrity in every interaction',
+  'Trust something bigger when the odds are stacked against you',
+  'Action beats perfection — experiment',
+  'Relationships are the work',
+  'Progress compounds when capability is shared',
+  'Raise standards — everywhere',
+  'Growth comes through humility and service',
+];
+
+export default function SRWAboutV2() {
+  useSRWTitle('About | Space Rising');
+
+  return (
+    <div data-srw="v2">
+      <SRWNavV2 />
+
+      <header
+        className="srw-pg-hero"
+        style={{ '--srw-pg-hero-bg': "url('/v2-assets/earth.png')" }}
+      >
+        <div className="srw-pg-hero-inner">
+          <div className="srw-pg-eyebrow">ABOUT</div>
+          <h1 className="srw-pg-title">
+            A new way to space<span className="srw-pg-period">.</span>
+          </h1>
+          <p className="srw-pg-sub">
+            Space Rising serves as the connective layer across the evolving space economy. We translate fragmented regional activity into coordinated strategy — and prepare the next generation to carry that future forward.
+          </p>
+        </div>
+      </header>
+
+      <section className="srw-pg-section">
+        <div className="srw-wrap">
+          <div className="srw-pg-section-head">
+            <div className="srw-pg-eyebrow">OUR VISION</div>
+            <h2 className="srw-pg-section-title">
+              Become a spacefaring civilization guided by knowledge, cooperation, and stewardship<span className="srw-pg-period">.</span>
+            </h2>
+            <p className="srw-pg-section-lede">
+              While empowering the next generation of leaders to carry that future forward. We serve as a connective layer for the evolving space economy — translating fragmented activity into coordinated ecosystem development.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="srw-pg-section">
+        <div className="srw-wrap">
+          <div className="srw-pg-section-head">
+            <div className="srw-pg-eyebrow">STRATEGY</div>
+            <h2 className="srw-pg-section-title">Mission forward<span className="srw-pg-period">.</span></h2>
+          </div>
+          <div className="srw-pg-tile-grid">
+            {PILLARS.map((p, i) => (
+              <div className="srw-pg-tile" key={p.name}>
+                <div className="srw-pg-tile-num">PILLAR {String(i + 1).padStart(2, '0')}</div>
+                <div className="srw-pg-tile-name">{p.name}</div>
+                <div className="srw-pg-tile-body">{p.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="srw-pg-section">
+        <div className="srw-wrap">
+          <div className="srw-pg-section-head">
+            <div className="srw-pg-eyebrow">LEADERSHIP</div>
+            <h2 className="srw-pg-section-title">The team building it<span className="srw-pg-period">.</span></h2>
+          </div>
+          <div className="srw-pg-team">
+            {TEAM.map((m) => (
+              <div className="srw-pg-team-card" key={m.name}>
+                <div className="srw-pg-team-photo">
+                  {m.photo && <img src={m.photo} alt={m.name} />}
+                </div>
+                <div className="srw-pg-team-name">{m.name}</div>
+                <div className="srw-pg-team-title">{m.title.toUpperCase()}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="srw-pg-section">
+        <div className="srw-wrap">
+          <div className="srw-pg-section-head">
+            <div className="srw-pg-eyebrow">PRINCIPLES</div>
+            <h2 className="srw-pg-section-title">How we work<span className="srw-pg-period">.</span></h2>
+          </div>
+          <div className="srw-pg-principles">
+            {PRINCIPLES.map((p, i) => (
+              <div className="srw-pg-principle" key={i}>
+                <span className="srw-pg-principle-num">{String(i + 1).padStart(2, '0')}</span>
+                <span className="srw-pg-principle-name">{p}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <SRWFooterV2 />
+    </div>
+  );
+}
