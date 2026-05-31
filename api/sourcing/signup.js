@@ -27,6 +27,7 @@ export default async function handler(req, res) {
     name, description, website, phone, email,
     vertical, city, state, employee_count, year_founded,
     org_id, tenant_id, selectedCerts,
+    membership_tier, seats,
   } = req.body || {};
 
   // Validate required fields
@@ -69,7 +70,13 @@ export default async function handler(req, res) {
       employee_count: employee_count || null,
       year_founded: year_founded ? parseInt(year_founded) : null,
       organization_id: org_id || null,
+      // R5i (nat-geo-uplift): membership_tier always created as 'free' here — even
+      // on the paid signup path. The checkout-session endpoint + webhook flip it
+      // to 'paid' only after Square confirms payment. That way an abandoned paid
+      // signup doesn't end up tier='paid' without payment having cleared.
       membership_tier: 'free',
+      // Stamp pending seat count so checkout-session has the figure on hand.
+      pending_checkout_seats: (membership_tier === 'paid' && seats) ? parseInt(seats, 10) : null,
       status: 'pending',
     };
     if (tenant_id) companyPayload.tenant_id = tenant_id;
