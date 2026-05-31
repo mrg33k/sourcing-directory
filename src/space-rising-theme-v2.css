@@ -1814,3 +1814,104 @@
   }
   [data-tenant="space-rising-v2"] .browse-search { margin-top: -120px !important; }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   R4k (nat-geo-uplift) — Patrik feedback iter 5 (2026-05-30 17:00)
+   - Hero content narrower (was a little too wide)
+   - SR wordmark pulled tighter to the title block (close the gap)
+   - Search bar: darker / more transparent / less bluish — spaceship shows
+     through faintly, not loudly
+   - "+ Add Company" aligned to card OUTER right edge (was inset 48px, now 24px)
+   - Card surface darker / blacker — moves away from purple-tinted #12141C
+     toward near-black #0A0B0E for premium feel
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* (A) Hero content narrower so the title doesn't feel over-extended */
+[data-tenant="space-rising-v2"] .browse-hero-content {
+  max-width: 1140px !important;
+}
+[data-tenant="space-rising-v2"] .browse-title {
+  max-width: 16ch !important;
+}
+
+/* (B) SR wordmark closer to title block — drop it down + nudge in a touch.
+   Was top:32 right:40. Now top:56 right:32 so it visually joins the title row
+   instead of floating in the corner. */
+[data-tenant="space-rising-v2"] .tenant-hero-logo {
+  top: 56px !important;
+  right: 32px !important;
+  height: 26px !important;
+  opacity: 0.78 !important;
+}
+@media (max-width: 768px) {
+  [data-tenant="space-rising-v2"] .tenant-hero-logo {
+    top: 18px !important;
+    right: 18px !important;
+    height: 22px !important;
+  }
+}
+
+/* (C) Search bar — more transparent, darker (less blue), spaceship visible.
+   Old: rgba(18,20,28,0.72) — that's the bluish-black tone Patrik flagged.
+   New: rgba(6,8,11,0.48) — near-black, more transparent, less saturated. */
+[data-tenant="space-rising-v2"] .browse-search,
+[data-tenant="space-rising-v2"] .browse-hero + .browse-search,
+[data-tenant="space-rising-v2"] .browse-hero ~ .browse-search:first-of-type {
+  background: rgba(6,8,11,0.48) !important;
+  border: 1px solid rgba(232,228,218,0.10) !important;
+  backdrop-filter: blur(8px) saturate(0.9) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(0.9) !important;
+}
+
+/* Chip backgrounds in the hero zone — same darker/less-blue treatment for cohesion */
+[data-tenant="space-rising-v2"] .browse-hero ~ .chips .chip:not(.on),
+[data-tenant="space-rising-v2"] .chip:not(.on) {
+  background: rgba(6,8,11,0.42) !important;
+  border-color: rgba(232,228,218,0.10) !important;
+}
+
+/* (D) sec-hdr aligned with card OUTER right edge.
+   List has max-width:1280 + padding:0 24, so card outer right = 1280 - 24.
+   sec-hdr also max-width:1280, so padding 0 24 puts "+ Add Company" right edge
+   at the same x-coord as the card's right edge. Was 48 (inset into content). */
+[data-tenant="space-rising-v2"] .sec-hdr {
+  padding: 0 24px !important;
+}
+@media (max-width: 768px) {
+  [data-tenant="space-rising-v2"] .sec-hdr {
+    padding: 0 16px !important;
+  }
+}
+
+/* sec-count fix — R4h/R4i had width:100% on .sec-count which was making
+   the right-side container stretch the full sec-hdr width, pushing the
+   "+ Add Company" link's bounding rect 126px past the card edge. Lock
+   sec-count to content-width so it sits cleanly at sec-hdr's right edge. */
+[data-tenant="space-rising-v2"] .sec-hdr > .sec-count {
+  display: inline-flex !important;
+  width: auto !important;
+  max-width: none !important;
+  flex: 0 0 auto !important;
+  margin: 0 0 0 auto !important;
+  padding: 0 !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+}
+
+/* (E) Card surface — darker, more black, less purple/blue.
+   Old: rgba(18,20,28,0.78) — the purple-tinted color Patrik called out.
+   New: rgba(10,11,14,0.92) — near-black, more opaque so cards feel solid and
+   premium against the page-wide starfield bg. */
+[data-tenant="space-rising-v2"] .co-card {
+  background: rgba(10,11,14,0.92) !important;
+  border-color: rgba(232,228,218,0.05) !important;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.22) !important;
+}
+[data-tenant="space-rising-v2"] .co-card:hover {
+  background: rgba(14,15,19,0.96) !important;
+  border-color: rgba(232,162,58,0.28) !important;
+  box-shadow:
+    0 1px 0 rgba(0,0,0,0.5),
+    0 14px 36px rgba(0,0,0,0.45),
+    inset 0 0 0 1px rgba(232,162,58,0.10) !important;
+}
