@@ -105,7 +105,10 @@ createRoot(document.getElementById('root')).render(
         <PageTransition>
         <Routes>
           {/* Global */}
-          <Route path="/" element={<Navigate to="/space-rising" replace />} />
+          {/* R10 (nat-geo-uplift) — Swap shipped 2026-05-31. Root now lands on
+              the V2 Space Rising marketing site. V1 routes (/srw, /space-rising)
+              stay live as archive for rollback + legacy deep-link compat. */}
+          <Route path="/" element={<Navigate to="/srw-v2" replace />} />
           <Route path="/signup" element={<GlobalSignup />} />
           <Route path="/about" element={<SourcingAbout />} />
           <Route path="/admin" element={<SourcingAdmin />} />
