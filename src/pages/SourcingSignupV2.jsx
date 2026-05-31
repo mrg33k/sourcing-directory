@@ -47,7 +47,7 @@ export default function SourcingSignupV2() {
   // After the auth-step signup POST succeeds, we stash company_id + slug here so
   // the payment step can create a checkout session against the live row.
   const [createdCompany, setCreatedCompany] = useState(null);
-  // When the Square checkout endpoint returns 503 (env vars not set), or paid
+  // When the Stripe checkout endpoint returns 503 (env vars not set), or paid
   // signup completes without payment wiring, we surface this and fall back to
   // "we'll email you a link" copy on the welcome screen.
   const [paymentFallback, setPaymentFallback] = useState(false);
@@ -153,7 +153,7 @@ export default function SourcingSignupV2() {
   };
 
   // Step 2 of the paid flow: take the just-created company → POST to the
-  // Square checkout-session endpoint → redirect to the hosted checkout URL.
+  // Stripe checkout-session endpoint → redirect to the hosted checkout URL.
   // If the endpoint reports 503 (env vars not set yet), fall back to the
   // welcome screen with "we'll email a link" copy so the UX still completes.
   const handleCheckoutRedirect = async (company) => {
@@ -203,7 +203,7 @@ export default function SourcingSignupV2() {
       if (company) next();
       return;
     }
-    // Paid tier payment step: redirect into Square (or fall back to welcome).
+    // Paid tier payment step: redirect into Stripe (or fall back to welcome).
     if (stepName === 'payment') {
       return handleCheckoutRedirect(createdCompany);
     }
@@ -251,7 +251,7 @@ export default function SourcingSignupV2() {
               {tier === 'paid'
                 ? (paymentFallback
                     ? `Your account is in. We'll email ${form.auth_email} a payment link to finalize ${form.seats} ${form.seats === 1 ? 'seat' : 'seats'} at $${(ppm || 0).toLocaleString()}/seat/yr — secure checkout is being switched on.`
-                    : `Your account is in. We'll email ${form.auth_email} the receipt for ${form.seats} ${form.seats === 1 ? 'seat' : 'seats'} at $${(ppm || 0).toLocaleString()}/seat/yr once Square confirms the payment.`)
+                    : `Your account is in. We'll email ${form.auth_email} the receipt for ${form.seats} ${form.seats === 1 ? 'seat' : 'seats'} at $${(ppm || 0).toLocaleString()}/seat/yr once Stripe confirms the payment.`)
                 : `Your company listing is live. We sent a welcome to ${form.auth_email}.`}
             </div>
             <div className="srsv2-cta-row">
@@ -504,7 +504,7 @@ function StepView({ stepName, stepIndex, tier, form, set, error, loading, onCont
         <>
           <h1 className="srsv2-title">Pay securely<span className="srsv2-period">.</span></h1>
           <div className="srsv2-sub">
-            One step. You'll be taken to a hosted Square checkout to confirm card details — we never see your card. Your account is already created at <strong>{form.auth_email || 'your email'}</strong>; the upgrade flips the moment payment clears.
+            One step. You'll be taken to a hosted Stripe checkout to confirm card details — we never see your card. Your account is already created at <strong>{form.auth_email || 'your email'}</strong>; the upgrade flips the moment payment clears.
           </div>
           <div className="srsv2-payment-summary">
             <div className="srsv2-payment-row"><span>Plan</span><span>Membership — {form.seats} {form.seats === 1 ? 'seat' : 'seats'}</span></div>
@@ -537,7 +537,7 @@ function StepView({ stepName, stepIndex, tier, form, set, error, loading, onCont
             : stepName === 'auth'
               ? (tier === 'paid' ? 'Continue to payment' : 'Create account')
               : stepName === 'payment'
-                ? (ppm ? `Pay $${(ppm * form.seats).toLocaleString()} with Square →` : 'Pay with Square →')
+                ? (ppm ? `Pay $${(ppm * form.seats).toLocaleString()} with Stripe →` : 'Pay with Stripe →')
                 : 'Continue'}
         </button>
       </div>

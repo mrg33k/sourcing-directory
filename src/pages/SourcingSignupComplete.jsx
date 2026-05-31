@@ -1,9 +1,10 @@
-// R5i (nat-geo-uplift) — return-from-Square-checkout welcome page.
+// R5i (nat-geo-uplift) — return-from-checkout welcome page.
+// R5k (nat-geo-uplift) — swapped from Square to Stripe 2026-05-31.
 //
-// Square redirects the user here after they complete (or cancel) the hosted
+// Stripe redirects the user here after they complete (or cancel) the hosted
 // checkout. We give the webhook a few seconds to flip the row, then render
 // the welcome state. The user is already signed in (account was created
-// before they were redirected to Square).
+// before they were redirected to Stripe).
 
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -94,7 +95,7 @@ export default function SourcingSignupComplete() {
             <>
               <div className="srsv2-eyebrow">FINALIZING</div>
               <h1 className="srsv2-title srsv2-title-xl">Confirming your payment<span className="srsv2-period">…</span></h1>
-              <div className="srsv2-sub">Square is sending us the receipt now. This usually takes a few seconds.</div>
+              <div className="srsv2-sub">Stripe is sending us the receipt now. This usually takes a few seconds.</div>
             </>
           )}
 
@@ -124,7 +125,7 @@ export default function SourcingSignupComplete() {
               <div className="srsv2-eyebrow">ALMOST THERE</div>
               <h1 className="srsv2-title srsv2-title-xl">Your payment is processing<span className="srsv2-period">.</span></h1>
               <div className="srsv2-sub">
-                Square is taking a bit longer than usual. Your account is created — we'll email you when the receipt clears, usually within a minute or two. You can refresh this page or head to the directory.
+                Stripe is taking a bit longer than usual. Your account is created — we'll email you when the receipt clears, usually within a minute or two. You can refresh this page or head to the directory.
               </div>
               <div className="srsv2-cta-row">
                 <button onClick={() => window.location.reload()} className="srsv2-cta srsv2-cta-solid">Refresh</button>

@@ -1,31 +1,28 @@
-// POST /api/sourcing/checkout-session — create a Square hosted-checkout payment link
+// POST /api/sourcing/checkout-session — create a Stripe hosted-checkout session
 //
-// R5i (nat-geo-uplift): scaffolded 2026-05-31, awaiting env vars to activate.
+// R5i (nat-geo-uplift): scaffolded 2026-05-31 against Square.
+// R5k (nat-geo-uplift): swapped to Stripe 2026-05-31 — Patrik handed over live
+//                       Space Rising Stripe credentials. Same input/output
+//                       contract; same UX flow (redirect to hosted page).
 //
 // Env vars required for live operation:
-//   SQUARE_ACCESS_TOKEN          (token starting EAAA... — production OR sandbox)
-//   SQUARE_LOCATION_ID           (e.g. L4XXXXX — from Square Dashboard → Locations)
-//   SQUARE_ENVIRONMENT           ("sandbox" or "production", defaults to "sandbox")
-//   SQUARE_WEBHOOK_SIGNATURE_KEY (used by the webhook handler, not this endpoint)
+//   STRIPE_SECRET_KEY        (sk_live_... or sk_test_...)
+//   STRIPE_PUBLISHABLE_KEY   (pk_live_... or pk_test_...) — frontend only, not used here
+//   STRIPE_WEBHOOK_SECRET    (whsec_... — used by the webhook handler, not this endpoint)
 //
-// Without those, the endpoint returns 503 {configured: false} so the frontend
-// can fall back gracefully to "we'll email you a link" copy until keys land.
+// Without STRIPE_SECRET_KEY, the endpoint returns 503 {configured: false} so the
+// frontend can fall back gracefully to "we'll email you a link" copy until keys land.
 //
 // Input  (POST JSON): { company_id, company_slug, email, seats, tier }
 // Output (200 JSON):  { checkout_url, session_id }
 // Output (503 JSON):  { configured: false, reason: "<missing var>" }
 
+import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const SQUARE_ACCESS_TOKEN = process.env.SQUARE_ACCESS_TOKEN;
-const SQUARE_LOCATION_ID = process.env.SQUARE_LOCATION_ID;
-const SQUARE_ENVIRONMENT = (process.env.SQUARE_ENVIRONMENT || 'sandbox').toLowerCase();
-
-const SQUARE_HOST = SQUARE_ENVIRONMENT === 'production'
-  ? 'https://connect.squareup.com'
-  : 'https://connect.squareupsandbox.com';
+const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 
 function pricePerSeat(seats) {
   if (seats <= 4)  return 1000;
@@ -42,11 +39,8 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
 
   // ── Press-go gate ─────────────────────────────────────────────────────────
-  if (!SQUARE_ACCESS_TOKEN) {
-    return res.status(503).json({ configured: false, reason: 'SQUARE_ACCESS_TOKEN not set' });
-  }
-  if (!SQUARE_LOCATION_ID) {
-    return res.status(503).json({ configured: false, reason: 'SQUARE_LOCATION_ID not set' });
+  if (!STRIPE_SECRET_KEY) {
+    return res.status(503).json({ configured: false, reason: 'STRIPE_SECRET_KEY not set' });
   }
   if (!SUPABASE_URL || !SERVICE_KEY) {
     return res.status(500).json({ error: 'Supabase not configured' });
@@ -97,68 +91,67 @@ export default async function handler(req, res) {
     resolvedCompanyId = row.id;
   }
 
-  // Build Square payment link request.
-  // Docs: https://developer.squareup.com/reference/square/checkout-api/create-payment-link
   const origin = (req.headers && req.headers.origin)
     || (process.env.PUBLIC_BASE_URL || 'https://sourcing.directory');
-  const idempotencyKey = `srcd-${resolvedCompanyId}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
-  const body = {
-    idempotency_key: idempotencyKey,
-    quick_pay: {
-      name: `Space Rising Membership — ${seatCount} ${seatCount === 1 ? 'seat' : 'seats'}`,
-      price_money: { amount: totalCents, currency: 'USD' },
-      location_id: SQUARE_LOCATION_ID,
-    },
-    checkout_options: {
-      redirect_url: `${origin}/space-rising-v2/signup/complete`,
-      ask_for_shipping_address: false,
-      accepted_payment_methods: { apple_pay: true, google_pay: true, cash_app_pay: false, afterpay_clearpay: false },
-    },
-    pre_populated_data: { buyer_email: email },
-    payment_note: JSON.stringify({
-      kind: 'space-rising-membership',
-      company_id: resolvedCompanyId,
-      seats: seatCount,
-    }),
-  };
+  const stripe = new Stripe(STRIPE_SECRET_KEY, { apiVersion: '2024-12-18.acacia' });
 
   try {
-    const squareRes = await fetch(`${SQUARE_HOST}/v2/online-checkout/payment-links`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${SQUARE_ACCESS_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Square-Version': '2025-01-23',
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      payment_method_types: ['card'],
+      customer_email: email,
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            unit_amount: totalCents,
+            product_data: {
+              name: `Space Rising Membership — ${seatCount} ${seatCount === 1 ? 'seat' : 'seats'}`,
+              description: `Annual membership, ${seatCount} ${seatCount === 1 ? 'seat' : 'seats'} at $${ppm.toLocaleString()} / seat / year.`,
+            },
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: `${origin}/space-rising-v2/signup/complete?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/space-rising-v2/signup?tier=paid&canceled=1`,
+      metadata: {
+        kind: 'space-rising-membership',
+        company_id: resolvedCompanyId,
+        seats: String(seatCount),
       },
-      body: JSON.stringify(body),
+      payment_intent_data: {
+        metadata: {
+          kind: 'space-rising-membership',
+          company_id: resolvedCompanyId,
+          seats: String(seatCount),
+        },
+      },
     });
-    const json = await squareRes.json();
 
-    if (!squareRes.ok || !json.payment_link) {
-      console.error('Square payment-link error', squareRes.status, json);
-      return res.status(502).json({
-        error: 'square-api-error',
-        details: json.errors || json,
-      });
+    if (!session?.url || !session?.id) {
+      console.error('Stripe checkout.sessions.create returned unexpected shape', session);
+      return res.status(502).json({ error: 'stripe-bad-response' });
     }
-
-    const session_id = json.payment_link.id;
-    const checkout_url = json.payment_link.url;
 
     // Stamp the pending checkout on the company row so the webhook can find it.
     await sb
       .from('directory_companies')
       .update({
-        pending_checkout_session_id: session_id,
+        pending_checkout_session_id: session.id,
         pending_checkout_seats: seatCount,
         pending_checkout_at: new Date().toISOString(),
       })
       .eq('id', resolvedCompanyId);
 
-    return res.status(200).json({ checkout_url, session_id });
+    return res.status(200).json({ checkout_url: session.url, session_id: session.id });
   } catch (err) {
-    console.error('checkout-session unexpected error', err);
-    return res.status(500).json({ error: 'unexpected', message: err.message });
+    console.error('checkout-session Stripe error', err);
+    return res.status(502).json({
+      error: 'stripe-api-error',
+      message: err?.message || 'unknown',
+      type: err?.type || null,
+    });
   }
 }
