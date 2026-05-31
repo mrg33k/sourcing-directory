@@ -70,6 +70,30 @@ const SRWEvents = lazy(() => import('./pages/srw/SRWEvents.jsx'))
 const SRWMedia = lazy(() => import('./pages/srw/SRWMedia.jsx'))
 const SRWSignUp = lazy(() => import('./pages/srw/SRWSignUp.jsx'))
 
+// Nat Geo Uplift — V2 sibling clones for the visual-system uplift mission.
+// Pixel-equivalent to V1 at R1; diverges starting R2 (type + palette).
+// Mission: aom:space-rising:website:nat-geo-uplift.
+const SRWHomeV2 = lazy(() => import('./pages/srw/SRWHomeV2.jsx'))
+const SourcingDirectoryV2 = lazy(() => import('./pages/SourcingDirectoryV2.jsx'))
+const SourcingJobsV2 = lazy(() => import('./pages/SourcingJobsV2.jsx'))
+const SourcingEventsV2 = lazy(() => import('./pages/SourcingEventsV2.jsx'))
+const SourcingReportsV2 = lazy(() => import('./pages/SourcingReportsV2.jsx'))
+const SourcingMarketplaceV2 = lazy(() => import('./pages/SourcingMarketplaceV2.jsx'))
+const SourcingDealBankV2 = lazy(() => import('./pages/SourcingDealBankV2.jsx'))
+const SourcingMembershipV2 = lazy(() => import('./pages/SourcingMembershipV2.jsx'))
+const SourcingSignupV2 = lazy(() => import('./pages/SourcingSignupV2.jsx'))
+const SourcingCompanyV2 = lazy(() => import('./pages/SourcingCompanyV2.jsx'))
+const SourcingSignupComplete = lazy(() => import('./pages/SourcingSignupComplete.jsx'))
+// R6 (nat-geo-uplift) — SRW marketing sub-pages cloned to V2.
+const SRWAboutV2 = lazy(() => import('./pages/srw/SRWAboutV2.jsx'))
+const SRWSpaceOSV2 = lazy(() => import('./pages/srw/SRWSpaceOSV2.jsx'))
+const SRWArizonaV2 = lazy(() => import('./pages/srw/SRWArizonaV2.jsx'))
+const SRWSpaceCongressV2 = lazy(() => import('./pages/srw/SRWSpaceCongressV2.jsx'))
+const SRWPartnershipsV2 = lazy(() => import('./pages/srw/SRWPartnershipsV2.jsx'))
+const SRWEventsV2 = lazy(() => import('./pages/srw/SRWEventsV2.jsx'))
+const SRWMediaV2 = lazy(() => import('./pages/srw/SRWMediaV2.jsx'))
+const SRWSignUpV2 = lazy(() => import('./pages/srw/SRWSignUpV2.jsx'))
+
 const Loading = () => (
   <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
 )
@@ -81,7 +105,10 @@ createRoot(document.getElementById('root')).render(
         <PageTransition>
         <Routes>
           {/* Global */}
-          <Route path="/" element={<Navigate to="/space-rising" replace />} />
+          {/* R10 (nat-geo-uplift) — Swap shipped 2026-05-31. Root now lands on
+              the V2 Space Rising marketing site. V1 routes (/srw, /space-rising)
+              stay live as archive for rollback + legacy deep-link compat. */}
+          <Route path="/" element={<Navigate to="/srw-v2" replace />} />
           <Route path="/signup" element={<GlobalSignup />} />
           <Route path="/about" element={<SourcingAbout />} />
           <Route path="/admin" element={<SourcingAdmin />} />
@@ -98,6 +125,29 @@ createRoot(document.getElementById('root')).render(
           <Route path="/srw/events" element={<SRWEvents />} />
           <Route path="/srw/media" element={<SRWMedia />} />
           <Route path="/srw/sign-up" element={<SRWSignUp />} />
+          {/* Nat Geo Uplift V2 clones — placed before tenant catch-all */}
+          <Route path="/srw-v2" element={<SRWHomeV2 />} />
+          {/* R6 — SRW marketing sub-pages */}
+          <Route path="/srw-v2/about" element={<SRWAboutV2 />} />
+          <Route path="/srw-v2/spaceos" element={<SRWSpaceOSV2 />} />
+          <Route path="/srw-v2/arizona" element={<SRWArizonaV2 />} />
+          <Route path="/srw-v2/space-congress" element={<SRWSpaceCongressV2 />} />
+          <Route path="/srw-v2/partnerships" element={<SRWPartnershipsV2 />} />
+          <Route path="/srw-v2/events" element={<SRWEventsV2 />} />
+          <Route path="/srw-v2/media" element={<SRWMediaV2 />} />
+          <Route path="/srw-v2/sign-up" element={<SRWSignUpV2 />} />
+          <Route path="/space-rising-v2" element={<SourcingDirectoryV2 />} />
+          <Route path="/space-rising-v2/jobs" element={<SourcingJobsV2 />} />
+          <Route path="/space-rising-v2/events" element={<SourcingEventsV2 />} />
+          <Route path="/space-rising-v2/reports" element={<SourcingReportsV2 />} />
+          <Route path="/space-rising-v2/marketplace" element={<SourcingMarketplaceV2 />} />
+          <Route path="/space-rising-v2/deal-bank" element={<SourcingDealBankV2 />} />
+          <Route path="/space-rising-v2/membership" element={<SourcingMembershipV2 />} />
+          <Route path="/space-rising-v2/signup" element={<SourcingSignupV2 />} />
+          {/* R5i — Square checkout return URL. Must be above the :slug catch-all. */}
+          <Route path="/space-rising-v2/signup/complete" element={<SourcingSignupComplete />} />
+          {/* R5j — Company profile. MUST be the last /space-rising-v2/* route so static segments above win. */}
+          <Route path="/space-rising-v2/:slug" element={<SourcingCompanyV2 />} />
           {/* Tenant-scoped routes */}
           <Route path="/:tenantSlug" element={<SourcingDirectory />} />
           <Route path="/:tenantSlug/login" element={<SourcingLogin />} />
