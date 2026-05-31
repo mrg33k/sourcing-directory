@@ -24,13 +24,18 @@ const STATS = [
   { num: '7.4%', label: 'Annual Growth Rate' },
 ];
 
+// polish-srw-home-2: noun-phrase compression. Two longest entries dropped
+// modifiers that read as filler on mobile two-col tiles ("Launch Rideshare +
+// Space Trucking" → "Launch Rideshare"; "Commercial Space Stations & Orbital
+// Platforms" → "Orbital Platforms"). "Space-Based Energy" hyphenated for
+// editorial tightness. The other three were already short.
 const OPPORTUNITIES = [
-  'Launch Rideshare + Space Trucking',
+  'Launch Rideshare',
   'Orbital Construction',
   'Lunar Resource Extraction',
   'AI + Robotics',
-  'Space Based Energy Production',
-  'Commercial Space Stations & Orbital Platforms',
+  'Space-Based Energy',
+  'Orbital Platforms',
 ];
 
 // Each service row mirrors .org exactly: a single <p> per service with a

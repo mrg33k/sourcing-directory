@@ -2611,3 +2611,36 @@
 @media (max-width: 768px) {
   [data-srw="v2"] .srw-footer-logo { padding-top: 24px; }
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+   polish-srw-home-2 — opportunities grid mobile redesign.
+
+   Was 1-col on mobile, making the 2961px-tall section feel endless on
+   portrait viewports. Verified via spacerising.org DOM walk that the
+   opportunity cards are NOT links on the original SR site (pure visual
+   content), so 2-col grid is the right call — more cards above the
+   fold, no click affordance needed.
+
+   The earlier "Emerging Opportunities titles — thicker, bigger, more
+   presence" block (line ~2050) wins same-specificity cascades with
+   `!important` (min-height 200px, padding 32px×32px, font-size 24px).
+   That sizing is correct for desktop but too big for narrow 2-col
+   tiles. Appended at end of file so this mobile override cascades
+   last and beats the desktop !important values within the media
+   query scope.
+   ───────────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  [data-srw="v2"] .srw-opp-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  [data-srw="v2"] .srw-opp {
+    min-height: 120px !important;
+    padding: 18px 16px !important;
+    font-size: 14px !important;
+    line-height: 1.18 !important;
+  }
+  [data-srw="v2"] .srw-opp::before {
+    font-size: 11px !important;
+    margin-bottom: 8px !important;
+  }
+}
