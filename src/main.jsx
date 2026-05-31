@@ -76,6 +76,10 @@ const SRWSignUp = lazy(() => import('./pages/srw/SRWSignUp.jsx'))
 const SRWHomeV2 = lazy(() => import('./pages/srw/SRWHomeV2.jsx'))
 const SourcingDirectoryV2 = lazy(() => import('./pages/SourcingDirectoryV2.jsx'))
 const SourcingJobsV2 = lazy(() => import('./pages/SourcingJobsV2.jsx'))
+const SourcingEventsV2 = lazy(() => import('./pages/SourcingEventsV2.jsx'))
+const SourcingReportsV2 = lazy(() => import('./pages/SourcingReportsV2.jsx'))
+const SourcingMarketplaceV2 = lazy(() => import('./pages/SourcingMarketplaceV2.jsx'))
+const SourcingDealBankV2 = lazy(() => import('./pages/SourcingDealBankV2.jsx'))
 
 const Loading = () => (
   <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
@@ -109,6 +113,10 @@ createRoot(document.getElementById('root')).render(
           <Route path="/srw-v2" element={<SRWHomeV2 />} />
           <Route path="/space-rising-v2" element={<SourcingDirectoryV2 />} />
           <Route path="/space-rising-v2/jobs" element={<SourcingJobsV2 />} />
+          <Route path="/space-rising-v2/events" element={<SourcingEventsV2 />} />
+          <Route path="/space-rising-v2/reports" element={<SourcingReportsV2 />} />
+          <Route path="/space-rising-v2/marketplace" element={<SourcingMarketplaceV2 />} />
+          <Route path="/space-rising-v2/deal-bank" element={<SourcingDealBankV2 />} />
           {/* Tenant-scoped routes */}
           <Route path="/:tenantSlug" element={<SourcingDirectory />} />
           <Route path="/:tenantSlug/login" element={<SourcingLogin />} />
