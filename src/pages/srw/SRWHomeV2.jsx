@@ -5,9 +5,13 @@ import SRWFooterV2 from './SRWFooterV2.jsx';
 import useSRWTitle from './useSRWTitle.js';
 import './srw-v2.css';
 
-// All assets pulled directly from spacerising.org — exact Squarespace mirror.
-// HERO_VIDEO is the actual Squarespace background video; HERO_POSTER is the
-// astronaut/city fallback frame; HERO_OVERLAY is the "a new way to SPACE" text PNG.
+// R7-veo3-pilot — Earth-from-orbit Veo 3 video. Loop-with-parallax bg layer
+// per research/2026-05-31-per-section-hero-motion-direction.md. The legacy
+// HERO_VIDEO constant below is from the original Squarespace mirror and is
+// not used by the V2 home hero — kept for reference until removed in R8.
+const HERO_VIDEO_VEO3 = '/v2-assets/home-hero.mp4';
+
+// Legacy — unused by V2.
 const HERO_VIDEO = '/videos/spacerising-hero.mp4';
 const HERO_POSTER = 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/341f4645-4175-4b09-a77f-0c2ba6d6b47f/Hero-Image-banner.jpg?format=2500w';
 const HERO_OVERLAY = 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/be97f7c9-2222-4898-bdf5-e893d1cfa297/Hero-Image-banner-text_no+date.png?format=2500w';
@@ -108,16 +112,82 @@ export default function SRWHomeV2() {
     };
   }, []);
 
+  // R7-veo3-pilot — Hero video: loop-with-parallax. Video plays its own slow
+  // loop (8s, autoplay muted). As the user scrolls, the video translates upward
+  // at 0.4× scroll velocity so the foreground content "rises" off it. Paused
+  // when out of viewport to spare GPU. Disabled under prefers-reduced-motion
+  // (CSS-side display: none); the static earth.png poster remains visible.
+  const heroVideoRef = useRef(null);
+  useEffect(() => {
+    const video = heroVideoRef.current;
+    if (!video) return;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduced) return;
+
+    let raf = 0;
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const y = Math.max(0, window.scrollY);
+        // 0.4× velocity, cap at 200px so we don't overshoot the 10% over-extent
+        const offset = Math.min(y * 0.4, 200);
+        video.style.transform = `translate3d(0, ${-offset}px, 0)`;
+      });
+    };
+
+    const onCanPlay = () => video.classList.add('is-ready');
+    video.addEventListener('canplay', onCanPlay);
+    if (video.readyState >= 3) onCanPlay();
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          const p = video.play();
+          if (p && typeof p.catch === 'function') p.catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.05 }
+    );
+    io.observe(video);
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    return () => {
+      io.disconnect();
+      video.removeEventListener('canplay', onCanPlay);
+      window.removeEventListener('scroll', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
     <div data-srw="v2">
       <SRWNavV2 />
 
       {/* R4 (nat-geo-uplift) — premium editorial hero. Earth-from-orbit photo as
-          full-bleed bg, editorial type lockup overlay with amber-frame label. */}
+          full-bleed bg, editorial type lockup overlay with amber-frame label.
+          R7-veo3-pilot — Veo 3 Earth-from-orbit video plays over the static
+          poster, fading in once buffered. Loop-with-parallax via heroVideoRef. */}
       <header className="srw-hero-v2">
         <div
           className="srw-hero-v2-bg"
           style={{ backgroundImage: `url(/v2-assets/earth.png)` }}
+          aria-hidden="true"
+        />
+        <video
+          ref={heroVideoRef}
+          className="srw-hero-v2-video"
+          src={HERO_VIDEO_VEO3}
+          poster="/v2-assets/earth.png"
+          autoPlay
+          muted
+          loop
+          playsInline
+          preload="metadata"
           aria-hidden="true"
         />
         <div className="srw-hero-v2-veil" aria-hidden="true" />

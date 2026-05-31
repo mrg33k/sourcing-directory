@@ -1322,6 +1322,40 @@
   z-index: 0;
   filter: contrast(1.04) saturate(1.05);
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+   R7-veo3-pilot — Hero video layer. Sits ABOVE the static .srw-hero-v2-bg
+   (same z-index, later in DOM = wins) and BELOW .srw-hero-v2-veil
+   (z-index 1). The video over-extends the hero vertically by 10% top and
+   bottom so the parallax scroll-translate (up to 200px) doesn't reveal
+   empty space at the edges. Fades in once buffered via .is-ready class
+   applied by the canplay handler. Hidden entirely under
+   prefers-reduced-motion: reduce — the static .srw-hero-v2-bg shows
+   through as the fallback.
+   ───────────────────────────────────────────────────────────────────── */
+[data-srw="v2"] .srw-hero-v2-video {
+  position: absolute;
+  top: -10%;
+  left: 0;
+  width: 100%;
+  height: 120%;
+  object-fit: cover;
+  object-position: 65% center;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 720ms ease-out;
+  will-change: transform, opacity;
+  filter: contrast(1.04) saturate(1.05);
+}
+[data-srw="v2"] .srw-hero-v2-video.is-ready {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-srw="v2"] .srw-hero-v2-video {
+    display: none !important;
+  }
+}
 [data-srw="v2"] .srw-hero-v2-veil {
   position: absolute; inset: 0;
   background:
