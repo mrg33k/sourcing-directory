@@ -271,9 +271,16 @@ export default function SRWHomeV2() {
         </div>
       </section>
 
-      {/* Contact form */}
+      {/* Contact form — polish-srw-home-contact-form: line-style rebuild,
+          editorial section head (eyebrow + amber-period title) above the form,
+          mobile box override dropped, section bg matches palette (#0B0B0D),
+          duplicate FIRST NAME / LAST NAME hint labels removed. */}
       <section className="srw-contact-form">
         <div className="srw-wrap">
+          <div className="srw-contact-head">
+            <div className="srw-contact-eyebrow">CONTACT</div>
+            <h2 className="srw-h2-thin">Get in touch with Space Rising</h2>
+          </div>
           {contactStatus === 'success' ? (
             <div className="srw-contact-success">
               <p>Message received — we'll be in touch.</p>
@@ -297,9 +304,6 @@ export default function SRWHomeV2() {
                       value={contact.last_name}
                       onChange={(e) => setContact((p) => ({ ...p, last_name: e.target.value }))}
                     />
-                  </div>
-                  <div className="srw-form-hint">
-                    <span>First Name</span><span>Last Name</span>
                   </div>
                 </label>
               </div>
