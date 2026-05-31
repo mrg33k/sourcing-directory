@@ -1046,15 +1046,28 @@ function SourcingDirectoryInner() {
         brandColor={tenant?.brand_color}
       />
 
-      {/* v10 Browse Hero -- with tenant brand */}
+      {/* v10 Browse Hero -- with tenant brand
+          polish-srw-cleanup (2026-05-31): back button + tenant logo now share
+          a TOP ROW above the eyebrow / title / sub. Logo is no longer
+          absolute-positioned in the corner — it sits in the toprow with the
+          back button. CSS picks up the new .browse-hero-toprow + sizes the
+          .tenant-hero-logo larger (~2× previous). */}
       <div className="browse-hero" style={tenant ? { minHeight: 280 } : { minHeight: 200 }}>
         <div className="browse-hero-bg" style={{ backgroundImage: `url(${tenant ? getVerticalImage(tenant.vertical) : 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&q=80'})` }} />
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
-          <Link to="/" className="browse-back" style={{ textDecoration: 'none' }}>
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
-            Back
-          </Link>
+          <div className="browse-hero-toprow">
+            <Link to="/" className="browse-back" style={{ textDecoration: 'none' }}>
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
+              Back
+            </Link>
+            {tenant?.slug === 'space-rising' && (
+              <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
+            )}
+            {tenant?.slug === 's3c-semiconductor' && (
+              <img src="/images/s3c/logo.png" alt="S3C" className="tenant-hero-logo" />
+            )}
+          </div>
           <div className="browse-title" style={tenantBrand ? {
             fontFamily: tenantBrand.headingFont,
             textTransform: 'uppercase',
@@ -1063,13 +1076,6 @@ function SourcingDirectoryInner() {
             {tenant?.name || 'Find Certified Suppliers'}
           </div>
           <div className="browse-sub">{tenant?.hero_text || "Verified companies, certifications, and capabilities in one place."}</div>
-          {/* Tenant logo -- top-right on mobile, bottom-right on tablet+ */}
-          {tenant?.slug === 'space-rising' && (
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" style={{ height: 44, objectFit: 'contain', opacity: 0.7, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }} />
-          )}
-          {tenant?.slug === 's3c-semiconductor' && (
-            <img src="/images/s3c/logo.png" alt="S3C" className="tenant-hero-logo" style={{ height: 38, objectFit: 'contain', opacity: 0.7, filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.5))' }} />
-          )}
         </div>
       </div>
 

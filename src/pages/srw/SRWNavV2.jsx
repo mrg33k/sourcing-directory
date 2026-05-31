@@ -65,14 +65,6 @@ export default function SRWNavV2() {
           </div>
 
           <div className="srw-nav-actions">
-            <a href="#" className="srw-nav-cart" aria-label="Cart">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="9" cy="21" r="1" />
-                <circle cx="20" cy="21" r="1" />
-                <path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6" />
-              </svg>
-              <span className="srw-nav-cart-count">0</span>
-            </a>
             {/* R10b: Sign In stopgap → V1 SourcingLogin until SourcingLoginV2 lands */}
             <Link to="/space-rising/login" className="srw-nav-signin">SIGN IN</Link>
             <Link to="/srw-v2/sign-up" className="srw-nav-subscribe">SUBSCRIBE</Link>

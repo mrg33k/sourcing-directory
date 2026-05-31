@@ -2854,3 +2854,62 @@
     transform: none !important;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   polish-srw-cleanup (2026-05-31) — directory pages: back+logo top row
+   The .browse-hero-toprow is the NEW top row that holds the back button
+   (left) and the tenant logo (right). The logo is no longer absolute-
+   positioned in the hero corner — it flows with the back button on a
+   shared row, with the title / sub stacking below. Same structure applies
+   to every directory page (home + jobs + events + reports + marketplace +
+   deal-bank + membership + company profile).
+   ───────────────────────────────────────────────────────────────────────────── */
+
+[data-tenant="space-rising-v2"] .browse-hero-toprow,
+.browse-hero-toprow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+  width: 100%;
+}
+/* When the toprow lives inside the company-profile srcv2-topbar, give it
+   space to breathe and remove the bottom margin (the topbar handles spacing). */
+[data-tenant="space-rising-v2"] .srcv2-topbar .browse-hero-toprow {
+  margin-bottom: 0;
+  max-width: 1140px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 8px;
+}
+/* The back button keeps its own bottom margin via its base style — kill it
+   inside the toprow so the row stays tight. */
+[data-tenant="space-rising-v2"] .browse-hero-toprow .browse-back,
+.browse-hero-toprow .browse-back {
+  margin-bottom: 0 !important;
+}
+
+/* Tenant logo: drop absolute positioning, bump size (~2×). */
+[data-tenant="space-rising-v2"] .browse-hero-toprow .tenant-hero-logo,
+.browse-hero-toprow .tenant-hero-logo {
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  height: 96px !important;
+  width: auto !important;
+  opacity: 0.95 !important;
+  object-fit: contain !important;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+}
+@media (max-width: 768px) {
+  [data-tenant="space-rising-v2"] .browse-hero-toprow .tenant-hero-logo,
+  .browse-hero-toprow .tenant-hero-logo {
+    height: 56px !important;
+  }
+  [data-tenant="space-rising-v2"] .browse-hero-toprow,
+  .browse-hero-toprow {
+    margin-bottom: 20px;
+  }
+}
