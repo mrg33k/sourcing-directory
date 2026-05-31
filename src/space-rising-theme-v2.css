@@ -2802,3 +2802,55 @@
   [data-tenant="space-rising-v2"] .srcv2-listing-head { flex-direction: column; align-items: flex-start; gap: 4px; }
   [data-tenant="space-rising-v2"] .srcv2-footer { padding: 24px 22px 48px; }
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+   polish-directory-3 — directory company card hover/active feedback amp.
+
+   Patrik 2026-05-31: cards still have no felt interactive feedback.
+   Existing hover (translateY(-3px), amber border, soft shadow) was real
+   but too subtle, and on touch hover doesn't fire at all.
+
+   Three reinforcements stacked:
+   1. Hover lift bumped 3px → 6px with bigger shadow so the card visibly
+      rises off the grid.
+   2. Logo cover gets an amber bottom inset on hover; company name
+      transitions to amber.
+   3. :active state for mobile tap — scale 0.985 + amber border so touch
+      users see acknowledgement of the press before navigation.
+
+   prefers-reduced-motion guard: amber border + scale lost, indicator
+   stays.
+   ───────────────────────────────────────────────────────────────────── */
+[data-tenant="space-rising-v2"] .co-card {
+  cursor: pointer !important;
+}
+[data-tenant="space-rising-v2"] .co-card:hover {
+  transform: translateY(-6px) !important;
+  border-color: var(--srv2-orange) !important;
+  background: rgba(22,24,34,0.96) !important;
+  box-shadow: 0 20px 48px rgba(0,0,0,0.55),
+              0 2px 0 var(--srv2-orange) inset,
+              0 0 0 1px rgba(238,124,37,0.18) !important;
+}
+[data-tenant="space-rising-v2"] .co-card:hover .co-logo {
+  box-shadow: inset 0 -1px 0 var(--srv2-orange);
+}
+[data-tenant="space-rising-v2"] .co-card:hover .co-name,
+[data-tenant="space-rising-v2"] .co-card:hover .co-card-name {
+  color: var(--srv2-orange) !important;
+  transition: color 0.22s ease;
+}
+[data-tenant="space-rising-v2"] .co-card:active {
+  transform: translateY(-2px) scale(0.985) !important;
+  transition: transform 0.16s ease !important;
+  border-color: var(--srv2-orange) !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-tenant="space-rising-v2"] .co-card:hover {
+    transform: none !important;
+    box-shadow: 0 0 0 1px var(--srv2-orange) inset !important;
+  }
+  [data-tenant="space-rising-v2"] .co-card:active {
+    transform: none !important;
+  }
+}
