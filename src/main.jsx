@@ -81,6 +81,7 @@ const SourcingReportsV2 = lazy(() => import('./pages/SourcingReportsV2.jsx'))
 const SourcingMarketplaceV2 = lazy(() => import('./pages/SourcingMarketplaceV2.jsx'))
 const SourcingDealBankV2 = lazy(() => import('./pages/SourcingDealBankV2.jsx'))
 const SourcingMembershipV2 = lazy(() => import('./pages/SourcingMembershipV2.jsx'))
+const SourcingSignupV2 = lazy(() => import('./pages/SourcingSignupV2.jsx'))
 
 const Loading = () => (
   <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
@@ -119,6 +120,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/space-rising-v2/marketplace" element={<SourcingMarketplaceV2 />} />
           <Route path="/space-rising-v2/deal-bank" element={<SourcingDealBankV2 />} />
           <Route path="/space-rising-v2/membership" element={<SourcingMembershipV2 />} />
+          <Route path="/space-rising-v2/signup" element={<SourcingSignupV2 />} />
           {/* Tenant-scoped routes */}
           <Route path="/:tenantSlug" element={<SourcingDirectory />} />
           <Route path="/:tenantSlug/login" element={<SourcingLogin />} />

@@ -1938,3 +1938,448 @@
   background-position: center 35% !important;
   background-size: cover !important;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   R5h (nat-geo-uplift) — Signup modal flow (SourcingSignupV2.jsx).
+
+   Patrik 2026-05-30: "premium feel for both Free and Premium doors. one
+   question per screen, line-style inputs (matching the R4i contact form),
+   mono-caps progress, amber on focus, smooth fade between steps, final
+   confirmation moment 'Welcome to the room, [Name].' with amber period."
+   ───────────────────────────────────────────────────────────────────────────── */
+
+[data-tenant="space-rising-v2"].srsv2-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  color: #E8E4DA;
+  font-family: 'Space Grotesk', 'Hanken Grotesk', 'Inter', sans-serif;
+  background:
+    linear-gradient(rgba(0, 8, 20, 0.92), rgba(0, 8, 20, 0.96)),
+    url('/v2-assets/planet-blue.png') center center / cover no-repeat,
+    #0B0B0D;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+[data-tenant="space-rising-v2"] .srsv2-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: radial-gradient(ellipse at 50% 30%, rgba(232,162,58,0.05) 0%, transparent 55%);
+  pointer-events: none;
+}
+
+[data-tenant="space-rising-v2"] .srsv2-topbar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 32px 14px;
+  gap: 18px;
+}
+
+[data-tenant="space-rising-v2"] .srsv2-wordmark {
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  color: rgba(232,228,218,0.82);
+  text-decoration: none;
+}
+[data-tenant="space-rising-v2"] .srsv2-wordmark:hover { color: #E8A23A; }
+
+[data-tenant="space-rising-v2"] .srsv2-progress {
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  color: rgba(232,228,218,0.55);
+}
+[data-tenant="space-rising-v2"] .srsv2-progress-sep {
+  color: rgba(232,228,218,0.25);
+  padding: 0 4px;
+}
+
+[data-tenant="space-rising-v2"] .srsv2-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: rgba(232,228,218,0.55);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+[data-tenant="space-rising-v2"] .srsv2-close:hover { color: #E8A23A; }
+
+[data-tenant="space-rising-v2"] .srsv2-rail {
+  position: relative;
+  z-index: 2;
+  height: 1px;
+  margin: 0 32px;
+  background: rgba(232,228,218,0.08);
+  overflow: hidden;
+}
+[data-tenant="space-rising-v2"] .srsv2-rail-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: #E8A23A;
+  transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-tenant="space-rising-v2"] .srsv2-body {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 32px 80px;
+}
+
+[data-tenant="space-rising-v2"] .srsv2-step {
+  width: 100%;
+  max-width: 640px;
+  animation: srsv2FadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+[data-tenant="space-rising-v2"] .srsv2-step-success {
+  text-align: left;
+}
+
+@keyframes srsv2FadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+[data-tenant="space-rising-v2"] .srsv2-eyebrow {
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: #E8A23A;
+  margin-bottom: 24px;
+}
+
+[data-tenant="space-rising-v2"] .srsv2-title {
+  font-size: clamp(32px, 4.4vw, 52px);
+  font-weight: 800;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  color: #FFFFFF;
+  margin: 0 0 16px;
+}
+[data-tenant="space-rising-v2"] .srsv2-title-xl {
+  font-size: clamp(40px, 5.6vw, 68px);
+}
+[data-tenant="space-rising-v2"] .srsv2-period {
+  color: #E8A23A;
+}
+
+[data-tenant="space-rising-v2"] .srsv2-sub {
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 300;
+  color: rgba(232,228,218,0.65);
+  margin-bottom: 40px;
+  max-width: 540px;
+}
+
+/* Line-style inputs — R4i contact form pattern, amber on focus */
+[data-tenant="space-rising-v2"] .srsv2-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(232,228,218,0.32);
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  padding: 14px 0 12px;
+  outline: none;
+  border-radius: 0;
+  transition: border-color 0.18s ease;
+}
+[data-tenant="space-rising-v2"] .srsv2-input::placeholder {
+  color: rgba(232,228,218,0.32);
+  font-weight: 300;
+}
+[data-tenant="space-rising-v2"] .srsv2-input:focus {
+  border-bottom-color: #E8A23A;
+}
+[data-tenant="space-rising-v2"] .srsv2-textarea {
+  resize: vertical;
+  min-height: 120px;
+  font-size: 18px;
+  line-height: 1.5;
+  padding: 14px 0;
+}
+[data-tenant="space-rising-v2"] .srsv2-select {
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, rgba(232,228,218,0.45) 50%),
+                    linear-gradient(135deg, rgba(232,228,218,0.45) 50%, transparent 50%);
+  background-position: calc(100% - 14px) 18px, calc(100% - 8px) 18px;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  padding-right: 28px;
+}
+
+[data-tenant="space-rising-v2"] .srsv2-field-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 28px 24px;
+}
+[data-tenant="space-rising-v2"] .srsv2-field {
+  display: block;
+}
+[data-tenant="space-rising-v2"] .srsv2-field-wide   { grid-column: span 3; }
+[data-tenant="space-rising-v2"] .srsv2-field-narrow { grid-column: span 1; }
+[data-tenant="space-rising-v2"] .srsv2-field-full   { grid-column: span 4; }
+
+[data-tenant="space-rising-v2"] .srsv2-label {
+  display: block;
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(232,228,218,0.55);
+  margin-bottom: 10px;
+}
+[data-tenant="space-rising-v2"] .srsv2-label em.srsv2-optional {
+  font-style: normal;
+  font-size: 9px;
+  color: rgba(232,228,218,0.32);
+  margin-left: 8px;
+  text-transform: none;
+  letter-spacing: 0.08em;
+}
+
+/* Cert chips */
+[data-tenant="space-rising-v2"] .srsv2-certs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+[data-tenant="space-rising-v2"] .srsv2-cert {
+  background: transparent;
+  border: 1px solid rgba(232,228,218,0.18);
+  color: rgba(232,228,218,0.75);
+  padding: 9px 18px;
+  border-radius: 100px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+[data-tenant="space-rising-v2"] .srsv2-cert:hover {
+  border-color: rgba(232,162,58,0.4);
+  color: #FFFFFF;
+}
+[data-tenant="space-rising-v2"] .srsv2-cert.on {
+  border-color: #E8A23A;
+  background: rgba(232,162,58,0.12);
+  color: #E8A23A;
+}
+
+/* Seats */
+[data-tenant="space-rising-v2"] .srsv2-seats {
+  margin-top: 16px;
+}
+[data-tenant="space-rising-v2"] .srsv2-seats-readout {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+[data-tenant="space-rising-v2"] .srsv2-seats-count {
+  font-size: 72px;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1;
+  letter-spacing: -0.04em;
+}
+[data-tenant="space-rising-v2"] .srsv2-seats-unit {
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(232,228,218,0.55);
+}
+[data-tenant="space-rising-v2"] .srsv2-range {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 2px;
+  background: rgba(232,228,218,0.18);
+  outline: none;
+  margin: 12px 0 32px;
+}
+[data-tenant="space-rising-v2"] .srsv2-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #E8A23A;
+  cursor: pointer;
+  border: 3px solid #0B0B0D;
+  box-shadow: 0 0 0 1px #E8A23A, 0 0 14px rgba(232,162,58,0.4);
+}
+[data-tenant="space-rising-v2"] .srsv2-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #E8A23A;
+  cursor: pointer;
+  border: 3px solid #0B0B0D;
+  box-shadow: 0 0 0 1px #E8A23A;
+}
+[data-tenant="space-rising-v2"] .srsv2-seats-price {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+[data-tenant="space-rising-v2"] .srsv2-seats-price-big {
+  font-size: 30px;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: -0.02em;
+}
+[data-tenant="space-rising-v2"] .srsv2-seats-price-unit {
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(232,228,218,0.55);
+}
+[data-tenant="space-rising-v2"] .srsv2-seats-monthly {
+  width: 100%;
+  margin-top: 8px;
+  font-size: 13px;
+  color: rgba(232,228,218,0.5);
+  font-weight: 300;
+}
+
+/* Payment summary */
+[data-tenant="space-rising-v2"] .srsv2-payment-summary {
+  margin-top: 32px;
+  border-top: 1px solid rgba(232,228,218,0.12);
+}
+[data-tenant="space-rising-v2"] .srsv2-payment-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(232,228,218,0.08);
+  font-size: 14px;
+  color: rgba(232,228,218,0.75);
+}
+[data-tenant="space-rising-v2"] .srsv2-payment-row span:first-child {
+  font-family: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(232,228,218,0.5);
+}
+[data-tenant="space-rising-v2"] .srsv2-payment-row span:last-child {
+  font-weight: 500;
+  color: #FFFFFF;
+}
+[data-tenant="space-rising-v2"] .srsv2-payment-row-strong {
+  border-bottom: none;
+  padding-top: 22px;
+}
+[data-tenant="space-rising-v2"] .srsv2-payment-row-strong span:last-child {
+  font-size: 22px;
+  font-weight: 700;
+  color: #E8A23A;
+}
+
+[data-tenant="space-rising-v2"] .srsv2-error {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #F4A78A;
+  font-weight: 400;
+}
+
+[data-tenant="space-rising-v2"] .srsv2-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 48px;
+  flex-wrap: wrap;
+}
+
+[data-tenant="space-rising-v2"] .srsv2-cta-row {
+  display: flex;
+  gap: 14px;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+
+[data-tenant="space-rising-v2"] .srsv2-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 14px 28px;
+  border-radius: 100px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.18s;
+}
+[data-tenant="space-rising-v2"] .srsv2-cta:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+[data-tenant="space-rising-v2"] .srsv2-cta-solid {
+  background: #E8A23A;
+  color: #0B0B0D;
+  border-color: #E8A23A;
+}
+[data-tenant="space-rising-v2"] .srsv2-cta-solid:hover:not(:disabled) {
+  background: #F0B255;
+  border-color: #F0B255;
+}
+[data-tenant="space-rising-v2"] .srsv2-cta-line {
+  background: transparent;
+  color: rgba(232,228,218,0.75);
+  border-color: rgba(232,228,218,0.22);
+}
+[data-tenant="space-rising-v2"] .srsv2-cta-line:hover:not(:disabled) {
+  color: #FFFFFF;
+  border-color: rgba(232,228,218,0.5);
+}
+
+/* Mobile */
+@media (max-width: 720px) {
+  [data-tenant="space-rising-v2"] .srsv2-topbar { padding: 18px 22px 12px; }
+  [data-tenant="space-rising-v2"] .srsv2-rail { margin: 0 22px; }
+  [data-tenant="space-rising-v2"] .srsv2-body { padding: 36px 22px 64px; }
+  [data-tenant="space-rising-v2"] .srsv2-field-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px 16px;
+  }
+  [data-tenant="space-rising-v2"] .srsv2-field-wide   { grid-column: span 2; }
+  [data-tenant="space-rising-v2"] .srsv2-field-narrow { grid-column: span 1; }
+  [data-tenant="space-rising-v2"] .srsv2-field-full   { grid-column: span 2; }
+  [data-tenant="space-rising-v2"] .srsv2-seats-count { font-size: 56px; }
+  [data-tenant="space-rising-v2"] .srsv2-actions { width: 100%; }
+  [data-tenant="space-rising-v2"] .srsv2-actions .srsv2-cta { flex: 1; min-width: 130px; }
+}
