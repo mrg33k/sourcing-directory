@@ -6,18 +6,21 @@ import { Link } from 'react-router-dom';
 // V2 (nat-geo-uplift) — Home + SpaceOS rewired to the cloned routes so the
 // flow walks on copies. Sub-pages (Space Congress, Partnerships, About) stay
 // pointing at V1 since they're out of scope for this uplift.
+// R6 (nat-geo-uplift): all sub-pages cloned to V2 — Home / SpaceOS / Space
+// Congress / Arizona / Partnerships / About / Events / Media / Sign Up.
+// Every link now stays inside /srw-v2/* so the V2 flow walks end-to-end.
 const LINKS = [
   { label: 'Home', to: '/srw-v2' },
   { label: 'SpaceOS™', to: '/space-rising-v2' },
   {
     label: 'Space Congress™',
-    to: '/srw/space-congress',
+    to: '/srw-v2/space-congress',
     children: [
-      { label: 'Arizona', to: '/srw/arizona' },
+      { label: 'Arizona', to: '/srw-v2/arizona' },
     ],
   },
-  { label: 'Partnerships', to: '/srw/partnerships' },
-  { label: 'About', to: '/srw/about' },
+  { label: 'Partnerships', to: '/srw-v2/partnerships' },
+  { label: 'About', to: '/srw-v2/about' },
 ];
 
 export default function SRWNavV2() {
@@ -70,7 +73,7 @@ export default function SRWNavV2() {
               </svg>
               <span className="srw-nav-cart-count">0</span>
             </a>
-            <Link to="/srw/sign-up" className="srw-nav-subscribe">SUBSCRIBE</Link>
+            <Link to="/srw-v2/sign-up" className="srw-nav-subscribe">SUBSCRIBE</Link>
           </div>
 
           <button
