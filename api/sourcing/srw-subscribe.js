@@ -13,7 +13,13 @@ const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const RESEND_KEY   = process.env.RESEND_API_KEY;
 const FROM_ADDRESS = process.env.SRW_FROM_ADDRESS || 'Space Rising <hello@aom-inhouse.com>';
 const NOTIFY_EMAIL = process.env.SRW_NOTIFY_EMAIL || 'info@spacerising.org';
-const SPACEOS_URL  = process.env.SRW_SPACEOS_URL  || 'https://sourcing.directory/space-rising';
+const SPACEOS_URL  = process.env.SRW_SPACEOS_URL  || 'https://spacerising.org/space-rising-v2';
+
+// Airtable — Website Submissions table on the Space Rising base. Added 2026-05-31.
+// PAT scoped to data.records:write + schema.bases:* on this one base only.
+const AIRTABLE_PAT       = process.env.AIRTABLE_PAT;
+const AIRTABLE_BASE_ID   = process.env.AIRTABLE_BASE_ID;
+const AIRTABLE_TABLE_ID  = process.env.AIRTABLE_SUBMISSIONS_TABLE_ID;
 
 // ─── Email builders ──────────────────────────────────────────────────────────
 
@@ -186,6 +192,50 @@ async function sendEmail({ to, subject, html }) {
   return data;
 }
 
+// ─── Airtable write ─────────────────────────────────────────────────────────
+// Push the submission as a record into the Website Submissions table on the
+// Space Rising base. Best-effort: failures are logged but do not block the
+// happy path (Supabase write + emails already happened upstream).
+//
+// typecast:true lets Airtable auto-grow the "Areas of Interest" multi-select
+// options (so a new checkbox option from the form doesn't error). Same for
+// Form Type if a new value ever appears.
+async function writeAirtable({ form_type, first_name, last_name, email, organization, areas_of_interest, newsletter_opt_in, message, source_url }) {
+  if (!AIRTABLE_PAT || !AIRTABLE_BASE_ID || !AIRTABLE_TABLE_ID) {
+    console.warn('Airtable env vars not set, skipping Airtable write.');
+    return { skipped: true };
+  }
+  const fullName = [first_name, last_name].filter(Boolean).join(' ').trim() || email;
+  const fields = {
+    'Full Name': fullName,
+    'First Name': first_name?.trim() || null,
+    'Last Name':  last_name?.trim()  || null,
+    'Email':      email.trim().toLowerCase(),
+    'Organization': organization?.trim() || null,
+    'Form Type':  form_type === 'subscribe' ? 'Subscribe' : 'Contact',
+    'Areas of Interest': Array.isArray(areas_of_interest) ? areas_of_interest : [],
+    'Newsletter Opt-In': !!newsletter_opt_in,
+    'Message':    message?.trim() || null,
+    'Submitted At': new Date().toISOString(),
+    'Source URL': source_url || null,
+  };
+  // Strip nulls so empty fields stay empty in Airtable rather than typed as "null".
+  Object.keys(fields).forEach((k) => fields[k] === null && delete fields[k]);
+
+  const url = `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/${AIRTABLE_TABLE_ID}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${AIRTABLE_PAT}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ records: [{ fields }], typecast: true }),
+  });
+  const data = await res.json();
+  if (!res.ok) console.error('Airtable error:', data);
+  return data;
+}
+
 // ─── Handler ─────────────────────────────────────────────────────────────────
 
 export default async function handler(req, res) {
@@ -233,6 +283,28 @@ export default async function handler(req, res) {
     }
   } else {
     console.warn('Supabase not configured — submission not persisted.');
+  }
+
+  // ── Save to Airtable (Website Submissions table, best-effort) ──
+  // Runs alongside Supabase; failures don't block emails. typecast:true lets
+  // Airtable auto-grow the multi-select options if a new "area of interest"
+  // appears (so new checkboxes on the form don't error this path).
+  try {
+    const source_url = (req.headers['referer'] || req.headers['referrer'] || '').toString().split('?')[0] || null;
+    await writeAirtable({
+      form_type,
+      first_name,
+      last_name,
+      email,
+      organization,
+      areas_of_interest,
+      newsletter_opt_in,
+      message,
+      source_url,
+    });
+  } catch (err) {
+    console.error('Airtable error:', err.message);
+    // Don't fail — emails still go through.
   }
 
   // ── Send welcome email (subscribe form only) ──
