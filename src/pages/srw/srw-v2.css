@@ -576,8 +576,27 @@
    white footer for the swapped contact/footer treatment Patrik called for. */
 [data-srw="v2"] .srw-contact-form {
   padding: 110px 0 140px;
-  background: #262626;
+  background: #0B0B0D;
   color: var(--srw-text);
+  border-top: 1px solid rgba(232,228,218,0.08);
+  border-bottom: 1px solid rgba(232,228,218,0.08);
+}
+/* polish-srw-home-contact-form: section head — eyebrow + amber-period title */
+[data-srw="v2"] .srw-contact-form .srw-contact-head {
+  margin-bottom: 56px;
+}
+[data-srw="v2"] .srw-contact-form .srw-contact-eyebrow {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  color: var(--srv2-orange);
+  margin-bottom: 24px;
+}
+[data-srw="v2"] .srw-contact-form .srw-h2-thin {
+  margin: 0;
+  text-align: left;
+  max-width: none;
 }
 [data-srw="v2"] .srw-contact-form .srw-wrap { max-width: 720px; }
 [data-srw="v2"] .srw-contact-form .srw-h2-faint {
@@ -1924,36 +1943,22 @@
   to { transform: scaleX(1); }
 }
 
-/* CONTACT FORM — premium tech-org redesign */
+/* polish-srw-home-contact-form: the original block here ("CONTACT FORM —
+   premium tech-org redesign") wrapped .srw-form in a glass-morphism box
+   (background tint + 1px border on all sides + 12px border-radius + 40px
+   padding + backdrop-filter blur). Inputs were also boxed (border + radius
+   + dark bg). That aesthetic broke the V2 editorial line-style. Stripped
+   the container box + boxy input chrome here so the form reads as line-
+   style only — bottom-border accent on each field, no container, no
+   rounded corners. Input/placeholder/focus styling moved to the
+   consolidated line-style block further down. */
 [data-srw="v2"] .srw-form {
-  background: rgba(18,20,28,0.62) !important;
-  border: 1px solid rgba(232,228,218,0.08) !important;
-  border-radius: 12px !important;
-  padding: 40px !important;
-  backdrop-filter: blur(8px) saturate(1.1);
-  -webkit-backdrop-filter: blur(8px) saturate(1.1);
-}
-[data-srw="v2"] .srw-form input,
-[data-srw="v2"] .srw-form textarea {
-  background: rgba(11,11,13,0.55) !important;
-  border: 1px solid rgba(232,228,218,0.12) !important;
-  color: #E8E4DA !important;
-  font-family: 'Space Grotesk', sans-serif !important;
-  font-size: 15px !important;
-  padding: 14px 16px !important;
-  border-radius: 6px !important;
-  transition: border-color 0.18s ease, background 0.18s ease;
-}
-[data-srw="v2"] .srw-form input::placeholder,
-[data-srw="v2"] .srw-form textarea::placeholder {
-  color: rgba(232,228,218,0.38) !important;
-  font-family: 'Space Grotesk', sans-serif !important;
-}
-[data-srw="v2"] .srw-form input:focus,
-[data-srw="v2"] .srw-form textarea:focus {
-  outline: none !important;
-  border-color: var(--srv2-orange-brd) !important;
-  background: rgba(11,11,13,0.78) !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 [data-srw="v2"] .srw-form label,
 [data-srw="v2"] .srw-form-label {
@@ -2053,22 +2058,30 @@
 [data-srw="v2"] .srw-opp::after { opacity: 0.55 !important; }
 [data-srw="v2"] .srw-opp:hover::after { opacity: 0.78 !important; }
 
-/* CONTACT FORM — dramatic rebuild
-   Split-row premium feel: dark glass card centered, mono labels above
-   inline-flush inputs, slim accent line under each input, big CTA. */
+/* polish-srw-home-contact-form: the original block here ("CONTACT FORM —
+   dramatic rebuild") was a SECOND glass-morphism container (background tint
+   + 1px border + 16px border-radius + 56px×64px padding + heavier blur +
+   box-shadow). Two competing boxy redesigns in this file (this one + the
+   "premium tech-org redesign" block earlier) both opposed the V2 editorial
+   line-style. Container chrome stripped here too; max-width retained as a
+   readable form width on desktop. */
 [data-srw="v2"] .srw-form {
-  background: rgba(11,11,13,0.62) !important;
-  border: 1px solid rgba(232,228,218,0.10) !important;
-  border-radius: 16px !important;
-  padding: 56px 64px !important;
-  backdrop-filter: blur(14px) saturate(1.2);
-  -webkit-backdrop-filter: blur(14px) saturate(1.2);
-  box-shadow: 0 24px 80px rgba(0,0,0,0.42), inset 0 1px 0 rgba(232,228,218,0.05);
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
   max-width: 880px;
   margin: 0 auto;
 }
+/* polish-srw-home-contact-form: previously this media query padded the .srw-form
+   with 36px and 12px border-radius on mobile, which made the form read as a
+   boxed container that broke the editorial line-style aesthetic. Removed the
+   container box; line-style inputs alone now define the form's edges. */
 @media (max-width: 768px) {
-  [data-srw="v2"] .srw-form { padding: 36px 24px !important; border-radius: 12px !important; }
+  [data-srw="v2"] .srw-form { padding: 0 !important; border-radius: 0 !important; }
 }
 
 [data-srw="v2"] .srw-form-row { margin-bottom: 28px !important; }
