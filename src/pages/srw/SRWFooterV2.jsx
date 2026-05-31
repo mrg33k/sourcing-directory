@@ -1,9 +1,14 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
-// Space Rising footer — matches spacerising.org layout exactly:
-// Big ghost logo on the left (oversized, dimmed), mission text + social icons
-// + SUBSCRIBE button stacked on the right. Bottom strip shows Photo Credits
-// (NASA) on the left and copyright/email on the right, single line.
+// Space Rising footer — 3-col layout:
+//   1. Big ghost wordmark on the left (oversized, dimmed)
+//   2. R6q (nat-geo-uplift): NEW middle directory-promo card.
+//      Patrik 2026-05-31: "if you're gonna space out the logo like that we
+//      should put like some kind of image in the middle that promotes the
+//      directory with some text on it."
+//   3. Mission text + social icons + SUBSCRIBE stacked on the right
+// Bottom strip: Photo Credits (NASA) left + copyright/email right.
 export default function SRWFooterV2() {
   return (
     <footer className="srw-footer">
@@ -14,6 +19,23 @@ export default function SRWFooterV2() {
             alt="Space Rising"
           />
         </div>
+
+        <Link to="/space-rising-v2" className="srw-footer-promo" aria-label="Browse the directory">
+          <div className="srw-footer-promo-bg" aria-hidden="true" />
+          <div className="srw-footer-promo-overlay" aria-hidden="true" />
+          <div className="srw-footer-promo-inner">
+            <div className="srw-footer-promo-eyebrow">THE PLATFORM</div>
+            <div className="srw-footer-promo-title">
+              Browse the directory<span className="srw-footer-promo-dot">.</span>
+            </div>
+            <div className="srw-footer-promo-sub">
+              Every space company, job, event, and deal in one place.
+            </div>
+            <div className="srw-footer-promo-cta">
+              Enter SpaceOS<span style={{ fontSize: '0.7em' }}>™</span> →
+            </div>
+          </div>
+        </Link>
 
         <div className="srw-footer-right">
           <p className="srw-footer-mission">
