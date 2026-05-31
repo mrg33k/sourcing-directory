@@ -117,6 +117,31 @@ export default function SRWHomeV2() {
     };
   }, []);
 
+  // polish-opps-reveal — opportunities grid scroll-into-view reveal.
+  // Tiles fade-up + slide-up with stagger when the grid enters the viewport.
+  // Single IO at threshold 0.25, fires once. Drives CSS via data-opps-revealed
+  // (no setState — pure DOM attribute flip, lighter than a React rerender).
+  // prefers-reduced-motion: tiles render at final state via the CSS guard.
+  const oppsGridRef = useRef(null);
+  useEffect(() => {
+    const grid = oppsGridRef.current;
+    if (!grid) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      grid.setAttribute('data-opps-revealed', 'true');
+      return;
+    }
+    let fired = false;
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !fired) {
+        fired = true;
+        grid.setAttribute('data-opps-revealed', 'true');
+        io.disconnect();
+      }
+    }, { threshold: 0.25 });
+    io.observe(grid);
+    return () => io.disconnect();
+  }, []);
+
   async function handleContact(e) {
     e.preventDefault();
     if (!contact.email || !contact.email.includes('@')) {
@@ -292,11 +317,14 @@ export default function SRWHomeV2() {
         </div>
       </section>
 
-      {/* Emerging Opportunities */}
+      {/* Emerging Opportunities — polish-opps-reveal: scroll-into-view fade-up
+          + stagger on the tiles, hover lift on desktop. Same IO + threshold
+          0.25 pattern as the stats blocks; data-opps-revealed flips on the
+          grid for CSS to drive the stagger via nth-child transition-delays. */}
       <section className="srw-section" style={{ textAlign: 'center', paddingTop: 0 }}>
         <div className="srw-wrap">
           <h2 className="srw-h2-mid">EMERGING OPPORTUNITIES FOR SPACE INFRASTRUCTURE</h2>
-          <div className="srw-opp-grid">
+          <div ref={oppsGridRef} className="srw-opp-grid">
             {OPPORTUNITIES.map((o) => (
               <div className="srw-opp" key={o}>{o}</div>
             ))}
