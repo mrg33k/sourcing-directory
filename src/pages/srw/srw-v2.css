@@ -2835,3 +2835,70 @@
     transition: none;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+   polish-opps-reveal — opportunities grid scroll-into-view fade-up
+   stagger + hover lift on desktop.
+
+   Pattern variant of polish-directory-1: instead of count-up (no numbers
+   here), tiles transition from opacity 0 + translateY(20px) → opacity 1 +
+   translateY(0) on scroll-into-view, with nth-child transition-delays
+   creating a 60ms cascade across the 6 tiles.
+
+   Hover lift transforms the tile up 6px on desktop only; the existing
+   atmospheric bg image (.srw-opp::after, opacity 0.55 → 0.78 on hover
+   per the earlier R6 block) keeps its independent bg-intensify effect
+   for a layered hover feel.
+
+   prefers-reduced-motion: the JSX effect sets data-opps-revealed=true
+   immediately (no IO needed); CSS overrides also kill the transition
+   so tiles render final state with no motion.
+   ───────────────────────────────────────────────────────────────────── */
+[data-srw="v2"] .srw-opp {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 720ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 720ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+[data-srw="v2"] .srw-opp-grid[data-opps-revealed="true"] .srw-opp {
+  opacity: 1;
+  transform: translateY(0);
+}
+/* Stagger via nth-child transition-delay — only fires once on reveal,
+   then resets to 0 so hover transitions don't get the entry delay. */
+[data-srw="v2"] .srw-opp-grid:not([data-opps-revealed="true"]) .srw-opp:nth-child(1) { transition-delay: 0ms; }
+[data-srw="v2"] .srw-opp-grid:not([data-opps-revealed="true"]) .srw-opp:nth-child(2) { transition-delay: 60ms; }
+[data-srw="v2"] .srw-opp-grid:not([data-opps-revealed="true"]) .srw-opp:nth-child(3) { transition-delay: 120ms; }
+[data-srw="v2"] .srw-opp-grid:not([data-opps-revealed="true"]) .srw-opp:nth-child(4) { transition-delay: 180ms; }
+[data-srw="v2"] .srw-opp-grid:not([data-opps-revealed="true"]) .srw-opp:nth-child(5) { transition-delay: 240ms; }
+[data-srw="v2"] .srw-opp-grid:not([data-opps-revealed="true"]) .srw-opp:nth-child(6) { transition-delay: 300ms; }
+/* Wait — the :not(...) keeps the delay BEFORE reveal so the start state
+   shows the delay; we want the delay applied when transitioning INTO
+   revealed. Reverse the rule. */
+[data-srw="v2"] .srw-opp-grid[data-opps-revealed="true"] .srw-opp:nth-child(1) { transition-delay: 0ms; }
+[data-srw="v2"] .srw-opp-grid[data-opps-revealed="true"] .srw-opp:nth-child(2) { transition-delay: 60ms; }
+[data-srw="v2"] .srw-opp-grid[data-opps-revealed="true"] .srw-opp:nth-child(3) { transition-delay: 120ms; }
+[data-srw="v2"] .srw-opp-grid[data-opps-revealed="true"] .srw-opp:nth-child(4) { transition-delay: 180ms; }
+[data-srw="v2"] .srw-opp-grid[data-opps-revealed="true"] .srw-opp:nth-child(5) { transition-delay: 240ms; }
+[data-srw="v2"] .srw-opp-grid[data-opps-revealed="true"] .srw-opp:nth-child(6) { transition-delay: 300ms; }
+
+/* Hover lift — desktop only. Combines with the existing .srw-opp::after
+   bg-intensify rule (R6) without conflict because that affects the
+   pseudo-element, not the tile transform. */
+@media (min-width: 769px) {
+  [data-srw="v2"] .srw-opp {
+    transition: opacity 720ms cubic-bezier(0.16, 1, 0.3, 1),
+                transform 320ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  [data-srw="v2"] .srw-opp-grid[data-opps-revealed="true"] .srw-opp:hover {
+    transform: translateY(-6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-srw="v2"] .srw-opp {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+}
