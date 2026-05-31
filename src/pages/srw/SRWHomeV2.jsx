@@ -246,7 +246,7 @@ export default function SRWHomeV2() {
           <p className="srw-band-copy">
             Space Rising serves as the <strong>connective layer</strong> across the evolving space economy. We translate regional activity into coordinated strategy.
           </p>
-          <Link to="/srw-v2/about" className="srw-link-plain">ABOUT</Link>
+          <Link to="/srw-v2/about" className="srw-link-plain">ABOUT&nbsp;→</Link>
         </div>
       </section>
 
@@ -255,7 +255,7 @@ export default function SRWHomeV2() {
       <section className="srw-mobilize-section">
         <div className="srw-wrap">
           <div className="srw-mobilize-grid">
-            <h2 className="srw-mobilize-heading">WE MOBILIZE SPACE ECOSYSTEMS THROUGH:</h2>
+            <h2 className="srw-mobilize-heading">WE MOBILIZE SPACE ECOSYSTEMS THROUGH</h2>
             <div className="srw-services">
               {SERVICES.map((s) => (
                 <Link to={s.to} className="srw-service" key={s.name}>
