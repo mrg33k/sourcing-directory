@@ -1615,53 +1615,82 @@ function SourcingDirectoryInner() {
                 to   { transform: translate(-50%, 0); }
               }
             `}</style>
-            {/* Hero image */}
+            {/* polish-directory-2-join-cta — quieter editorial redesign.
+                Was: full-bleed bg image + glassy "Free and paid listings"
+                pill badge + 22px/900 "Join {tenant}" title + heavy orange
+                "Sign Up Free" button + dim "Maybe later" link. Heavy +
+                forced-upgrade feel.
+                Now: deep cool-ink ground with subtle bottom amber accent,
+                mono-caps "MEMBERSHIP" eyebrow + amber-period title in
+                Space Grotesk 300, line-style copy, line-style amber
+                Sign-up CTA, mono-caps "Maybe later" with chevron right. */}
+            {/* Editorial header strip — quieter than the previous bg image */}
             <div style={{
-              position: 'relative', height: 140, overflow: 'hidden',
+              height: 64, position: 'relative',
+              borderBottom: '1px solid rgba(232,228,218,0.08)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
             }}>
               <div style={{
-                position: 'absolute', inset: 0,
-                backgroundImage: `url(${tenant ? getVerticalImage(tenant.vertical) : 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=800&q=80'})`,
-                backgroundSize: 'cover', backgroundPosition: 'center',
-              }} />
-              <div style={{
-                position: 'absolute', inset: 0,
-                background: 'linear-gradient(180deg, rgba(14,14,20,0.3) 0%, rgba(14,14,20,0.7) 60%, var(--s1) 100%)',
-              }} />
-              <div style={{ position: 'absolute', bottom: 16, left: 0, right: 0, textAlign: 'center' }}>
-                <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6,
-                  background: 'rgba(255,255,255,0.08)', backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(255,255,255,0.1)', borderRadius: 100,
-                  padding: '4px 12px 4px 8px', fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.85)',
-                }}>
-                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--emerald)', boxShadow: '0 0 10px var(--emerald)' }} />
-                  Free and paid listings available
-                </div>
+                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                fontSize: 11, fontWeight: 600, letterSpacing: '0.22em',
+                color: '#EE7C25', textTransform: 'uppercase',
+              }}>
+                Membership
               </div>
             </div>
             {/* Content */}
-            <div style={{ padding: '20px 24px max(env(safe-area-inset-bottom),24px)', textAlign: 'center' }}>
-              <div style={{ fontSize: 22, fontWeight: 900, color: '#fff', marginBottom: 8, letterSpacing: '-0.03em' }}>
-                Join {tenant?.nav_label || tenant?.name || 'the Directory'}
+            <div style={{ padding: '28px 28px max(env(safe-area-inset-bottom),28px)', textAlign: 'left' }}>
+              <div style={{
+                fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif",
+                fontSize: 28, fontWeight: 300, color: '#E8E4DA',
+                letterSpacing: '-0.01em', lineHeight: 1.12, marginBottom: 12,
+              }}>
+                Join {tenant?.nav_label || tenant?.name || 'the directory'}<span style={{ color: '#EE7C25' }}>.</span>
               </div>
-              <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.78)', lineHeight: 1.5, maxWidth: 320, margin: '0 auto 20px' }}>
-                Get found by procurement teams, contractors, and partners in {tenant?.name || 'this directory'}.
+              <div style={{
+                fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif",
+                fontSize: 14, fontWeight: 300, lineHeight: 1.55,
+                color: 'rgba(232,228,218,0.62)', marginBottom: 28,
+              }}>
+                Get found by procurement teams, contractors, and partners in {tenant?.name || 'the directory'}.
               </div>
               <Link
                 to={tenantSlug ? `/${tenantSlug}/signup` : '/signup'}
                 onClick={() => setShowWelcome(false)}
-                className="login-btn"
-                style={{ display: 'block', textAlign: 'center', textDecoration: 'none', marginBottom: 12 }}
+                style={{
+                  display: 'block', textDecoration: 'none', textAlign: 'center',
+                  padding: '14px 24px', marginBottom: 14,
+                  background: 'transparent', color: '#EE7C25',
+                  border: '1px solid #EE7C25',
+                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                  fontSize: 12, fontWeight: 600, letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  transition: 'background 0.2s, color 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#EE7C25';
+                  e.currentTarget.style.color = '#0B0B0D';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.color = '#EE7C25';
+                }}
               >
-                Sign Up Free
+                Sign up free →
               </Link>
               <button
                 onClick={() => setShowWelcome(false)}
                 style={{
-                  background: 'none', border: 'none', color: 'rgba(255,255,255,0.6)',
-                  fontSize: 13, fontWeight: 600, cursor: 'pointer', padding: '8px 0', width: '100%',
+                  background: 'none', border: 'none',
+                  color: 'rgba(232,228,218,0.45)',
+                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+                  fontSize: 11, fontWeight: 600, letterSpacing: '0.18em',
+                  textTransform: 'uppercase',
+                  cursor: 'pointer', padding: '10px 0', width: '100%',
+                  transition: 'color 0.2s',
                 }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = 'rgba(232,228,218,0.85)'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(232,228,218,0.45)'; }}
               >
                 Maybe later
               </button>
