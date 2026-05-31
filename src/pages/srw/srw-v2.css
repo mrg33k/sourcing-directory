@@ -2751,3 +2751,87 @@
     transition: none;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+   polish-arizona-stats — Arizona BY THE NUMBERS section visceral upgrade.
+
+   Shared component SRWArizonaStatsV2 renders on /srw-v2/arizona AND
+   /srw-v2/space-congress. Same count-up + amber accent bar + hover lift
+   pattern as polish-directory-1 on /srw-v2 home, adapted to the .srw-pg-tile
+   layout that already wraps the stats. The tile inline style (44px, weight
+   700, #E8A23A) is overridden so the number font-size matches the home
+   stats' visceral presence (clamp 44-72px).
+   ───────────────────────────────────────────────────────────────────── */
+[data-srw="v2"] .srw-arz-stat-tile {
+  position: relative;
+  transition: transform 0.32s ease;
+  padding: 24px 20px !important;
+}
+@media (min-width: 769px) {
+  [data-srw="v2"] .srw-arz-stat-tile:hover {
+    transform: translateY(-4px);
+  }
+}
+[data-srw="v2"] .srw-arz-stat-label {
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase !important;
+  color: rgba(232,228,218,0.62) !important;
+  margin-bottom: 18px !important;
+  transition: color 0.24s ease;
+}
+@media (min-width: 769px) {
+  [data-srw="v2"] .srw-arz-stat-tile:hover .srw-arz-stat-label {
+    color: var(--srv2-orange);
+  }
+}
+[data-srw="v2"] .srw-arz-stat-num {
+  font-size: clamp(44px, 7vw, 72px) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1 !important;
+  font-variant-numeric: tabular-nums !important;
+  color: var(--srv2-orange) !important;
+  margin: 0 0 18px 0 !important;
+  display: block !important;
+}
+[data-srw="v2"] .srw-arz-stat-bar {
+  width: 56px;
+  height: 2px;
+  background: var(--srv2-orange);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 1600ms cubic-bezier(0.16, 1, 0.3, 1),
+              width 0.32s ease,
+              opacity 0.32s ease;
+  opacity: 0.6;
+}
+[data-srw="v2"] .srw-arz-stats-section[data-stats-visible="true"] .srw-arz-stat-bar {
+  transform: scaleX(1);
+}
+@media (min-width: 769px) {
+  [data-srw="v2"] .srw-arz-stat-tile:hover .srw-arz-stat-bar {
+    width: 80px;
+    opacity: 1;
+  }
+}
+@media (max-width: 768px) {
+  [data-srw="v2"] .srw-arz-stat-num {
+    font-size: clamp(40px, 11vw, 56px) !important;
+    margin-bottom: 12px !important;
+  }
+  [data-srw="v2"] .srw-arz-stat-label {
+    margin-bottom: 12px !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-srw="v2"] .srw-arz-stat-tile {
+    transition: none;
+  }
+  [data-srw="v2"] .srw-arz-stat-bar {
+    transform: scaleX(1);
+    transition: none;
+  }
+}
