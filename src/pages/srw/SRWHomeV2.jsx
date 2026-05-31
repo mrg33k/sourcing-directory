@@ -36,7 +36,7 @@ const SERVICES = [
   {
     name: 'Space Congress™',
     body: (<>Cross-sector convenings for <strong>regional space alignment.</strong></>),
-    to: '/srw/space-congress',
+    to: '/srw-v2/space-congress',
   },
   {
     name: 'SpaceOS™',
@@ -46,7 +46,7 @@ const SERVICES = [
   {
     name: 'Partnerships',
     body: (<><strong>Commercialization initiatives</strong> partnered with businesses to enter and scale within the space economy.</>),
-    to: '/srw/partnerships',
+    to: '/srw-v2/partnerships',
   },
 ];
 
@@ -131,7 +131,7 @@ export default function SRWHomeV2() {
           </p>
           <div className="srw-hero-v2-cta-row">
             <Link to="/space-rising-v2" className="srw-hero-v2-cta-primary">Enter SpaceOS&trade;</Link>
-            <Link to="/srw/about" className="srw-hero-v2-cta-secondary">About Space Rising</Link>
+            <Link to="/srw-v2/about" className="srw-hero-v2-cta-secondary">About Space Rising</Link>
           </div>
         </div>
       </header>
@@ -176,7 +176,7 @@ export default function SRWHomeV2() {
           <p className="srw-band-copy">
             Space Rising serves as the <strong>connective layer</strong> across the evolving space economy. We translate regional activity into coordinated strategy.
           </p>
-          <Link to="/srw/about" className="srw-link-plain">ABOUT</Link>
+          <Link to="/srw-v2/about" className="srw-link-plain">ABOUT</Link>
         </div>
       </section>
 
