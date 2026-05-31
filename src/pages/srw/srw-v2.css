@@ -2584,3 +2584,30 @@
   [data-srw="v2"] .srw-pg-list-type { text-align: left; }
   [data-srw="v2"] .srw-pg-principle { grid-template-columns: 48px 1fr; gap: 12px; }
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+   polish-srw-home-quick-wins — bundled section polish round on /srw-v2.
+   Per audit at research/2026-05-31-srw-home-section-polish-audit.md:
+   1. Mobilize title gets the amber-period treatment (colon stripped
+      from JSX; ::after rule adds the period in amber).
+   2. Stats block bottom spacing tightened on mobile so the gap into
+      the next .srw-section doesn't read as wasted real estate.
+   3. Rocket band ABOUT link gains the chevron (handled in JSX with
+      "ABOUT →"; the .srw-link-plain trailing-arrow color stays in
+      the body text color to keep the link reading as one unit).
+   4. Footer wordmark gains a top breathing-room margin so the
+      typography doesn't crowd the section's top edge on mobile.
+   ───────────────────────────────────────────────────────────────────── */
+[data-srw="v2"] .srw-mobilize-heading::after {
+  content: ".";
+  color: var(--srv2-orange);
+}
+@media (max-width: 768px) {
+  [data-srw="v2"] .srw-section-tight { padding: 80px 0 32px !important; }
+  [data-srw="v2"] .srw-band-rocket + .srw-mobilize-section,
+  [data-srw="v2"] .srw-section-tight + .srw-section { padding-top: 80px !important; }
+}
+[data-srw="v2"] .srw-footer-logo { padding-top: 16px; }
+@media (max-width: 768px) {
+  [data-srw="v2"] .srw-footer-logo { padding-top: 24px; }
+}
