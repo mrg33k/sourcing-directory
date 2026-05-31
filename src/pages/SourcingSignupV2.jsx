@@ -44,6 +44,14 @@ export default function SourcingSignupV2() {
     full_name: '', auth_email: '', auth_password: '',
   });
 
+  // After the auth-step signup POST succeeds, we stash company_id + slug here so
+  // the payment step can create a checkout session against the live row.
+  const [createdCompany, setCreatedCompany] = useState(null);
+  // When the Square checkout endpoint returns 503 (env vars not set), or paid
+  // signup completes without payment wiring, we surface this and fall back to
+  // "we'll email you a link" copy on the welcome screen.
+  const [paymentFallback, setPaymentFallback] = useState(false);
+
   const set = (key, val) => { setForm(p => ({ ...p, [key]: val })); setError(''); };
   const next = () => { setError(''); setStep(s => Math.min(s + 1, totalSteps)); };
   const back = () => { setError(''); setStep(s => Math.max(s - 1, 0)); };
@@ -79,10 +87,13 @@ export default function SourcingSignupV2() {
     }
   };
 
-  const handleSubmit = async () => {
-    if (!form.full_name.trim()) { setError('Your name is required.'); return; }
-    if (!form.auth_email.trim()) { setError('Email is required.'); return; }
-    if (!form.auth_password || form.auth_password.length < 6) { setError('Password must be at least 6 characters.'); return; }
+  // Step 1 of the paid flow (and the only submit for free flow): create the
+  // company row, send the welcome email, sign the user in. After this fires
+  // successfully on the paid path we hold the company_id and advance to payment.
+  const handleAccountCreate = async () => {
+    if (!form.full_name.trim()) { setError('Your name is required.'); return false; }
+    if (!form.auth_email.trim()) { setError('Email is required.'); return false; }
+    if (!form.auth_password || form.auth_password.length < 6) { setError('Password must be at least 6 characters.'); return false; }
 
     setLoading(true);
     setError('');
@@ -131,19 +142,71 @@ export default function SourcingSignupV2() {
         }).catch(() => {});
       }
 
-      setSubmitted(true);
+      setCreatedCompany({ id: data.company_id || data.id, slug: data.company_slug });
+      return { id: data.company_id || data.id, slug: data.company_slug };
     } catch (err) {
       setError(err.message || 'Something went wrong.');
+      return false;
     } finally {
       setLoading(false);
     }
   };
 
-  const handleContinue = () => {
+  // Step 2 of the paid flow: take the just-created company → POST to the
+  // Square checkout-session endpoint → redirect to the hosted checkout URL.
+  // If the endpoint reports 503 (env vars not set yet), fall back to the
+  // welcome screen with "we'll email a link" copy so the UX still completes.
+  const handleCheckoutRedirect = async (company) => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await fetch('/api/sourcing/checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          company_id: company?.id || createdCompany?.id,
+          company_slug: company?.slug || createdCompany?.slug,
+          email: form.auth_email.trim(),
+          seats: form.seats,
+          tier: 'paid',
+        }),
+      });
+      if (res.status === 503) {
+        // Press-go state: env vars not set yet. Land on welcome with fallback copy.
+        setPaymentFallback(true);
+        setSubmitted(true);
+        return;
+      }
+      const data = await res.json();
+      if (!res.ok || !data.checkout_url) {
+        throw new Error(data.error || data.message || 'Could not start checkout.');
+      }
+      window.location.href = data.checkout_url;
+    } catch (err) {
+      setError(err.message || 'Checkout failed — try again or contact us.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleContinue = async () => {
     if (!stepValid()) return;
-    // Free tier: auth is the last step → submit. Paid tier: auth advances to payment, payment submits.
-    if (stepName === 'auth' && tier === 'free') return handleSubmit();
-    if (stepName === 'payment') return handleSubmit();
+    // Free tier: auth step submits AND finalizes — welcome screen renders next.
+    if (stepName === 'auth' && tier === 'free') {
+      const company = await handleAccountCreate();
+      if (company) setSubmitted(true);
+      return;
+    }
+    // Paid tier: auth step creates the account then advances to payment.
+    if (stepName === 'auth' && tier === 'paid') {
+      const company = await handleAccountCreate();
+      if (company) next();
+      return;
+    }
+    // Paid tier payment step: redirect into Square (or fall back to welcome).
+    if (stepName === 'payment') {
+      return handleCheckoutRedirect(createdCompany);
+    }
     next();
   };
 
@@ -186,7 +249,9 @@ export default function SourcingSignupV2() {
             </div>
             <div className="srsv2-sub">
               {tier === 'paid'
-                ? `We'll email ${form.auth_email} a Stripe link to finalize ${form.seats} ${form.seats === 1 ? 'seat' : 'seats'} at $${(ppm || 0).toLocaleString()}/seat/yr.`
+                ? (paymentFallback
+                    ? `Your account is in. We'll email ${form.auth_email} a payment link to finalize ${form.seats} ${form.seats === 1 ? 'seat' : 'seats'} at $${(ppm || 0).toLocaleString()}/seat/yr — secure checkout is being switched on.`
+                    : `Your account is in. We'll email ${form.auth_email} the receipt for ${form.seats} ${form.seats === 1 ? 'seat' : 'seats'} at $${(ppm || 0).toLocaleString()}/seat/yr once Square confirms the payment.`)
                 : `Your company listing is live. We sent a welcome to ${form.auth_email}.`}
             </div>
             <div className="srsv2-cta-row">
@@ -437,19 +502,16 @@ function StepView({ stepName, stepIndex, tier, form, set, error, loading, onCont
 
       {stepName === 'payment' && (
         <>
-          <h1 className="srsv2-title">Payment<span className="srsv2-period">.</span></h1>
+          <h1 className="srsv2-title">Pay securely<span className="srsv2-period">.</span></h1>
           <div className="srsv2-sub">
-            We'll email <strong>{form.auth_email || 'you'}</strong> a Stripe checkout link for
-            {' '}{form.seats} {form.seats === 1 ? 'seat' : 'seats'}
-            {ppm && <> at <strong>${ppm.toLocaleString()}/seat/year</strong></>}.
-            {' '}Your account is created now — payment can be completed within 7 days. No card on file yet.
+            One step. You'll be taken to a hosted Square checkout to confirm card details — we never see your card. Your account is already created at <strong>{form.auth_email || 'your email'}</strong>; the upgrade flips the moment payment clears.
           </div>
           <div className="srsv2-payment-summary">
             <div className="srsv2-payment-row"><span>Plan</span><span>Membership — {form.seats} {form.seats === 1 ? 'seat' : 'seats'}</span></div>
             {ppm && <div className="srsv2-payment-row"><span>Price</span><span>${ppm.toLocaleString()} / seat / yr</span></div>}
             {totalMo && <div className="srsv2-payment-row"><span>Monthly equiv</span><span>≈ ${totalMo.toLocaleString()} / mo</span></div>}
             <div className="srsv2-payment-row srsv2-payment-row-strong">
-              <span>Total annual</span>
+              <span>Total today</span>
               <span>{ppm ? `$${(ppm * form.seats).toLocaleString()}` : 'Contact us'}</span>
             </div>
           </div>
@@ -475,7 +537,7 @@ function StepView({ stepName, stepIndex, tier, form, set, error, loading, onCont
             : stepName === 'auth'
               ? (tier === 'paid' ? 'Continue to payment' : 'Create account')
               : stepName === 'payment'
-                ? 'Confirm and send link'
+                ? (ppm ? `Pay $${(ppm * form.seats).toLocaleString()} with Square →` : 'Pay with Square →')
                 : 'Continue'}
         </button>
       </div>

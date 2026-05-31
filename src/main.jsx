@@ -82,6 +82,8 @@ const SourcingMarketplaceV2 = lazy(() => import('./pages/SourcingMarketplaceV2.j
 const SourcingDealBankV2 = lazy(() => import('./pages/SourcingDealBankV2.jsx'))
 const SourcingMembershipV2 = lazy(() => import('./pages/SourcingMembershipV2.jsx'))
 const SourcingSignupV2 = lazy(() => import('./pages/SourcingSignupV2.jsx'))
+const SourcingCompanyV2 = lazy(() => import('./pages/SourcingCompanyV2.jsx'))
+const SourcingSignupComplete = lazy(() => import('./pages/SourcingSignupComplete.jsx'))
 
 const Loading = () => (
   <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
@@ -121,6 +123,10 @@ createRoot(document.getElementById('root')).render(
           <Route path="/space-rising-v2/deal-bank" element={<SourcingDealBankV2 />} />
           <Route path="/space-rising-v2/membership" element={<SourcingMembershipV2 />} />
           <Route path="/space-rising-v2/signup" element={<SourcingSignupV2 />} />
+          {/* R5i — Square checkout return URL. Must be above the :slug catch-all. */}
+          <Route path="/space-rising-v2/signup/complete" element={<SourcingSignupComplete />} />
+          {/* R5j — Company profile. MUST be the last /space-rising-v2/* route so static segments above win. */}
+          <Route path="/space-rising-v2/:slug" element={<SourcingCompanyV2 />} />
           {/* Tenant-scoped routes */}
           <Route path="/:tenantSlug" element={<SourcingDirectory />} />
           <Route path="/:tenantSlug/login" element={<SourcingLogin />} />
