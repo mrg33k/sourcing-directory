@@ -1915,3 +1915,26 @@
     0 14px 36px rgba(0,0,0,0.45),
     inset 0 0 0 1px rgba(232,162,58,0.10) !important;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   R5a (nat-geo-uplift) — hero is an ARCHETYPE primitive (Patrik 2026-05-30:
+   "hero section should match the directory hero as well with just the heading
+   changing and the backgrounds").
+
+   Each V2 page renders the SAME .browse-hero shell. To swap the bg image per
+   page, set --page-hero-bg inline on the .browse-hero element:
+
+     <div className="browse-hero" style={{'--page-hero-bg': "url('/v2-assets/rocket-ascent.png')"}}>
+
+   Default fallback = the directory's rocket-orbital. Single line per page.
+
+   Future motion layer (R6) plans: --page-hero-bg becomes a <video> element
+   (VEO3 generated) for scroll-tied playback. Architecture survives the swap.
+   ───────────────────────────────────────────────────────────────────────────── */
+[data-tenant="space-rising-v2"] .browse-hero-bg {
+  background-image:
+    linear-gradient(rgba(11,11,13,0.55), rgba(11,11,13,0.82)),
+    var(--page-hero-bg, url('/v2-assets/rocket-orbital.png')) !important;
+  background-position: center 35% !important;
+  background-size: cover !important;
+}

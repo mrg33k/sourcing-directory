@@ -75,6 +75,7 @@ const SRWSignUp = lazy(() => import('./pages/srw/SRWSignUp.jsx'))
 // Mission: aom:space-rising:website:nat-geo-uplift.
 const SRWHomeV2 = lazy(() => import('./pages/srw/SRWHomeV2.jsx'))
 const SourcingDirectoryV2 = lazy(() => import('./pages/SourcingDirectoryV2.jsx'))
+const SourcingJobsV2 = lazy(() => import('./pages/SourcingJobsV2.jsx'))
 
 const Loading = () => (
   <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
@@ -107,6 +108,7 @@ createRoot(document.getElementById('root')).render(
           {/* Nat Geo Uplift V2 clones — placed before tenant catch-all */}
           <Route path="/srw-v2" element={<SRWHomeV2 />} />
           <Route path="/space-rising-v2" element={<SourcingDirectoryV2 />} />
+          <Route path="/space-rising-v2/jobs" element={<SourcingJobsV2 />} />
           {/* Tenant-scoped routes */}
           <Route path="/:tenantSlug" element={<SourcingDirectory />} />
           <Route path="/:tenantSlug/login" element={<SourcingLogin />} />
