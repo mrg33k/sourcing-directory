@@ -2644,3 +2644,110 @@
     margin-bottom: 8px !important;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────────────
+   polish-directory-1 — stats block visual upgrade.
+
+   Patrik 2026-05-31: "sections did not get visually upgraded from
+   what I can see, I was expecting better visuals and animations on
+   the numbers and more interactivity."
+
+   Three moves stack onto the existing stat-grid:
+     1. Numbers bumped 25-40% larger so they sit with more presence.
+     2. Amber accent bar slides in under each number on scroll-into-
+        view (driven by the same IntersectionObserver that fires the
+        count-up). Bar is 56px wide, 2px tall, scaleX 0 → 1 over 1.6s.
+     3. Hover lift on each stat tile: tile rises 4px, amber bar
+        intensifies to 80px wide. Adds interactivity without
+        clicking.
+
+   prefers-reduced-motion: skip the bar grow + tile lift; numbers
+   appear at final values via the React-side guard.
+   ───────────────────────────────────────────────────────────────────── */
+[data-srw="v2"] .srw-stats-section .srw-stats {
+  margin-top: 56px !important;
+}
+[data-srw="v2"] .srw-stats-section .srw-stat {
+  position: relative;
+  padding: 24px 8px !important;
+  transition: transform 0.32s ease;
+}
+@media (min-width: 769px) {
+  [data-srw="v2"] .srw-stats-section .srw-stat:hover {
+    transform: translateY(-4px);
+  }
+}
+[data-srw="v2"] .srw-stats-section .srw-stat-num {
+  font-size: clamp(56px, 11vw, 96px) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1 !important;
+  font-variant-numeric: tabular-nums !important;
+  color: var(--srv2-orange) !important;
+  display: block !important;
+  margin-bottom: 18px !important;
+}
+[data-srw="v2"] .srw-stats-section .srw-stat-bar {
+  width: 56px;
+  height: 2px;
+  background: var(--srv2-orange);
+  margin: 0 auto 18px auto;
+  transform-origin: center;
+  transform: scaleX(0);
+  transition: transform 1600ms cubic-bezier(0.16, 1, 0.3, 1),
+              width 0.32s ease,
+              opacity 0.32s ease;
+  opacity: 0.6;
+}
+/* The count-up effect adds .is-revealed via the scroll trigger — we
+   piggyback on the section's scroll-into-view by hooking the bar to
+   the same animation window (IntersectionObserver-driven). Driven by
+   class addition handled separately below as a fallback for the
+   IntersectionObserver wiring in JSX: actually the bar is animated
+   independently via opacity once the count-up effect runs. For now,
+   the bar reveals when the parent .srw-stats-section is visible by
+   chaining off [data-stats-visible]. */
+[data-srw="v2"] .srw-stats-section[data-stats-visible="true"] .srw-stat-bar {
+  transform: scaleX(1);
+}
+@media (min-width: 769px) {
+  [data-srw="v2"] .srw-stats-section .srw-stat:hover .srw-stat-bar {
+    width: 80px;
+    opacity: 1;
+  }
+}
+[data-srw="v2"] .srw-stats-section .srw-stat-label {
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase !important;
+  color: rgba(232,228,218,0.62) !important;
+  transition: color 0.24s ease;
+}
+@media (min-width: 769px) {
+  [data-srw="v2"] .srw-stats-section .srw-stat:hover .srw-stat-label {
+    color: var(--srv2-orange);
+  }
+}
+@media (max-width: 768px) {
+  [data-srw="v2"] .srw-stats-section .srw-stat {
+    padding: 16px 4px !important;
+  }
+  [data-srw="v2"] .srw-stats-section .srw-stat-num {
+    font-size: clamp(44px, 14vw, 64px) !important;
+    margin-bottom: 12px !important;
+  }
+  [data-srw="v2"] .srw-stats-section .srw-stat-bar {
+    margin-bottom: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-srw="v2"] .srw-stats-section .srw-stat {
+    transition: none;
+  }
+  [data-srw="v2"] .srw-stats-section .srw-stat-bar {
+    transform: scaleX(1);
+    transition: none;
+  }
+}

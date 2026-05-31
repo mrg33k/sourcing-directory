@@ -17,11 +17,16 @@ const HERO_POSTER = 'https://images.squarespace-cdn.com/content/v1/68dd48ebe7005
 const HERO_OVERLAY = 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/be97f7c9-2222-4898-bdf5-e893d1cfa297/Hero-Image-banner-text_no+date.png?format=2500w';
 const ROCKET_BG = 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/e4769b24-1ded-425b-b1a8-0d7e0a77a5b9/AdobeStock_1565186160.jpeg?format=2500w';
 
+// polish-directory-1: stats include parseable target / prefix / suffix /
+// decimals so the count-up animation (in the section effect below) can
+// interpolate from 0 → target on scroll-into-view. The display `num`
+// stays as the canonical brand string for the prefers-reduced-motion
+// snapshot.
 const STATS = [
-  { num: '$570B', label: 'Global Market' },
-  { num: '$2T', label: 'Projected by 2040' },
-  { num: '80%', label: 'Commercial Activity' },
-  { num: '7.4%', label: 'Annual Growth Rate' },
+  { num: '$570B', target: 570, prefix: '$', suffix: 'B', decimals: 0, label: 'Global Market' },
+  { num: '$2T',   target: 2,   prefix: '$', suffix: 'T', decimals: 0, label: 'Projected by 2040' },
+  { num: '80%',   target: 80,  prefix: '',  suffix: '%', decimals: 0, label: 'Commercial Activity' },
+  { num: '7.4%',  target: 7.4, prefix: '',  suffix: '%', decimals: 1, label: 'Annual Growth Rate' },
 ];
 
 // polish-srw-home-2: noun-phrase compression. Two longest entries dropped
@@ -66,6 +71,51 @@ export default function SRWHomeV2() {
   const [contact, setContact] = useState({ first_name: '', last_name: '', email: '', message: '' });
   const [contactStatus, setContactStatus] = useState('idle'); // idle | submitting | success | error
   const [contactError, setContactError] = useState('');
+
+  // polish-directory-1 — stats block count-up animation.
+  // Numbers interpolate from 0 → target over 1.6s with ease-out-cubic when
+  // the section scrolls into view. Fires exactly once per page load.
+  // prefers-reduced-motion → snap to final values immediately so the
+  // section never sits at 0 for users with motion disabled.
+  const statsRef = useRef(null);
+  const [statValues, setStatValues] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      ? STATS.map(s => s.target)
+      : STATS.map(() => 0)
+  );
+  useEffect(() => {
+    const sec = statsRef.current;
+    if (!sec) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let fired = false;
+    let raf = 0;
+    const startAnim = () => {
+      const t0 = performance.now();
+      const dur = 1600;
+      const tick = (now) => {
+        const t = Math.min((now - t0) / dur, 1);
+        const eased = 1 - Math.pow(1 - t, 3);
+        setStatValues(STATS.map(s => s.target * eased));
+        if (t < 1) raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    };
+    const io = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !fired) {
+        fired = true;
+        // Flip data-stats-visible on the section so the amber bar reveal
+        // CSS transition fires alongside the count-up.
+        sec.setAttribute('data-stats-visible', 'true');
+        startAnim();
+        io.disconnect();
+      }
+    }, { threshold: 0.25 });
+    io.observe(sec);
+    return () => {
+      io.disconnect();
+      if (raf) cancelAnimationFrame(raf);
+    };
+  }, []);
 
   async function handleContact(e) {
     e.preventDefault();
@@ -211,15 +261,30 @@ export default function SRWHomeV2() {
         </div>
       </header>
 
-      {/* The space economy is scaling — stat block */}
-      <section className="srw-section srw-section-tight" style={{ textAlign: 'center' }}>
+      {/* The space economy is scaling — stat block.
+          polish-directory-1: count-up animation on the four numbers fires
+          once when the section scrolls into view (statsRef + IntersectionObserver).
+          Each stat is wrapped in .srw-stat-bar for the new amber accent
+          underline that grows in on the same scroll trigger. */}
+      <section
+        ref={statsRef}
+        className="srw-section srw-section-tight srw-stats-section"
+        style={{ textAlign: 'center' }}
+      >
         <div className="srw-wrap">
           <h1 className="srw-h2-thin">THE SPACE ECONOMY IS SCALING</h1>
           <p className="srw-section-sub-center">we are now entering a mainstream economic infrastructure</p>
           <div className="srw-stats">
-            {STATS.map((s) => (
+            {STATS.map((s, i) => (
               <div className="srw-stat" key={s.label}>
-                <div className="srw-stat-num">{s.num}</div>
+                <div className="srw-stat-num">
+                  {s.prefix}
+                  {s.decimals === 0
+                    ? Math.round(statValues[i])
+                    : statValues[i].toFixed(s.decimals)}
+                  {s.suffix}
+                </div>
+                <div className="srw-stat-bar" aria-hidden="true" />
                 <div className="srw-stat-label">{s.label}</div>
               </div>
             ))}

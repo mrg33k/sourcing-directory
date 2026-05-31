@@ -526,7 +526,11 @@ function SourcingDirectoryInner() {
   const applyDisplayOverride = (data) => {
     if (!data) return data;
     if (data.slug === 'space-rising') {
-      return { ...data, name: 'Space Rising Interactive', nav_label: 'Space Rising Interactive' };
+      // polish-directory-1: per Patrik 2026-05-31 "it should be called space os."
+      // The directory IS SpaceOS — same product, same surface. Rebranded from
+      // "Space Rising Interactive" to "SpaceOS" on both the hero title and the
+      // nav label so the page tells the user what it IS.
+      return { ...data, name: 'SpaceOS', nav_label: 'SpaceOS' };
     }
     return data;
   };
