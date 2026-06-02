@@ -94,6 +94,11 @@ const SRWPartnershipsV2 = lazy(() => import('./pages/srw/SRWPartnershipsV2.jsx')
 const SRWEventsV2 = lazy(() => import('./pages/srw/SRWEventsV2.jsx'))
 const SRWMediaV2 = lazy(() => import('./pages/srw/SRWMediaV2.jsx'))
 const SRWSignUpV2 = lazy(() => import('./pages/srw/SRWSignUpV2.jsx'))
+// nat-geo-uplift — V2 post forms (Jobs / Events / Marketplace).
+// Replaces the Navigate-to-V1 redirects that broke V2 immersion.
+const SourcingJobsPostV2 = lazy(() => import('./pages/SourcingJobsPostV2.jsx'))
+const SourcingEventsPostV2 = lazy(() => import('./pages/SourcingEventsPostV2.jsx'))
+const SourcingMarketplacePostV2 = lazy(() => import('./pages/SourcingMarketplacePostV2.jsx'))
 
 const Loading = () => (
   <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
@@ -154,11 +159,10 @@ createRoot(document.getElementById('root')).render(
           <Route path="/space-rising-v2/login" element={<SourcingLoginV2 />} />
           {/* Portal stays redirected until a V2 skin lands. */}
           <Route path="/space-rising-v2/portal" element={<Navigate to="/space-rising/portal" replace />} />
-          {/* Post-a-listing forms — no V2 form yet; route to working V1 forms so
-              the "+ Post" CTAs on V2 list pages don't 404. */}
-          <Route path="/space-rising-v2/jobs/post" element={<Navigate to="/space-rising/jobs/post" replace />} />
-          <Route path="/space-rising-v2/events/post" element={<Navigate to="/space-rising/events/post" replace />} />
-          <Route path="/space-rising-v2/marketplace/post" element={<Navigate to="/space-rising/marketplace/post" replace />} />
+          {/* nat-geo-uplift — V2 post forms live; Navigate redirects to V1 retired. */}
+          <Route path="/space-rising-v2/jobs/post" element={<SourcingJobsPostV2 />} />
+          <Route path="/space-rising-v2/events/post" element={<SourcingEventsPostV2 />} />
+          <Route path="/space-rising-v2/marketplace/post" element={<SourcingMarketplacePostV2 />} />
           <Route path="/space-rising-v2/articles/post" element={<Navigate to="/space-rising/articles/post" replace />} />
           {/* R5j — Company profile. MUST be the last /space-rising-v2/* route so static segments above win. */}
           <Route path="/space-rising-v2/:slug" element={<SourcingCompanyV2 />} />
