@@ -99,6 +99,8 @@ const SRWSignUpV2 = lazy(() => import('./pages/srw/SRWSignUpV2.jsx'))
 const SourcingJobsPostV2 = lazy(() => import('./pages/SourcingJobsPostV2.jsx'))
 const SourcingEventsPostV2 = lazy(() => import('./pages/SourcingEventsPostV2.jsx'))
 const SourcingMarketplacePostV2 = lazy(() => import('./pages/SourcingMarketplacePostV2.jsx'))
+// nat-geo-uplift — V2 member portal. Replaces Navigate-to-V1 redirect.
+const SourcingPortalV2 = lazy(() => import('./pages/SourcingPortalV2.jsx'))
 
 const Loading = () => (
   <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
@@ -157,8 +159,8 @@ createRoot(document.getElementById('root')).render(
           <Route path="/space-rising-v2/grants" element={<SourcingGrantsV2 />} />
           {/* Login — V2 skinned (replaces previous Navigate-redirect to V1). */}
           <Route path="/space-rising-v2/login" element={<SourcingLoginV2 />} />
-          {/* Portal stays redirected until a V2 skin lands. */}
-          <Route path="/space-rising-v2/portal" element={<Navigate to="/space-rising/portal" replace />} />
+          {/* Portal V2 — full V2 skin (no more redirect to V1). */}
+          <Route path="/space-rising-v2/portal" element={<SourcingPortalV2 />} />
           {/* nat-geo-uplift — V2 post forms live; Navigate redirects to V1 retired. */}
           <Route path="/space-rising-v2/jobs/post" element={<SourcingJobsPostV2 />} />
           <Route path="/space-rising-v2/events/post" element={<SourcingEventsPostV2 />} />
@@ -167,9 +169,8 @@ createRoot(document.getElementById('root')).render(
           {/* R5j — Company profile. MUST be the last /space-rising-v2/* route so static segments above win. */}
           <Route path="/space-rising-v2/:slug" element={<SourcingCompanyV2 />} />
           {/* Space Rising V1 → V2 redirects — specific routes win over /:tenantSlug catch-all.
-              Auth-gated / payment / form-post V1 routes stay (no V2 equivalent yet):
-                /space-rising/portal, /checkout, /settings, /org/:slug,
-                /jobs/post, /events/post, /marketplace/post, /articles/post. */}
+              Remaining V1-only routes: /checkout (Square return URL), /:slug company profiles
+              that fall through to SpaceRisingCompanyRedirect. */}
           <Route path="/space-rising" element={<Navigate to="/space-rising-v2" replace />} />
           <Route path="/space-rising/login" element={<Navigate to="/space-rising-v2/login" replace />} />
           <Route path="/space-rising/signup" element={<Navigate to="/space-rising-v2/signup" replace />} />
@@ -182,11 +183,16 @@ createRoot(document.getElementById('root')).render(
           <Route path="/space-rising/membership" element={<Navigate to="/space-rising-v2/membership" replace />} />
           <Route path="/space-rising/reports" element={<Navigate to="/space-rising-v2/reports" replace />} />
           <Route path="/space-rising/reports/:reportId" element={<Navigate to="/space-rising-v2/reports" replace />} />
-          {/* Explicit keep-as-V1 routes — must be BEFORE /space-rising/:slug catch-all so the
-              redirect doesn't swallow them. /:tenantSlug ranking can tie /space-rising/:slug. */}
-          <Route path="/space-rising/portal" element={<SourcingPortal />} />
+          {/* nat-geo-uplift: V1 portal → V2 portal. V1 post forms → V2 equivalents. Settings → V2 home. */}
+          <Route path="/space-rising/portal" element={<Navigate to="/space-rising-v2/portal" replace />} />
+          <Route path="/space-rising/jobs/post" element={<Navigate to="/space-rising-v2/jobs/post" replace />} />
+          <Route path="/space-rising/events/post" element={<Navigate to="/space-rising-v2/events/post" replace />} />
+          <Route path="/space-rising/marketplace/post" element={<Navigate to="/space-rising-v2/marketplace/post" replace />} />
+          <Route path="/space-rising/articles/post" element={<Navigate to="/space-rising-v2/articles/post" replace />} />
+          <Route path="/space-rising/settings" element={<Navigate to="/space-rising-v2" replace />} />
+          <Route path="/space-rising-v2/settings" element={<Navigate to="/space-rising-v2" replace />} />
+          {/* Checkout stays on V1 — Square returns from external, special flow. */}
           <Route path="/space-rising/checkout" element={<SourcingCheckout />} />
-          <Route path="/space-rising/settings" element={<SourcingSettings />} />
           {/* Company profile catch-all — any other /space-rising/<slug> redirects to V2. */}
           <Route path="/space-rising/:slug" element={<SpaceRisingCompanyRedirect />} />
           {/* Tenant-scoped routes */}
