@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import { SourcingNav } from './SourcingMarketplace.jsx';
 import { SourcingThemeProvider, useSourcingTheme, getTokens, useTenant } from './SourcingTheme.jsx';
+import '../space-rising-theme-v2.css';
 
 const LISTING_CATEGORIES = [
   { key: 'equipment', label: 'Equipment' },
@@ -265,51 +265,105 @@ function SourcingPortalInner() {
         }
       `}</style>
 
-      <SourcingNav
-        active="portal"
-        tenantSlug={tenantSlug}
-        tenantName={tenant?.nav_label || tenant?.name}
-        features={tenant?.features}
-        brandColor={tenant?.brand_color}
-      />
+      {/* V2 topbar */}
+      <div style={{
+        borderBottom: '1px solid rgba(255,255,255,0.06)',
+        background: '#0B0B0D',
+        padding: '14px 24px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 12,
+      }}>
+        <Link
+          to="/srw-v2"
+          style={{
+            fontSize: 13,
+            fontWeight: 700,
+            letterSpacing: '0.16em',
+            textTransform: 'uppercase',
+            color: '#E8A23A',
+            textDecoration: 'none',
+            fontFamily: 'Space Grotesk, sans-serif',
+          }}
+        >
+          SPACE RISING
+        </Link>
+        <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
+          <Link
+            to="/space-rising-v2"
+            style={{
+              fontSize: 11,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.45)',
+              textDecoration: 'none',
+              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+            }}
+          >
+            ← Directory
+          </Link>
+          <Link
+            to={`${basePath}/settings`}
+            style={{
+              fontSize: 11,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              color: 'rgba(255,255,255,0.45)',
+              textDecoration: 'none',
+              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+            }}
+          >
+            Settings
+          </Link>
+          <button
+            onClick={handleLogout}
+            style={{
+              background: 'transparent',
+              border: '1px solid rgba(232,162,58,0.32)',
+              color: '#E8A23A',
+              borderRadius: 6,
+              padding: '6px 14px',
+              fontSize: 11,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+              cursor: 'pointer',
+            }}
+          >
+            Sign Out
+          </button>
+        </div>
+      </div>
 
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '40px 24px 80px' }}>
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 32, gap: 16, flexWrap: 'wrap' }}>
-          <div>
-            <div style={{ fontSize: 11, color: 'var(--cyan)', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8 }}>
-              Member Portal
-            </div>
-            <h1 style={{ fontSize: 28, fontWeight: 900, color: '#fff', margin: '0 0 6px' }}>
-              {member?.full_name ? `Welcome, ${member.full_name.split(' ')[0]}` : 'Your Portal'}
-            </h1>
-            <p style={{ fontSize: 14, color: 'var(--tx2)', margin: 0 }}>
-              Manage your company profile and listings.
-            </p>
+        <div style={{ marginBottom: 32 }}>
+          <div style={{
+            fontSize: 11,
+            color: '#E8A23A',
+            fontWeight: 700,
+            letterSpacing: '0.16em',
+            textTransform: 'uppercase',
+            marginBottom: 10,
+            fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+          }}>
+            Member Portal
           </div>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <Link
-              to={`${basePath}/settings`}
-              style={{
-                background: 'transparent', border: '1px solid var(--bd)',
-                color: 'var(--tx2)', borderRadius: 7, padding: '8px 16px',
-                fontSize: 13, fontWeight: 600, fontFamily: 'inherit', textDecoration: 'none',
-                display: 'inline-flex', alignItems: 'center',
-              }}
-            >
-              Settings
-            </Link>
-            <button
-              onClick={handleLogout}
-              style={{
-                background: 'transparent', border: '1px solid var(--bd)',
-                color: 'var(--tx2)', borderRadius: 7, padding: '8px 16px',
-                fontSize: 13, fontWeight: 600, fontFamily: 'inherit', cursor: 'pointer',
-              }}
-            >
-              Sign Out
-            </button>
-          </div>
+          <h1 style={{
+            fontSize: 36,
+            fontWeight: 400,
+            color: '#fff',
+            margin: '0 0 8px',
+            fontFamily: 'Instrument Serif, serif',
+            letterSpacing: '-0.01em',
+          }}>
+            {member?.full_name ? `Welcome, ${member.full_name.split(' ')[0]}` : 'Your Portal'}<span style={{ color: '#E8A23A' }}>.</span>
+          </h1>
+          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', margin: 0, fontFamily: 'Space Grotesk, sans-serif' }}>
+            Manage your company profile and listings.
+          </p>
         </div>
 
         {/* Quick actions */}

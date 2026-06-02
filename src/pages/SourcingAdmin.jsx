@@ -5,6 +5,7 @@ const SourcingSettings = lazy(() => import('./SourcingSettings.jsx'));
 import { createClient } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
+import '../space-rising-theme-v2.css';
 
 // Admin sub-components
 import ScoutPanel from './admin/ScoutPanel.jsx';
@@ -662,45 +663,45 @@ function SourcingAdminInner() {
   // ─── Password reset callback (user landed from reset email) ─────────────
   if (showNewPw) {
     return (
-      <div style={{ minHeight: '100dvh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-        <style>{`* { box-sizing: border-box; } input::placeholder { color: ${V.dim}; } input:focus { border-color: ${V.accentBrd} !important; outline: none; }`}</style>
-        <div style={{
-          background: V.card, border: `1px solid ${V.border}`,
-          borderRadius: 12, padding: '36px 32px', width: '100%', maxWidth: 380,
-        }}>
-          <div style={{ textAlign: 'center', marginBottom: 28 }}>
-            <div style={{ fontSize: 11, color: V.accent, fontFamily: V.mono, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 10 }}>
-              sourcing.directory
-            </div>
-            <div style={{ fontSize: 22, fontWeight: 800, fontFamily: V.syne, color: V.heading }}>Set New Password</div>
+      <div className="srsv2-shell" data-tenant="space-rising-v2">
+        <div className="srsv2-veil" />
+        <div className="srsv2-topbar">
+          <Link to="/srw-v2" className="srsv2-wordmark">SPACE RISING</Link>
+          <div className="srsv2-progress" />
+          <Link to="/srw-v2" className="srsv2-close" aria-label="Close">
+            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </Link>
+        </div>
+        <div className="srsv2-body">
+          <div className="srsv2-step">
+            <div className="srsv2-eyebrow">RESET PASSWORD</div>
+            <h1 className="srsv2-title">Choose a new password<span className="srsv2-period">.</span></h1>
+            <div className="srsv2-sub">Minimum 6 characters.</div>
+            <form onSubmit={handleSetNewPassword}>
+              <label className="srsv2-field">
+                <span className="srsv2-label">New Password</span>
+                <input
+                  className="srsv2-input"
+                  type="password"
+                  placeholder="••••••••"
+                  value={newPwInput}
+                  onChange={e => setNewPwInput(e.target.value)}
+                  autoFocus
+                  required
+                />
+              </label>
+              {newPwError && <div className="srsv2-error">{newPwError}</div>}
+              <div className="srsv2-actions">
+                <button
+                  type="submit"
+                  className="srsv2-cta srsv2-cta-solid"
+                  disabled={newPwLoading}
+                >
+                  {newPwLoading ? 'Saving…' : 'Save Password'}
+                </button>
+              </div>
+            </form>
           </div>
-          <form onSubmit={handleSetNewPassword} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-              <label style={{ fontSize: 12, color: V.muted, fontFamily: V.space, fontWeight: 600 }}>New Password</label>
-              <input
-                type="password"
-                value={newPwInput}
-                onChange={e => setNewPwInput(e.target.value)}
-                placeholder="Enter new password"
-                autoFocus
-                required
-                style={{
-                  background: V.card2, border: `1px solid ${V.border}`,
-                  color: V.text, borderRadius: 7, padding: '10px 12px',
-                  fontSize: 14, fontFamily: V.mono, width: '100%',
-                }}
-              />
-            </div>
-            {newPwError && <div style={{ color: '#EF4444', fontSize: 13, fontFamily: V.space }}>{newPwError}</div>}
-            <button type="submit" disabled={newPwLoading} style={{
-              background: V.accent, border: 'none', color: '#fff',
-              borderRadius: 8, padding: '12px 0', fontSize: 14,
-              fontWeight: 700, fontFamily: V.space, cursor: newPwLoading ? 'not-allowed' : 'pointer',
-              opacity: newPwLoading ? 0.7 : 1,
-            }}>
-              {newPwLoading ? 'Saving...' : 'Save Password'}
-            </button>
-          </form>
         </div>
       </div>
     );
@@ -709,139 +710,167 @@ function SourcingAdminInner() {
   // ─── Login gate ───────────────────────────────────────────────────────────
   if (!authed) {
     if (authLoading) {
-      return <div style={{ minHeight: '100dvh', background: 'var(--bg)' }} />;
+      return <div style={{ minHeight: '100dvh', background: '#0B0B0D' }} />;
     }
     return (
-      <div style={{ minHeight: '100dvh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
-        <style>{`* { box-sizing: border-box; } input::placeholder { color: ${V.dim}; } input:focus { border-color: ${V.accentBrd} !important; outline: none; }`}</style>
-        <div style={{
-          background: V.card, border: `1px solid ${V.border}`,
-          borderRadius: 12, padding: '36px 32px', width: '100%', maxWidth: 380,
-        }}>
-          <div style={{ textAlign: 'center', marginBottom: 28 }}>
-            <div style={{ fontSize: 11, color: V.accent, fontFamily: V.mono, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 10 }}>
-              sourcing.directory
-            </div>
-            <div style={{ fontSize: 22, fontWeight: 800, fontFamily: V.syne, color: V.heading }}>
-              {showForgotPw ? 'Reset Password' : 'Admin Panel'}
-            </div>
-          </div>
-
+      <div className="srsv2-shell" data-tenant="space-rising-v2">
+        <div className="srsv2-veil" />
+        <div className="srsv2-topbar">
+          <Link to="/srw-v2" className="srsv2-wordmark">SPACE RISING</Link>
+          <div className="srsv2-progress" />
+          <Link to="/srw-v2" className="srsv2-close" aria-label="Close">
+            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </Link>
+        </div>
+        <div className="srsv2-body">
           {showForgotPw ? (
             forgotStatus === 'sent' ? (
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: 15, color: V.text, fontFamily: V.space, marginBottom: 20 }}>
-                  Check your email for a reset link.
-                </div>
-                <button
-                  type="button"
-                  onClick={() => { setShowForgotPw(false); setForgotStatus(''); setForgotEmail(''); }}
-                  style={{ background: 'none', border: 'none', color: V.accent, fontFamily: V.space, fontSize: 13, cursor: 'pointer', textDecoration: 'underline' }}
-                >
-                  Back to sign in
-                </button>
-              </div>
-            ) : (
-              <form onSubmit={handleForgotPassword} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                  <label style={{ fontSize: 12, color: V.muted, fontFamily: V.space, fontWeight: 600 }}>Email</label>
-                  <input
-                    type="email"
-                    value={forgotEmail}
-                    onChange={e => setForgotEmail(e.target.value)}
-                    placeholder="admin@example.com"
-                    autoFocus
-                    required
-                    style={{
-                      background: V.card2, border: `1px solid ${V.border}`,
-                      color: V.text, borderRadius: 7, padding: '10px 12px',
-                      fontSize: 14, fontFamily: V.mono, width: '100%',
-                    }}
-                  />
-                </div>
-                {forgotStatus.startsWith('error:') && (
-                  <div style={{ color: '#EF4444', fontSize: 13, fontFamily: V.space }}>
-                    {forgotStatus.slice(6)}
-                  </div>
-                )}
-                <button type="submit" disabled={forgotLoading} style={{
-                  background: V.accent, border: 'none', color: '#fff',
-                  borderRadius: 8, padding: '12px 0', fontSize: 14,
-                  fontWeight: 700, fontFamily: V.space, cursor: forgotLoading ? 'not-allowed' : 'pointer',
-                  opacity: forgotLoading ? 0.7 : 1,
-                }}>
-                  {forgotLoading ? 'Sending...' : 'Send Reset Link'}
-                </button>
-                <div style={{ textAlign: 'center' }}>
+              <div className="srsv2-step srsv2-step-success">
+                <div className="srsv2-eyebrow">SENT</div>
+                <h1 className="srsv2-title">Check your inbox<span className="srsv2-period">.</span></h1>
+                <div className="srsv2-sub">We sent a reset link to {forgotEmail || 'your email'}.</div>
+                <div className="srsv2-cta-row">
                   <button
                     type="button"
-                    onClick={() => { setShowForgotPw(false); setForgotStatus(''); }}
-                    style={{ background: 'none', border: 'none', color: V.muted, fontFamily: V.space, fontSize: 13, cursor: 'pointer' }}
+                    className="srsv2-cta srsv2-cta-solid"
+                    onClick={() => { setShowForgotPw(false); setForgotStatus(''); setForgotEmail(''); }}
                   >
-                    Back to sign in
+                    Back to Sign In
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="srsv2-step">
+                <div className="srsv2-eyebrow">RESET PASSWORD</div>
+                <h1 className="srsv2-title">Reset your password<span className="srsv2-period">.</span></h1>
+                <div className="srsv2-sub">We'll send a reset link to your email.</div>
+                <form onSubmit={handleForgotPassword}>
+                  <label className="srsv2-field">
+                    <span className="srsv2-label">Email</span>
+                    <input
+                      className="srsv2-input"
+                      type="email"
+                      placeholder="admin@example.com"
+                      value={forgotEmail}
+                      onChange={e => setForgotEmail(e.target.value)}
+                      autoFocus
+                      required
+                    />
+                  </label>
+                  {forgotStatus.startsWith('error:') && (
+                    <div className="srsv2-error">{forgotStatus.slice(6)}</div>
+                  )}
+                  <div className="srsv2-actions">
+                    <button
+                      type="submit"
+                      className="srsv2-cta srsv2-cta-solid"
+                      disabled={forgotLoading}
+                    >
+                      {forgotLoading ? 'Sending…' : 'Send Reset Link'}
+                    </button>
+                  </div>
+                  <div style={{ marginTop: 16, textAlign: 'center' }}>
+                    <button
+                      type="button"
+                      onClick={() => { setShowForgotPw(false); setForgotStatus(''); }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        color: 'rgba(232,228,218,0.55)',
+                        fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+                        fontSize: 11,
+                        letterSpacing: '0.12em',
+                        textTransform: 'uppercase',
+                        cursor: 'pointer',
+                        padding: 0,
+                      }}
+                    >
+                      Back to Sign In
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )
+          ) : (
+            <div className="srsv2-step">
+              <div className="srsv2-eyebrow">ADMIN</div>
+              <h1 className="srsv2-title">Admin access<span className="srsv2-period">.</span></h1>
+              <div className="srsv2-sub">Sign in to manage the directory.</div>
+              <form onSubmit={handleLogin}>
+                <label className="srsv2-field">
+                  <span className="srsv2-label">Email</span>
+                  <input
+                    className="srsv2-input"
+                    type="email"
+                    placeholder="admin@example.com"
+                    value={emailInput}
+                    onChange={e => setEmailInput(e.target.value)}
+                    autoFocus
+                    required
+                  />
+                </label>
+                <label className="srsv2-field">
+                  <span className="srsv2-label">Password</span>
+                  <input
+                    className="srsv2-input"
+                    type="password"
+                    placeholder="••••••••"
+                    value={pwInput}
+                    onChange={e => setPwInput(e.target.value)}
+                    required
+                  />
+                </label>
+
+                <div style={{ marginTop: 16, textAlign: 'right' }}>
+                  <button
+                    type="button"
+                    onClick={() => { setShowForgotPw(true); setPwError(''); setForgotEmail(emailInput); }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: 'rgba(232,228,218,0.55)',
+                      fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+                      fontSize: 11,
+                      letterSpacing: '0.12em',
+                      textTransform: 'uppercase',
+                      cursor: 'pointer',
+                      padding: 0,
+                    }}
+                  >
+                    Forgot your password?
+                  </button>
+                </div>
+
+                {pwError && <div className="srsv2-error">{pwError}</div>}
+
+                <div className="srsv2-actions">
+                  <button
+                    type="submit"
+                    className="srsv2-cta srsv2-cta-solid"
+                    disabled={authLoading}
+                  >
+                    {authLoading ? 'Signing in…' : 'Sign In'}
                   </button>
                 </div>
               </form>
-            )
-          ) : (
-            <>
-              <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                  <label style={{ fontSize: 12, color: V.muted, fontFamily: V.space, fontWeight: 600 }}>Email</label>
-                  <input
-                    type="email"
-                    value={emailInput}
-                    onChange={e => setEmailInput(e.target.value)}
-                    placeholder="admin@example.com"
-                    autoFocus
-                    required
-                    style={{
-                      background: V.card2, border: `1px solid ${V.border}`,
-                      color: V.text, borderRadius: 7, padding: '10px 12px',
-                      fontSize: 14, fontFamily: V.mono, width: '100%',
-                    }}
-                  />
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <label style={{ fontSize: 12, color: V.muted, fontFamily: V.space, fontWeight: 600 }}>Password</label>
-                    <button
-                      type="button"
-                      onClick={() => { setShowForgotPw(true); setPwError(''); }}
-                      style={{ background: 'none', border: 'none', color: V.accent, fontFamily: V.space, fontSize: 12, cursor: 'pointer', padding: 0 }}
-                    >
-                      Forgot password?
-                    </button>
-                  </div>
-                  <input
-                    type="password"
-                    value={pwInput}
-                    onChange={e => setPwInput(e.target.value)}
-                    placeholder="Password"
-                    required
-                    style={{
-                      background: V.card2, border: `1px solid ${V.border}`,
-                      color: V.text, borderRadius: 7, padding: '10px 12px',
-                      fontSize: 14, fontFamily: V.mono, width: '100%',
-                    }}
-                  />
-                </div>
-                {pwError && <div style={{ color: '#EF4444', fontSize: 13, fontFamily: V.space }}>{pwError}</div>}
-                <button type="submit" disabled={authLoading} style={{
-                  background: V.accent, border: 'none', color: '#fff',
-                  borderRadius: 8, padding: '12px 0', fontSize: 14,
-                  fontWeight: 700, fontFamily: V.space, cursor: authLoading ? 'not-allowed' : 'pointer',
-                  opacity: authLoading ? 0.7 : 1,
-                }}>
-                  {authLoading ? 'Signing in...' : 'Sign In'}
-                </button>
-              </form>
-              <div style={{ textAlign: 'center', marginTop: 16 }}>
-                <Link to="/" style={{ fontSize: 13, color: V.muted, fontFamily: V.space, textDecoration: 'none' }}>
+
+              <div style={{
+                marginTop: 32,
+                textAlign: 'center',
+                fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+                fontSize: 11,
+                letterSpacing: '0.12em',
+                textTransform: 'uppercase',
+                color: 'rgba(232,228,218,0.45)',
+              }}>
+                <Link
+                  to="/srw-v2"
+                  style={{ color: '#E8A23A', textDecoration: 'none' }}
+                >
                   ← Back to Directory
                 </Link>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
@@ -892,8 +921,8 @@ function SourcingAdminInner() {
         padding: '8px 12px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Link to="/" style={{ textDecoration: 'none' }}>
-            <span style={{ fontSize: 13, fontWeight: 800, fontFamily: V.syne, color: V.accent, letterSpacing: '0.12em', textTransform: 'uppercase' }}>AOM</span>
+          <Link to="/srw-v2" style={{ textDecoration: 'none' }}>
+            <span style={{ fontSize: 13, fontWeight: 700, fontFamily: 'Space Grotesk, sans-serif', color: '#E8A23A', letterSpacing: '0.16em', textTransform: 'uppercase' }}>SPACE RISING</span>
           </Link>
           <span style={{ color: V.dim, fontSize: 13 }}>/</span>
           <span style={{ fontSize: 13, color: V.text, fontFamily: V.space, fontWeight: 600 }}>Admin</span>
