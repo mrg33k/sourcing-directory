@@ -146,6 +146,13 @@ createRoot(document.getElementById('root')).render(
           <Route path="/space-rising-v2/signup" element={<SourcingSignupV2 />} />
           {/* R5i — Square checkout return URL. Must be above the :slug catch-all. */}
           <Route path="/space-rising-v2/signup/complete" element={<SourcingSignupComplete />} />
+          {/* Auth surfaces were never skinned for V2. Redirect to the real
+              tenant's working login/portal (the real tenant slug is
+              'space-rising'; '-v2' is a URL-only visual alias). Without these,
+              /space-rising-v2/login and /portal fall through to the :slug
+              company catch-all below and render the company not-found 404. */}
+          <Route path="/space-rising-v2/login" element={<Navigate to="/space-rising/login" replace />} />
+          <Route path="/space-rising-v2/portal" element={<Navigate to="/space-rising/portal" replace />} />
           {/* R5j — Company profile. MUST be the last /space-rising-v2/* route so static segments above win. */}
           <Route path="/space-rising-v2/:slug" element={<SourcingCompanyV2 />} />
           {/* Tenant-scoped routes */}
