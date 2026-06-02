@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom'
 import './v10.css'
 
 // Fade wrapper -- fades in on every route change
@@ -32,6 +32,13 @@ function PageTransition({ children }) {
   )
 }
 
+// Redirect wrapper for /space-rising/:slug → /space-rising-v2/:slug.
+// Needed because Navigate's `to` prop can't interpolate route params directly.
+function SpaceRisingCompanyRedirect() {
+  const { slug } = useParams()
+  return <Navigate to={'/space-rising-v2/' + slug} replace />
+}
+
 // Lazy-load all pages
 const SourcingAbout = lazy(() => import('./pages/SourcingAbout.jsx'))
 const SourcingAdmin = lazy(() => import('./pages/SourcingAdmin.jsx'))
@@ -58,17 +65,8 @@ const SourcingProfile = lazy(() => import('./pages/SourcingProfile.jsx'))
 const SourcingCreate = lazy(() => import('./pages/SourcingCreate.jsx'))
 const GlobalSignup = lazy(() => import('./pages/GlobalSignup.jsx'))
 
-// Space Rising Website (SRW) — self-contained marketing site under /srw.
-// Mirrors spacerising.org; built to detach to AWS as the front door later.
-const SRWHome = lazy(() => import('./pages/srw/SRWHome.jsx'))
-const SRWSpaceOS = lazy(() => import('./pages/srw/SRWSpaceOS.jsx'))
-const SRWSpaceCongress = lazy(() => import('./pages/srw/SRWSpaceCongress.jsx'))
-const SRWArizona = lazy(() => import('./pages/srw/SRWArizona.jsx'))
-const SRWAbout = lazy(() => import('./pages/srw/SRWAbout.jsx'))
-const SRWPartnerships = lazy(() => import('./pages/srw/SRWPartnerships.jsx'))
-const SRWEvents = lazy(() => import('./pages/srw/SRWEvents.jsx'))
-const SRWMedia = lazy(() => import('./pages/srw/SRWMedia.jsx'))
-const SRWSignUp = lazy(() => import('./pages/srw/SRWSignUp.jsx'))
+// Space Rising Website (SRW) V1 — all /srw/* routes now redirect to /srw-v2.
+// V1 component imports retired; V2 sibling clones below are the live pages.
 
 // Nat Geo Uplift — V2 sibling clones for the visual-system uplift mission.
 // Pixel-equivalent to V1 at R1; diverges starting R2 (type + palette).
@@ -118,16 +116,16 @@ createRoot(document.getElementById('root')).render(
           <Route path="/admin/new" element={<SourcingAdmin />} />
           <Route path="/admin/settings/:tenantSlug" element={<SourcingAdmin />} />
           <Route path="/create" element={<SourcingCreate />} />
-          {/* Space Rising Website (SRW) — placed before tenant catch-all so static segments win */}
-          <Route path="/srw" element={<SRWHome />} />
-          <Route path="/srw/spaceos" element={<SRWSpaceOS />} />
-          <Route path="/srw/space-congress" element={<SRWSpaceCongress />} />
-          <Route path="/srw/arizona" element={<SRWArizona />} />
-          <Route path="/srw/about" element={<SRWAbout />} />
-          <Route path="/srw/partnerships" element={<SRWPartnerships />} />
-          <Route path="/srw/events" element={<SRWEvents />} />
-          <Route path="/srw/media" element={<SRWMedia />} />
-          <Route path="/srw/sign-up" element={<SRWSignUp />} />
+          {/* Space Rising Website (SRW) V1 → V2 redirects. V2 is production. */}
+          <Route path="/srw" element={<Navigate to="/srw-v2" replace />} />
+          <Route path="/srw/spaceos" element={<Navigate to="/srw-v2/spaceos" replace />} />
+          <Route path="/srw/space-congress" element={<Navigate to="/srw-v2/space-congress" replace />} />
+          <Route path="/srw/arizona" element={<Navigate to="/srw-v2/arizona" replace />} />
+          <Route path="/srw/about" element={<Navigate to="/srw-v2/about" replace />} />
+          <Route path="/srw/partnerships" element={<Navigate to="/srw-v2/partnerships" replace />} />
+          <Route path="/srw/events" element={<Navigate to="/srw-v2/events" replace />} />
+          <Route path="/srw/media" element={<Navigate to="/srw-v2/media" replace />} />
+          <Route path="/srw/sign-up" element={<Navigate to="/srw-v2/sign-up" replace />} />
           {/* Nat Geo Uplift V2 clones — placed before tenant catch-all */}
           <Route path="/srw-v2" element={<SRWHomeV2 />} />
           {/* R6 — SRW marketing sub-pages */}
@@ -164,6 +162,29 @@ createRoot(document.getElementById('root')).render(
           <Route path="/space-rising-v2/articles/post" element={<Navigate to="/space-rising/articles/post" replace />} />
           {/* R5j — Company profile. MUST be the last /space-rising-v2/* route so static segments above win. */}
           <Route path="/space-rising-v2/:slug" element={<SourcingCompanyV2 />} />
+          {/* Space Rising V1 → V2 redirects — specific routes win over /:tenantSlug catch-all.
+              Auth-gated / payment / form-post V1 routes stay (no V2 equivalent yet):
+                /space-rising/portal, /checkout, /settings, /org/:slug,
+                /jobs/post, /events/post, /marketplace/post, /articles/post. */}
+          <Route path="/space-rising" element={<Navigate to="/space-rising-v2" replace />} />
+          <Route path="/space-rising/login" element={<Navigate to="/space-rising-v2/login" replace />} />
+          <Route path="/space-rising/signup" element={<Navigate to="/space-rising-v2/signup" replace />} />
+          <Route path="/space-rising/jobs" element={<Navigate to="/space-rising-v2/jobs" replace />} />
+          <Route path="/space-rising/events" element={<Navigate to="/space-rising-v2/events" replace />} />
+          <Route path="/space-rising/marketplace" element={<Navigate to="/space-rising-v2/marketplace" replace />} />
+          <Route path="/space-rising/articles" element={<Navigate to="/space-rising-v2/articles" replace />} />
+          <Route path="/space-rising/grants" element={<Navigate to="/space-rising-v2/grants" replace />} />
+          <Route path="/space-rising/deal-bank" element={<Navigate to="/space-rising-v2/deal-bank" replace />} />
+          <Route path="/space-rising/membership" element={<Navigate to="/space-rising-v2/membership" replace />} />
+          <Route path="/space-rising/reports" element={<Navigate to="/space-rising-v2/reports" replace />} />
+          <Route path="/space-rising/reports/:reportId" element={<Navigate to="/space-rising-v2/reports" replace />} />
+          {/* Explicit keep-as-V1 routes — must be BEFORE /space-rising/:slug catch-all so the
+              redirect doesn't swallow them. /:tenantSlug ranking can tie /space-rising/:slug. */}
+          <Route path="/space-rising/portal" element={<SourcingPortal />} />
+          <Route path="/space-rising/checkout" element={<SourcingCheckout />} />
+          <Route path="/space-rising/settings" element={<SourcingSettings />} />
+          {/* Company profile catch-all — any other /space-rising/<slug> redirects to V2. */}
+          <Route path="/space-rising/:slug" element={<SpaceRisingCompanyRedirect />} />
           {/* Tenant-scoped routes */}
           <Route path="/:tenantSlug" element={<SourcingDirectory />} />
           <Route path="/:tenantSlug/login" element={<SourcingLogin />} />
