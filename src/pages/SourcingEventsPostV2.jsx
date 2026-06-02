@@ -233,7 +233,7 @@ export default function SourcingEventsPostV2() {
   // ── Success state ─────────────────────────────────────────────────────────
   if (done) {
     return (
-      <div data-tenant="space-rising-v2" style={{ minHeight: '100dvh', background: BG, color: TEXT, fontFamily: FONT }}>
+      <div data-srw="v2" style={{ minHeight: '100dvh', background: BG, color: TEXT, fontFamily: FONT }}>
         <style>{`* { box-sizing: border-box; }`}</style>
         <SRWNavV2 />
         <div style={{ textAlign: 'center', padding: '80px 24px' }}>
@@ -257,7 +257,7 @@ export default function SourcingEventsPostV2() {
 
   // ── Form ──────────────────────────────────────────────────────────────────
   return (
-    <div data-tenant="space-rising-v2" style={{ minHeight: '100dvh', background: BG, color: TEXT, fontFamily: FONT }}>
+    <div data-srw="v2" style={{ minHeight: '100dvh', background: BG, color: TEXT, fontFamily: FONT }}>
       <style>{`
         * { box-sizing: border-box; }
         input::placeholder, textarea::placeholder { color: ${DIM}; }
