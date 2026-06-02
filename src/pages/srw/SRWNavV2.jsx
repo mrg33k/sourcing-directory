@@ -65,8 +65,7 @@ export default function SRWNavV2() {
           </div>
 
           <div className="srw-nav-actions">
-            {/* R10b: Sign In stopgap → V1 SourcingLogin until SourcingLoginV2 lands */}
-            <Link to="/space-rising/login" className="srw-nav-signin">SIGN IN</Link>
+            <Link to="/space-rising-v2/login" className="srw-nav-signin">SIGN IN</Link>
             <Link to="/srw-v2/sign-up" className="srw-nav-subscribe">SUBSCRIBE</Link>
           </div>
 

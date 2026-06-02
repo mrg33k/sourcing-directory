@@ -84,6 +84,9 @@ const SourcingMembershipV2 = lazy(() => import('./pages/SourcingMembershipV2.jsx
 const SourcingSignupV2 = lazy(() => import('./pages/SourcingSignupV2.jsx'))
 const SourcingCompanyV2 = lazy(() => import('./pages/SourcingCompanyV2.jsx'))
 const SourcingSignupComplete = lazy(() => import('./pages/SourcingSignupComplete.jsx'))
+const SourcingArticlesV2 = lazy(() => import('./pages/SourcingArticlesV2.jsx'))
+const SourcingGrantsV2 = lazy(() => import('./pages/SourcingGrantsV2.jsx'))
+const SourcingLoginV2 = lazy(() => import('./pages/SourcingLoginV2.jsx'))
 // R6 (nat-geo-uplift) — SRW marketing sub-pages cloned to V2.
 const SRWAboutV2 = lazy(() => import('./pages/srw/SRWAboutV2.jsx'))
 const SRWSpaceOSV2 = lazy(() => import('./pages/srw/SRWSpaceOSV2.jsx'))
@@ -146,13 +149,19 @@ createRoot(document.getElementById('root')).render(
           <Route path="/space-rising-v2/signup" element={<SourcingSignupV2 />} />
           {/* R5i — Square checkout return URL. Must be above the :slug catch-all. */}
           <Route path="/space-rising-v2/signup/complete" element={<SourcingSignupComplete />} />
-          {/* Auth surfaces were never skinned for V2. Redirect to the real
-              tenant's working login/portal (the real tenant slug is
-              'space-rising'; '-v2' is a URL-only visual alias). Without these,
-              /space-rising-v2/login and /portal fall through to the :slug
-              company catch-all below and render the company not-found 404. */}
-          <Route path="/space-rising-v2/login" element={<Navigate to="/space-rising/login" replace />} />
+          {/* Articles + Grants — V2 skinned, list-pattern (parity with Jobs/Events). */}
+          <Route path="/space-rising-v2/articles" element={<SourcingArticlesV2 />} />
+          <Route path="/space-rising-v2/grants" element={<SourcingGrantsV2 />} />
+          {/* Login — V2 skinned (replaces previous Navigate-redirect to V1). */}
+          <Route path="/space-rising-v2/login" element={<SourcingLoginV2 />} />
+          {/* Portal stays redirected until a V2 skin lands. */}
           <Route path="/space-rising-v2/portal" element={<Navigate to="/space-rising/portal" replace />} />
+          {/* Post-a-listing forms — no V2 form yet; route to working V1 forms so
+              the "+ Post" CTAs on V2 list pages don't 404. */}
+          <Route path="/space-rising-v2/jobs/post" element={<Navigate to="/space-rising/jobs/post" replace />} />
+          <Route path="/space-rising-v2/events/post" element={<Navigate to="/space-rising/events/post" replace />} />
+          <Route path="/space-rising-v2/marketplace/post" element={<Navigate to="/space-rising/marketplace/post" replace />} />
+          <Route path="/space-rising-v2/articles/post" element={<Navigate to="/space-rising/articles/post" replace />} />
           {/* R5j — Company profile. MUST be the last /space-rising-v2/* route so static segments above win. */}
           <Route path="/space-rising-v2/:slug" element={<SourcingCompanyV2 />} />
           {/* Tenant-scoped routes */}
