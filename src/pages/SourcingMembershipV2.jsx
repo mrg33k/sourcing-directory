@@ -147,7 +147,9 @@ function CheckGlyph({ on }) {
   );
 }
 
-function TierCard({ kind, title, lede, benefits, footnote, cta, ctaHref }) {
+// planChips: [{ key, label, sub }] — rendered as a chip selector inside the premium card.
+// activePlan / onPlanChange — controlled state hoisted to the parent.
+function TierCard({ kind, title, lede, benefits, footnote, cta, ctaHref, planChips, activePlan, onPlanChange }) {
   const isPremium = kind === 'premium';
   return (
     <div
@@ -201,6 +203,41 @@ function TierCard({ kind, title, lede, benefits, footnote, cta, ctaHref }) {
           </li>
         ))}
       </ul>
+
+      {/* ── Plan selector chips (premium card only) ── */}
+      {isPremium && planChips && planChips.length > 0 && (
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {planChips.map((chip) => {
+            const active = activePlan === chip.key;
+            return (
+              <button
+                key={chip.key}
+                onClick={() => onPlanChange && onPlanChange(chip.key)}
+                style={{
+                  flex: '1 1 0',
+                  minWidth: 80,
+                  background: active ? 'rgba(232,162,58,0.14)' : 'rgba(255,255,255,0.04)',
+                  border: `1px solid ${active ? 'rgba(232,162,58,0.55)' : 'rgba(232,228,218,0.12)'}`,
+                  borderRadius: 8,
+                  padding: '10px 8px 8px',
+                  cursor: 'pointer',
+                  color: active ? '#E8A23A' : 'rgba(232,228,218,0.75)',
+                  textAlign: 'center',
+                  transition: 'all 0.13s ease',
+                }}
+              >
+                <div style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 12, fontWeight: 700, lineHeight: 1.2 }}>
+                  {chip.label}
+                </div>
+                <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 10, letterSpacing: '0.08em', marginTop: 4, color: active ? '#E8A23A' : 'rgba(232,228,218,0.45)' }}>
+                  {chip.sub}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       <div style={{ borderTop: '1px solid rgba(232,228,218,0.08)', paddingTop: 20, marginTop: 'auto' }}>
         {footnote && (
           <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.12em', color: 'rgba(232,228,218,0.5)', textTransform: 'uppercase', marginBottom: 14 }}>
@@ -243,7 +280,7 @@ function BenefitStrip({ label, title, body, items, bg, flipped }) {
     <section
       style={{
         position: 'relative',
-        padding: '88px 0',
+        padding: 'clamp(48px, 8vw, 88px) 0',
         borderTop: '1px solid rgba(232,228,218,0.06)',
         overflow: 'hidden',
       }}
@@ -261,16 +298,10 @@ function BenefitStrip({ label, title, body, items, bg, flipped }) {
         }}
       />
       <div
+        className="mem-benefit-inner"
         style={{
           position: 'relative',
           zIndex: 1,
-          maxWidth: 1140,
-          margin: '0 auto',
-          padding: '0 32px',
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: 80,
-          alignItems: 'center',
           direction: flipped ? 'rtl' : 'ltr',
         }}
       >
@@ -303,10 +334,24 @@ function SourcingMembershipV2Inner() {
   const V = getTokens(dark);
   const [compareOpen, setCompareOpen] = useState(false);
   const [seats, setSeats] = useState(5);
+  const [planType, setPlanType] = useState('solo-monthly');
 
-  // Pricing math — matches V1 thresholds
+  // Pricing math — matches V1 thresholds (used only for team plan)
   const ppm = seats <= 4 ? 1000 : seats <= 14 ? 850 : seats <= 49 ? 700 : null;
   const totalMo = ppm ? Math.round((ppm * seats) / 12) : null;
+
+  // Dynamic footnote + CTA href for the premium card
+  const premiumFootnote =
+    planType === 'solo-monthly' ? '$83 / mo · recurring subscription' :
+    planType === 'solo-annual'  ? '$800 / yr · billed once annually' :
+    'From $700 / seat / yr · billed annually';
+  const premiumCtaHref = `/space-rising-v2/signup?tier=paid&plan=${planType}`;
+
+  const PLAN_CHIPS = [
+    { key: 'solo-monthly', label: 'Solo Monthly', sub: '$83/mo' },
+    { key: 'solo-annual',  label: 'Solo Annual',  sub: '$800/yr' },
+    { key: 'team',         label: 'Team',          sub: 'From $700/seat' },
+  ];
 
   return (
     <div
@@ -335,6 +380,27 @@ function SourcingMembershipV2Inner() {
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }
         .v2-membership-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(232,162,58,0.3); }
+
+        /* ── Responsive grid helpers ── */
+        .mem-section   { max-width: 1140px; margin: 56px auto 0; padding: 0 32px; }
+        .mem-tier-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
+        .mem-price-band { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;
+                          border: 1px solid rgba(232,228,218,0.10); background: rgba(10,11,14,0.62);
+                          border-radius: 12px; padding: 32px 36px; }
+        .mem-seat-grid  { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px; }
+        .mem-benefit-inner { max-width: 1140px; margin: 0 auto; padding: 0 32px;
+                             display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
+
+        @media (max-width: 768px) {
+          .mem-section   { padding: 0 16px; margin: 40px auto 0; }
+          .mem-tier-grid { grid-template-columns: 1fr; }
+          .mem-price-band { grid-template-columns: 1fr; gap: 28px; padding: 24px 20px; }
+          .mem-seat-grid  { grid-template-columns: repeat(2, 1fr); }
+          .mem-benefit-inner { grid-template-columns: 1fr; gap: 36px; padding: 0 16px; }
+        }
+        @media (max-width: 480px) {
+          .mem-seat-grid { grid-template-columns: 1fr 1fr; }
+        }
       `}</style>
 
       <div className="browse-hero" style={{ '--page-hero-bg': "url('/v2-assets/planet-blue.png')" }}>
@@ -358,13 +424,7 @@ function SourcingMembershipV2Inner() {
       <V2ChipNav active="membership" />
 
       {/* Two-up tier cards — the conversion centerpiece */}
-      <section
-        style={{
-          maxWidth: 1140,
-          margin: '56px auto 0',
-          padding: '0 32px',
-        }}
-      >
+      <section className="mem-section">
         <div className="sec-hdr" style={{ maxWidth: 'none', padding: 0, marginBottom: 32 }}>
           <div className="sec-title" style={{ whiteSpace: 'normal' }}>Pick how you walk in.</div>
           <div className="sec-count">
@@ -373,13 +433,7 @@ function SourcingMembershipV2Inner() {
             </span>
           </div>
         </div>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: 28,
-          }}
-        >
+        <div className="mem-tier-grid">
           <TierCard
             kind="free"
             title="Watch from the floor"
@@ -394,27 +448,19 @@ function SourcingMembershipV2Inner() {
             title="Join the room"
             lede="Full posting privileges, deep intelligence reports, speaking slots, member events, logo placement, and Congress discounts."
             benefits={PREMIUM_BENEFITS}
-            footnote={`From $700 / seat / yr · billed annually`}
+            footnote={premiumFootnote}
             cta="Become a Member"
-            ctaHref="/space-rising-v2/signup?tier=paid"
+            ctaHref={premiumCtaHref}
+            planChips={PLAN_CHIPS}
+            activePlan={planType}
+            onPlanChange={setPlanType}
           />
         </div>
       </section>
 
-      {/* Seat-pricing band — premium pricing detail without overwhelming */}
-      <section style={{ maxWidth: 1140, margin: '56px auto 0', padding: '0 32px' }}>
-        <div
-          style={{
-            border: '1px solid rgba(232,228,218,0.10)',
-            background: 'rgba(10,11,14,0.62)',
-            borderRadius: 12,
-            padding: '32px 36px',
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: 48,
-            alignItems: 'center',
-          }}
-        >
+      {/* Seat-pricing band — only shown for team plan */}
+      {planType === 'team' && <section className="mem-section">
+        <div className="mem-price-band">
           <div>
             <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.22em', color: '#E8A23A', textTransform: 'uppercase', marginBottom: 14 }}>
               Per-seat pricing
@@ -454,14 +500,7 @@ function SourcingMembershipV2Inner() {
             </div>
           </div>
         </div>
-        <div
-          style={{
-            marginTop: 18,
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: 12,
-          }}
-        >
+        <div className="mem-seat-grid">
           {SEAT_TIERS.map((t) => (
             <div
               key={t.range}
@@ -482,11 +521,11 @@ function SourcingMembershipV2Inner() {
             </div>
           ))}
         </div>
-      </section>
+      </section>}
 
       {/* "What's in the room" — full benefits as editorial strips */}
       <section style={{ marginTop: 96 }}>
-        <div style={{ maxWidth: 1140, margin: '0 auto 0', padding: '0 32px' }}>
+        <div className="mem-section" style={{ marginTop: 0 }}>
           <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.22em', color: '#E8A23A', textTransform: 'uppercase', marginBottom: 14 }}>
             What&rsquo;s in the room
           </div>
@@ -500,7 +539,7 @@ function SourcingMembershipV2Inner() {
       </section>
 
       {/* Comparison — collapsible "what's the difference" */}
-      <section style={{ maxWidth: 1140, margin: '0 auto', padding: '64px 32px 24px' }}>
+      <section className="mem-section" style={{ paddingTop: 64, paddingBottom: 24, marginTop: 0 }}>
         <button
           onClick={() => setCompareOpen((v) => !v)}
           style={{
@@ -554,7 +593,7 @@ function SourcingMembershipV2Inner() {
       </section>
 
       {/* Final CTA stripe */}
-      <section style={{ borderTop: '1px solid rgba(232,228,218,0.08)', marginTop: 56, padding: '88px 32px 120px' }}>
+      <section style={{ borderTop: '1px solid rgba(232,228,218,0.08)', marginTop: 56, padding: 'clamp(48px, 8vw, 88px) 16px clamp(64px, 10vw, 120px)' }}>
         <div style={{ maxWidth: 920, margin: '0 auto', textAlign: 'center' }}>
           <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.22em', color: '#E8A23A', textTransform: 'uppercase', marginBottom: 18 }}>
             Pick a door

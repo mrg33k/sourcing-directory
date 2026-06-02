@@ -3,6 +3,11 @@
 // R5i (nat-geo-uplift): scaffolded 2026-05-31 against Square.
 // R5k (nat-geo-uplift): swapped to Stripe 2026-05-31 — Patrik handed over live
 //                       Space Rising Stripe credentials.
+// M2  (membership-page): added subscription-mode support 2026-06-02 — solo-monthly
+//                        plan uses mode:'subscription'; webhook now handles both
+//                        mode:'payment' (annual/team) and mode:'subscription' (monthly).
+//                        Stamps membership_billing ('annual'|'monthly') and
+//                        paid_stripe_subscription_id on the company row.
 //
 // Env vars required for live operation:
 //   STRIPE_SECRET_KEY      (sk_live_... / sk_test_...) — used to retrieve session details if needed
@@ -10,9 +15,9 @@
 //
 // This handler:
 //   1. Verifies Stripe's webhook signature header (refuses unsigned payloads).
-//   2. Handles checkout.session.completed events with payment_status='paid'.
+//   2. Handles checkout.session.completed for both payment and subscription modes.
 //   3. Idempotently flips the company row to membership_tier='paid' and stamps
-//      seats + receipt URL. Re-deliveries of the same session_id do not double-update.
+//      seats + receipt URL + billing cadence. Re-deliveries do not double-update.
 //
 // Without STRIPE_WEBHOOK_SECRET the endpoint returns 503 so the webhook
 // won't be registered until the key is set.
@@ -64,14 +69,28 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'invalid signature', message: err?.message || 'unknown' });
   }
 
-  // We care about checkout.session.completed → payment_status='paid'
+  // We care about checkout.session.completed for both payment and subscription modes.
   if (event.type !== 'checkout.session.completed') {
     return res.status(200).json({ ignored: event.type });
   }
 
   const session = event.data?.object || {};
-  if (session.payment_status !== 'paid') {
+
+  // For one-time payments: payment_status must be 'paid'.
+  // For subscriptions: mode is 'subscription' and payment_status may be
+  // 'no_payment_required' on the session level (invoice handles it separately);
+  // the presence of session.subscription signals success.
+  const isSubscription = session.mode === 'subscription';
+  const isPayment = session.mode === 'payment';
+
+  if (isPayment && session.payment_status !== 'paid') {
     return res.status(200).json({ ignored: 'not-paid', payment_status: session.payment_status });
+  }
+  if (isSubscription && !session.subscription) {
+    return res.status(200).json({ ignored: 'subscription-incomplete', mode: session.mode });
+  }
+  if (!isPayment && !isSubscription) {
+    return res.status(200).json({ ignored: 'unexpected-mode', mode: session.mode });
   }
 
   // Pull the metadata we embedded on the session.
@@ -82,6 +101,8 @@ export default async function handler(req, res) {
 
   const companyId = metadata.company_id;
   const seats = parseInt(metadata.seats, 10) || null;
+  const planType = metadata.plan_type || null; // 'solo-annual' | 'solo-monthly' | 'team'
+  const billingCadence = planType === 'solo-monthly' ? 'monthly' : 'annual'; // default annual for team + one-time
 
   const sb = createClient(SUPABASE_URL, SERVICE_KEY, {
     auth: { autoRefreshToken: false, persistSession: false },
@@ -98,8 +119,9 @@ export default async function handler(req, res) {
     return res.status(200).json({ idempotent: true, session_id: session.id });
   }
 
-  // Receipt URL: Stripe Checkout doesn't surface a receipt_url on the session
-  // directly — it lives on the payment_intent's charge. Fetch it if we can.
+  // Receipt URL: for one-time payments it lives on the payment_intent's charge.
+  // Subscriptions don't have a payment_intent on the session; leave null (invoice
+  // emails from Stripe serve as the receipt for subscription customers).
   let receiptUrl = null;
   if (session.payment_intent) {
     try {
@@ -114,8 +136,10 @@ export default async function handler(req, res) {
 
   const update = {
     membership_tier: 'paid',
+    membership_billing: billingCadence,
     paid_stripe_session_id: session.id,
     paid_stripe_payment_intent_id: session.payment_intent || null,
+    paid_stripe_subscription_id: isSubscription ? (session.subscription || null) : null,
     paid_seats: seats || existing?.pending_checkout_seats || null,
     paid_at: new Date(((session.created || 0) * 1000) || Date.now()).toISOString(),
     paid_receipt_url: receiptUrl,
