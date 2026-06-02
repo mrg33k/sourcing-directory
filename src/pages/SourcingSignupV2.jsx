@@ -8,16 +8,16 @@ const SPACE_CERTS = ['AS9100D', 'AS9110', 'AS9120B', 'ITAR Registered', 'ISO 900
 const EMP_RANGES = ['1–10', '11–50', '51–200', '200–500', '500–2000', '2000+', '10,000+'];
 
 const FREE_STEPS  = ['company', 'description', 'location', 'fullname', 'auth'];
-const PAID_STEPS  = ['company', 'description', 'location', 'certs', 'seats', 'fullname', 'auth', 'payment'];
-// Solo plans (1 seat) skip the seat-slider step.
-const SOLO_STEPS  = ['company', 'description', 'location', 'certs', 'fullname', 'auth', 'payment'];
+const PAID_STEPS  = ['company', 'description', 'location', 'certs', 'fullname', 'auth', 'payment'];
 
-function ppmFor(seats) {
-  if (seats <= 4)  return 1000;
-  if (seats <= 14) return 850;
-  if (seats <= 49) return 700;
-  return null;
-}
+const PLAN_PRICING = {
+  'small-annual':  { label: '<25 employees',    amount: '$500',    billing: 'billed annually',    btnLabel: 'Pay $500 with Stripe →' },
+  'small-monthly': { label: '<25 employees',    amount: '$50/mo',  billing: 'recurring monthly',  btnLabel: 'Subscribe $50/mo →' },
+  'mid-annual':    { label: '25–199 employees', amount: '$1,000',  billing: 'billed annually',    btnLabel: 'Pay $1,000 with Stripe →' },
+  'mid-monthly':   { label: '25–199 employees', amount: '$100/mo', billing: 'recurring monthly',  btnLabel: 'Subscribe $100/mo →' },
+  'large-annual':  { label: '200+ employees',   amount: '$2,700',  billing: 'billed annually',    btnLabel: 'Pay $2,700 with Stripe →' },
+  'large-monthly': { label: '200+ employees',   amount: '$250/mo', billing: 'recurring monthly',  btnLabel: 'Subscribe $250/mo →' },
+};
 
 function useQueryParam(name) {
   const { search } = useLocation();
@@ -28,15 +28,16 @@ export default function SourcingSignupV2() {
   const navigate = useNavigate();
   const { tenant, tenantSlug } = useTenant();
   const tierParam = useQueryParam('tier');
-  const planParam = useQueryParam('plan'); // 'solo-monthly' | 'solo-annual' | 'team' (default: 'team')
+  const planParam = useQueryParam('plan'); // e.g. 'small-annual', 'mid-monthly', 'large-annual'
   const tier = tierParam === 'free' ? 'free' : 'paid';
-  const planType = planParam && ['solo-monthly', 'solo-annual', 'team'].includes(planParam)
+  const validPlanTypes = Object.keys(PLAN_PRICING);
+  const planType = planParam && validPlanTypes.includes(planParam)
     ? planParam
-    : tier === 'paid' ? 'team' : null;
-  const isSolo = planType === 'solo-monthly' || planType === 'solo-annual';
+    : tier === 'paid' ? 'small-annual' : null;
+  const isAnnual = planType?.endsWith('-annual');
   const basePath = tenantSlug ? `/${tenantSlug}` : '/space-rising-v2';
 
-  const steps = tier === 'free' ? FREE_STEPS : (isSolo ? SOLO_STEPS : PAID_STEPS);
+  const steps = tier === 'free' ? FREE_STEPS : PAID_STEPS;
   const totalSteps = steps.length;
 
   const [step, setStep] = useState(0);
@@ -86,7 +87,6 @@ export default function SourcingSignupV2() {
       case 'description': return form.description.trim().length > 5;
       case 'location':    return form.city.trim().length > 0 && form.state.trim().length === 2;
       case 'certs':       return true;
-      case 'seats':       return form.seats >= 1;
       case 'fullname':    return form.full_name.trim().length > 1;
       case 'auth':        return form.auth_email.includes('@') && form.auth_password.length >= 6;
       case 'payment':     return true;
@@ -124,7 +124,7 @@ export default function SourcingSignupV2() {
           tenant_id: tenant?.id || null,
           selectedCerts: form.selectedCerts,
           membership_tier: tier,
-          seats: tier === 'paid' ? form.seats : null,
+          plan_type: tier === 'paid' ? planType : null,
         }),
       });
       const data = await res.json();
@@ -174,8 +174,7 @@ export default function SourcingSignupV2() {
           company_id: company?.id || createdCompany?.id,
           company_slug: company?.slug || createdCompany?.slug,
           email: form.auth_email.trim(),
-          seats: isSolo ? 1 : form.seats,
-          plan_type: planType || 'team',
+          plan_type: planType || 'small-annual',
         }),
       });
       if (res.status === 503) {
@@ -217,9 +216,6 @@ export default function SourcingSignupV2() {
     next();
   };
 
-  const ppm = ppmFor(form.seats);
-  const totalMo = ppm ? Math.round((ppm * form.seats) / 12) : null;
-
   return (
     <div className="srsv2-shell" data-tenant="space-rising-v2">
       <div className="srsv2-veil" />
@@ -258,9 +254,7 @@ export default function SourcingSignupV2() {
               {tier === 'paid'
                 ? (paymentFallback
                     ? `Your account is in. We'll email ${form.auth_email} a payment link to complete your membership — secure checkout is being switched on.`
-                    : isSolo
-                      ? `Your account is in. We'll email ${form.auth_email} the receipt once Stripe confirms the payment.`
-                      : `Your account is in. We'll email ${form.auth_email} the receipt for ${form.seats} ${form.seats === 1 ? 'seat' : 'seats'} at $${(ppm || 0).toLocaleString()}/seat/yr once Stripe confirms the payment.`)
+                    : `Your account is in. We'll email ${form.auth_email} the receipt once Stripe confirms the payment.`)
                 : `Your company listing is live. We sent a welcome to ${form.auth_email}.`}
             </div>
             <div className="srsv2-cta-row">
@@ -273,15 +267,13 @@ export default function SourcingSignupV2() {
             stepIndex={step}
             tier={tier}
             planType={planType}
-            isSolo={isSolo}
+            isAnnual={isAnnual}
             form={form}
             set={set}
             error={error}
             loading={loading}
             onContinue={handleContinue}
             onBack={back}
-            ppm={ppm}
-            totalMo={totalMo}
             canContinue={stepValid()}
           />
         )}
@@ -294,7 +286,7 @@ export default function SourcingSignupV2() {
 // Step views
 // ────────────────────────────────────────────────────────────────────────────────
 
-function StepView({ stepName, stepIndex, tier, planType, isSolo, form, set, error, loading, onContinue, onBack, ppm, totalMo, canContinue }) {
+function StepView({ stepName, stepIndex, tier, planType, isAnnual, form, set, error, loading, onContinue, onBack, canContinue }) {
   const inputRef = useRef(null);
   useEffect(() => {
     const t = setTimeout(() => inputRef.current?.focus?.(), 380);
@@ -307,7 +299,7 @@ function StepView({ stepName, stepIndex, tier, planType, isSolo, form, set, erro
       case 'description': return 'WHAT YOU DO';
       case 'location':    return 'WHERE YOU OPERATE';
       case 'certs':       return 'CERTIFICATIONS';
-      case 'seats':       return 'YOUR TEAM';
+      case 'seats':       return 'YOUR TEAM'; // kept for safety; step removed from PAID_STEPS
       case 'fullname':    return 'WHO YOU ARE';
       case 'auth':        return 'YOUR ACCOUNT';
       case 'payment':     return 'PAYMENT';
@@ -511,43 +503,22 @@ function StepView({ stepName, stepIndex, tier, planType, isSolo, form, set, erro
         </>
       )}
 
-      {stepName === 'payment' && (
-        <>
-          <h1 className="srsv2-title">Pay securely<span className="srsv2-period">.</span></h1>
-          <div className="srsv2-sub">
-            One step. You'll be taken to a hosted Stripe checkout to confirm card details — we never see your card. Your account is already created at <strong>{form.auth_email || 'your email'}</strong>; the upgrade flips the moment payment clears.
-          </div>
-          {isSolo ? (
-            /* ── Solo plan summary ── */
-            <div className="srsv2-payment-summary">
-              <div className="srsv2-payment-row"><span>Plan</span><span>Solo Membership</span></div>
-              {planType === 'solo-monthly' && (
-                <>
-                  <div className="srsv2-payment-row"><span>Billing</span><span>Recurring monthly</span></div>
-                  <div className="srsv2-payment-row srsv2-payment-row-strong"><span>Today</span><span>$83.00 / mo</span></div>
-                </>
-              )}
-              {planType === 'solo-annual' && (
-                <>
-                  <div className="srsv2-payment-row"><span>Billing</span><span>One-time annual</span></div>
-                  <div className="srsv2-payment-row srsv2-payment-row-strong"><span>Today</span><span>$800.00</span></div>
-                </>
-              )}
+      {stepName === 'payment' && (() => {
+        const pp = PLAN_PRICING[planType] || PLAN_PRICING['small-annual'];
+        return (
+          <>
+            <h1 className="srsv2-title">Pay securely<span className="srsv2-period">.</span></h1>
+            <div className="srsv2-sub">
+              One step. You'll be taken to a hosted Stripe checkout to confirm card details — we never see your card. Your account is already created at <strong>{form.auth_email || 'your email'}</strong>; the upgrade flips the moment payment clears.
             </div>
-          ) : (
-            /* ── Team plan summary ── */
             <div className="srsv2-payment-summary">
-              <div className="srsv2-payment-row"><span>Plan</span><span>Membership — {form.seats} {form.seats === 1 ? 'seat' : 'seats'}</span></div>
-              {ppm && <div className="srsv2-payment-row"><span>Price</span><span>${ppm.toLocaleString()} / seat / yr</span></div>}
-              {totalMo && <div className="srsv2-payment-row"><span>Monthly equiv</span><span>≈ ${totalMo.toLocaleString()} / mo</span></div>}
-              <div className="srsv2-payment-row srsv2-payment-row-strong">
-                <span>Total today</span>
-                <span>{ppm ? `$${(ppm * form.seats).toLocaleString()}` : 'Contact us'}</span>
-              </div>
+              <div className="srsv2-payment-row"><span>Company size</span><span>{pp.label}</span></div>
+              <div className="srsv2-payment-row"><span>Billing</span><span>{pp.billing}</span></div>
+              <div className="srsv2-payment-row srsv2-payment-row-strong"><span>Amount</span><span>{pp.amount}</span></div>
             </div>
-          )}
-        </>
-      )}
+          </>
+        );
+      })()}
 
       {error && <div className="srsv2-error">{error}</div>}
 
@@ -568,9 +539,7 @@ function StepView({ stepName, stepIndex, tier, planType, isSolo, form, set, erro
             : stepName === 'auth'
               ? (tier === 'paid' ? 'Continue to payment' : 'Create account')
               : stepName === 'payment'
-                ? (isSolo
-                    ? (planType === 'solo-monthly' ? 'Subscribe $83/mo with Stripe →' : 'Pay $800 with Stripe →')
-                    : (ppm ? `Pay $${(ppm * form.seats).toLocaleString()} with Stripe →` : 'Pay with Stripe →'))
+                ? ((PLAN_PRICING[planType] || PLAN_PRICING['small-annual']).btnLabel)
                 : 'Continue'}
         </button>
       </div>

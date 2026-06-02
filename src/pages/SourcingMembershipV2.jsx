@@ -36,11 +36,10 @@ const PREMIUM_BENEFITS = [
   'Logo placement + press distribution',
 ];
 
-const SEAT_TIERS = [
-  { range: '1–4 seats',   price: '$1,000', perMo: '~$83/mo per seat' },
-  { range: '5–14 seats',  price: '$850',   perMo: '~$71/mo per seat', recommended: true },
-  { range: '15–49 seats', price: '$700',   perMo: '~$58/mo per seat' },
-  { range: '50+ seats',   price: 'Custom', perMo: 'Contact us' },
+const EMP_TIERS = [
+  { key: 'small', label: '<25 employees',   annual: '$500',   monthly: '$50/mo'  },
+  { key: 'mid',   label: '25–199 employees', annual: '$1,000', monthly: '$100/mo' },
+  { key: 'large', label: '200+ employees',  annual: '$2,700', monthly: '$250/mo' },
 ];
 
 const BENEFIT_STRIPS = [
@@ -147,9 +146,10 @@ function CheckGlyph({ on }) {
   );
 }
 
-// planChips: [{ key, label, sub }] — rendered as a chip selector inside the premium card.
-// activePlan / onPlanChange — controlled state hoisted to the parent.
-function TierCard({ kind, title, lede, benefits, footnote, cta, ctaHref, planChips, activePlan, onPlanChange }) {
+// Two-level chip selectors inside the premium card:
+//   billingChips / activeBilling / onBillingChange  — Annual vs Monthly
+//   empChips / activeEmp / onEmpChange              — employee tier
+function TierCard({ kind, title, lede, benefits, footnote, cta, ctaHref, billingChips, activeBilling, onBillingChange, empChips, activeEmp, onEmpChange }) {
   const isPremium = kind === 'premium';
   return (
     <div
@@ -204,38 +204,71 @@ function TierCard({ kind, title, lede, benefits, footnote, cta, ctaHref, planChi
         ))}
       </ul>
 
-      {/* ── Plan selector chips (premium card only) ── */}
-      {isPremium && planChips && planChips.length > 0 && (
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {planChips.map((chip) => {
-            const active = activePlan === chip.key;
-            return (
-              <button
-                key={chip.key}
-                onClick={() => onPlanChange && onPlanChange(chip.key)}
-                style={{
-                  flex: '1 1 0',
-                  minWidth: 80,
-                  background: active ? 'rgba(232,162,58,0.14)' : 'rgba(255,255,255,0.04)',
-                  border: `1px solid ${active ? 'rgba(232,162,58,0.55)' : 'rgba(232,228,218,0.12)'}`,
-                  borderRadius: 8,
-                  padding: '10px 8px 8px',
-                  cursor: 'pointer',
-                  color: active ? '#E8A23A' : 'rgba(232,228,218,0.75)',
-                  textAlign: 'center',
-                  transition: 'all 0.13s ease',
-                }}
-              >
-                <div style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 12, fontWeight: 700, lineHeight: 1.2 }}>
-                  {chip.label}
-                </div>
-                <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 10, letterSpacing: '0.08em', marginTop: 4, color: active ? '#E8A23A' : 'rgba(232,228,218,0.45)' }}>
-                  {chip.sub}
-                </div>
-              </button>
-            );
-          })}
-        </div>
+      {/* ── Two-level plan selector (premium card only) ── */}
+      {isPremium && billingChips && (
+        <>
+          {/* Billing toggle */}
+          <div style={{ display: 'flex', gap: 8 }}>
+            {billingChips.map((chip) => {
+              const active = activeBilling === chip.key;
+              return (
+                <button
+                  key={chip.key}
+                  onClick={() => onBillingChange && onBillingChange(chip.key)}
+                  style={{
+                    flex: '1 1 0',
+                    background: active ? 'rgba(232,162,58,0.14)' : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${active ? 'rgba(232,162,58,0.55)' : 'rgba(232,228,218,0.12)'}`,
+                    borderRadius: 8,
+                    padding: '10px 8px 8px',
+                    cursor: 'pointer',
+                    color: active ? '#E8A23A' : 'rgba(232,228,218,0.75)',
+                    textAlign: 'center',
+                    transition: 'all 0.13s ease',
+                  }}
+                >
+                  <div style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 12, fontWeight: 700, lineHeight: 1.2 }}>
+                    {chip.label}
+                  </div>
+                  <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 10, letterSpacing: '0.08em', marginTop: 4, color: active ? '#E8A23A' : 'rgba(232,228,218,0.45)' }}>
+                    {chip.sub}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          {/* Employee tier chips */}
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {empChips && empChips.map((chip) => {
+              const active = activeEmp === chip.key;
+              return (
+                <button
+                  key={chip.key}
+                  onClick={() => onEmpChange && onEmpChange(chip.key)}
+                  style={{
+                    flex: '1 1 0',
+                    minWidth: 80,
+                    background: active ? 'rgba(232,162,58,0.14)' : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${active ? 'rgba(232,162,58,0.55)' : 'rgba(232,228,218,0.12)'}`,
+                    borderRadius: 8,
+                    padding: '10px 8px 8px',
+                    cursor: 'pointer',
+                    color: active ? '#E8A23A' : 'rgba(232,228,218,0.75)',
+                    textAlign: 'center',
+                    transition: 'all 0.13s ease',
+                  }}
+                >
+                  <div style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 12, fontWeight: 700, lineHeight: 1.2 }}>
+                    {chip.label}
+                  </div>
+                  <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 10, letterSpacing: '0.08em', marginTop: 4, color: active ? '#E8A23A' : 'rgba(232,228,218,0.45)' }}>
+                    {chip.sub}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </>
       )}
 
       <div style={{ borderTop: '1px solid rgba(232,228,218,0.08)', paddingTop: 20, marginTop: 'auto' }}>
@@ -333,25 +366,27 @@ function SourcingMembershipV2Inner() {
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
   const [compareOpen, setCompareOpen] = useState(false);
-  const [seats, setSeats] = useState(5);
-  const [planType, setPlanType] = useState('solo-monthly');
+  const [billing, setBilling] = useState('annual');
+  const [empTier, setEmpTier] = useState('small');
 
-  // Pricing math — matches V1 thresholds (used only for team plan)
-  const ppm = seats <= 4 ? 1000 : seats <= 14 ? 850 : seats <= 49 ? 700 : null;
-  const totalMo = ppm ? Math.round((ppm * seats) / 12) : null;
+  const planKey = `${empTier}-${billing}`;
 
-  // Dynamic footnote + CTA href for the premium card
-  const premiumFootnote =
-    planType === 'solo-monthly' ? '$83 / mo · recurring subscription' :
-    planType === 'solo-annual'  ? '$800 / yr · billed once annually' :
-    'From $700 / seat / yr · billed annually';
-  const premiumCtaHref = `/space-rising-v2/signup?tier=paid&plan=${planType}`;
+  const tierData = EMP_TIERS.find(t => t.key === empTier) || EMP_TIERS[0];
+  const premiumFootnote = billing === 'annual'
+    ? `${tierData.annual} · billed once annually`
+    : `${tierData.monthly} · recurring monthly`;
+  const premiumCtaHref = `/space-rising-v2/signup?tier=paid&plan=${planKey}`;
 
-  const PLAN_CHIPS = [
-    { key: 'solo-monthly', label: 'Solo Monthly', sub: '$83/mo' },
-    { key: 'solo-annual',  label: 'Solo Annual',  sub: '$800/yr' },
-    { key: 'team',         label: 'Team',          sub: 'From $700/seat' },
+  const BILLING_CHIPS = [
+    { key: 'annual',  label: 'Annual',  sub: 'billed once/year' },
+    { key: 'monthly', label: 'Monthly', sub: 'recurring' },
   ];
+
+  const EMP_CHIPS = EMP_TIERS.map(t => ({
+    key: t.key,
+    label: t.label,
+    sub: billing === 'annual' ? t.annual : t.monthly,
+  }));
 
   return (
     <div
@@ -451,77 +486,54 @@ function SourcingMembershipV2Inner() {
             footnote={premiumFootnote}
             cta="Become a Member"
             ctaHref={premiumCtaHref}
-            planChips={PLAN_CHIPS}
-            activePlan={planType}
-            onPlanChange={setPlanType}
+            billingChips={BILLING_CHIPS}
+            activeBilling={billing}
+            onBillingChange={setBilling}
+            empChips={EMP_CHIPS}
+            activeEmp={empTier}
+            onEmpChange={setEmpTier}
           />
         </div>
       </section>
 
-      {/* Seat-pricing band — only shown for team plan */}
-      {planType === 'team' && <section className="mem-section">
-        <div className="mem-price-band">
-          <div>
-            <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.22em', color: '#E8A23A', textTransform: 'uppercase', marginBottom: 14 }}>
-              Per-seat pricing
-            </div>
-            <div style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 26, fontWeight: 700, lineHeight: 1.15, color: '#E8E4DA', marginBottom: 10 }}>
-              Price drops as the team grows.
-            </div>
-            <div style={{ fontSize: 14, color: 'rgba(232,228,218,0.65)', lineHeight: 1.55 }}>
-              Adjust seats below to see what your team would pay. Billed annually.
-            </div>
-          </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 18 }}>
-              <span style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 48, fontWeight: 800, color: '#E8E4DA', lineHeight: 1 }}>
-                {seats}
-              </span>
-              <span style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 12, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(232,228,218,0.55)' }}>
-                {seats === 1 ? 'seat' : 'seats'}
-              </span>
-              <span style={{ marginLeft: 'auto', fontFamily: '"Space Grotesk", sans-serif', fontSize: 26, fontWeight: 700, color: '#E8A23A' }}>
-                {ppm ? `$${ppm}` : 'Custom'}
-                {ppm && <span style={{ fontSize: 13, color: 'rgba(232,228,218,0.55)', fontWeight: 400, marginLeft: 6 }}>/seat/yr</span>}
-              </span>
-            </div>
-            <input
-              type="range"
-              min={1}
-              max={50}
-              value={seats}
-              onChange={(e) => setSeats(Number(e.target.value))}
-              style={{ width: '100%', accentColor: '#E8A23A' }}
-            />
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10, fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 10, letterSpacing: '0.12em', color: 'rgba(232,228,218,0.45)', textTransform: 'uppercase' }}>
-              <span>1</span>
-              <span>{totalMo ? `~$${totalMo.toLocaleString()}/mo total` : 'Contact for 50+'}</span>
-              <span>50+</span>
-            </div>
-          </div>
+      {/* Pricing table — all tiers, both billing options */}
+      <section className="mem-section">
+        <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.22em', color: '#E8A23A', textTransform: 'uppercase', marginBottom: 18 }}>
+          Pricing by company size
         </div>
-        <div className="mem-seat-grid">
-          {SEAT_TIERS.map((t) => (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          {EMP_TIERS.map((t) => (
             <div
-              key={t.range}
+              key={t.key}
               style={{
-                padding: '14px 16px',
-                border: `1px solid ${t.recommended ? 'rgba(232,162,58,0.32)' : 'rgba(232,228,218,0.08)'}`,
-                borderRadius: 8,
-                background: t.recommended ? 'rgba(232,162,58,0.06)' : 'rgba(10,11,14,0.42)',
+                padding: '20px 20px 18px',
+                border: `1px solid ${empTier === t.key ? 'rgba(232,162,58,0.45)' : 'rgba(232,228,218,0.08)'}`,
+                borderRadius: 10,
+                background: empTier === t.key ? 'rgba(232,162,58,0.06)' : 'rgba(10,11,14,0.42)',
+                cursor: 'pointer',
+                transition: 'all 0.13s ease',
               }}
+              onClick={() => setEmpTier(t.key)}
             >
-              <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 10, letterSpacing: '0.14em', color: 'rgba(232,228,218,0.55)', textTransform: 'uppercase', marginBottom: 6 }}>
-                {t.range}
+              <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 10, letterSpacing: '0.14em', color: 'rgba(232,228,218,0.55)', textTransform: 'uppercase', marginBottom: 8 }}>
+                {t.label}
               </div>
-              <div style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 20, fontWeight: 700, color: t.recommended ? '#E8A23A' : '#E8E4DA' }}>
-                {t.price}
+              <div style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 22, fontWeight: 700, color: empTier === t.key ? '#E8A23A' : '#E8E4DA', marginBottom: 4 }}>
+                {t.annual}
+                <span style={{ fontSize: 12, fontWeight: 400, color: 'rgba(232,228,218,0.5)', marginLeft: 4 }}>/yr</span>
               </div>
-              <div style={{ fontSize: 12, color: 'rgba(232,228,218,0.5)', marginTop: 4 }}>{t.perMo}</div>
+              <div style={{ fontSize: 12, color: 'rgba(232,228,218,0.5)' }}>
+                or {t.monthly} monthly
+              </div>
             </div>
           ))}
         </div>
-      </section>}
+        <style>{`
+          @media (max-width: 600px) {
+            .mem-price-tiers { grid-template-columns: 1fr !important; }
+          }
+        `}</style>
+      </section>
 
       {/* "What's in the room" — full benefits as editorial strips */}
       <section style={{ marginTop: 96 }}>
