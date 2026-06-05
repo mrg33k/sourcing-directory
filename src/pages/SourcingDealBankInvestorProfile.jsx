@@ -73,13 +73,50 @@ function SourcingDealBankInvestorProfileInner() {
         <FocusStatement />
       </div>
 
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '8px 24px 24px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '8px 24px 8px' }}>
         <CriteriaBlock />
+      </div>
+
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '8px 24px 48px' }}>
+        <ConnectCard firmName={firmName} />
       </div>
 
       {/* Contact email is internal-only — NEVER rendered to the public DOM.
           The BUILD spec is explicit about this; founders reach out via the
           platform's contact flow, not via a published mailto. */}
+    </div>
+  );
+}
+
+function ConnectCard({ firmName }) {
+  const label = firmName || 'this firm';
+  return (
+    <div
+      style={{
+        padding: '32px 28px',
+        border: '1px solid rgba(232,228,218,0.10)',
+        borderRadius: 10,
+        background: 'rgba(18,20,28,0.40)',
+      }}
+    >
+      <div
+        style={{
+          color: 'rgba(232,228,218,0.55)',
+          fontSize: 11,
+          fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+          textTransform: 'uppercase',
+          letterSpacing: '0.12em',
+          marginBottom: 12,
+        }}
+      >
+        How to connect
+      </div>
+      <div style={{ color: 'rgba(232,228,218,0.85)', fontSize: 16, lineHeight: 1.55, marginBottom: 16 }}>
+        {`Reach ${label} through Space Rising. Founders raising in the Deal Bank can request an intro — we handle the routing so investor inboxes stay clean.`}
+      </div>
+      <div style={{ color: 'var(--cyan)', fontSize: 12, fontFamily: 'JetBrains Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.10em' }}>
+        Intro request flow opening soon.
+      </div>
     </div>
   );
 }
