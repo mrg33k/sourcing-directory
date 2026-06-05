@@ -217,6 +217,10 @@ createRoot(document.getElementById('root')).render(
           <Route path="/:tenantSlug/checkout" element={<SourcingCheckout />} />
           <Route path="/:tenantSlug/settings" element={<SourcingSettings />} />
           <Route path="/:tenantSlug/:slug" element={<SourcingProfile />} />
+          {/* Catch-all 404 → land at Space OS main directory.
+              Most unknown URLs are caught by /:tenantSlug or /:tenantSlug/:slug
+              above; this catches 3+-segment unknowns (e.g. /foo/bar/baz). */}
+          <Route path="*" element={<Navigate to="/space-rising-v2" replace />} />
         </Routes>
         </PageTransition>
       </Suspense>
