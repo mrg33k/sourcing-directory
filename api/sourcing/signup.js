@@ -133,7 +133,25 @@ export default async function handler(req, res) {
       pending_checkout_seats: (membership_tier === 'paid' && seats) ? parseInt(seats, 10) : null,
       status: 'pending',
     };
-    if (tenant_id) companyPayload.tenant_id = tenant_id;
+    // Resolve the tenant for BOTH the company and member rows. The frontend may
+    // pass tenant_id; when it can't (the signup form's useTenant hook can't
+    // resolve a tenant on the static /space-rising-v2/signup route, so it sends
+    // null), fall back to the active tenant for this vertical. Before this fix
+    // only the member insert resolved a tenant — companies were inserted with
+    // tenant_id=null and never appeared in the tenant-scoped public directory.
+    // (space-rising directory fix 2026-06-05)
+    let effectiveTenantId = tenant_id || null;
+    if (!effectiveTenantId) {
+      const { data: fallbackTenant } = await sb
+        .from('directory_tenants')
+        .select('id')
+        .eq('vertical', vertical || 'semiconductor')
+        .eq('status', 'active')
+        .limit(1)
+        .single();
+      effectiveTenantId = fallbackTenant?.id || null;
+    }
+    if (effectiveTenantId) companyPayload.tenant_id = effectiveTenantId;
 
     const { data: company, error: companyErr } = await sb
       .from('directory_companies')
@@ -150,20 +168,8 @@ export default async function handler(req, res) {
       throw companyErr;
     }
 
-    // 4. Insert member record (always -- login requires this)
-    let effectiveTenantId = tenant_id;
-    if (!effectiveTenantId) {
-      // No tenant passed from frontend -- look up default for this vertical
-      const { data: fallbackTenant } = await sb
-        .from('directory_tenants')
-        .select('id')
-        .eq('vertical', vertical || 'semiconductor')
-        .eq('status', 'active')
-        .limit(1)
-        .single();
-      effectiveTenantId = fallbackTenant?.id;
-    }
-
+    // 4. Insert member record (always -- login requires this).
+    // effectiveTenantId was resolved above and is shared with the company insert.
     if (effectiveTenantId) {
       const { error: memberErr } = await sb
         .from('directory_members')

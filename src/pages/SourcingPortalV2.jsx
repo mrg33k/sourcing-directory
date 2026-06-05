@@ -195,20 +195,35 @@ export default function SourcingPortalV2() {
     setSaving(true);
     setError('');
     try {
-      const { error: updateErr } = await supabase
-        .from('directory_companies')
-        .update({
-          name: editForm.name.trim(),
-          description: editForm.description.trim(),
-          website: editForm.website.trim() || null,
-          phone: editForm.phone.trim() || null,
-          email: editForm.email.trim() || null,
-          logo_url: editForm.logo_url.trim() || null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', company.id);
-      if (updateErr) throw updateErr;
-      setCompany({ ...company, ...editForm });
+      // Save through the server endpoint, not a direct table update. The member's
+      // browser client is subject to RLS, and directory_companies has no member
+      // self-update policy (only admins), so a direct update silently affects 0
+      // rows — the portal flashed "Saved" but nothing persisted. The endpoint
+      // verifies ownership server-side and writes via the service role.
+      // (space-rising directory fix 2026-06-05)
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error('Your session expired. Please sign in again.');
+
+      const resp = await fetch('/api/sourcing/update-company', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          company_id: company.id,
+          fields: {
+            name: editForm.name,
+            description: editForm.description,
+            website: editForm.website,
+            phone: editForm.phone,
+            email: editForm.email,
+            logo_url: editForm.logo_url,
+          },
+        }),
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data.error || 'Failed to save your changes.');
+
+      setCompany({ ...company, ...(data.company || editForm) });
       setEditing(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
