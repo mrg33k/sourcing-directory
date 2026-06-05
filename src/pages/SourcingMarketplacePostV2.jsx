@@ -8,6 +8,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import SRWNavV2 from './srw/SRWNavV2.jsx';
+import './srw/srw-v2.css';
 import { V2ChipNav } from './V2ChipNav.jsx';
 
 const BG      = '#06060A';

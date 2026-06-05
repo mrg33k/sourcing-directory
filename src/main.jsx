@@ -94,13 +94,18 @@ const SRWPartnershipsV2 = lazy(() => import('./pages/srw/SRWPartnershipsV2.jsx')
 const SRWEventsV2 = lazy(() => import('./pages/srw/SRWEventsV2.jsx'))
 const SRWMediaV2 = lazy(() => import('./pages/srw/SRWMediaV2.jsx'))
 const SRWSignUpV2 = lazy(() => import('./pages/srw/SRWSignUpV2.jsx'))
-// nat-geo-uplift — V2 post forms (Jobs / Events / Marketplace).
+// nat-geo-uplift — V2 post forms (Jobs / Events / Marketplace / Articles).
 // Replaces the Navigate-to-V1 redirects that broke V2 immersion.
 const SourcingJobsPostV2 = lazy(() => import('./pages/SourcingJobsPostV2.jsx'))
 const SourcingEventsPostV2 = lazy(() => import('./pages/SourcingEventsPostV2.jsx'))
 const SourcingMarketplacePostV2 = lazy(() => import('./pages/SourcingMarketplacePostV2.jsx'))
+const SourcingArticlesPostV2 = lazy(() => import('./pages/SourcingArticlesPostV2.jsx'))
 // nat-geo-uplift — V2 member portal. Replaces Navigate-to-V1 redirect.
 const SourcingPortalV2 = lazy(() => import('./pages/SourcingPortalV2.jsx'))
+// 2026-06-05 — detail pages so listing/report cards open a real page instead of
+// bouncing to the directory (no matching detail route existed before).
+const SourcingListingV2 = lazy(() => import('./pages/SourcingListingV2.jsx'))
+const SourcingReportDetailV2 = lazy(() => import('./pages/SourcingReportDetailV2.jsx'))
 
 const Loading = () => (
   <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
@@ -117,12 +122,14 @@ createRoot(document.getElementById('root')).render(
               the V2 Space Rising marketing site. V1 routes (/srw, /space-rising)
               stay live as archive for rollback + legacy deep-link compat. */}
           <Route path="/" element={<Navigate to="/srw-v2" replace />} />
-          <Route path="/signup" element={<GlobalSignup />} />
-          <Route path="/about" element={<SourcingAbout />} />
+          {/* Legacy V1 utility pages retired (2026-06-05) → Space OS V2. No V1 surface. */}
+          <Route path="/signup" element={<Navigate to="/space-rising-v2/signup" replace />} />
+          <Route path="/about" element={<Navigate to="/srw-v2/about" replace />} />
+          <Route path="/create" element={<Navigate to="/space-rising-v2" replace />} />
+          {/* Admin stays — internal tooling, not a public surface. */}
           <Route path="/admin" element={<SourcingAdmin />} />
           <Route path="/admin/new" element={<SourcingAdmin />} />
           <Route path="/admin/settings/:tenantSlug" element={<SourcingAdmin />} />
-          <Route path="/create" element={<SourcingCreate />} />
           {/* Space Rising Website (SRW) V1 → V2 redirects. V2 is production. */}
           <Route path="/srw" element={<Navigate to="/srw-v2" replace />} />
           <Route path="/srw/spaceos" element={<Navigate to="/srw-v2/spaceos" replace />} />
@@ -165,7 +172,13 @@ createRoot(document.getElementById('root')).render(
           <Route path="/space-rising-v2/jobs/post" element={<SourcingJobsPostV2 />} />
           <Route path="/space-rising-v2/events/post" element={<SourcingEventsPostV2 />} />
           <Route path="/space-rising-v2/marketplace/post" element={<SourcingMarketplacePostV2 />} />
-          <Route path="/space-rising-v2/articles/post" element={<Navigate to="/space-rising/articles/post" replace />} />
+          <Route path="/space-rising-v2/articles/post" element={<SourcingArticlesPostV2 />} />
+          {/* 2026-06-05 — listing + report detail pages. Two segments, so they rank
+              above the single-segment /:slug company route and never collide. */}
+          <Route path="/space-rising-v2/jobs/:id" element={<SourcingListingV2 kind="job" />} />
+          <Route path="/space-rising-v2/events/:id" element={<SourcingListingV2 kind="event" />} />
+          <Route path="/space-rising-v2/marketplace/:id" element={<SourcingListingV2 kind="marketplace" />} />
+          <Route path="/space-rising-v2/reports/:id" element={<SourcingReportDetailV2 />} />
           {/* R5j — Company profile. MUST be the last /space-rising-v2/* route so static segments above win. */}
           <Route path="/space-rising-v2/:slug" element={<SourcingCompanyV2 />} />
           {/* Space Rising V1 → V2 redirects — specific routes win over /:tenantSlug catch-all.
@@ -191,35 +204,19 @@ createRoot(document.getElementById('root')).render(
           <Route path="/space-rising/articles/post" element={<Navigate to="/space-rising-v2/articles/post" replace />} />
           <Route path="/space-rising/settings" element={<Navigate to="/space-rising-v2" replace />} />
           <Route path="/space-rising-v2/settings" element={<Navigate to="/space-rising-v2" replace />} />
-          {/* Checkout stays on V1 — Square returns from external, special flow. */}
-          <Route path="/space-rising/checkout" element={<SourcingCheckout />} />
+          {/* Legacy V1 checkout retired (2026-06-05). Paid signup now uses Stripe
+              checkout-session and returns to /space-rising-v2/signup/complete. */}
+          <Route path="/space-rising/checkout" element={<Navigate to="/space-rising-v2" replace />} />
           {/* Company profile catch-all — any other /space-rising/<slug> redirects to V2. */}
           <Route path="/space-rising/:slug" element={<SpaceRisingCompanyRedirect />} />
-          {/* Tenant-scoped routes */}
-          <Route path="/:tenantSlug" element={<SourcingDirectory />} />
-          <Route path="/:tenantSlug/login" element={<SourcingLogin />} />
-          <Route path="/:tenantSlug/portal" element={<SourcingPortal />} />
-          <Route path="/:tenantSlug/signup" element={<SourcingSignup />} />
-          <Route path="/:tenantSlug/jobs" element={<SourcingJobs />} />
-          <Route path="/:tenantSlug/jobs/post" element={<SourcingJobsPost />} />
-          <Route path="/:tenantSlug/marketplace" element={<SourcingMarketplace />} />
-          <Route path="/:tenantSlug/marketplace/post" element={<SourcingMarketplacePost />} />
-          <Route path="/:tenantSlug/events" element={<SourcingEvents />} />
-          <Route path="/:tenantSlug/events/post" element={<SourcingEventsPost />} />
-          <Route path="/:tenantSlug/articles" element={<SourcingArticles />} />
-          <Route path="/:tenantSlug/articles/post" element={<SourcingArticlesPost />} />
-          <Route path="/:tenantSlug/grants" element={<SourcingGrants />} />
-          <Route path="/:tenantSlug/deal-bank" element={<SourcingDealBank />} />
-          <Route path="/:tenantSlug/membership" element={<SourcingMembership />} />
-          <Route path="/:tenantSlug/reports" element={<SourcingReports />} />
-          <Route path="/:tenantSlug/reports/:reportId" element={<SourcingReports />} />
-          <Route path="/:tenantSlug/org/:slug" element={<SourcingOrg />} />
-          <Route path="/:tenantSlug/checkout" element={<SourcingCheckout />} />
-          <Route path="/:tenantSlug/settings" element={<SourcingSettings />} />
-          <Route path="/:tenantSlug/:slug" element={<SourcingProfile />} />
-          {/* Catch-all 404 → land at Space OS main directory.
-              Most unknown URLs are caught by /:tenantSlug or /:tenantSlug/:slug
-              above; this catches 3+-segment unknowns (e.g. /foo/bar/baz). */}
+          {/* Legacy multi-tenant V1 routes retired (2026-06-05). spacerising.org is
+              Space-Rising-only now. The old /:tenantSlug V1 directories
+              (s3c-semiconductor, az-biotech, az-defense) and ANY unknown/typo slug
+              fall through to the catch-all below and redirect to the Space OS V2
+              directory. Tenant company DATA stays in the DB; only the V1 browse
+              surface is removed. Per Patrik 2026-06-05: "no page shows v1." */}
+          {/* Catch-all → Space OS V2 directory. With the /:tenantSlug V1 block gone,
+              EVERY unmatched path (1, 2, or 3+ segments) lands here — no V1, no 404. */}
           <Route path="*" element={<Navigate to="/space-rising-v2" replace />} />
         </Routes>
         </PageTransition>
