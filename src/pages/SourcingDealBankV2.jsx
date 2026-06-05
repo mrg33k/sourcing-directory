@@ -314,25 +314,9 @@ function InvestmentsLane({ searchInput }) {
           style={{ textDecoration: 'none', color: 'inherit' }}
         >
           <div className="co-body">
-            <div className="co-name">
-              {item.company}
-              <span
-                style={{
-                  marginLeft: 10,
-                  padding: '2px 8px',
-                  borderRadius: 100,
-                  border: '1px solid rgba(232,228,218,0.20)',
-                  background: 'rgba(232,228,218,0.06)',
-                  color: 'rgba(232,228,218,0.55)',
-                  fontSize: 10,
-                  fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.12em',
-                  verticalAlign: 'middle',
-                }}
-              >
-                Sample
-              </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <div className="co-name">{item.company}</div>
+              <SamplePill />
             </div>
             <div className="co-loc">
               {[item.round, item.segment, item.region].filter(Boolean).join(' · ')}
@@ -416,6 +400,27 @@ function InvestorsLane({ searchInput }) {
         </div>
       )}
     </>
+  );
+}
+
+function SamplePill() {
+  return (
+    <span
+      style={{
+        padding: '2px 8px',
+        borderRadius: 100,
+        border: '1px solid rgba(232,228,218,0.20)',
+        background: 'rgba(232,228,218,0.06)',
+        color: 'rgba(232,228,218,0.55)',
+        fontSize: 10,
+        fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+        textTransform: 'uppercase',
+        letterSpacing: '0.12em',
+        lineHeight: 1.6,
+      }}
+    >
+      Sample
+    </span>
   );
 }
 
