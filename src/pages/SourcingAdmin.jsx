@@ -414,22 +414,57 @@ function SourcingAdminInner() {
     setContacts(prev => prev.map(c => c.id === id ? { ...c, status } : c));
   };
 
-  const handleCompanyAction = async (id, action) => {
+  const handleCompanyAction = async (id, action, payload) => {
     if (!adminSupabase) return;
     setRefreshing(prev => ({ ...prev, [id]: true }));
     try {
+      if (action === 'delete') {
+        const { error } = await adminSupabase.from('directory_companies').delete().eq('id', id);
+        if (error) throw error;
+        await fetchData();
+        return;
+      }
+      if (action === 'update') {
+        if (!payload || typeof payload !== 'object') return;
+        const { error } = await adminSupabase.from('directory_companies').update(payload).eq('id', id);
+        if (error) throw error;
+        await fetchData();
+        return;
+      }
       const updates = {
         approve:    { status: 'active' },
+        reject:     { status: 'inactive' },
         deactivate: { status: 'inactive' },
         feature:    { featured: true },
         unfeature:  { featured: false },
       };
+      if (!updates[action]) return;
       await adminSupabase.from('directory_companies').update(updates[action]).eq('id', id);
       await fetchData();
     } catch (err) {
       console.error('Company action error:', err);
+      alert(`Action failed: ${err.message || err}`);
     } finally {
       setRefreshing(prev => ({ ...prev, [id]: false }));
+    }
+  };
+
+  const handleMoveAllToSpace = async () => {
+    if (!adminSupabase || !selectedTenantId) return null;
+    try {
+      const { data, error } = await adminSupabase
+        .from('directory_companies')
+        .update({ vertical: 'space' })
+        .neq('vertical', 'space')
+        .eq('tenant_id', selectedTenantId)
+        .select('id');
+      if (error) throw error;
+      await fetchData();
+      return data ? data.length : 0;
+    } catch (err) {
+      console.error('Move-all-to-space error:', err);
+      alert(`Reclassify failed: ${err.message || err}`);
+      return null;
     }
   };
 
@@ -1164,6 +1199,7 @@ function SourcingAdminInner() {
             exportStatus={exportStatus}
             handleApproveAll={handleApproveAll}
             handleExportCSV={handleExportCSV}
+            handleMoveAllToSpace={handleMoveAllToSpace}
             setActiveTab={setActiveTab}
             fetchData={fetchData}
             selectedTenantId={selectedTenantId}

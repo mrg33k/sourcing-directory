@@ -122,9 +122,9 @@ export default function CompaniesSection({
             Pending Approval
           </div>
           <div style={{ background: V.card, border: `1px solid rgba(234,179,8,0.2)`, borderRadius: 8, overflow: 'hidden' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 80px 110px 120px', gap: 12, padding: '8px 16px', background: V.card2 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 80px 110px 1fr', gap: 12, padding: '8px 16px', background: V.card2 }}>
               {['Company', 'Status', 'Tier', 'Source', 'Actions'].map(h => (
-                <div key={h} style={{ fontSize: 10, fontWeight: 700, fontFamily: V.mono, color: V.dim, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{h}</div>
+                <div key={h} style={{ fontSize: 10, fontWeight: 700, fontFamily: V.mono, color: V.dim, textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: h === 'Actions' ? 'right' : 'left' }}>{h}</div>
               ))}
             </div>
             {pendingCompanies.map(c => (
@@ -135,9 +135,9 @@ export default function CompaniesSection({
       )}
 
       <div style={{ background: V.card, border: `1px solid ${V.border}`, borderRadius: 8, overflow: 'hidden' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 80px 110px 120px', gap: 12, padding: '8px 16px', background: V.card2 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 80px 80px 110px 1fr', gap: 12, padding: '8px 16px', background: V.card2 }}>
           {['Company', 'Status', 'Tier', 'Source', 'Actions'].map(h => (
-            <div key={h} style={{ fontSize: 10, fontWeight: 700, fontFamily: V.mono, color: V.dim, textTransform: 'uppercase', letterSpacing: '0.1em' }}>{h}</div>
+            <div key={h} style={{ fontSize: 10, fontWeight: 700, fontFamily: V.mono, color: V.dim, textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: h === 'Actions' ? 'right' : 'left' }}>{h}</div>
           ))}
         </div>
         {companies.filter(c => c.status !== 'pending').map(c => (

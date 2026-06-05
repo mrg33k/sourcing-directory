@@ -1,7 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AdminSection } from './AdminUI.jsx';
 
-export default function ActionsSection({ pendingCompanies, exportStatus, handleApproveAll, handleExportCSV, setActiveTab, fetchData, selectedTenantId, V }) {
+export default function ActionsSection({ pendingCompanies, exportStatus, handleApproveAll, handleExportCSV, handleMoveAllToSpace, setActiveTab, fetchData, selectedTenantId, V }) {
+  const [moveStatus, setMoveStatus] = useState('');
+  const [moving, setMoving] = useState(false);
+
+  const onMoveAllToSpace = async () => {
+    if (!handleMoveAllToSpace) return;
+    if (!window.confirm('Reclassify all non-space companies in this tenant to the space vertical? This updates many rows.')) return;
+    setMoving(true);
+    setMoveStatus('');
+    const updated = await handleMoveAllToSpace();
+    setMoving(false);
+    if (updated === null) {
+      setMoveStatus('Failed — see console');
+    } else {
+      setMoveStatus(`Reclassified ${updated} ${updated === 1 ? 'company' : 'companies'}`);
+      setTimeout(() => setMoveStatus(''), 5000);
+    }
+  };
+
   return (
     <AdminSection title="Quick Actions" V={V}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
@@ -57,6 +75,27 @@ export default function ActionsSection({ pendingCompanies, exportStatus, handleA
             {exportStatus || 'Export CSV'}
           </button>
         </div>
+
+        {selectedTenantId && (
+          <div style={{ background: V.card, border: `1px solid rgba(232,162,58,0.3)`, borderRadius: 10, padding: '18px 20px' }}>
+            <div style={{ fontSize: 14, fontWeight: 700, fontFamily: V.syne, color: V.heading, marginBottom: 8 }}>
+              Move All to Space Vertical
+            </div>
+            <div style={{ fontSize: 12, color: V.muted, fontFamily: V.space, marginBottom: 14 }}>
+              Reclassify every non-space company in this tenant to the <span style={{ color: V.accent, fontFamily: V.mono }}>space</span> vertical. Useful to roll the full directory into Space Rising.
+            </div>
+            <button onClick={onMoveAllToSpace} disabled={moving} style={{
+              width: '100%', background: V.accentDim,
+              border: `1px solid ${V.accentBrd}`, color: V.accent,
+              borderRadius: 7, padding: '9px 0', fontSize: 13,
+              fontWeight: 700, fontFamily: V.space,
+              cursor: moving ? 'wait' : 'pointer',
+              opacity: moving ? 0.6 : 1,
+            }}>
+              {moving ? 'Reclassifying…' : (moveStatus || 'Move All to Space')}
+            </button>
+          </div>
+        )}
 
         {selectedTenantId && (
           <div style={{ background: V.card, border: `1px solid rgba(59,130,246,0.25)`, borderRadius: 10, padding: '18px 20px' }}>

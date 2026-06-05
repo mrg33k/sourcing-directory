@@ -56,13 +56,136 @@ export function StatusPill({ status }) {
   );
 }
 
-// ─── Company Row ──────────────────────────────────────────────────────────────
-export function CompanyRow({ company, onAction, refreshing, V }) {
-  const companySource = company.source && String(company.source).trim() ? company.source : 'manual';
+// ─── Company Edit Form (inline) ────────────────────────────────────────────────
+function CompanyEditForm({ company, onSave, onCancel, V }) {
+  const [fields, setFields] = React.useState({
+    name: company.name || '',
+    description: company.description || '',
+    website: company.website || '',
+    phone: company.phone || '',
+    email: company.email || '',
+    city: company.city || '',
+    state: company.state || '',
+    vertical: company.vertical || '',
+    membership_tier: company.membership_tier || 'free',
+    employee_count: company.employee_count || '',
+    year_founded: company.year_founded || '',
+  });
+  const [saving, setSaving] = React.useState(false);
+
+  const update = (k) => (e) => setFields(prev => ({ ...prev, [k]: e.target.value }));
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      // Cast year_founded to int if present, else null
+      const out = { ...fields };
+      out.year_founded = out.year_founded ? parseInt(out.year_founded, 10) || null : null;
+      // Empty strings -> null for optional fields
+      ['description', 'website', 'phone', 'email', 'city', 'state', 'employee_count'].forEach(k => {
+        if (out[k] === '') out[k] = null;
+      });
+      await onSave(company.id, out);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const inputStyle = {
+    width: '100%', background: V.card2, border: `1px solid ${V.border}`,
+    color: V.text, borderRadius: 5, padding: '6px 8px',
+    fontSize: 12, fontFamily: V.space, outline: 'none',
+  };
+  const labelStyle = {
+    fontSize: 10, fontWeight: 700, fontFamily: V.mono, color: V.dim,
+    textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4, display: 'block',
+  };
 
   return (
     <div style={{
-      display: 'grid', gridTemplateColumns: '1fr 80px 80px 110px 120px',
+      padding: '16px 20px', background: V.card2,
+      borderBottom: `1px solid ${V.border}`,
+    }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 12, marginBottom: 12 }}>
+        <div><label style={labelStyle}>Name</label><input style={inputStyle} value={fields.name} onChange={update('name')} /></div>
+        <div><label style={labelStyle}>Website</label><input style={inputStyle} value={fields.website} onChange={update('website')} placeholder="https://..." /></div>
+        <div><label style={labelStyle}>Phone</label><input style={inputStyle} value={fields.phone} onChange={update('phone')} /></div>
+        <div><label style={labelStyle}>Email</label><input style={inputStyle} value={fields.email} onChange={update('email')} /></div>
+        <div><label style={labelStyle}>City</label><input style={inputStyle} value={fields.city} onChange={update('city')} /></div>
+        <div><label style={labelStyle}>State</label><input style={inputStyle} value={fields.state} onChange={update('state')} /></div>
+        <div><label style={labelStyle}>Vertical</label><input style={inputStyle} value={fields.vertical} onChange={update('vertical')} /></div>
+        <div>
+          <label style={labelStyle}>Membership Tier</label>
+          <select style={inputStyle} value={fields.membership_tier} onChange={update('membership_tier')}>
+            <option value="free">free</option>
+            <option value="basic">basic</option>
+            <option value="standard">standard</option>
+            <option value="premium">premium</option>
+            <option value="founding">founding</option>
+          </select>
+        </div>
+        <div><label style={labelStyle}>Employee Count</label><input style={inputStyle} value={fields.employee_count} onChange={update('employee_count')} placeholder="e.g. 50-100" /></div>
+        <div><label style={labelStyle}>Year Founded</label><input style={inputStyle} value={fields.year_founded} onChange={update('year_founded')} placeholder="2020" /></div>
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <label style={labelStyle}>Description</label>
+        <textarea
+          style={{ ...inputStyle, minHeight: 60, resize: 'vertical', fontFamily: V.space }}
+          value={fields.description}
+          onChange={update('description')}
+        />
+      </div>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <button onClick={handleSave} disabled={saving} style={{
+          background: V.accent, border: 'none', color: '#fff',
+          borderRadius: 5, padding: '6px 14px', fontSize: 12,
+          fontWeight: 700, fontFamily: V.space, cursor: saving ? 'wait' : 'pointer',
+          opacity: saving ? 0.6 : 1,
+        }}>
+          {saving ? 'Saving…' : 'Save'}
+        </button>
+        <button onClick={onCancel} disabled={saving} style={{
+          background: 'transparent', border: `1px solid ${V.border}`,
+          color: V.muted, borderRadius: 5, padding: '6px 14px',
+          fontSize: 12, fontWeight: 600, fontFamily: V.space, cursor: 'pointer',
+        }}>
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Company Row ──────────────────────────────────────────────────────────────
+export function CompanyRow({ company, onAction, refreshing, V }) {
+  const companySource = company.source && String(company.source).trim() ? company.source : 'manual';
+  const [editing, setEditing] = React.useState(false);
+
+  const handleDelete = () => {
+    if (window.confirm(`Delete "${company.name}"? This cannot be undone.`)) {
+      onAction(company.id, 'delete');
+    }
+  };
+
+  const handleSaveEdit = async (id, fields) => {
+    await onAction(id, 'update', fields);
+    setEditing(false);
+  };
+
+  if (editing) {
+    return (
+      <CompanyEditForm
+        company={company}
+        onSave={handleSaveEdit}
+        onCancel={() => setEditing(false)}
+        V={V}
+      />
+    );
+  }
+
+  return (
+    <div style={{
+      display: 'grid', gridTemplateColumns: '1fr 80px 80px 110px 1fr',
       gap: 12, padding: '12px 16px', alignItems: 'center',
       borderBottom: `1px solid ${V.border}`,
       opacity: refreshing ? 0.5 : 1,
@@ -78,7 +201,7 @@ export function CompanyRow({ company, onAction, refreshing, V }) {
       <div><StatusPill status={company.status} /></div>
       <div style={{ fontSize: 11, color: V.dim, fontFamily: V.mono }}>{company.membership_tier}</div>
       <div style={{ fontSize: 11, color: V.dim, fontFamily: V.mono, textTransform: 'lowercase' }}>{companySource}</div>
-      <div style={{ display: 'flex', gap: 6 }}>
+      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
         {company.status === 'pending' && (
           <button onClick={() => onAction(company.id, 'approve')} style={{
             background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.4)',
@@ -86,6 +209,15 @@ export function CompanyRow({ company, onAction, refreshing, V }) {
             fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
           }}>
             Approve
+          </button>
+        )}
+        {company.status === 'pending' && (
+          <button onClick={() => onAction(company.id, 'reject')} style={{
+            background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
+            color: '#FCA5A5', borderRadius: 5, padding: '4px 8px', fontSize: 11,
+            fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
+          }}>
+            Reject
           </button>
         )}
         {company.status === 'active' && (
@@ -115,6 +247,20 @@ export function CompanyRow({ company, onAction, refreshing, V }) {
             Unfeature
           </button>
         )}
+        <button onClick={() => setEditing(true)} style={{
+          background: 'rgba(255,255,255,0.06)', border: `1px solid ${V.border}`,
+          color: V.text, borderRadius: 5, padding: '4px 8px', fontSize: 11,
+          fontWeight: 600, fontFamily: V.space, cursor: 'pointer',
+        }}>
+          Edit
+        </button>
+        <button onClick={handleDelete} style={{
+          background: 'rgba(239,68,68,0.18)', border: '1px solid rgba(239,68,68,0.5)',
+          color: '#FCA5A5', borderRadius: 5, padding: '4px 8px', fontSize: 11,
+          fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
+        }}>
+          Delete
+        </button>
       </div>
     </div>
   );
