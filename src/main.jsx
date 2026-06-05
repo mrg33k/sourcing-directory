@@ -78,6 +78,9 @@ const SourcingEventsV2 = lazy(() => import('./pages/SourcingEventsV2.jsx'))
 const SourcingReportsV2 = lazy(() => import('./pages/SourcingReportsV2.jsx'))
 const SourcingMarketplaceV2 = lazy(() => import('./pages/SourcingMarketplaceV2.jsx'))
 const SourcingDealBankV2 = lazy(() => import('./pages/SourcingDealBankV2.jsx'))
+// Deal Bank R7b/c — profile pages for the Investments + Investors lanes.
+const SourcingDealBankInvestmentProfile = lazy(() => import('./pages/SourcingDealBankInvestmentProfile.jsx'))
+const SourcingDealBankInvestorProfile = lazy(() => import('./pages/SourcingDealBankInvestorProfile.jsx'))
 const SourcingMembershipV2 = lazy(() => import('./pages/SourcingMembershipV2.jsx'))
 const SourcingSignupV2 = lazy(() => import('./pages/SourcingSignupV2.jsx'))
 const SourcingCompanyV2 = lazy(() => import('./pages/SourcingCompanyV2.jsx'))
@@ -157,6 +160,11 @@ createRoot(document.getElementById('root')).render(
           <Route path="/space-rising-v2/reports" element={<SourcingReportsV2 />} />
           <Route path="/space-rising-v2/marketplace" element={<SourcingMarketplaceV2 />} />
           <Route path="/space-rising-v2/deal-bank" element={<SourcingDealBankV2 />} />
+          {/* Deal Bank R7b/c — Investments + Investors profile pages. Three
+              segments deep so they win over /space-rising-v2/:slug (2 segs)
+              and over /space-rising-v2/deal-bank (literal, also 2 segs). */}
+          <Route path="/space-rising-v2/deal-bank/investments/:slug" element={<SourcingDealBankInvestmentProfile />} />
+          <Route path="/space-rising-v2/deal-bank/investors/:slug" element={<SourcingDealBankInvestorProfile />} />
           <Route path="/space-rising-v2/membership" element={<SourcingMembershipV2 />} />
           <Route path="/space-rising-v2/signup" element={<SourcingSignupV2 />} />
           {/* R5i — Square checkout return URL. Must be above the :slug catch-all. */}
