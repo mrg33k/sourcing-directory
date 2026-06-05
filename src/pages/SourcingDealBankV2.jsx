@@ -29,6 +29,73 @@ const LANE_HEADINGS = {
   completed:   'Completed rounds',
 };
 
+// R7d — preview-only sample entries. Clearly marked SAMPLE on each card and
+// behind a "Preview — sample listings" banner. The real data source is
+// deferred to a later round (Patrik 2026-05-31).
+const SAMPLE_INVESTMENTS = [
+  {
+    slug: 'sample-launch-co',
+    company: 'Sample Launch Co.',
+    round: 'Series A',
+    seeking: '$5M',
+    region: 'Phoenix, AZ',
+    segment: 'Launch services',
+  },
+  {
+    slug: 'sample-observation-labs',
+    company: 'Sample Observation Labs',
+    round: 'Pre-Seed',
+    seeking: '$750K',
+    region: 'Tucson, AZ',
+    segment: 'Earth observation',
+  },
+  {
+    slug: 'sample-orbital-systems',
+    company: 'Sample Orbital Systems',
+    round: 'Seed',
+    seeking: '$2M',
+    region: 'Mesa, AZ',
+    segment: 'Spacecraft components',
+  },
+];
+
+function investmentSearchMatch(item, terms) {
+  const haystack = [item.company, item.round, item.segment, item.region, item.seeking]
+    .filter(Boolean).join(' ').toLowerCase();
+  return terms.every((t) => haystack.includes(t));
+}
+
+// R7e — preview-only sample firms. Same marking pattern as investments.
+const SAMPLE_INVESTORS = [
+  {
+    slug: 'sample-orbit-ventures',
+    firm: 'Sample Orbit Ventures',
+    focus: 'Early-stage space infrastructure',
+    checkSize: '$250K – $2M',
+    dealTypes: 'SAFE, Priced Seed',
+  },
+  {
+    slug: 'sample-southwest-capital',
+    firm: 'Sample Southwest Capital',
+    focus: 'Arizona-based aerospace + defense',
+    checkSize: '$1M – $5M',
+    dealTypes: 'Series A, Series B',
+  },
+  {
+    slug: 'sample-frontier-family-office',
+    firm: 'Sample Frontier Family Office',
+    focus: 'Deep-tech + frontier sciences',
+    checkSize: '$500K – $3M',
+    dealTypes: 'Seed, Series A',
+  },
+];
+
+function investorSearchMatch(item, terms) {
+  const haystack = [item.firm, item.focus, item.checkSize, item.dealTypes]
+    .filter(Boolean).join(' ').toLowerCase();
+  return terms.every((t) => haystack.includes(t));
+}
+
 function formatDealDate(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
@@ -214,51 +281,162 @@ function SourcingDealBankV2Inner() {
           </>
         )}
 
-        {activeLane !== 'completed' && (
-          <LaneEmptyState lane={activeLane} />
+        {activeLane === 'investments' && (
+          <InvestmentsLane searchInput={searchInput} />
+        )}
+
+        {activeLane === 'investors' && (
+          <InvestorsLane searchInput={searchInput} />
         )}
       </div>
     </div>
   );
 }
 
-function LaneEmptyState({ lane }) {
-  const copy = lane === 'investments'
-    ? {
-        eyebrow: 'Companies raising',
-        title: 'Listings opening soon.',
-        body: 'Space Rising companies actively raising will appear here. Profile pages show what each company is seeking, offering, minimum check, round stage, value proposition, plus video, deck, and team.',
-        cta: 'Are you raising? List your company.',
-      }
-    : {
-        eyebrow: 'Investor firms',
-        title: 'Listings opening soon.',
-        body: 'VC, PE, family office, and angel groups focused on space will list themselves here for free. Founders can see focus, criteria, check size, and recent deal activity.',
-        cta: 'Are you an investor? List your firm.',
-      };
+function InvestmentsLane({ searchInput }) {
+  const filtered = useMemo(() => {
+    if (!searchInput.trim()) return SAMPLE_INVESTMENTS;
+    const terms = searchInput.toLowerCase().split(/\s+/).filter(Boolean);
+    return SAMPLE_INVESTMENTS.filter((item) => investmentSearchMatch(item, terms));
+  }, [searchInput]);
 
+  return (
+    <>
+      <SamplePreviewBanner
+        copy="Preview — sample listings. Real companies raising will appear here once submissions open."
+      />
+
+      {filtered.map((item) => (
+        <Link
+          key={item.slug}
+          to={`/space-rising-v2/deal-bank/investments/${item.slug}`}
+          className="co-card"
+          style={{ textDecoration: 'none', color: 'inherit' }}
+        >
+          <div className="co-body">
+            <div className="co-name">
+              {item.company}
+              <span
+                style={{
+                  marginLeft: 10,
+                  padding: '2px 8px',
+                  borderRadius: 100,
+                  border: '1px solid rgba(232,228,218,0.20)',
+                  background: 'rgba(232,228,218,0.06)',
+                  color: 'rgba(232,228,218,0.55)',
+                  fontSize: 10,
+                  fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.12em',
+                  verticalAlign: 'middle',
+                }}
+              >
+                Sample
+              </span>
+            </div>
+            <div className="co-loc">
+              {[item.round, item.segment, item.region].filter(Boolean).join(' · ')}
+            </div>
+            <div className="co-badges">
+              {item.round && <span className="co-badge cert">{item.round}</span>}
+              {item.seeking && <span className="co-badge feat">{`Seeking ${item.seeking}`}</span>}
+            </div>
+          </div>
+          <div className="co-arrow">
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
+          </div>
+        </Link>
+      ))}
+
+      {filtered.length === 0 && (
+        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          {`No sample listings match "${searchInput}"`}
+        </div>
+      )}
+    </>
+  );
+}
+
+function InvestorsLane({ searchInput }) {
+  const filtered = useMemo(() => {
+    if (!searchInput.trim()) return SAMPLE_INVESTORS;
+    const terms = searchInput.toLowerCase().split(/\s+/).filter(Boolean);
+    return SAMPLE_INVESTORS.filter((item) => investorSearchMatch(item, terms));
+  }, [searchInput]);
+
+  return (
+    <>
+      <SamplePreviewBanner
+        copy="Preview — sample firms. Real investor profiles will appear here once signups open."
+      />
+
+      {filtered.map((item) => (
+        <Link
+          key={item.slug}
+          to={`/space-rising-v2/deal-bank/investors/${item.slug}`}
+          className="co-card"
+          style={{ textDecoration: 'none', color: 'inherit' }}
+        >
+          <div className="co-body">
+            <div className="co-name">
+              {item.firm}
+              <span
+                style={{
+                  marginLeft: 10,
+                  padding: '2px 8px',
+                  borderRadius: 100,
+                  border: '1px solid rgba(232,228,218,0.20)',
+                  background: 'rgba(232,228,218,0.06)',
+                  color: 'rgba(232,228,218,0.55)',
+                  fontSize: 10,
+                  fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.12em',
+                  verticalAlign: 'middle',
+                }}
+              >
+                Sample
+              </span>
+            </div>
+            <div className="co-loc">{item.focus}</div>
+            <div className="co-badges">
+              {item.checkSize && <span className="co-badge cert">{item.checkSize}</span>}
+              {item.dealTypes && <span className="co-badge feat">{item.dealTypes}</span>}
+            </div>
+          </div>
+          <div className="co-arrow">
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
+          </div>
+        </Link>
+      ))}
+
+      {filtered.length === 0 && (
+        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          {`No sample firms match "${searchInput}"`}
+        </div>
+      )}
+    </>
+  );
+}
+
+function SamplePreviewBanner({ copy }) {
   return (
     <div
       style={{
-        padding: '56px 24px',
-        textAlign: 'center',
-        border: '1px solid rgba(232,228,218,0.10)',
+        padding: '12px 16px',
+        marginBottom: 16,
         borderRadius: 10,
-        background: 'rgba(18,20,28,0.40)',
+        border: '1px solid rgba(232,162,58,0.32)',
+        background: 'rgba(232,162,58,0.08)',
+        color: 'var(--cyan)',
+        fontSize: 12,
+        fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+        textTransform: 'uppercase',
+        letterSpacing: '0.10em',
+        textAlign: 'center',
       }}
     >
-      <div style={{ color: 'rgba(232,228,218,0.55)', fontSize: 11, fontFamily: 'JetBrains Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>
-        {copy.eyebrow}
-      </div>
-      <div style={{ color: 'var(--tx)', fontSize: 24, fontWeight: 600, lineHeight: 1.2, marginBottom: 12 }}>
-        {copy.title}
-      </div>
-      <div style={{ color: 'rgba(232,228,218,0.70)', fontSize: 14, lineHeight: 1.55, maxWidth: 520, margin: '0 auto 20px' }}>
-        {copy.body}
-      </div>
-      <div style={{ color: 'var(--cyan)', fontSize: 12, fontFamily: 'JetBrains Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.10em' }}>
-        {copy.cta}
-      </div>
+      {copy}
     </div>
   );
 }
