@@ -1282,7 +1282,7 @@ function SourcingDirectoryInner() {
             {query && !loading && <span style={{ color: 'var(--cyan)', fontWeight: 400 }}> for "{query}"</span>}
           </div>
           <div className="sec-count">
-            <Link to={tenantSlug ? `/${tenantSlug}/signup` : '/signup'} style={{ textDecoration: 'none', color: 'var(--cyan)', fontSize: 12, fontWeight: 600 }}>
+            <Link to={tenantSlug ? `/${tenantSlug}/membership` : '/membership'} style={{ textDecoration: 'none', color: 'var(--cyan)', fontSize: 12, fontWeight: 600 }}>
               + Add Company
             </Link>
           </div>
@@ -1661,7 +1661,7 @@ function SourcingDirectoryInner() {
                 Get found by procurement teams, contractors, and partners in {tenant?.name || 'the directory'}.
               </div>
               <Link
-                to={tenantSlug ? `/${tenantSlug}/signup` : '/signup'}
+                to={tenantSlug ? `/${tenantSlug}/membership` : '/membership'}
                 onClick={() => setShowWelcome(false)}
                 style={{
                   display: 'block', textDecoration: 'none', textAlign: 'center',
