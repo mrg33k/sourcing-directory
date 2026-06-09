@@ -57,7 +57,7 @@ export function StatusPill({ status }) {
 }
 
 // ─── Company Edit Form (inline) ────────────────────────────────────────────────
-function CompanyEditForm({ company, onSave, onCancel, V }) {
+function CompanyEditForm({ company, onSave, onCancel, V, adminSupabase }) {
   const [fields, setFields] = React.useState({
     name: company.name || '',
     description: company.description || '',
@@ -70,10 +70,32 @@ function CompanyEditForm({ company, onSave, onCancel, V }) {
     membership_tier: company.membership_tier || 'free',
     employee_count: company.employee_count || '',
     year_founded: company.year_founded || '',
+    logo_url: company.logo_url || '',
   });
   const [saving, setSaving] = React.useState(false);
+  const [uploading, setUploading] = React.useState(false);
+  const [uploadErr, setUploadErr] = React.useState('');
 
   const update = (k) => (e) => setFields(prev => ({ ...prev, [k]: e.target.value }));
+
+  const handleLogoUpload = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file || !adminSupabase) return;
+    setUploadErr('');
+    setUploading(true);
+    try {
+      const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+      const key = `company-logos/${company.id}-${Date.now()}.${ext}`;
+      const { error: upErr } = await adminSupabase.storage.from('sourcing-reports').upload(key, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data } = adminSupabase.storage.from('sourcing-reports').getPublicUrl(key);
+      setFields(prev => ({ ...prev, logo_url: data.publicUrl }));
+    } catch (err) {
+      setUploadErr(err.message || 'Upload failed.');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSave = async () => {
     setSaving(true);
@@ -82,7 +104,7 @@ function CompanyEditForm({ company, onSave, onCancel, V }) {
       const out = { ...fields };
       out.year_founded = out.year_founded ? parseInt(out.year_founded, 10) || null : null;
       // Empty strings -> null for optional fields
-      ['description', 'website', 'phone', 'email', 'city', 'state', 'employee_count'].forEach(k => {
+      ['description', 'website', 'phone', 'email', 'city', 'state', 'employee_count', 'logo_url'].forEach(k => {
         if (out[k] === '') out[k] = null;
       });
       await onSave(company.id, out);
@@ -128,6 +150,30 @@ function CompanyEditForm({ company, onSave, onCancel, V }) {
         <div><label style={labelStyle}>Year Founded</label><input style={inputStyle} value={fields.year_founded} onChange={update('year_founded')} placeholder="2020" /></div>
       </div>
       <div style={{ marginBottom: 12 }}>
+        <label style={labelStyle}>Logo</label>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          {fields.logo_url
+            ? <img src={fields.logo_url} alt="logo" style={{ width: 44, height: 44, objectFit: 'contain', borderRadius: 6, border: `1px solid ${V.border}`, background: '#fff' }} />
+            : <div style={{ width: 44, height: 44, borderRadius: 6, border: `1px dashed ${V.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: V.dim, fontSize: 10, fontFamily: V.mono }}>none</div>}
+          <label style={{
+            background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.35)',
+            color: '#93C5FD', borderRadius: 5, padding: '6px 12px', fontSize: 12, fontWeight: 700,
+            fontFamily: V.space, cursor: uploading ? 'wait' : 'pointer', opacity: uploading ? 0.6 : 1, whiteSpace: 'nowrap',
+          }}>
+            {uploading ? 'Uploading…' : (fields.logo_url ? 'Replace logo' : 'Upload logo')}
+            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleLogoUpload} disabled={uploading} />
+          </label>
+          <input style={{ ...inputStyle, flex: '1 1 200px' }} value={fields.logo_url} onChange={update('logo_url')} placeholder="…or paste an image URL" />
+          {fields.logo_url && (
+            <button type="button" onClick={() => setFields(prev => ({ ...prev, logo_url: '' }))} style={{
+              background: 'transparent', border: `1px solid ${V.border}`, color: V.muted,
+              borderRadius: 5, padding: '6px 10px', fontSize: 11, fontFamily: V.space, cursor: 'pointer',
+            }}>Clear</button>
+          )}
+        </div>
+        {uploadErr && <div style={{ color: '#FCA5A5', fontSize: 11, fontFamily: V.space, marginTop: 6 }}>{uploadErr}</div>}
+      </div>
+      <div style={{ marginBottom: 12 }}>
         <label style={labelStyle}>Description</label>
         <textarea
           style={{ ...inputStyle, minHeight: 60, resize: 'vertical', fontFamily: V.space }}
@@ -157,7 +203,7 @@ function CompanyEditForm({ company, onSave, onCancel, V }) {
 }
 
 // ─── Company Row ──────────────────────────────────────────────────────────────
-export function CompanyRow({ company, onAction, refreshing, V, selectable = false, selected = false, onToggleSelect }) {
+export function CompanyRow({ company, onAction, refreshing, V, selectable = false, selected = false, onToggleSelect, adminSupabase }) {
   const companySource = company.source && String(company.source).trim() ? company.source : 'manual';
   const [editing, setEditing] = React.useState(false);
   const gridCols = selectable ? '32px 1fr 80px 80px 110px 1fr' : '1fr 80px 80px 110px 1fr';
@@ -180,6 +226,7 @@ export function CompanyRow({ company, onAction, refreshing, V, selectable = fals
         onSave={handleSaveEdit}
         onCancel={() => setEditing(false)}
         V={V}
+        adminSupabase={adminSupabase}
       />
     );
   }

@@ -1089,6 +1089,7 @@ function SourcingAdminInner() {
             handleApproveAll={handleApproveAll}
             V={V}
             selectedTenantId={selectedTenantId}
+            adminSupabase={adminSupabase}
           />
         )}
 

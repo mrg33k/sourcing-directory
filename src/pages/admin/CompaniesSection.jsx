@@ -16,7 +16,7 @@ export default function CompaniesSection({
   companies, pendingCompanies, importPreview, setImportPreview,
   importStatus, setImportStatus, importFileRef, refreshing,
   handleImportFile, handleImportConfirm, handleCompanyAction,
-  handleApproveAll, V, selectedTenantId,
+  handleApproveAll, V, selectedTenantId, adminSupabase,
 }) {
   const [query, setQuery] = React.useState('');
   const [sortKey, setSortKey] = React.useState('name');
@@ -227,7 +227,7 @@ export default function CompaniesSection({
               ))}
             </div>
             {pendingCompanies.map(c => (
-              <CompanyRow key={c.id} company={c} onAction={handleCompanyAction} refreshing={refreshing[c.id]} V={V} />
+              <CompanyRow key={c.id} company={c} onAction={handleCompanyAction} refreshing={refreshing[c.id]} V={V} adminSupabase={adminSupabase} />
             ))}
           </div>
         </div>
@@ -301,6 +301,7 @@ export default function CompaniesSection({
             selectable
             selected={selectedIds.has(c.id)}
             onToggleSelect={toggleOne}
+            adminSupabase={adminSupabase}
           />
         ))}
         {filtered.length === 0 && (
