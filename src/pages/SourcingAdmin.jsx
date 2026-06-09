@@ -44,8 +44,36 @@ const adminSupabase = (_sbUrl && _adminKey)
 
 // ─── Inner Component ──────────────────────────────────────────────────────────
 function SourcingAdminInner() {
-  const { dark } = useSourcingTheme();
-  const V = getTokens(dark);
+  useSourcingTheme(); // keep theme context mounted; admin uses the V2 token set below
+  // V2 design system — matches the Space OS V2 front end (dark + amber + Space Grotesk).
+  // Scoped to the admin: deliberately overrides the shared getTokens (cyan/Inter) so the
+  // whole panel — login screen, chrome, every tab — reads as V2.
+  const V = {
+    bg:        '#06060A',
+    card:      '#0D0D12',
+    card2:     '#111118',
+    cardHov:   '#17171F',
+    accent:    '#E8A23A',
+    accentHov: '#C68A2E',
+    accentDim: 'rgba(232,162,58,0.08)',
+    accentBrd: 'rgba(232,162,58,0.25)',
+    blue:      '#3B82F6',
+    text:      '#E8E4DA',
+    heading:   '#E8E4DA',
+    muted:     'rgba(232,228,218,0.55)',
+    dim:       'rgba(232,228,218,0.35)',
+    border:    'rgba(255,255,255,0.08)',
+    borderHov: 'rgba(232,162,58,0.25)',
+    green:     '#86EFAC',
+    violet:    '#A78BFA',
+    amber:     '#E8A23A',
+    rose:      '#FB7185',
+    navBg:     'rgba(6,6,10,0.94)',
+    font:      "'Space Grotesk', system-ui, sans-serif",
+    syne:      "'Space Grotesk', system-ui, sans-serif",
+    space:     "'Space Grotesk', system-ui, sans-serif",
+    mono:      "'JetBrains Mono', ui-monospace, monospace",
+  };
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams();
