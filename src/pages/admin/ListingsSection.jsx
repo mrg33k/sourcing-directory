@@ -80,6 +80,10 @@ function ListingForm({ initial, companies, tenantId, adminSupabase, onClose, fet
       <div style={{ fontSize: 14, fontWeight: 700, fontFamily: V.syne, color: V.heading, marginBottom: 14 }}>
         {isEdit ? 'Edit Listing' : 'New Listing'}
       </div>
+      <div style={{ marginBottom: 12 }}>
+        <label style={lab}>Title</label>
+        <input style={inp} value={f.title} onChange={up('title')} placeholder="Listing title" />
+      </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 12, marginBottom: 12 }}>
         <Field label="Category"><select style={inp} value={f.category} onChange={up('category')}>{CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}</select></Field>
         <Field label="Company"><select style={inp} value={f.company_id} onChange={up('company_id')}><option value="">— select —</option>{[...companies].sort((a,b)=>(a.name||'').localeCompare(b.name||'')).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}</select></Field>
