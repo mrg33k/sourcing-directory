@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AdminSection } from './AdminUI.jsx';
+import { logAudit } from './audit.js';
 
 const formatJoinedDate = (value) => {
   if (!value) return '—';
@@ -10,7 +11,7 @@ const formatJoinedDate = (value) => {
 
 export default function MembersSection({
   pendingMembers, memberCompanyMap, handleMemberAction,
-  handleMemberUpgrade, V, adminSupabase, fetchData, selectedTenantId,
+  handleMemberUpgrade, V, adminSupabase, fetchData, selectedTenantId, currentUserEmail,
 }) {
   // Local state for member management
   const [memberActionStatus, setMemberActionStatus] = useState({});
@@ -35,6 +36,7 @@ export default function MembersSection({
     setRoleBusy(member.id);
     try {
       await adminSupabase.from('directory_members').update({ role, status: 'approved' }).eq('id', member.id);
+      logAudit(adminSupabase, { tenant_id: selectedTenantId, actor_email: currentUserEmail, action: `member.role.${role}`, entity_type: 'member', entity_id: member.id, detail: { email: member.email } });
       await loadAllMembers();
     } finally { setRoleBusy(null); }
   };
@@ -77,6 +79,7 @@ export default function MembersSection({
     try {
       const { error } = await adminSupabase.from('directory_members').delete().eq('id', member.id);
       if (error) throw error;
+      logAudit(adminSupabase, { tenant_id: selectedTenantId, actor_email: currentUserEmail, action: 'member.delete', entity_type: 'member', entity_id: member.id, detail: { email: member.email } });
       setMemberDeleteConfirm(null);
       setMemberActionStatus(prev => ({ ...prev, [member.id]: 'Account deleted.' }));
       await fetchData();

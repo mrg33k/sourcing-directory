@@ -17,6 +17,8 @@ import AddCompanySection from './admin/AddCompanySection.jsx';
 import OrganizationsSection from './admin/OrganizationsSection.jsx';
 import ListingsSection from './admin/ListingsSection.jsx';
 import SettingsSection from './admin/SettingsSection.jsx';
+import AuditSection from './admin/AuditSection.jsx';
+import { logAudit } from './admin/audit.js';
 import ReportsSection from './admin/ReportsSection.jsx';
 import AnalyticsSection from './admin/AnalyticsSection.jsx';
 import MessagesSection from './admin/MessagesSection.jsx';
@@ -53,6 +55,7 @@ function SourcingAdminInner() {
   const isSettings = location.pathname.startsWith('/admin/settings/');
 
   const [authed, setAuthed] = useState(false);
+  const [currentUserEmail, setCurrentUserEmail] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [emailInput, setEmailInput] = useState('');
   const [pwInput, setPwInput] = useState('');
@@ -104,6 +107,7 @@ function SourcingAdminInner() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) setAuthed(true);
+      setCurrentUserEmail(session?.user?.email || null);
       setAuthLoading(false);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -111,6 +115,7 @@ function SourcingAdminInner() {
         setShowNewPw(true);
       } else {
         setAuthed(!!session);
+        setCurrentUserEmail(session?.user?.email || null);
       }
     });
     return () => subscription.unsubscribe();
@@ -418,6 +423,7 @@ function SourcingAdminInner() {
   const handleCompanyAction = async (id, action, payload) => {
     if (!adminSupabase) return;
     setRefreshing(prev => ({ ...prev, [id]: true }));
+    logAudit(adminSupabase, { tenant_id: selectedTenantId, actor_email: currentUserEmail, action: `company.${action}`, entity_type: 'company', entity_id: id, detail: payload ? { fields: Object.keys(payload) } : {} });
     try {
       if (action === 'delete') {
         const { error } = await adminSupabase.from('directory_companies').delete().eq('id', id);
@@ -492,6 +498,7 @@ function SourcingAdminInner() {
       const newStatus = action === 'approve' ? 'approved' : 'rejected';
       const member = pendingMembers.find(m => m.id === memberId);
       await adminSupabase.from('directory_members').update({ status: newStatus }).eq('id', memberId);
+      logAudit(adminSupabase, { tenant_id: selectedTenantId, actor_email: currentUserEmail, action: `member.${action}`, entity_type: 'member', entity_id: memberId, detail: { email: member?.email } });
 
       // If approving, also activate their company
       if (action === 'approve' && member?.company_id) {
@@ -957,6 +964,7 @@ function SourcingAdminInner() {
     { key: 'messages',   label: `Messages${newContactCount > 0 ? ` (${newContactCount})` : ''}` },
     { key: 'actions',    label: 'Quick Actions' },
     { key: 'settings',   label: 'Settings' },
+    { key: 'audit',      label: 'Audit' },
   ];
 
   return (
@@ -1117,6 +1125,7 @@ function SourcingAdminInner() {
             adminSupabase={adminSupabase}
             fetchData={fetchData}
             selectedTenantId={selectedTenantId}
+            currentUserEmail={currentUserEmail}
           />
         )}
 
@@ -1231,6 +1240,14 @@ function SourcingAdminInner() {
             tenant={selectedTenant}
             adminSupabase={adminSupabase}
             setTenants={setTenants}
+            V={V}
+          />
+        )}
+
+        {!loading && activeTab === 'audit' && (
+          <AuditSection
+            adminSupabase={adminSupabase}
+            selectedTenantId={selectedTenantId}
             V={V}
           />
         )}
