@@ -1038,9 +1038,9 @@ function SourcingAdminInner() {
             <Link
               to={`/${selectedTenant.slug}/portal`}
               style={{
-                background: 'var(--cyan-dim)', border: '1px solid var(--cyan-brd)',
-                color: 'var(--cyan)', borderRadius: 6, padding: '4px 10px',
-                fontSize: 11, fontWeight: 600, textDecoration: 'none',
+                background: V.accentDim, border: `1px solid ${V.accentBrd}`,
+                color: V.accent, borderRadius: 6, padding: '4px 10px',
+                fontSize: 11, fontWeight: 600, fontFamily: V.space, textDecoration: 'none',
                 display: 'flex', alignItems: 'center', gap: 4,
               }}
             >
