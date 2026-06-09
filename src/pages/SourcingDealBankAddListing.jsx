@@ -299,7 +299,7 @@ function SourcingDealBankAddListingInner() {
           <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--tx2)' }}>
             Revenue Projections (Optional)
           </label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 12 }}>
             <FormField
               label="Year 1"
               name="revenue_y1"
