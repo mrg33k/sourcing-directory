@@ -1,0 +1,529 @@
+// SourcingDealBankAddListing.jsx
+// Deal Bank R7 (Round B, 2026-06-09) — Company form to add a deal bank listing.
+// Route: /space-rising-v2/deal-bank/investments/add
+// Gated to existing directory companies. Form submits to deal_bank_listings (status='pending').
+
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { supabase } from '../lib/supabase.js';
+import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
+import '../space-rising-theme-v2.css';
+
+const TENANT_SLUG_V2 = 'space-rising-v2';
+
+const ROUND_STAGES = ['Pre-Seed', 'Seed', 'Series A', 'Series B', 'Series C', 'Series D', 'Series D+', 'Growth'];
+
+function SourcingDealBankAddListingInner() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { dark } = useSourcingTheme();
+  const V = getTokens(dark);
+
+  const [companies, setCompanies] = useState([]);
+  const [selectedCompanyId, setSelectedCompanyId] = useState(searchParams.get('company_id') || '');
+  const [companiesLoading, setCompaniesLoading] = useState(true);
+
+  const [formData, setFormData] = useState({
+    exec_summary: '',
+    capital_sought: '',
+    round_stage: '',
+    revenue_y1: '',
+    revenue_y2: '',
+    revenue_y3: '',
+    deck_url: '',
+    leadership: [{ name: '', title: '', photo_url: '', bio: '', linkedin_url: '' }],
+  });
+
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+
+  // Fetch available companies
+  useEffect(() => {
+    const fetchCompanies = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('directory_companies')
+          .select('id, name, segment, region')
+          .order('name', { ascending: true });
+
+        if (error) throw error;
+        setCompanies(data || []);
+      } catch (err) {
+        console.error('Error fetching companies:', err);
+        setCompanies([]);
+      } finally {
+        setCompaniesLoading(false);
+      }
+    };
+
+    fetchCompanies();
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleLeadershipChange = (index, field, value) => {
+    const newLeadership = [...formData.leadership];
+    newLeadership[index] = { ...newLeadership[index], [field]: value };
+    setFormData((prev) => ({
+      ...prev,
+      leadership: newLeadership,
+    }));
+  };
+
+  const addLeadershipRow = () => {
+    setFormData((prev) => ({
+      ...prev,
+      leadership: [...prev.leadership, { name: '', title: '', photo_url: '', bio: '', linkedin_url: '' }],
+    }));
+  };
+
+  const removeLeadershipRow = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      leadership: prev.leadership.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (!selectedCompanyId) {
+      setError('Please select a company');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Filter out empty leadership entries
+      const leadership = formData.leadership.filter((l) => l.name || l.title);
+
+      const { data, error: insertError } = await supabase
+        .from('deal_bank_listings')
+        .insert([
+          {
+            company_id: selectedCompanyId,
+            exec_summary: formData.exec_summary.trim() || null,
+            capital_sought: formData.capital_sought.trim() || null,
+            round_stage: formData.round_stage || null,
+            revenue_y1: formData.revenue_y1 ? parseFloat(formData.revenue_y1) : null,
+            revenue_y2: formData.revenue_y2 ? parseFloat(formData.revenue_y2) : null,
+            revenue_y3: formData.revenue_y3 ? parseFloat(formData.revenue_y3) : null,
+            deck_url: formData.deck_url.trim() || null,
+            leadership: leadership.length > 0 ? leadership : null,
+            status: 'pending',
+          },
+        ]);
+
+      if (insertError) {
+        setError(`Submission failed: ${insertError.message}`);
+        setLoading(false);
+        return;
+      }
+
+      setSubmitted(true);
+      setLoading(false);
+
+      // Redirect to listings after 2 seconds
+      setTimeout(() => {
+        navigate(`/${TENANT_SLUG_V2}/deal-bank?tab=investments`);
+      }, 2000);
+    } catch (err) {
+      setError(`Unexpected error: ${err.message}`);
+      setLoading(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div
+        data-tenant={TENANT_SLUG_V2}
+        style={{
+          minHeight: '100dvh',
+          background: 'var(--bg)',
+          color: 'var(--tx)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 24,
+          fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
+          '--bg': 'transparent',
+          '--tx': '#E8E4DA',
+          '--tx2': 'rgba(232,228,218,0.60)',
+          '--tx3': 'rgba(232,228,218,0.25)',
+          '--s1': 'rgba(11,11,13,0.72)',
+          '--s2': 'rgba(11,11,13,0.82)',
+          '--s3': 'rgba(11,11,13,0.92)',
+          '--bd': 'rgba(232,228,218,0.10)',
+          '--bd2': 'rgba(232,228,218,0.16)',
+          '--cyan': '#E8A23A',
+          '--cyan-dim': 'rgba(232,162,58,0.10)',
+          '--cyan-brd': 'rgba(232,162,58,0.32)',
+        }}
+      >
+        <div style={{ maxWidth: 480, textAlign: 'center' }}>
+          <div style={{ fontSize: 32, fontWeight: 700, marginBottom: 12 }}>
+            Thank you.
+          </div>
+          <div style={{ fontSize: 14, color: 'var(--tx2)', lineHeight: 1.6, marginBottom: 24 }}>
+            Your listing has been submitted for review. You'll hear from us within 1–2 business days.
+          </div>
+          <Link
+            to={`/${TENANT_SLUG_V2}/deal-bank?tab=investments`}
+            style={{
+              display: 'inline-block',
+              padding: '10px 20px',
+              border: '1px solid var(--cyan)',
+              borderRadius: 6,
+              color: 'var(--cyan)',
+              textDecoration: 'none',
+              fontSize: 12,
+              fontWeight: 600,
+              letterSpacing: '0.05em',
+            }}
+          >
+            BACK TO INVESTMENTS
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      data-tenant={TENANT_SLUG_V2}
+      style={{
+        minHeight: '100dvh',
+        background: 'var(--bg)',
+        color: 'var(--tx)',
+        position: 'relative',
+        fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
+        '--bg': 'transparent',
+        '--tx': '#E8E4DA',
+        '--tx2': 'rgba(232,228,218,0.60)',
+        '--tx3': 'rgba(232,228,218,0.25)',
+        '--s1': 'rgba(11,11,13,0.72)',
+        '--s2': 'rgba(11,11,13,0.82)',
+        '--s3': 'rgba(11,11,13,0.92)',
+        '--bd': 'rgba(232,228,218,0.10)',
+        '--bd2': 'rgba(232,228,218,0.16)',
+        '--cyan': '#E8A23A',
+        '--cyan-dim': 'rgba(232,162,58,0.10)',
+        '--cyan-brd': 'rgba(232,162,58,0.32)',
+      }}
+    >
+      <div className="browse-hero" style={{ '--page-hero-bg': "url('/v2-assets/earth.png')" }}>
+        <div className="browse-hero-bg" />
+        <div className="browse-hero-overlay" />
+        <div className="browse-hero-content" style={{ position: 'relative' }}>
+          <div className="browse-hero-toprow">
+            <Link to={`/${TENANT_SLUG_V2}/deal-bank`} className="browse-back" style={{ textDecoration: 'none' }}>
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path d="M15 19l-7-7 7-7" />
+              </svg>
+              Deal Bank
+            </Link>
+            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
+          </div>
+          <div className="browse-title">Add your listing.</div>
+          <div className="browse-sub">
+            Tell investors about your company and the round you're raising.
+          </div>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} style={{ maxWidth: 720, margin: '0 auto', padding: '48px 24px' }}>
+        {error && (
+          <div
+            style={{
+              padding: '12px 16px',
+              background: 'rgba(239, 68, 68, 0.08)',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              borderRadius: 6,
+              color: '#ef4444',
+              fontSize: 12,
+              marginBottom: 24,
+            }}
+          >
+            {error}
+          </div>
+        )}
+
+        <FormField
+          label="Company"
+          type="select"
+          value={selectedCompanyId}
+          onChange={(e) => setSelectedCompanyId(e.target.value)}
+          required
+          disabled={companiesLoading}
+          options={companies.map((c) => ({ value: c.id, label: c.name }))}
+        />
+
+        <FormField
+          label="Executive Summary"
+          name="exec_summary"
+          type="textarea"
+          value={formData.exec_summary}
+          onChange={handleChange}
+          placeholder="Describe your company, what you're building, and why..."
+        />
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
+          <FormField
+            label="Capital Seeking"
+            name="capital_sought"
+            type="text"
+            value={formData.capital_sought}
+            onChange={handleChange}
+            placeholder="e.g. $2M or $2,000,000"
+          />
+          <FormField
+            label="Round Stage"
+            name="round_stage"
+            type="select"
+            value={formData.round_stage}
+            onChange={handleChange}
+            options={ROUND_STAGES.map((s) => ({ value: s, label: s }))}
+          />
+        </div>
+
+        <div style={{ marginBottom: 24 }}>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--tx2)' }}>
+            Revenue Projections (Optional)
+          </label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+            <FormField
+              label="Year 1"
+              name="revenue_y1"
+              type="number"
+              value={formData.revenue_y1}
+              onChange={handleChange}
+              placeholder="e.g. 500000"
+            />
+            <FormField
+              label="Year 2"
+              name="revenue_y2"
+              type="number"
+              value={formData.revenue_y2}
+              onChange={handleChange}
+              placeholder="e.g. 1500000"
+            />
+            <FormField
+              label="Year 3"
+              name="revenue_y3"
+              type="number"
+              value={formData.revenue_y3}
+              onChange={handleChange}
+              placeholder="e.g. 4000000"
+            />
+          </div>
+        </div>
+
+        <FormField
+          label="Pitch Deck URL (Optional)"
+          name="deck_url"
+          type="url"
+          value={formData.deck_url}
+          onChange={handleChange}
+          placeholder="https://example.com/deck.pdf"
+        />
+
+        <div style={{ marginBottom: 24 }}>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--tx2)' }}>
+            Leadership Team (Optional)
+          </label>
+          {formData.leadership.map((leader, idx) => (
+            <div key={idx} style={{ marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid rgba(232,228,218,0.10)' }}>
+              <FormField
+                label={`Name ${idx + 1}`}
+                type="text"
+                value={leader.name}
+                onChange={(e) => handleLeadershipChange(idx, 'name', e.target.value)}
+                placeholder="e.g. Jane Doe"
+              />
+              <FormField
+                label={`Title ${idx + 1}`}
+                type="text"
+                value={leader.title}
+                onChange={(e) => handleLeadershipChange(idx, 'title', e.target.value)}
+                placeholder="e.g. CEO"
+              />
+              <FormField
+                label={`Bio ${idx + 1}`}
+                type="textarea"
+                value={leader.bio}
+                onChange={(e) => handleLeadershipChange(idx, 'bio', e.target.value)}
+                placeholder="Brief background..."
+              />
+              <FormField
+                label={`LinkedIn ${idx + 1}`}
+                type="url"
+                value={leader.linkedin_url}
+                onChange={(e) => handleLeadershipChange(idx, 'linkedin_url', e.target.value)}
+                placeholder="https://linkedin.com/in/..."
+              />
+              {formData.leadership.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeLeadershipRow(idx)}
+                  style={{
+                    padding: '8px 12px',
+                    background: 'rgba(239, 68, 68, 0.08)',
+                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    borderRadius: 4,
+                    color: '#ef4444',
+                    fontSize: 12,
+                    cursor: 'pointer',
+                    fontWeight: 600,
+                  }}
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addLeadershipRow}
+            style={{
+              padding: '8px 12px',
+              border: '1px solid var(--cyan)',
+              borderRadius: 4,
+              background: 'transparent',
+              color: 'var(--cyan)',
+              fontSize: 12,
+              cursor: 'pointer',
+              fontWeight: 600,
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+            }}
+          >
+            + Add Team Member
+          </button>
+        </div>
+
+        <div style={{ marginTop: 32 }}>
+          <button
+            type="submit"
+            disabled={loading || companiesLoading}
+            style={{
+              width: '100%',
+              padding: '12px 24px',
+              background: loading ? 'rgba(232,162,58,0.3)' : 'var(--cyan)',
+              color: loading ? 'var(--tx3)' : '#000',
+              border: 'none',
+              borderRadius: 6,
+              fontSize: 12,
+              fontWeight: 700,
+              letterSpacing: '0.05em',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s',
+              textTransform: 'uppercase',
+            }}
+          >
+            {loading ? 'SUBMITTING...' : 'SUBMIT FOR REVIEW'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function FormField({ label, name, type = 'text', options, ...props }) {
+  if (type === 'textarea') {
+    return (
+      <div style={{ marginBottom: 24 }}>
+        <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--tx2)' }}>
+          {label}
+        </label>
+        <textarea
+          name={name}
+          {...props}
+          style={{
+            width: '100%',
+            padding: '10px 12px',
+            border: '1px solid var(--bd)',
+            borderRadius: 6,
+            background: 'var(--s1)',
+            color: 'var(--tx)',
+            fontSize: 13,
+            fontFamily: 'inherit',
+            minHeight: 100,
+            resize: 'vertical',
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (type === 'select') {
+    return (
+      <div style={{ marginBottom: 24 }}>
+        <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--tx2)' }}>
+          {label}
+        </label>
+        <select
+          name={name}
+          {...props}
+          style={{
+            width: '100%',
+            padding: '10px 12px',
+            border: '1px solid var(--bd)',
+            borderRadius: 6,
+            background: 'var(--s1)',
+            color: 'var(--tx)',
+            fontSize: 13,
+            fontFamily: 'inherit',
+            cursor: 'pointer',
+          }}
+        >
+          <option value="">Select {label.toLowerCase()}</option>
+          {options?.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ marginBottom: 24 }}>
+      <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--tx2)' }}>
+        {label}
+      </label>
+      <input
+        type={type}
+        name={name}
+        {...props}
+        style={{
+          width: '100%',
+          padding: '10px 12px',
+          border: '1px solid var(--bd)',
+          borderRadius: 6,
+          background: 'var(--s1)',
+          color: 'var(--tx)',
+          fontSize: 13,
+          fontFamily: 'inherit',
+        }}
+      />
+    </div>
+  );
+}
+
+export default function SourcingDealBankAddListing() {
+  return (
+    <SourcingThemeProvider>
+      <SourcingDealBankAddListingInner />
+    </SourcingThemeProvider>
+  );
+}

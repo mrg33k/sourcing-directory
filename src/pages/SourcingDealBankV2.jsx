@@ -295,21 +295,82 @@ function SourcingDealBankV2Inner() {
 }
 
 function InvestmentsLane({ searchInput }) {
+  const [listings, setListings] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchListings = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('deal_bank_listings')
+          .select(`
+            id,
+            company_id,
+            capital_sought,
+            round_stage,
+            directory_companies (
+              name,
+              segment,
+              region
+            )
+          `)
+          .eq('status', 'approved')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Transform DB data into display format + slugs for routing
+        const transformed = (data || []).map((listing) => {
+          const company = listing.directory_companies;
+          return {
+            id: listing.id,
+            company_id: listing.company_id,
+            slug: company?.name?.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') || '',
+            company: company?.name || '(Unnamed company)',
+            round: listing.round_stage || '',
+            seeking: listing.capital_sought || '',
+            segment: company?.segment || '',
+            region: company?.region || '',
+          };
+        });
+
+        setListings(transformed);
+      } catch (err) {
+        console.error('Error fetching listings:', err);
+        setListings([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchListings();
+  }, []);
+
   const filtered = useMemo(() => {
-    if (!searchInput.trim()) return SAMPLE_INVESTMENTS;
+    if (!searchInput.trim()) return listings;
     const terms = searchInput.toLowerCase().split(/\s+/).filter(Boolean);
-    return SAMPLE_INVESTMENTS.filter((item) => investmentSearchMatch(item, terms));
-  }, [searchInput]);
+    return listings.filter((item) => investmentSearchMatch(item, terms));
+  }, [searchInput, listings]);
+
+  const showSample = listings.length === 0 && !loading;
 
   return (
     <>
-      <SamplePreviewBanner
-        copy="Preview — sample listings. Real companies raising will appear here once submissions open."
-      />
+      {showSample && (
+        <SamplePreviewBanner
+          copy="No live listings yet. Companies in the directory can add their listing."
+        />
+      )}
+
+      {loading && (
+        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.35)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          Loading...
+        </div>
+      )}
 
       {filtered.map((item) => (
         <Link
-          key={item.slug}
+          key={item.id || item.slug}
           to={`/space-rising-v2/deal-bank/investments/${item.slug}`}
           className="co-card"
           style={{ textDecoration: 'none', color: 'inherit' }}
@@ -330,9 +391,9 @@ function InvestmentsLane({ searchInput }) {
         </Link>
       ))}
 
-      {filtered.length === 0 && (
+      {filtered.length === 0 && !loading && (
         <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-          {`No sample listings match "${searchInput}"`}
+          {`No listings match "${searchInput}"`}
         </div>
       )}
     </>

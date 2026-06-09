@@ -83,6 +83,8 @@ const SourcingDealBankInvestmentProfile = lazy(() => import('./pages/SourcingDea
 const SourcingDealBankInvestorProfile = lazy(() => import('./pages/SourcingDealBankInvestorProfile.jsx'))
 // Deal Bank R6 (Round A) — investor signup form (public, no auth)
 const SourcingDealBankInvestorSignup = lazy(() => import('./pages/SourcingDealBankInvestorSignup.jsx'))
+// Deal Bank R7 (Round B) — company form to add listing (gated to directory companies)
+const SourcingDealBankAddListing = lazy(() => import('./pages/SourcingDealBankAddListing.jsx'))
 const SourcingMembershipV2 = lazy(() => import('./pages/SourcingMembershipV2.jsx'))
 const SourcingSignupV2 = lazy(() => import('./pages/SourcingSignupV2.jsx'))
 const SourcingCompanyV2 = lazy(() => import('./pages/SourcingCompanyV2.jsx'))
@@ -165,6 +167,7 @@ createRoot(document.getElementById('root')).render(
           {/* Deal Bank R7b/c — Investments + Investors profile pages. Three
               segments deep so they win over /space-rising-v2/:slug (2 segs)
               and over /space-rising-v2/deal-bank (literal, also 2 segs). */}
+          <Route path="/space-rising-v2/deal-bank/investments/add" element={<SourcingDealBankAddListing />} />
           <Route path="/space-rising-v2/deal-bank/investments/:slug" element={<SourcingDealBankInvestmentProfile />} />
           <Route path="/space-rising-v2/deal-bank/investors/signup" element={<SourcingDealBankInvestorSignup />} />
           <Route path="/space-rising-v2/deal-bank/investors/:slug" element={<SourcingDealBankInvestorProfile />} />
