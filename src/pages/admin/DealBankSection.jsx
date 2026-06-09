@@ -12,6 +12,49 @@ function fmtNum(n) {
   return n.toString();
 }
 
+// RFC4180-ish CSV parser: handles quoted fields, escaped quotes, newlines in fields.
+function parseCSV(text) {
+  const rows = []; let row = []; let field = ''; let q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else q = false; }
+      else field += c;
+    } else if (c === '"') { q = true; }
+    else if (c === ',') { row.push(field); field = ''; }
+    else if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; }
+    else if (c !== '\r') { field += c; }
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+function pick(o, ...keys) { for (const k of keys) { if (o[k] != null && String(o[k]).trim() !== '') return o[k]; } return null; }
+function toNum(v) { if (v == null || v === '') return null; const n = Number(String(v).replace(/[^0-9.]/g, '')); return isNaN(n) ? null : n; }
+function socialLink(s, kind) {
+  if (!s) return null;
+  for (const part of String(s).split(';')) {
+    const idx = part.indexOf(':');
+    if (idx > 0 && part.slice(0, idx).trim().toUpperCase() === kind) return part.slice(idx + 1).trim();
+  }
+  return null;
+}
+// Maps either Ben's NFX export columns OR clean deal_bank_investors columns.
+function mapInvestor(o) {
+  const social = pick(o, 'socialLinks', 'social_links');
+  const dt = pick(o, 'deal_types', 'investorType');
+  return {
+    firm_name: pick(o, 'firm_name', 'investorName', 'investorFirm') || 'Unknown',
+    criteria: pick(o, 'criteria', 'investorDescription'),
+    check_size_min: toNum(pick(o, 'check_size_min', 'investorMinInvestment')),
+    check_size_max: toNum(pick(o, 'check_size_max', 'investorMaxInvestment')),
+    deal_types: dt ? String(dt).split(/[;,]/).map(s => s.trim()).filter(Boolean) : null,
+    linkedin_url: pick(o, 'linkedin_url') || socialLink(social, 'LINKEDIN'),
+    website: pick(o, 'website') || socialLink(social, 'WEBSITE'),
+    contact_email_internal: pick(o, 'contact_email_internal', 'investorEmail'),
+    status: 'approved',
+  };
+}
+
 export default function DealBankSection({ adminSupabase, selectedTenantId, currentUserEmail, V }) {
   const [listings, setListings] = useState([]);
   const [investors, setInvestors] = useState([]);
@@ -60,9 +103,57 @@ export default function DealBankSection({ adminSupabase, selectedTenantId, curre
     } finally { setBusy(p => ({ ...p, [item.id]: false })); }
   };
 
+  // ── CSV import (investors) ──
+  const [importPreview, setImportPreview] = useState(null); // { rows, headers }
+  const [importStatus, setImportStatus] = useState('');
+  const importRef = React.useRef(null);
+  const handleImportFile = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    setImportStatus('Reading…');
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const table = parseCSV(String(reader.result || ''));
+        if (table.length < 2) { setImportStatus('No data rows found.'); return; }
+        const headers = table[0].map(h => h.trim());
+        const objs = table.slice(1)
+          .filter(r => r.some(c => String(c).trim() !== ''))
+          .map(r => { const o = {}; headers.forEach((h, i) => { o[h] = r[i]; }); return mapInvestor(o); })
+          .filter(r => r.firm_name && r.firm_name !== 'Unknown');
+        setImportPreview({ rows: objs, headers });
+        setImportStatus(`${objs.length} investors detected.`);
+      } catch (err) { setImportStatus('Could not parse CSV: ' + err.message); }
+    };
+    reader.readAsText(file);
+  };
+  const handleImportConfirm = async () => {
+    if (!importPreview || !adminSupabase) return;
+    setImportStatus('Importing…');
+    try {
+      const rows = importPreview.rows;
+      for (let i = 0; i < rows.length; i += 50) {
+        const { error } = await adminSupabase.from('deal_bank_investors').insert(rows.slice(i, i + 50));
+        if (error) throw error;
+      }
+      logAudit(adminSupabase, { tenant_id: selectedTenantId, actor_email: currentUserEmail, action: 'dealbank.investor.import', entity_type: 'dealbank_investor', detail: { count: rows.length } });
+      setImportPreview(null);
+      setImportStatus(`Imported ${rows.length} investors.`);
+      await fetchData();
+      setTimeout(() => setImportStatus(''), 4000);
+    } catch (err) { setImportStatus('Import failed: ' + err.message); }
+  };
+
   if (loading && !listings.length && !investors.length && !rounds.length) {
     return <div style={{ textAlign: 'center', padding: '40px 0', color: V.muted, fontFamily: V.space }}>Loading Deal Bank…</div>;
   }
+
+  const importBar = (
+    <label style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.35)', color: '#93C5FD', borderRadius: 6, padding: '6px 14px', fontSize: 12, fontWeight: 700, fontFamily: V.space, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+      Import CSV
+      <input ref={importRef} type="file" accept=".csv" style={{ display: 'none' }} onChange={handleImportFile} onClick={e => { e.target.value = ''; setImportPreview(null); setImportStatus(''); }} />
+    </label>
+  );
 
   const newBtn = (entity, label) => (
     <button onClick={() => setForm({ entity, data: form?.entity === entity ? null : {} })} style={{
@@ -107,7 +198,23 @@ export default function DealBankSection({ adminSupabase, selectedTenantId, curre
         )}
       </AdminSection>
 
-      <AdminSection title={`Investor Profiles (${investors.length})`} V={V} action={newBtn('investor', 'Investor')}>
+      <AdminSection title={`Investor Profiles (${investors.length})`} V={V} action={<div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>{importBar}{newBtn('investor', 'Investor')}</div>}>
+        {(importPreview || importStatus) && (
+          <div style={{ background: V.card, border: `1px solid ${importPreview ? 'rgba(59,130,246,0.35)' : V.border}`, borderRadius: 10, padding: '16px 18px', marginBottom: 14 }}>
+            {importStatus && <div style={{ fontSize: 13, color: importStatus.startsWith('Import failed') || importStatus.startsWith('Could') ? '#FCA5A5' : V.accent, fontFamily: V.space, marginBottom: importPreview ? 12 : 0 }}>{importStatus}</div>}
+            {importPreview && (
+              <>
+                <div style={{ fontSize: 12, color: V.muted, fontFamily: V.mono, marginBottom: 10 }}>
+                  Preview (first 5 of {importPreview.rows.length}): {importPreview.rows.slice(0, 5).map(r => r.firm_name).join(', ')}{importPreview.rows.length > 5 ? '…' : ''}
+                </div>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button onClick={handleImportConfirm} style={{ background: V.accent, border: 'none', color: '#06060A', borderRadius: 7, padding: '8px 18px', fontSize: 13, fontWeight: 700, fontFamily: V.space, cursor: 'pointer' }}>Import {importPreview.rows.length} Investors</button>
+                  <button onClick={() => { setImportPreview(null); setImportStatus(''); }} style={{ background: 'transparent', border: `1px solid ${V.border}`, color: V.muted, borderRadius: 7, padding: '8px 16px', fontSize: 13, fontFamily: V.space, cursor: 'pointer' }}>Cancel</button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
         {investors.length === 0 ? <Empty V={V} /> : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {investors.map(iv => (
