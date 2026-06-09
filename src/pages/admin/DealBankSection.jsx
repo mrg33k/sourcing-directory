@@ -38,6 +38,22 @@ function socialLink(s, kind) {
   }
   return null;
 }
+// Maps a completed-round CSV row (clean names or Ben's funding-sheet headers, case-insensitive).
+function mapRound(o) {
+  const g = {}; Object.keys(o).forEach(k => { g[String(k).trim().toLowerCase()] = o[k]; });
+  const p = (...ks) => { for (const k of ks) { if (g[k] != null && String(g[k]).trim() !== '') return g[k]; } return null; };
+  const amt = p('amount_raised', 'reported amount', 'amount reported', 'amount');
+  const usd = p('amount usd (m)', 'approx. usd ($m)', 'approx usd');
+  const d = p('date', 'announced / funded date', 'funded / announced date', 'announced date');
+  return {
+    company: p('company'),
+    amount_raised: amt || (usd ? '$' + String(usd).replace(/[$m]/gi, '') + 'M' : null),
+    round: p('round', 'round / stage', 'round/stage', 'stage'),
+    date: (d && /^\d{4}-\d{2}/.test(String(d))) ? String(d).slice(0, 10) : null,
+    source_url: p('source_url', 'source'),
+    notes: p('notes', 'short description', 'description', 'category', 'segment'),
+  };
+}
 // Maps either Ben's NFX export columns OR clean deal_bank_investors columns.
 function mapInvestor(o) {
   const social = pick(o, 'socialLinks', 'social_links');
@@ -155,6 +171,49 @@ export default function DealBankSection({ adminSupabase, selectedTenantId, curre
     </label>
   );
 
+  // ── CSV import (completed rounds) ──
+  const [roundPreview, setRoundPreview] = useState(null);
+  const [roundStatus, setRoundStatus] = useState('');
+  const handleRoundFile = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    setRoundStatus('Reading…');
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const table = parseCSV(String(reader.result || ''));
+        if (table.length < 2) { setRoundStatus('No data rows found.'); return; }
+        const headers = table[0].map(h => h.trim());
+        const objs = table.slice(1).filter(r => r.some(c => String(c).trim() !== ''))
+          .map(r => { const o = {}; headers.forEach((h, i) => { o[h] = r[i]; }); return mapRound(o); })
+          .filter(r => r.company);
+        setRoundPreview({ rows: objs });
+        setRoundStatus(`${objs.length} rounds detected.`);
+      } catch (err) { setRoundStatus('Could not parse CSV: ' + err.message); }
+    };
+    reader.readAsText(file);
+  };
+  const handleRoundConfirm = async () => {
+    if (!roundPreview || !adminSupabase) return;
+    setRoundStatus('Importing…');
+    try {
+      const rows = roundPreview.rows;
+      for (let i = 0; i < rows.length; i += 50) {
+        const { error } = await adminSupabase.from('deal_bank_completed_rounds').insert(rows.slice(i, i + 50));
+        if (error) throw error;
+      }
+      logAudit(adminSupabase, { tenant_id: selectedTenantId, actor_email: currentUserEmail, action: 'dealbank.round.import', entity_type: 'dealbank_round', detail: { count: rows.length } });
+      setRoundPreview(null); setRoundStatus(`Imported ${rows.length} rounds.`);
+      await fetchData(); setTimeout(() => setRoundStatus(''), 4000);
+    } catch (err) { setRoundStatus('Import failed: ' + err.message); }
+  };
+  const roundImportBar = (
+    <label style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.35)', color: '#93C5FD', borderRadius: 6, padding: '6px 14px', fontSize: 12, fontWeight: 700, fontFamily: V.space, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+      Import CSV
+      <input type="file" accept=".csv" style={{ display: 'none' }} onChange={handleRoundFile} onClick={e => { e.target.value = ''; setRoundPreview(null); setRoundStatus(''); }} />
+    </label>
+  );
+
   const newBtn = (entity, label) => (
     <button onClick={() => setForm({ entity, data: form?.entity === entity ? null : {} })} style={{
       background: form?.entity === entity ? V.accentDim : 'transparent',
@@ -227,7 +286,21 @@ export default function DealBankSection({ adminSupabase, selectedTenantId, curre
         )}
       </AdminSection>
 
-      <AdminSection title={`Completed Rounds (${rounds.length})`} V={V} action={newBtn('round', 'Round')}>
+      <AdminSection title={`Completed Rounds (${rounds.length})`} V={V} action={<div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>{roundImportBar}{newBtn('round', 'Round')}</div>}>
+        {(roundPreview || roundStatus) && (
+          <div style={{ background: V.card, border: `1px solid ${roundPreview ? 'rgba(59,130,246,0.35)' : V.border}`, borderRadius: 10, padding: '16px 18px', marginBottom: 14 }}>
+            {roundStatus && <div style={{ fontSize: 13, color: roundStatus.startsWith('Import failed') || roundStatus.startsWith('Could') ? '#FCA5A5' : V.accent, fontFamily: V.space, marginBottom: roundPreview ? 12 : 0 }}>{roundStatus}</div>}
+            {roundPreview && (
+              <>
+                <div style={{ fontSize: 12, color: V.muted, fontFamily: V.mono, marginBottom: 10 }}>Preview (first 5 of {roundPreview.rows.length}): {roundPreview.rows.slice(0, 5).map(r => r.company).join(', ')}{roundPreview.rows.length > 5 ? '…' : ''}</div>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button onClick={handleRoundConfirm} style={{ background: V.accent, border: 'none', color: '#06060A', borderRadius: 7, padding: '8px 18px', fontSize: 13, fontWeight: 700, fontFamily: V.space, cursor: 'pointer' }}>Import {roundPreview.rows.length} Rounds</button>
+                  <button onClick={() => { setRoundPreview(null); setRoundStatus(''); }} style={{ background: 'transparent', border: `1px solid ${V.border}`, color: V.muted, borderRadius: 7, padding: '8px 16px', fontSize: 13, fontFamily: V.space, cursor: 'pointer' }}>Cancel</button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
         {rounds.length === 0 ? <Empty V={V} msg="No completed rounds yet." /> : (
           <div style={{ background: V.card, border: `1px solid ${V.border}`, borderRadius: 8, overflow: 'hidden' }}>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 110px 90px 150px', gap: 12, padding: '8px 16px', background: V.card2 }}>
