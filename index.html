@@ -6,6 +6,18 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>sourcing.directory</title>
+    <script>
+      // Per-domain default title. On the Space Rising domain it must never show
+      // "sourcing.directory". Other tenant domains keep their own default.
+      (function () {
+        try {
+          var h = (location.hostname || '').toLowerCase();
+          if (h.indexOf('spacerising') !== -1) {
+            document.title = 'SpaceRising.org';
+          }
+        } catch (e) {}
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Syne:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
