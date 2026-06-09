@@ -16,6 +16,7 @@ import PendingContentSection from './admin/PendingContentSection.jsx';
 import AddCompanySection from './admin/AddCompanySection.jsx';
 import OrganizationsSection from './admin/OrganizationsSection.jsx';
 import ListingsSection from './admin/ListingsSection.jsx';
+import SettingsSection from './admin/SettingsSection.jsx';
 import ReportsSection from './admin/ReportsSection.jsx';
 import AnalyticsSection from './admin/AnalyticsSection.jsx';
 import MessagesSection from './admin/MessagesSection.jsx';
@@ -944,6 +945,7 @@ function SourcingAdminInner() {
     { key: 'analytics',  label: 'Analytics' },
     { key: 'messages',   label: `Messages${newContactCount > 0 ? ` (${newContactCount})` : ''}` },
     { key: 'actions',    label: 'Quick Actions' },
+    { key: 'settings',   label: 'Settings' },
   ];
 
   return (
@@ -1208,6 +1210,15 @@ function SourcingAdminInner() {
             setActiveTab={setActiveTab}
             fetchData={fetchData}
             selectedTenantId={selectedTenantId}
+            V={V}
+          />
+        )}
+
+        {!loading && activeTab === 'settings' && (
+          <SettingsSection
+            tenant={selectedTenant}
+            adminSupabase={adminSupabase}
+            setTenants={setTenants}
             V={V}
           />
         )}
