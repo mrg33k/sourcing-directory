@@ -3,7 +3,7 @@ import { AdminSection } from './AdminUI.jsx';
 
 export default function AddCompanySection({ orgs, V, adminSupabase, selectedTenantId, fetchData }) {
   const [addCompanyForm, setAddCompanyForm] = useState({
-    name: '', website: '', city: '', vertical: 'semiconductor',
+    name: '', website: '', city: '', state: 'AZ', vertical: 'semiconductor',
     description: '', employee_count: '', year_founded: '', email: '', phone: '',
     membership_tier: 'free', featured: false, owner_email: '',
   });
@@ -20,7 +20,7 @@ export default function AddCompanySection({ orgs, V, adminSupabase, selectedTena
       slug,
       website: addCompanyForm.website || null,
       city: addCompanyForm.city || null,
-      state: 'AZ',
+      state: addCompanyForm.state || 'AZ',
       country: 'US',
       vertical: addCompanyForm.vertical,
       description: addCompanyForm.description || null,
@@ -53,13 +53,13 @@ export default function AddCompanySection({ orgs, V, adminSupabase, selectedTena
         if (!resp || !resp.ok) {
           setAddCompanyStatus('Company added, but owner account creation failed.');
           setTimeout(() => { setAddCompanyStatus(''); }, 3000);
-          setAddCompanyForm({ name: '', website: '', city: '', vertical: 'semiconductor', description: '', employee_count: '', year_founded: '', email: '', phone: '', membership_tier: 'free', featured: false, owner_email: '' });
+          setAddCompanyForm({ name: '', website: '', city: '', state: 'AZ', vertical: 'semiconductor', description: '', employee_count: '', year_founded: '', email: '', phone: '', membership_tier: 'free', featured: false, owner_email: '' });
           await fetchData();
           return;
         }
       }
       setAddCompanyStatus('Added!');
-      setAddCompanyForm({ name: '', website: '', city: '', vertical: 'semiconductor', description: '', employee_count: '', year_founded: '', email: '', phone: '', membership_tier: 'free', featured: false, owner_email: '' });
+      setAddCompanyForm({ name: '', website: '', city: '', state: 'AZ', vertical: 'semiconductor', description: '', employee_count: '', year_founded: '', email: '', phone: '', membership_tier: 'free', featured: false, owner_email: '' });
       setTimeout(() => { setAddCompanyStatus(''); }, 1500);
       await fetchData();
     }
@@ -74,6 +74,7 @@ export default function AddCompanySection({ orgs, V, adminSupabase, selectedTena
             { label: 'Company Name *', key: 'name', type: 'text', placeholder: 'e.g. Acme Semiconductors' },
             { label: 'Website', key: 'website', type: 'url', placeholder: 'https://example.com' },
             { label: 'City', key: 'city', type: 'text', placeholder: 'e.g. Chandler' },
+            { label: 'State', key: 'state', type: 'text', placeholder: 'AZ' },
             { label: 'Email', key: 'email', type: 'email', placeholder: 'info@example.com' },
             { label: 'Phone', key: 'phone', type: 'text', placeholder: '(480) 555-0000' },
             { label: 'Employee Count', key: 'employee_count', type: 'text', placeholder: 'e.g. 50-200' },

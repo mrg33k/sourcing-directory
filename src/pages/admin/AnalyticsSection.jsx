@@ -34,19 +34,26 @@ export default function AnalyticsSection({ analyticsData, contacts, companyMap, 
               {analyticsData.topCompanies.length === 0 ? (
                 <div style={{ fontSize: 13, color: V.dim, fontFamily: V.space }}>No profile views yet.</div>
               ) : (
-                analyticsData.topCompanies.map(({ id, count }) => {
-                  const co = companyMap[id];
-                  return (
-                    <div key={id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 0', borderBottom: `1px solid ${V.border}` }}>
-                      <span style={{ fontSize: 13, color: V.text, fontFamily: V.space, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0 }}>
-                        {co?.name || id.slice(0, 8) + '...'}
-                      </span>
-                      <span style={{ fontSize: 13, fontWeight: 700, fontFamily: V.mono, color: V.accent, flexShrink: 0, marginLeft: 8 }}>
-                        {count}
-                      </span>
-                    </div>
-                  );
-                })
+                (() => {
+                  const maxCount = Math.max(...analyticsData.topCompanies.map(c => c.count), 1);
+                  return analyticsData.topCompanies.map(({ id, count }) => {
+                    const co = companyMap[id];
+                    const pct = Math.round((count / maxCount) * 100);
+                    return (
+                      <div key={id} style={{ position: 'relative', padding: '8px 0', borderBottom: `1px solid ${V.border}` }}>
+                        <div style={{ position: 'absolute', left: 0, top: 4, bottom: 4, width: `${pct}%`, background: V.accentDim, borderRadius: 4, transition: 'width 0.3s' }} />
+                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '0 8px' }}>
+                          <span style={{ fontSize: 13, color: V.text, fontFamily: V.space, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1, minWidth: 0 }}>
+                            {co?.name || id.slice(0, 8) + '...'}
+                          </span>
+                          <span style={{ fontSize: 13, fontWeight: 700, fontFamily: V.mono, color: V.accent, flexShrink: 0 }}>
+                            {count}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  });
+                })()
               )}
             </div>
 

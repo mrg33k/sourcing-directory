@@ -138,9 +138,9 @@ export default function ReportsSection({ reports, setReports, reportsLoading, V,
       // Delete file from storage if present
       if (report.file_url) {
         const url = new URL(report.file_url);
-        const pathParts = url.pathname.split('/object/public/reports/');
+        const pathParts = url.pathname.split('/object/public/sourcing-reports/');
         if (pathParts.length === 2) {
-          await adminSupabase.storage.from('reports').remove([pathParts[1]]);
+          await adminSupabase.storage.from('sourcing-reports').remove([pathParts[1]]);
         }
       }
       await adminSupabase.from('directory_reports').delete().eq('id', report.id);
