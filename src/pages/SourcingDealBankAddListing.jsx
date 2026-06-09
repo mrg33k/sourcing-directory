@@ -97,7 +97,7 @@ function SourcingDealBankAddListingInner() {
       try {
         const { data, error } = await supabase
           .from('directory_companies')
-          .select('id, name, segment, region')
+          .select('id, name, vertical, state')
           .order('name', { ascending: true });
 
         if (error) throw error;

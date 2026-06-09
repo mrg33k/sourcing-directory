@@ -321,8 +321,10 @@ function InvestmentsLane({ searchInput }) {
             round_stage,
             directory_companies (
               name,
-              segment,
-              region
+              vertical,
+              city,
+              state,
+              country
             )
           `)
           .eq('status', 'approved')
@@ -330,9 +332,12 @@ function InvestmentsLane({ searchInput }) {
 
         if (error) throw error;
 
-        // Transform DB data into display format + slugs for routing
+        // Transform DB data into display format + slugs for routing.
+        // directory_companies has no segment/region columns — segment maps to
+        // `vertical`, region to state/country (city + state when both exist).
         const transformed = (data || []).map((listing) => {
           const company = listing.directory_companies;
+          const region = [company?.city, company?.state].filter(Boolean).join(', ') || company?.country || '';
           return {
             id: listing.id,
             company_id: listing.company_id,
@@ -340,8 +345,8 @@ function InvestmentsLane({ searchInput }) {
             company: company?.name || '(Unnamed company)',
             round: listing.round_stage || '',
             seeking: listing.capital_sought || '',
-            segment: company?.segment || '',
-            region: company?.region || '',
+            segment: company?.vertical || '',
+            region,
           };
         });
 

@@ -44,8 +44,10 @@ function SourcingDealBankInvestmentProfileInner() {
             *,
             directory_companies (
               name,
-              segment,
-              region
+              vertical,
+              city,
+              state,
+              country
             )
           `)
           .eq('status', 'approved')
@@ -60,8 +62,10 @@ function SourcingDealBankInvestmentProfileInner() {
               *,
               directory_companies (
                 name,
-                segment,
-                region
+                vertical,
+                city,
+                state,
+                country
               )
             `)
             .eq('status', 'approved');
@@ -143,8 +147,9 @@ function SourcingDealBankInvestmentProfileInner() {
   }
 
   const companyName = listing.directory_companies?.name || 'Unknown Company';
-  const segment = listing.directory_companies?.segment || '—';
-  const region = listing.directory_companies?.region || '—';
+  const segment = listing.directory_companies?.vertical || '—';
+  const region = [listing.directory_companies?.city, listing.directory_companies?.state]
+    .filter(Boolean).join(', ') || listing.directory_companies?.country || '—';
 
   return (
     <div
