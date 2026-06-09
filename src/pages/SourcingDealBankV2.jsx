@@ -5,6 +5,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
 import { V2ChipNav } from './V2ChipNav.jsx';
 import '../space-rising-theme-v2.css';
@@ -339,21 +340,64 @@ function InvestmentsLane({ searchInput }) {
 }
 
 function InvestorsLane({ searchInput }) {
+  const [investors, setInvestors] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchInvestors = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('deal_bank_investors')
+          .select('id, firm_name, criteria, check_size_min, check_size_max, deal_types, deals_last_18mo, linkedin_url')
+          .eq('status', 'approved')
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        // Transform DB data into display format + slugs for routing
+        const transformed = (data || []).map((firm) => ({
+          id: firm.id,
+          slug: firm.firm_name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+          firm: firm.firm_name,
+          focus: firm.criteria || '',
+          checkSize: firm.check_size_min && firm.check_size_max
+            ? `$${(firm.check_size_min / 1000000).toFixed(1)}M – $${(firm.check_size_max / 1000000).toFixed(1)}M`
+            : '',
+          dealTypes: firm.deal_types ? firm.deal_types.join(', ') : '',
+        }));
+
+        setInvestors(transformed);
+      } catch (err) {
+        console.error('Error fetching investors:', err);
+        // Fallback to SAMPLE_INVESTORS on error
+        setInvestors(SAMPLE_INVESTORS);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInvestors();
+  }, []);
+
   const filtered = useMemo(() => {
-    if (!searchInput.trim()) return SAMPLE_INVESTORS;
+    if (!searchInput.trim()) return investors;
     const terms = searchInput.toLowerCase().split(/\s+/).filter(Boolean);
-    return SAMPLE_INVESTORS.filter((item) => investorSearchMatch(item, terms));
-  }, [searchInput]);
+    return investors.filter((item) => investorSearchMatch(item, terms));
+  }, [searchInput, investors]);
+
+  const showSample = investors.length === 0 && !loading;
 
   return (
     <>
-      <SamplePreviewBanner
-        copy="Preview — sample firms. Real investor profiles will appear here once signups open."
-      />
+      {showSample && (
+        <SamplePreviewBanner
+          copy="No live listings yet. Be the first — list your firm."
+        />
+      )}
 
       {filtered.map((item) => (
         <Link
-          key={item.slug}
+          key={item.id || item.slug}
           to={`/space-rising-v2/deal-bank/investors/${item.slug}`}
           className="co-card"
           style={{ textDecoration: 'none', color: 'inherit' }}
@@ -372,11 +416,40 @@ function InvestorsLane({ searchInput }) {
         </Link>
       ))}
 
-      {filtered.length === 0 && (
+      {filtered.length === 0 && !loading && (
         <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-          {`No sample firms match "${searchInput}"`}
+          {`No firms match "${searchInput}"`}
         </div>
       )}
+
+      {loading && (
+        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.35)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          Loading...
+        </div>
+      )}
+
+      <div style={{ padding: '24px', borderTop: '1px solid rgba(232,228,218,0.10)' }}>
+        <Link
+          to="/space-rising-v2/deal-bank/investors/signup"
+          style={{
+            display: 'block',
+            padding: '12px 16px',
+            border: '1px solid rgba(232,162,58,0.32)',
+            borderRadius: 6,
+            background: 'rgba(232,162,58,0.08)',
+            color: 'var(--cyan)',
+            textDecoration: 'none',
+            fontSize: 12,
+            fontWeight: 600,
+            letterSpacing: '0.05em',
+            textAlign: 'center',
+            textTransform: 'uppercase',
+            transition: 'all 0.2s',
+          }}
+        >
+          List Your Firm
+        </Link>
+      </div>
     </>
   );
 }

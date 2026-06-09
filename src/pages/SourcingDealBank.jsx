@@ -307,6 +307,8 @@ function SourcingDealBankInner() {
           .db-row-mid { grid-area: mid; }
           .db-row-right { grid-area: amount; text-align: left; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
           .db-amount { font-size: 20px; }
+          /* Tighter horizontal padding on small screens */
+          .db-section-pad { padding-left: 16px !important; padding-right: 16px !important; }
         }
       `}</style>
 
@@ -338,13 +340,15 @@ function SourcingDealBankInner() {
           </Link>
           <div className="browse-title">Deal Bank</div>
           <div className="browse-sub">
-            Closed funding rounds across the space industry. Pre-seed through growth, curated by the Space Rising team.
+            {filtered.length > 0 && !loading
+              ? `${deals.length}+ closed space funding rounds. Pre-seed through growth.`
+              : 'Closed space funding rounds. Pre-seed through growth, curated by the Space Rising team.'}
           </div>
         </div>
       </div>
 
       {/* Search */}
-      <div style={{ padding: '0 24px', maxWidth: 960, margin: '0 auto' }}>
+      <div className="db-section-pad" style={{ padding: '0 24px', maxWidth: 960, margin: '0 auto' }}>
         <div style={{ position: 'relative', marginBottom: 12 }}>
           <input
             type="text"
@@ -405,7 +409,7 @@ function SourcingDealBankInner() {
       </div>
 
       {/* List */}
-      <div style={{ padding: '0 24px 60px', maxWidth: 960, margin: '0 auto' }}>
+      <div className="db-section-pad" style={{ padding: '0 24px 60px', maxWidth: 960, margin: '0 auto' }}>
         {loading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {[1, 2, 3, 4, 5].map(i => (

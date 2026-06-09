@@ -1,13 +1,14 @@
 // SourcingDealBankInvestorProfile.jsx
-// Deal Bank R7c (2026-06-05) — Investors profile page shell.
+// Deal Bank R6 (Round A, 2026-06-09) — Investors profile page.
 // Route: /space-rising-v2/deal-bank/investors/:slug.
+// Reads real firm data from deal_bank_investors table (approved status only).
 // Hero with breadcrumb + focus statement + criteria block (check size, deal
 // types, last-18-mo deals, LinkedIn). Contact email is intentionally NOT
-// rendered to the public DOM — internal-only per the BUILD spec. Empty
-// states until the data source lands in a later round.
+// rendered to the public DOM — internal-only per the BUILD spec.
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
 import '../space-rising-theme-v2.css';
 
@@ -32,8 +33,88 @@ function SourcingDealBankInvestorProfileInner() {
   const { slug } = useParams();
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
+  const [firm, setFirm] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [notFound, setNotFound] = useState(false);
 
-  const firmName = humanizeSlug(slug);
+  useEffect(() => {
+    const fetchFirm = async () => {
+      try {
+        // Search for firm by slug or exact name match
+        const { data, error } = await supabase
+          .from('deal_bank_investors')
+          .select('*')
+          .eq('status', 'approved')
+          .or(`firm_name.ilike.%${slug.replace(/-/g, ' ')}%`)
+          .limit(1)
+          .single();
+
+        if (error || !data) {
+          setNotFound(true);
+        } else {
+          setFirm(data);
+        }
+      } catch (err) {
+        console.error('Error fetching firm:', err);
+        setNotFound(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFirm();
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div
+        data-tenant="space-rising-v2"
+        style={{
+          minHeight: '100dvh',
+          background: 'var(--bg)',
+          color: 'var(--tx)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
+        }}
+      >
+        <div style={{ fontSize: 13, color: 'var(--tx3)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          Loading...
+        </div>
+      </div>
+    );
+  }
+
+  if (notFound || !firm) {
+    return (
+      <div
+        data-tenant="space-rising-v2"
+        style={{
+          minHeight: '100dvh',
+          background: 'var(--bg)',
+          color: 'var(--tx)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 24,
+          fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
+        }}
+      >
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 14, marginBottom: 16 }}>Firm not found.</div>
+          <Link
+            to="/space-rising-v2/deal-bank?tab=investors"
+            style={{ fontSize: 12, color: 'var(--cyan)', textDecoration: 'none' }}
+          >
+            Back to Investors
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  const firmName = firm.firm_name;
 
   return (
     <div
@@ -70,11 +151,11 @@ function SourcingDealBankInvestorProfileInner() {
       </div>
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 24px 8px' }}>
-        <FocusStatement />
+        <FocusStatement firm={firm} />
       </div>
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '8px 24px 8px' }}>
-        <CriteriaBlock />
+        <CriteriaBlock firm={firm} />
       </div>
 
       <div style={{ maxWidth: 1200, margin: '0 auto', padding: '8px 24px 48px' }}>
@@ -121,7 +202,8 @@ function ConnectCard({ firmName }) {
   );
 }
 
-function FocusStatement() {
+function FocusStatement({ firm }) {
+  const hasCriteria = firm && firm.criteria;
   return (
     <div
       style={{
@@ -144,13 +226,45 @@ function FocusStatement() {
         Investment focus
       </div>
       <div style={{ color: 'rgba(232,228,218,0.85)', fontSize: 16, lineHeight: 1.55 }}>
-        Focus statement will appear here once the firm publishes their profile — sectors of interest, stages they back, and what makes them a fit for space companies.
+        {hasCriteria
+          ? firm.criteria
+          : "This firm hasn't published their investment criteria yet."}
       </div>
     </div>
   );
 }
 
-function CriteriaBlock() {
+function CriteriaBlock({ firm }) {
+  const getFieldValue = (field) => {
+    if (!firm) return '—';
+    switch (field.key) {
+      case 'checkSize':
+        if (firm.check_size_min && firm.check_size_max) {
+          return `$${(firm.check_size_min / 1000000).toFixed(1)}M – $${(firm.check_size_max / 1000000).toFixed(1)}M`;
+        }
+        return '—';
+      case 'dealTypes':
+        return firm.deal_types && firm.deal_types.length > 0 ? firm.deal_types.join(', ') : '—';
+      case 'last18Months':
+        return firm.deals_last_18mo ? `${firm.deals_last_18mo} deals` : '—';
+      case 'linkedin':
+        return firm.linkedin_url ? (
+          <a
+            href={firm.linkedin_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'var(--cyan)', textDecoration: 'none' }}
+          >
+            Profile →
+          </a>
+        ) : (
+          '—'
+        );
+      default:
+        return '—';
+    }
+  };
+
   return (
     <div
       style={{
@@ -184,7 +298,7 @@ function CriteriaBlock() {
             {field.label}
           </div>
           <div style={{ color: 'rgba(232,228,218,0.40)', fontSize: 15, fontWeight: 500 }}>
-            —
+            {getFieldValue(field)}
           </div>
         </div>
       ))}
