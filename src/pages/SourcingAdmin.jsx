@@ -1172,6 +1172,7 @@ function SourcingAdminInner() {
           <DealBankSection
             adminSupabase={adminSupabase}
             selectedTenantId={selectedTenantId}
+            currentUserEmail={currentUserEmail}
             V={V}
           />
         )}
