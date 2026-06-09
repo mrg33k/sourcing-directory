@@ -113,6 +113,37 @@ function CompanyEditForm({ company, onSave, onCancel, V, adminSupabase }) {
     }
   };
 
+  // ── certifications ──
+  const [certs, setCerts] = React.useState([]);
+  const [certName, setCertName] = React.useState('');
+  const [certValue, setCertValue] = React.useState('true');
+  const [certBusy, setCertBusy] = React.useState(false);
+  const loadCerts = React.useCallback(async () => {
+    if (!adminSupabase) return;
+    const { data } = await adminSupabase.from('directory_certifications').select('*').eq('company_id', company.id).order('cert_name');
+    setCerts(data || []);
+  }, [company.id]);
+  React.useEffect(() => { loadCerts(); }, [loadCerts]);
+  const addCert = async () => {
+    if (!certName.trim() || !adminSupabase) return;
+    setCertBusy(true);
+    try {
+      await adminSupabase.from('directory_certifications').insert({
+        company_id: company.id, cert_name: certName.trim(),
+        cert_value: (certValue.trim() || 'true'),
+        vertical: company.vertical || 'space', tenant_id: company.tenant_id,
+      });
+      setCertName(''); setCertValue('true');
+      await loadCerts();
+    } finally { setCertBusy(false); }
+  };
+  const removeCert = async (id) => {
+    if (!adminSupabase) return;
+    setCertBusy(true);
+    try { await adminSupabase.from('directory_certifications').delete().eq('id', id); await loadCerts(); }
+    finally { setCertBusy(false); }
+  };
+
   const inputStyle = {
     width: '100%', background: V.card2, border: `1px solid ${V.border}`,
     color: V.text, borderRadius: 5, padding: '6px 8px',
@@ -180,6 +211,34 @@ function CompanyEditForm({ company, onSave, onCancel, V, adminSupabase }) {
           value={fields.description}
           onChange={update('description')}
         />
+      </div>
+      <div style={{ marginBottom: 14 }}>
+        <label style={labelStyle}>Certifications</label>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: certs.length ? 8 : 0 }}>
+          {certs.map(c => (
+            <span key={c.id} style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6,
+              background: V.card2, border: `1px solid ${V.border}`, borderRadius: 5,
+              padding: '4px 8px', fontSize: 11, fontFamily: V.mono, color: V.text,
+            }}>
+              {c.cert_name}{c.cert_value && c.cert_value !== 'true' ? `: ${c.cert_value}` : ''}
+              <button type="button" onClick={() => removeCert(c.id)} disabled={certBusy} title="Remove" style={{
+                background: 'transparent', border: 'none', color: '#FCA5A5',
+                cursor: 'pointer', fontSize: 13, lineHeight: 1, padding: 0,
+              }}>×</button>
+            </span>
+          ))}
+          {certs.length === 0 && <span style={{ fontSize: 11, color: V.dim, fontFamily: V.mono }}>none yet</span>}
+        </div>
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          <input style={{ ...inputStyle, flex: '1 1 180px' }} value={certName} onChange={e => setCertName(e.target.value)} placeholder="Cert name (e.g. AS9100D, ITAR)" onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCert(); } }} />
+          <input style={{ ...inputStyle, flex: '0 1 130px' }} value={certValue} onChange={e => setCertValue(e.target.value)} placeholder="value (or 'true')" />
+          <button type="button" onClick={addCert} disabled={certBusy || !certName.trim()} style={{
+            background: V.accentDim, border: `1px solid ${V.accentBrd}`, color: V.accent,
+            borderRadius: 5, padding: '6px 14px', fontSize: 12, fontWeight: 700,
+            fontFamily: V.space, cursor: certBusy ? 'wait' : 'pointer', opacity: (certBusy || !certName.trim()) ? 0.6 : 1,
+          }}>Add cert</button>
+        </div>
       </div>
       <div style={{ display: 'flex', gap: 8 }}>
         <button onClick={handleSave} disabled={saving} style={{
