@@ -10,13 +10,39 @@ const formatJoinedDate = (value) => {
 
 export default function MembersSection({
   pendingMembers, memberCompanyMap, handleMemberAction,
-  handleMemberUpgrade, V, adminSupabase, fetchData,
+  handleMemberUpgrade, V, adminSupabase, fetchData, selectedTenantId,
 }) {
   // Local state for member management
   const [memberActionStatus, setMemberActionStatus] = useState({});
   const [memberEmailDraft, setMemberEmailDraft] = useState({});
   const [memberEmailEditing, setMemberEmailEditing] = useState({});
   const [memberDeleteConfirm, setMemberDeleteConfirm] = useState(null);
+
+  // All-members management (search + role)
+  const [allMembers, setAllMembers] = useState([]);
+  const [memberQuery, setMemberQuery] = useState('');
+  const [roleBusy, setRoleBusy] = useState(null);
+  const loadAllMembers = React.useCallback(async () => {
+    if (!adminSupabase) return;
+    let q = adminSupabase.from('directory_members').select('*').order('created_at', { ascending: false }).limit(1000);
+    if (selectedTenantId) q = q.eq('tenant_id', selectedTenantId);
+    const { data } = await q;
+    setAllMembers(data || []);
+  }, [selectedTenantId]);
+  React.useEffect(() => { loadAllMembers(); }, [loadAllMembers]);
+  const setRole = async (member, role) => {
+    if (!adminSupabase) return;
+    setRoleBusy(member.id);
+    try {
+      await adminSupabase.from('directory_members').update({ role, status: 'approved' }).eq('id', member.id);
+      await loadAllMembers();
+    } finally { setRoleBusy(null); }
+  };
+  const filteredMembers = React.useMemo(() => {
+    const ql = memberQuery.trim().toLowerCase();
+    if (!ql) return allMembers;
+    return allMembers.filter(m => [m.full_name, m.email, m.role, m.status].filter(Boolean).some(v => String(v).toLowerCase().includes(ql)));
+  }, [allMembers, memberQuery]);
 
   const setMemberActionMessage = (memberId, message) => {
     setMemberActionStatus(prev => ({ ...prev, [memberId]: message }));
@@ -213,6 +239,60 @@ export default function MembersSection({
             })}
           </div>
         )}
+      </AdminSection>
+
+      <AdminSection
+        title={`All Members (${allMembers.length})`}
+        V={V}
+        action={
+          <input
+            value={memberQuery}
+            onChange={e => setMemberQuery(e.target.value)}
+            placeholder="Search name, email, role…"
+            style={{ background: V.card2, border: `1px solid ${V.border}`, color: V.text, borderRadius: 6, padding: '7px 10px', fontSize: 13, fontFamily: V.space, outline: 'none', minWidth: 240 }}
+          />
+        }
+      >
+        <div style={{ background: V.card, border: `1px solid ${V.border}`, borderRadius: 10, overflow: 'hidden' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 90px 80px 150px', gap: 12, padding: '8px 16px', background: V.card2 }}>
+            {['Member', 'Email', 'Status', 'Role', 'Actions'].map(h => (
+              <div key={h} style={{ fontSize: 10, fontWeight: 700, fontFamily: V.mono, color: V.dim, textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: h === 'Actions' ? 'right' : 'left' }}>{h}</div>
+            ))}
+          </div>
+          {filteredMembers.map(m => (
+            <div key={m.id} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 90px 80px 150px', gap: 12, padding: '10px 16px', alignItems: 'center', borderBottom: `1px solid ${V.border}`, opacity: roleBusy === m.id ? 0.5 : 1 }}>
+              <div style={{ fontSize: 13, fontFamily: V.space, color: V.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.full_name || 'No name'}</div>
+              <div style={{ fontSize: 11, color: V.dim, fontFamily: V.mono, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.email}</div>
+              <div style={{ fontSize: 11, color: V.dim, fontFamily: V.mono }}>{m.status}</div>
+              <div>
+                <span style={{
+                  background: m.role === 'admin' ? V.accentDim : 'rgba(255,255,255,0.05)',
+                  border: `1px solid ${m.role === 'admin' ? V.accentBrd : V.border}`,
+                  color: m.role === 'admin' ? V.accent : V.muted,
+                  fontSize: 10, fontWeight: 700, fontFamily: V.mono, padding: '2px 7px', borderRadius: 3, textTransform: 'uppercase',
+                }}>{m.role || 'member'}</span>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                {m.role === 'admin' ? (
+                  <button onClick={() => setRole(m, 'member')} disabled={roleBusy === m.id} style={{
+                    background: 'rgba(255,255,255,0.06)', border: `1px solid ${V.border}`, color: V.muted,
+                    borderRadius: 5, padding: '4px 10px', fontSize: 11, fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
+                  }}>Remove admin</button>
+                ) : (
+                  <button onClick={() => setRole(m, 'admin')} disabled={roleBusy === m.id} style={{
+                    background: V.accentDim, border: `1px solid ${V.accentBrd}`, color: V.accent,
+                    borderRadius: 5, padding: '4px 10px', fontSize: 11, fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
+                  }}>Make admin</button>
+                )}
+              </div>
+            </div>
+          ))}
+          {filteredMembers.length === 0 && (
+            <div style={{ padding: '24px 16px', color: V.dim, fontSize: 13, fontFamily: V.space }}>
+              {memberQuery ? `No members match "${memberQuery}".` : 'No members yet.'}
+            </div>
+          )}
+        </div>
       </AdminSection>
 
       {/* Delete confirmation modal */}

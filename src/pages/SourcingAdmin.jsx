@@ -1105,6 +1105,7 @@ function SourcingAdminInner() {
             V={V}
             adminSupabase={adminSupabase}
             fetchData={fetchData}
+            selectedTenantId={selectedTenantId}
           />
         )}
 
