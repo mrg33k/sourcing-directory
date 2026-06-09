@@ -145,15 +145,26 @@ function SourcingDealBankV2Inner() {
   }, []);
 
   const filtered = useMemo(() => {
-    if (!searchInput.trim()) return deals;
-    const terms = searchInput.toLowerCase().split(/\s+/).filter(Boolean);
-    return deals.filter((d) => {
-      const haystack = [
-        d.company, d.round, d.segment, d.region, d.short_description,
-        Array.isArray(d.investors) ? d.investors.join(' ') : d.investors,
-      ].filter(Boolean).join(' ').toLowerCase();
-      return terms.every((t) => haystack.includes(t));
-    });
+    // Default display order: newest funding date at top, oldest at bottom.
+    // Undated rounds (no funding date on file) sort to the bottom.
+    const dealTime = (d) => {
+      const t = d.date ? new Date(d.date).getTime() : NaN;
+      return Number.isNaN(t) ? -Infinity : t;
+    };
+    const byNewest = (a, b) => dealTime(b) - dealTime(a);
+
+    const base = !searchInput.trim()
+      ? deals
+      : deals.filter((d) => {
+          const terms = searchInput.toLowerCase().split(/\s+/).filter(Boolean);
+          const haystack = [
+            d.company, d.round, d.segment, d.region, d.short_description,
+            Array.isArray(d.investors) ? d.investors.join(' ') : d.investors,
+          ].filter(Boolean).join(' ').toLowerCase();
+          return terms.every((t) => haystack.includes(t));
+        });
+
+    return [...base].sort(byNewest);
   }, [deals, searchInput]);
 
   return (
