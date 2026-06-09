@@ -185,7 +185,7 @@ function SourcingAdminInner() {
       if (!adminSupabase) return;
       try {
         const [tenantsRes, sessionRes] = await Promise.all([
-          adminSupabase.from('directory_tenants').select('*').order('name'),
+          adminSupabase.from('directory_tenants').select('*').eq('status', 'active').order('name'),
           supabase.auth.getSession(),
         ]);
         const allTenants = tenantsRes.data || [];
