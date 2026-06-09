@@ -279,10 +279,17 @@ export function CompanyRow({ company, onAction, refreshing, V, selectable = fals
 }
 
 // ─── Listing Row ──────────────────────────────────────────────────────────────
-export function ListingRow({ listing, company, onToggle, V }) {
+export function ListingRow({ listing, company, onToggle, onEdit, onDelete, V }) {
+  const btn = (label, onClick, bg, bd, fg) => (
+    <button onClick={onClick} style={{
+      background: bg, border: `1px solid ${bd}`, color: fg,
+      borderRadius: 5, padding: '4px 8px', fontSize: 11,
+      fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
+    }}>{label}</button>
+  );
   return (
     <div style={{
-      display: 'grid', gridTemplateColumns: '1fr 80px 70px 80px',
+      display: 'grid', gridTemplateColumns: '1fr 80px 70px 190px',
       gap: 12, padding: '10px 16px', alignItems: 'center',
       borderBottom: `1px solid ${V.border}`,
     }}>
@@ -296,24 +303,12 @@ export function ListingRow({ listing, company, onToggle, V }) {
       <div style={{ fontSize: 11, color: V.dim, fontFamily: V.mono }}>
         {new Date(listing.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
       </div>
-      <div>
-        {listing.status === 'active' ? (
-          <button onClick={() => onToggle(listing.id, 'deactivate')} style={{
-            background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
-            color: '#FCA5A5', borderRadius: 5, padding: '4px 8px', fontSize: 11,
-            fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
-          }}>
-            Remove
-          </button>
-        ) : (
-          <button onClick={() => onToggle(listing.id, 'activate')} style={{
-            background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)',
-            color: '#86EFAC', borderRadius: 5, padding: '4px 8px', fontSize: 11,
-            fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
-          }}>
-            Restore
-          </button>
-        )}
+      <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+        {listing.status === 'active'
+          ? btn('Remove', () => onToggle(listing.id, 'deactivate'), 'rgba(239,68,68,0.1)', 'rgba(239,68,68,0.3)', '#FCA5A5')
+          : btn('Restore', () => onToggle(listing.id, 'activate'), 'rgba(34,197,94,0.1)', 'rgba(34,197,94,0.3)', '#86EFAC')}
+        {onEdit && btn('Edit', () => onEdit(listing), 'rgba(255,255,255,0.06)', V.border, V.text)}
+        {onDelete && btn('Delete', () => onDelete(listing), 'rgba(239,68,68,0.18)', 'rgba(239,68,68,0.5)', '#FCA5A5')}
       </div>
     </div>
   );

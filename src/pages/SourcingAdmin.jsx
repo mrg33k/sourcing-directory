@@ -1152,7 +1152,11 @@ function SourcingAdminInner() {
           <ListingsSection
             listings={listings}
             companyMap={companyMap}
+            companies={companies}
             handleListingToggle={handleListingToggle}
+            adminSupabase={adminSupabase}
+            fetchData={fetchData}
+            selectedTenantId={selectedTenantId}
             V={V}
           />
         )}
