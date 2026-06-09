@@ -157,9 +157,10 @@ function CompanyEditForm({ company, onSave, onCancel, V }) {
 }
 
 // ─── Company Row ──────────────────────────────────────────────────────────────
-export function CompanyRow({ company, onAction, refreshing, V }) {
+export function CompanyRow({ company, onAction, refreshing, V, selectable = false, selected = false, onToggleSelect }) {
   const companySource = company.source && String(company.source).trim() ? company.source : 'manual';
   const [editing, setEditing] = React.useState(false);
+  const gridCols = selectable ? '32px 1fr 80px 80px 110px 1fr' : '1fr 80px 80px 110px 1fr';
 
   const handleDelete = () => {
     if (window.confirm(`Delete "${company.name}"? This cannot be undone.`)) {
@@ -185,11 +186,22 @@ export function CompanyRow({ company, onAction, refreshing, V }) {
 
   return (
     <div style={{
-      display: 'grid', gridTemplateColumns: '1fr 80px 80px 110px 1fr',
+      display: 'grid', gridTemplateColumns: gridCols,
       gap: 12, padding: '12px 16px', alignItems: 'center',
       borderBottom: `1px solid ${V.border}`,
       opacity: refreshing ? 0.5 : 1,
+      background: selected ? V.accentDim : 'transparent',
     }}>
+      {selectable && (
+        <div>
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={() => onToggleSelect && onToggleSelect(company.id)}
+            style={{ width: 15, height: 15, accentColor: V.accent, cursor: 'pointer' }}
+          />
+        </div>
+      )}
       <div style={{ minWidth: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 600, fontFamily: V.space, color: V.text, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {company.name}
