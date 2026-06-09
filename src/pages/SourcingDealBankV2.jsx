@@ -346,22 +346,18 @@ function InvestmentsLane({ searchInput }) {
     fetchListings();
   }, []);
 
-  const filtered = useMemo(() => {
-    if (!searchInput.trim()) return listings;
-    const terms = searchInput.toLowerCase().split(/\s+/).filter(Boolean);
-    return listings.filter((item) => investmentSearchMatch(item, terms));
-  }, [searchInput, listings]);
+  const displayListings = listings.length > 0 ? listings : SAMPLE_INVESTMENTS;
 
-  const showSample = listings.length === 0 && !loading;
+  const filtered = useMemo(() => {
+    if (!searchInput.trim()) return displayListings;
+    const terms = searchInput.toLowerCase().split(/\s+/).filter(Boolean);
+    return displayListings.filter((item) => investmentSearchMatch(item, terms));
+  }, [searchInput, displayListings]);
+
+  const showEmptyState = listings.length === 0 && !loading && searchInput.trim();
 
   return (
     <>
-      {showSample && (
-        <SamplePreviewBanner
-          copy="No live listings yet. Companies in the directory can add their listing."
-        />
-      )}
-
       {loading && (
         <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.35)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           Loading...
@@ -391,7 +387,7 @@ function InvestmentsLane({ searchInput }) {
         </Link>
       ))}
 
-      {filtered.length === 0 && !loading && (
+      {showEmptyState && (
         <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           {`No listings match "${searchInput}"`}
         </div>
