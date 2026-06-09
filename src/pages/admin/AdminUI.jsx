@@ -85,10 +85,10 @@ function CompanyEditForm({ company, onSave, onCancel, V, adminSupabase }) {
     setUploading(true);
     try {
       const ext = (file.name.split('.').pop() || 'png').toLowerCase();
-      const key = `company-logos/${company.id}-${Date.now()}.${ext}`;
-      const { error: upErr } = await adminSupabase.storage.from('sourcing-reports').upload(key, file, { upsert: true, contentType: file.type });
+      const key = `${company.id}-${Date.now()}.${ext}`;
+      const { error: upErr } = await adminSupabase.storage.from('company-logos').upload(key, file, { upsert: true, contentType: file.type });
       if (upErr) throw upErr;
-      const { data } = adminSupabase.storage.from('sourcing-reports').getPublicUrl(key);
+      const { data } = adminSupabase.storage.from('company-logos').getPublicUrl(key);
       setFields(prev => ({ ...prev, logo_url: data.publicUrl }));
     } catch (err) {
       setUploadErr(err.message || 'Upload failed.');
