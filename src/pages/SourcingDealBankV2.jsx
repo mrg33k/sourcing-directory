@@ -187,7 +187,7 @@ function SourcingDealBankV2Inner() {
           </div>
           <div className="browse-title">Deal Bank.</div>
           <div className="browse-sub">
-            Three ways into Arizona space deal flow: companies raising, investor firms, and completed rounds.
+            Three ways to connect to space deal flow: companies raising, investor firms, and completed rounds.
           </div>
         </div>
       </div>
