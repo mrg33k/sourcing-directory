@@ -19,6 +19,11 @@ function SourcingDealBankAddListingInner() {
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
 
+  // Edit mode: ?edit=<listing_id> loads an existing listing for the signed-in
+  // company owner to revise. Without it, this is the public "add" flow.
+  const editId = searchParams.get('edit');
+  const isEdit = !!editId;
+
   const [companies, setCompanies] = useState([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState(searchParams.get('company_id') || '');
   const [companiesLoading, setCompaniesLoading] = useState(true);
@@ -37,6 +42,54 @@ function SourcingDealBankAddListingInner() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [prefilling, setPrefilling] = useState(isEdit);
+
+  // Edit mode — pull the existing listing through the ownership-verified
+  // endpoint (deal_bank_listings has no member self-read policy for non-public
+  // rows, so we don't hit the table directly here).
+  useEffect(() => {
+    if (!isEdit) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        if (!token) { setError('Please sign in from your portal to edit this listing.'); setPrefilling(false); return; }
+        // Need the company_id to authorize: read it from the listing row first
+        // via the endpoint's get-by-listing path (company verified server-side).
+        const { data: listingRow } = await supabase
+          .from('deal_bank_listings').select('company_id').eq('id', editId).maybeSingle();
+        const companyId = listingRow?.company_id || searchParams.get('company_id');
+        if (!companyId) { setError('Could not find this listing.'); setPrefilling(false); return; }
+        const resp = await fetch('/api/sourcing/deal-bank-listing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ action: 'get', company_id: companyId, listing_id: editId }),
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) { setError(data.error || 'Could not load this listing.'); setPrefilling(false); return; }
+        const l = data.listing;
+        if (cancelled || !l) { if (!cancelled) { setError('Listing not found.'); setPrefilling(false); } return; }
+        setSelectedCompanyId(l.company_id || '');
+        setFormData({
+          exec_summary: l.exec_summary || '',
+          capital_sought: l.capital_sought || '',
+          round_stage: l.round_stage || '',
+          revenue_y1: l.revenue_y1 != null ? String(l.revenue_y1) : '',
+          revenue_y2: l.revenue_y2 != null ? String(l.revenue_y2) : '',
+          revenue_y3: l.revenue_y3 != null ? String(l.revenue_y3) : '',
+          deck_url: l.deck_url || '',
+          leadership: Array.isArray(l.leadership) && l.leadership.length > 0
+            ? l.leadership.map((m) => ({ name: m.name || '', title: m.title || '', photo_url: m.photo_url || '', bio: m.bio || '', linkedin_url: m.linkedin_url || '' }))
+            : [{ name: '', title: '', photo_url: '', bio: '', linkedin_url: '' }],
+        });
+        setPrefilling(false);
+      } catch (err) {
+        if (!cancelled) { setError(err.message || 'Could not load this listing.'); setPrefilling(false); }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [isEdit, editId, searchParams]);
 
   // Fetch available companies
   useEffect(() => {
@@ -106,6 +159,38 @@ function SourcingDealBankAddListingInner() {
       // Filter out empty leadership entries
       const leadership = formData.leadership.filter((l) => l.name || l.title);
 
+      // ── Edit mode: update through the ownership-verified endpoint ──
+      if (isEdit) {
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        if (!token) { setError('Your session expired. Please sign in again.'); setLoading(false); return; }
+        const resp = await fetch('/api/sourcing/deal-bank-listing', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({
+            action: 'update',
+            company_id: selectedCompanyId,
+            listing_id: editId,
+            fields: {
+              exec_summary: formData.exec_summary,
+              capital_sought: formData.capital_sought,
+              round_stage: formData.round_stage,
+              revenue_y1: formData.revenue_y1,
+              revenue_y2: formData.revenue_y2,
+              revenue_y3: formData.revenue_y3,
+              deck_url: formData.deck_url,
+              leadership: leadership.length > 0 ? leadership : null,
+            },
+          }),
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) { setError(data.error || 'Could not save your changes.'); setLoading(false); return; }
+        setSubmitted(true);
+        setLoading(false);
+        setTimeout(() => navigate(`/${TENANT_SLUG_V2}/portal`), 2000);
+        return;
+      }
+
       const { data, error: insertError } = await supabase
         .from('deal_bank_listings')
         .insert([
@@ -171,13 +256,15 @@ function SourcingDealBankAddListingInner() {
       >
         <div style={{ maxWidth: 480, textAlign: 'center' }}>
           <div style={{ fontSize: 32, fontWeight: 700, marginBottom: 12 }}>
-            Thank you.
+            {isEdit ? 'Saved.' : 'Thank you.'}
           </div>
           <div style={{ fontSize: 14, color: 'var(--tx2)', lineHeight: 1.6, marginBottom: 24 }}>
-            Your listing has been submitted for review. You'll hear from us within 1–2 business days.
+            {isEdit
+              ? 'Your changes have been submitted. Updated listings go back to review before they appear publicly again.'
+              : "Your listing has been submitted for review. You'll hear from us within 1–2 business days."}
           </div>
           <Link
-            to={`/${TENANT_SLUG_V2}/deal-bank?tab=investments`}
+            to={isEdit ? `/${TENANT_SLUG_V2}/portal` : `/${TENANT_SLUG_V2}/deal-bank?tab=investments`}
             style={{
               display: 'inline-block',
               padding: '10px 20px',
@@ -190,9 +277,25 @@ function SourcingDealBankAddListingInner() {
               letterSpacing: '0.05em',
             }}
           >
-            BACK TO INVESTMENTS
+            {isEdit ? 'BACK TO PORTAL' : 'BACK TO INVESTMENTS'}
           </Link>
         </div>
+      </div>
+    );
+  }
+
+  if (prefilling) {
+    return (
+      <div
+        data-tenant={TENANT_SLUG_V2}
+        style={{
+          minHeight: '100dvh', background: 'transparent', color: '#E8E4DA',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 13,
+          letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(232,228,218,0.5)',
+        }}
+      >
+        Loading your listing…
       </div>
     );
   }
@@ -233,9 +336,11 @@ function SourcingDealBankAddListingInner() {
             </Link>
             <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
           </div>
-          <div className="browse-title">Add your listing.</div>
+          <div className="browse-title">{isEdit ? 'Edit your listing.' : 'Add your listing.'}</div>
           <div className="browse-sub">
-            Tell investors about your company and the round you're raising.
+            {isEdit
+              ? 'Update your details. Saved changes go back to review before they appear publicly again.'
+              : "Tell investors about your company and the round you're raising."}
           </div>
         </div>
       </div>
@@ -263,7 +368,7 @@ function SourcingDealBankAddListingInner() {
           value={selectedCompanyId}
           onChange={(e) => setSelectedCompanyId(e.target.value)}
           required
-          disabled={companiesLoading}
+          disabled={companiesLoading || isEdit}
           options={companies.map((c) => ({ value: c.id, label: c.name }))}
         />
 
@@ -429,7 +534,7 @@ function SourcingDealBankAddListingInner() {
               textTransform: 'uppercase',
             }}
           >
-            {loading ? 'SUBMITTING...' : 'SUBMIT FOR REVIEW'}
+            {loading ? 'SAVING...' : (isEdit ? 'SAVE CHANGES' : 'SUBMIT FOR REVIEW')}
           </button>
         </div>
       </form>

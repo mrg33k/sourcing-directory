@@ -78,6 +78,22 @@ export default function SourcingPortalV2() {
   });
   const [listingStatus, setListingStatus] = useState('');
 
+  // ── Deal Bank listing state ────────────────────────────────────────────────
+  const [dealBankListing, setDealBankListing] = useState(null);
+  const [dealBankEditing, setDealBankEditing] = useState(false);
+  const [dealBankSaving, setDealBankSaving] = useState(false);
+  const [dealBankError, setDealBankError] = useState('');
+  const [dealBankEditForm, setDealBankEditForm] = useState({
+    exec_summary: '',
+    capital_sought: '',
+    round_stage: '',
+    revenue_y1: '',
+    revenue_y2: '',
+    revenue_y3: '',
+    deck_url: '',
+    leadership: [],
+  });
+
   // ── Tenant fetch ───────────────────────────────────────────────────────────
   useEffect(() => {
     if (!supabase) return;
@@ -176,6 +192,26 @@ export default function SourcingPortalV2() {
           .eq('tenant_id', tenant.id)
           .order('created_at', { ascending: false });
         setListings(listingsData || []);
+
+        // Get deal bank listing for this company
+        const { data: dealBankData } = await supabase
+          .from('deal_bank_listings')
+          .select('*')
+          .eq('company_id', resolvedMember.company_id)
+          .maybeSingle();
+        if (dealBankData) {
+          setDealBankListing(dealBankData);
+          setDealBankEditForm({
+            exec_summary: dealBankData.exec_summary || '',
+            capital_sought: dealBankData.capital_sought || '',
+            round_stage: dealBankData.round_stage || '',
+            revenue_y1: dealBankData.revenue_y1 || '',
+            revenue_y2: dealBankData.revenue_y2 || '',
+            revenue_y3: dealBankData.revenue_y3 || '',
+            deck_url: dealBankData.deck_url || '',
+            leadership: dealBankData.leadership || [],
+          });
+        }
       }
     } catch (err) {
       console.error('Portal V2 fetch error:', err);
@@ -282,6 +318,381 @@ export default function SourcingPortalV2() {
   const handleLogout = async () => {
     if (supabase) await supabase.auth.signOut();
     navigate(`${BASE_PATH_V2}/login`);
+  };
+
+  const handleSaveDealBankListing = async () => {
+    if (!supabase || !company) return;
+    setDealBankSaving(true);
+    setDealBankError('');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error('Your session expired. Please sign in again.');
+
+      const resp = await fetch('/api/sourcing/update-deal-bank-listing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          company_id: company.id,
+          fields: {
+            exec_summary: dealBankEditForm.exec_summary.trim() || null,
+            capital_sought: dealBankEditForm.capital_sought ? parseFloat(dealBankEditForm.capital_sought) : null,
+            round_stage: dealBankEditForm.round_stage || null,
+            revenue_y1: dealBankEditForm.revenue_y1 ? parseFloat(dealBankEditForm.revenue_y1) : null,
+            revenue_y2: dealBankEditForm.revenue_y2 ? parseFloat(dealBankEditForm.revenue_y2) : null,
+            revenue_y3: dealBankEditForm.revenue_y3 ? parseFloat(dealBankEditForm.revenue_y3) : null,
+            deck_url: dealBankEditForm.deck_url.trim() || null,
+            leadership: dealBankEditForm.leadership || [],
+          },
+        }),
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data.error || 'Failed to save your listing.');
+
+      setDealBankListing(data.listing || { ...dealBankListing, ...dealBankEditForm });
+      setDealBankEditing(false);
+    } catch (err) {
+      setDealBankError(err.message);
+    } finally {
+      setDealBankSaving(false);
+    }
+  };
+
+  const handleWithdrawDealBankListing = async () => {
+    if (!supabase || !dealBankListing) return;
+    if (!confirm('Are you sure you want to withdraw your listing? You can re-submit it later.')) return;
+
+    setDealBankSaving(true);
+    setDealBankError('');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error('Your session expired. Please sign in again.');
+
+      const resp = await fetch('/api/sourcing/withdraw-deal-bank-listing', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ listing_id: dealBankListing.id }),
+      });
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok) throw new Error(data.error || 'Failed to withdraw your listing.');
+
+      setDealBankListing(data.listing || { ...dealBankListing, status: 'withdrawn' });
+    } catch (err) {
+      setDealBankError(err.message);
+    } finally {
+      setDealBankSaving(false);
+    }
+  };
+
+  // ── DealBankListingCard component ─────────────────────────────────────────
+  const DealBankListingCard = () => {
+    if (!dealBankListing && !dealBankEditing) {
+      // No listing — show prompt to create one
+      return (
+        <div style={{
+          background: V2.card, border: `1px solid ${V2.border}`,
+          borderRadius: 12, padding: '24px 20px', marginBottom: 32,
+        }}>
+          <div style={{
+            fontSize: 13, fontWeight: 700, fontFamily: V2.space,
+            color: V2.heading, marginBottom: 12,
+          }}>
+            My Deal Bank Listing
+          </div>
+          <p style={{
+            fontSize: 13, color: V2.muted, fontFamily: V2.space,
+            lineHeight: 1.6, margin: 0,
+          }}>
+            You haven't posted a Deal Bank listing yet. To list your company as raising capital,{' '}
+            <Link
+              to={`${BASE_PATH_V2}/deal-bank/investments/add`}
+              style={{ color: V2.accent, fontWeight: 600 }}
+            >
+              create a new listing
+            </Link>
+            .
+          </p>
+        </div>
+      );
+    }
+
+    const statusMap = {
+      pending: { bg: 'rgba(234,179,8,0.1)', border: 'rgba(234,179,8,0.4)', text: '#FDE68A', label: 'Pending Approval' },
+      approved: { bg: 'rgba(34,197,94,0.1)', border: 'rgba(34,197,94,0.4)', text: '#86EFAC', label: 'Approved' },
+      rejected: { bg: 'rgba(239,68,68,0.1)', border: 'rgba(239,68,68,0.4)', text: '#FCA5A5', label: 'Rejected' },
+      withdrawn: { bg: 'rgba(107,114,128,0.1)', border: 'rgba(107,114,128,0.4)', text: '#D1D5DB', label: 'Withdrawn' },
+    };
+    const status = dealBankListing?.status || 'pending';
+    const colors = statusMap[status] || statusMap.pending;
+
+    if (dealBankEditing) {
+      return (
+        <div style={{
+          background: V2.card, border: `1px solid ${V2.accentBrd}`,
+          borderRadius: 12, padding: '24px 20px', marginBottom: 32,
+        }}>
+          <div style={{
+            fontSize: 13, fontWeight: 700, fontFamily: V2.space,
+            color: V2.heading, marginBottom: 16,
+          }}>
+            Edit Your Deal Bank Listing
+          </div>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSaveDealBankListing();
+            }}
+            style={{ display: 'flex', flexDirection: 'column', gap: 12 }}
+          >
+            {/* Executive Summary */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                Executive Summary
+              </label>
+              <textarea
+                value={dealBankEditForm.exec_summary}
+                onChange={(e) => setDealBankEditForm(f => ({ ...f, exec_summary: e.target.value }))}
+                placeholder="Brief overview of your business, market, and why you're raising."
+                style={{
+                  background: V2.card2, border: `1px solid ${V2.border}`,
+                  color: V2.text, borderRadius: 7, padding: '10px 12px',
+                  fontSize: 13, fontFamily: V2.space, width: '100%',
+                  minHeight: 80, resize: 'vertical',
+                }}
+              />
+            </div>
+
+            {/* Capital Sought & Round Stage (2-col) */}
+            <div style={{ display: 'flex', gap: 12 }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                  Capital Sought ($M)
+                </label>
+                <input
+                  type="number"
+                  value={dealBankEditForm.capital_sought}
+                  onChange={(e) => setDealBankEditForm(f => ({ ...f, capital_sought: e.target.value }))}
+                  placeholder="e.g. 5"
+                  step="0.1"
+                  style={{
+                    background: V2.card2, border: `1px solid ${V2.border}`,
+                    color: V2.text, borderRadius: 7, padding: '10px 12px',
+                    fontSize: 13, fontFamily: V2.space, width: '100%',
+                  }}
+                />
+              </div>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                  Round Stage
+                </label>
+                <select
+                  value={dealBankEditForm.round_stage}
+                  onChange={(e) => setDealBankEditForm(f => ({ ...f, round_stage: e.target.value }))}
+                  style={{
+                    background: V2.card2, border: `1px solid ${V2.border}`,
+                    color: V2.text, borderRadius: 7, padding: '10px 12px',
+                    fontSize: 13, fontFamily: V2.space, width: '100%',
+                  }}
+                >
+                  <option value="">Select round</option>
+                  <option value="Pre-Seed">Pre-Seed</option>
+                  <option value="Seed">Seed</option>
+                  <option value="Series A">Series A</option>
+                  <option value="Series B">Series B</option>
+                  <option value="Series C">Series C</option>
+                  <option value="Series D">Series D</option>
+                  <option value="Series D+">Series D+</option>
+                  <option value="Growth">Growth</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Revenue Projections Y1-3 (3-col) */}
+            <div style={{ display: 'flex', gap: 12 }}>
+              {['revenue_y1', 'revenue_y2', 'revenue_y3'].map((field, i) => (
+                <div key={field} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5 }}>
+                  <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                    Year {i + 1} Revenue ($M)
+                  </label>
+                  <input
+                    type="number"
+                    value={dealBankEditForm[field]}
+                    onChange={(e) => setDealBankEditForm(f => ({ ...f, [field]: e.target.value }))}
+                    placeholder="0"
+                    step="0.1"
+                    style={{
+                      background: V2.card2, border: `1px solid ${V2.border}`,
+                      color: V2.text, borderRadius: 7, padding: '10px 12px',
+                      fontSize: 13, fontFamily: V2.space, width: '100%',
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {/* Deck URL */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+              <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                Pitch Deck URL
+              </label>
+              <input
+                type="url"
+                value={dealBankEditForm.deck_url}
+                onChange={(e) => setDealBankEditForm(f => ({ ...f, deck_url: e.target.value }))}
+                placeholder="https://example.com/deck.pdf"
+                style={{
+                  background: V2.card2, border: `1px solid ${V2.border}`,
+                  color: V2.text, borderRadius: 7, padding: '10px 12px',
+                  fontSize: 13, fontFamily: V2.space, width: '100%',
+                }}
+              />
+            </div>
+
+            {/* Error message */}
+            {dealBankError && (
+              <div style={{ fontSize: 12, color: V2.red, fontFamily: V2.space }}>
+                {dealBankError}
+              </div>
+            )}
+
+            {/* Buttons */}
+            <div style={{ display: 'flex', gap: 12, marginTop: 8 }}>
+              <button
+                type="submit"
+                disabled={dealBankSaving}
+                style={{
+                  background: V2.accent, color: '#000', border: 'none',
+                  borderRadius: 7, padding: '10px 16px', fontSize: 12,
+                  fontWeight: 700, fontFamily: V2.space, cursor: 'pointer',
+                  opacity: dealBankSaving ? 0.6 : 1,
+                }}
+              >
+                {dealBankSaving ? 'Saving...' : 'Save Listing'}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setDealBankEditing(false);
+                  setDealBankError('');
+                }}
+                style={{
+                  background: 'transparent', color: V2.accent, border: `1px solid ${V2.accentBrd}`,
+                  borderRadius: 7, padding: '10px 16px', fontSize: 12,
+                  fontWeight: 700, fontFamily: V2.space, cursor: 'pointer',
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      );
+    }
+
+    // Display view (not editing)
+    return (
+      <div style={{
+        background: V2.card, border: `1px solid ${V2.border}`,
+        borderRadius: 12, padding: '24px 20px', marginBottom: 32,
+      }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          marginBottom: 16,
+        }}>
+          <div style={{
+            fontSize: 13, fontWeight: 700, fontFamily: V2.space,
+            color: V2.heading,
+          }}>
+            My Deal Bank Listing
+          </div>
+          <div style={{
+            background: colors.bg, border: `1px solid ${colors.border}`,
+            color: colors.text, borderRadius: 5, padding: '4px 10px',
+            fontSize: 11, fontWeight: 600, fontFamily: V2.space,
+          }}>
+            {colors.label}
+          </div>
+        </div>
+
+        {/* Capital Grid */}
+        {dealBankListing?.capital_sought && (
+          <div style={{
+            display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: 1, background: V2.card2, border: `1px solid ${V2.border}`,
+            borderRadius: 8, overflow: 'hidden', marginBottom: 16,
+          }}>
+            {[
+              { label: 'Capital Sought', value: `$${dealBankListing.capital_sought}M` },
+              { label: 'Round', value: dealBankListing.round_stage || '—' },
+              { label: 'Year 1 Revenue', value: dealBankListing.revenue_y1 ? `$${dealBankListing.revenue_y1}M` : '—' },
+              { label: 'Year 2 Revenue', value: dealBankListing.revenue_y2 ? `$${dealBankListing.revenue_y2}M` : '—' },
+              { label: 'Year 3 Revenue', value: dealBankListing.revenue_y3 ? `$${dealBankListing.revenue_y3}M` : '—' },
+            ].map((item, i) => (
+              <div key={i} style={{ padding: '12px', borderRight: i < 4 ? `1px solid ${V2.border}` : 'none' }}>
+                <div style={{
+                  fontSize: 10, color: V2.muted, fontFamily: V2.mono,
+                  textTransform: 'uppercase', marginBottom: 4,
+                }}>
+                  {item.label}
+                </div>
+                <div style={{ fontSize: 13, color: V2.text, fontFamily: V2.space, fontWeight: 600 }}>
+                  {item.value}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Summary */}
+        {dealBankListing?.exec_summary && (
+          <div style={{ marginBottom: 16 }}>
+            <div style={{
+              fontSize: 11, color: V2.muted, fontFamily: V2.mono,
+              textTransform: 'uppercase', marginBottom: 6,
+            }}>
+              Executive Summary
+            </div>
+            <p style={{
+              fontSize: 13, color: V2.text, fontFamily: V2.space,
+              lineHeight: 1.6, margin: 0,
+            }}>
+              {dealBankListing.exec_summary}
+            </p>
+          </div>
+        )}
+
+        {/* Buttons */}
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button
+            onClick={() => {
+              setDealBankEditing(true);
+              setDealBankError('');
+            }}
+            style={{
+              background: V2.accentDim, color: V2.accent, border: `1px solid ${V2.accentBrd}`,
+              borderRadius: 7, padding: '8px 14px', fontSize: 12,
+              fontWeight: 600, fontFamily: V2.space, cursor: 'pointer',
+            }}
+          >
+            Edit
+          </button>
+          <button
+            onClick={handleWithdrawDealBankListing}
+            disabled={dealBankSaving}
+            style={{
+              background: 'transparent', color: V2.red, border: `1px solid rgba(239,68,68,0.3)`,
+              borderRadius: 7, padding: '8px 14px', fontSize: 12,
+              fontWeight: 600, fontFamily: V2.space, cursor: 'pointer',
+              opacity: dealBankSaving ? 0.6 : 1,
+            }}
+          >
+            {dealBankSaving ? 'Withdrawing...' : 'Withdraw'}
+          </button>
+        </div>
+      </div>
+    );
   };
 
   // ── Loading state ──────────────────────────────────────────────────────────
@@ -696,6 +1107,9 @@ export default function SourcingPortalV2() {
           </div>
         )}
 
+        {/* ── Deal Bank Listing Card ── */}
+        {company && <DealBankListingCard />}
+
         {/* No company linked — info state */}
         {!company && !loading && (
           <div style={{
@@ -1039,3 +1453,7 @@ export default function SourcingPortalV2() {
     </div>
   );
 }
+
+// ─── Deal Bank Listing Card (founder edit/withdraw, deal-bank Round C) ─────────
+// Shows the signed-in company's Deal Bank listing with its review status and
+// self-serve Edit / Withdraw / Reactivate controls. Reads + writes go through
