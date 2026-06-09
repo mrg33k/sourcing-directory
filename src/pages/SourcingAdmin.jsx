@@ -490,14 +490,25 @@ function SourcingAdminInner() {
     if (!adminSupabase) return;
     try {
       const newStatus = action === 'approve' ? 'approved' : 'rejected';
+      const member = pendingMembers.find(m => m.id === memberId);
       await adminSupabase.from('directory_members').update({ status: newStatus }).eq('id', memberId);
 
       // If approving, also activate their company
-      if (action === 'approve') {
-        const member = pendingMembers.find(m => m.id === memberId);
-        if (member?.company_id) {
-          await adminSupabase.from('directory_companies').update({ status: 'active' }).eq('id', member.company_id);
-        }
+      if (action === 'approve' && member?.company_id) {
+        await adminSupabase.from('directory_companies').update({ status: 'active' }).eq('id', member.company_id);
+      }
+
+      // Send approve / decline email via Resend (fire-and-forget; never blocks the action)
+      if (member?.email) {
+        fetch('/api/sourcing/member-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: member.email, full_name: member.full_name,
+            status: newStatus, directory_name: selectedTenant?.name,
+            base_url: window.location.origin,
+          }),
+        }).catch(() => {});
       }
 
       await fetchData();
