@@ -12,7 +12,18 @@ import '../space-rising-theme-v2.css';
 const TENANT_SLUG_V2 = 'space-rising-v2';
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
-function parseDate(dateStr) { if (!dateStr) return null; const d = new Date(dateStr); return Number.isNaN(d.getTime()) ? null : d; }
+function parseDate(dateStr) {
+  if (!dateStr) return null;
+  // Try native parsing first (handles ISO 8601 and other standard formats)
+  let d = new Date(dateStr);
+  if (!Number.isNaN(d.getTime())) return d;
+  // Fallback: try parsing common date-only format YYYY-MM-DD
+  if (typeof dateStr === 'string' && dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+    d = new Date(dateStr + 'T00:00:00Z');
+    if (!Number.isNaN(d.getTime())) return d;
+  }
+  return null;
+}
 function formatShortDate(dateStr) { const d = parseDate(dateStr); if (!d) return ''; return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
 function getMonthLabel(dateStr) { const d = parseDate(dateStr); if (!d) return 'UNDATED'; return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase(); }
 function getDayNum(dateStr) { const d = parseDate(dateStr); return d ? d.getDate() : null; }
@@ -182,18 +193,22 @@ function SourcingEventsV2Inner() {
   }, [listings, companies, searchInput]);
 
   // Calendar split: upcoming vs past
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
+  // Memoize 'now' so it doesn't change on every render
+  const now = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
 
   const upcomingAll = useMemo(() => listings.filter((l) => {
     const d = parseDate(l.event_date);
     return d && d >= now;
-  }), [listings]);
+  }), [listings, now]);
 
   const pastAll = useMemo(() => listings.filter((l) => {
     const d = parseDate(l.event_date);
     return !d || d < now;
-  }), [listings]);
+  }), [listings, now]);
 
   // Next Up: first 3 upcoming events (highlighted)
   const nextUp = upcomingAll.slice(0, 3);
