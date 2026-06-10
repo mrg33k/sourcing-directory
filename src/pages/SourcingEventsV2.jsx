@@ -49,7 +49,7 @@ function CalendarEventRow({ listing, companies }) {
       <div className="sr-event-row__body">
         <div className="sr-event-row__title">{listing.title}</div>
         <div className="sr-event-row__meta">
-          {listing.organizer || company?.name ? <span>{listing.organizer || company?.name}</span> : null}
+          {listing.organizer ? <span>{listing.organizer}</span> : null}
           {loc ? <><span className="sr-sep">·</span><span>{loc}</span></> : null}
           {listing.event_type ? <><span className="sr-sep">·</span><span className="sr-type">{listing.event_type}</span></> : null}
         </div>
@@ -104,7 +104,7 @@ function NextUpCard({ listing, companies }) {
         {today && <div className="sr-next-card__today-badge">HAPPENING TODAY</div>}
         <div className="sr-next-card__title">{listing.title}</div>
         <div className="sr-next-card__meta">
-          {listing.organizer || company?.name ? <span>{listing.organizer || company?.name}</span> : null}
+          {listing.organizer ? <span>{listing.organizer}</span> : null}
           {loc ? <><span className="sr-sep">·</span><span>{loc}</span></> : null}
           {listing.event_type ? <><span className="sr-sep">·</span><span className="sr-type">{listing.event_type}</span></> : null}
         </div>
@@ -299,7 +299,7 @@ function SourcingEventsV2Inner() {
                 <div className="co-body">
                   {company?.slug ? <img className="co-mono-logo" src={`/v2-assets/logos/${company.slug}-white.png`} alt="" aria-hidden="true" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}
                   <div className="co-name">{listing.title}</div>
-                  <div className="co-loc">{[listing.organizer || company?.name, loc, date].filter(Boolean).join(' · ')}</div>
+                  <div className="co-loc">{[listing.organizer, loc, date].filter(Boolean).join(' · ')}</div>
                   <div className="co-badges">
                     {listing.event_type && <span className="co-badge cert">{listing.event_type}</span>}
                     {isPast && <span className="co-badge cert">Past</span>}

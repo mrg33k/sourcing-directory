@@ -113,7 +113,8 @@ export default function SourcingListingV2({ kind = 'job' }) {
   const posted = fmtDate(listing.created_at);
   const eventDate = fmtDate(listing.event_date);
   const salary = salaryText(listing);
-  const eyebrowBits = [meta.eyebrow, company?.name, loc].filter(Boolean).join(' · ');
+  // For events, the company is the platform (Space Rising), not the event host — omit it from the eyebrow
+  const eyebrowBits = [meta.eyebrow, kind !== 'event' && company?.name, loc].filter(Boolean).join(' · ');
   const ctaUrl = externalHref(listing.virtual_url);
   const companyWebsite = externalHref(company?.website);
 
@@ -145,7 +146,8 @@ export default function SourcingListingV2({ kind = 'job' }) {
                 {kind === 'marketplace' ? 'Contact seller' : kind === 'event' ? 'Contact organizer' : 'Apply / Contact'}
               </a>
             )}
-            {company?.slug && (
+            {/* Don't show "View Space Rising" on events — the company is the platform, not the event host */}
+            {kind !== 'event' && company?.slug && (
               <Link to={`/space-rising-v2/${company.slug}`} className="srsv2-cta srsv2-cta-line">
                 View {company.name}
               </Link>
@@ -164,7 +166,8 @@ export default function SourcingListingV2({ kind = 'job' }) {
 
           <Section eyebrow="AT A GLANCE" title="Key facts">
             <dl className="srcv2-facts">
-              {company?.name && <Fact label="Posted by" value={company.slug
+              {/* For events the company is the platform (Space Rising) — suppress "Posted by" */}
+              {kind !== 'event' && company?.name && <Fact label="Posted by" value={company.slug
                 ? <Link to={`/space-rising-v2/${company.slug}`} style={{ color: 'inherit' }}>{company.name}</Link>
                 : company.name} />}
               {loc && <Fact label="Location" value={loc} />}
@@ -180,7 +183,8 @@ export default function SourcingListingV2({ kind = 'job' }) {
             </dl>
           </Section>
 
-          {(companyWebsite || company?.email) && (
+          {/* For events, the company is the platform (Space Rising) — suppress company contact block */}
+          {kind !== 'event' && (companyWebsite || company?.email) && (
             <Section eyebrow="CONTACT" title={company?.name || 'Get in touch'}>
               <div className="srcv2-hero-actions" style={{ marginTop: 0 }}>
                 {companyWebsite && (
