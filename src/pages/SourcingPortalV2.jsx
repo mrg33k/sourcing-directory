@@ -83,6 +83,8 @@ export default function SourcingPortalV2() {
   const [dealBankEditing, setDealBankEditing] = useState(false);
   const [dealBankSaving, setDealBankSaving] = useState(false);
   const [dealBankError, setDealBankError] = useState('');
+  const [dealBankDeckFile, setDealBankDeckFile] = useState(null);
+  const [dealBankDeckUploading, setDealBankDeckUploading] = useState(false);
   const [dealBankEditForm, setDealBankEditForm] = useState({
     exec_summary: '',
     capital_sought: '',
@@ -320,6 +322,48 @@ export default function SourcingPortalV2() {
     navigate(`${BASE_PATH_V2}/login`);
   };
 
+  const uploadDealBankDeckFile = async () => {
+    if (!dealBankDeckFile) return null;
+
+    setDealBankDeckUploading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) {
+        setDealBankError('Please sign in to upload a deck.');
+        return null;
+      }
+
+      const formData = new FormData();
+      formData.append('file', dealBankDeckFile);
+      formData.append('company_id', company.id);
+
+      const uploadRes = await fetch('/api/sourcing/upload-deal-bank-deck', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json().catch(() => ({}));
+        setDealBankError(err.error || 'Failed to upload deck');
+        setDealBankDeckUploading(false);
+        return null;
+      }
+
+      const { deckUrl } = await uploadRes.json();
+      setDealBankDeckUploading(false);
+      setDealBankDeckFile(null);
+      return deckUrl;
+    } catch (err) {
+      setDealBankError(`Deck upload failed: ${err.message}`);
+      setDealBankDeckUploading(false);
+      return null;
+    }
+  };
+
   const handleSaveDealBankListing = async () => {
     if (!supabase || !company) return;
     setDealBankSaving(true);
@@ -328,6 +372,16 @@ export default function SourcingPortalV2() {
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
       if (!token) throw new Error('Your session expired. Please sign in again.');
+
+      // Upload deck file if selected
+      let deckUrl = dealBankEditForm.deck_url;
+      if (dealBankDeckFile) {
+        deckUrl = await uploadDealBankDeckFile();
+        if (!deckUrl) {
+          setDealBankSaving(false);
+          return;
+        }
+      }
 
       const resp = await fetch('/api/sourcing/update-deal-bank-listing', {
         method: 'POST',
@@ -341,7 +395,7 @@ export default function SourcingPortalV2() {
             revenue_y1: dealBankEditForm.revenue_y1 ? parseFloat(dealBankEditForm.revenue_y1) : null,
             revenue_y2: dealBankEditForm.revenue_y2 ? parseFloat(dealBankEditForm.revenue_y2) : null,
             revenue_y3: dealBankEditForm.revenue_y3 ? parseFloat(dealBankEditForm.revenue_y3) : null,
-            deck_url: dealBankEditForm.deck_url.trim() || null,
+            deck_url: deckUrl || null,
             leadership: dealBankEditForm.leadership || [],
           },
         }),
@@ -349,7 +403,7 @@ export default function SourcingPortalV2() {
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok) throw new Error(data.error || 'Failed to save your listing.');
 
-      setDealBankListing(data.listing || { ...dealBankListing, ...dealBankEditForm });
+      setDealBankListing(data.listing || { ...dealBankListing, ...dealBankEditForm, deck_url: deckUrl });
       setDealBankEditing(false);
     } catch (err) {
       setDealBankError(err.message);
@@ -532,22 +586,103 @@ export default function SourcingPortalV2() {
               ))}
             </div>
 
-            {/* Deck URL */}
+            {/* Pitch Deck */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
               <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
-                Pitch Deck URL
+                Pitch Deck
               </label>
-              <input
-                type="url"
-                value={dealBankEditForm.deck_url}
-                onChange={(e) => setDealBankEditForm(f => ({ ...f, deck_url: e.target.value }))}
-                placeholder="https://example.com/deck.pdf"
-                style={{
-                  background: V2.card2, border: `1px solid ${V2.border}`,
+
+              {/* File upload or current deck display */}
+              {dealBankDeckFile ? (
+                <div style={{
+                  background: V2.card2, border: `1px solid ${V2.accentBrd}`,
                   color: V2.text, borderRadius: 7, padding: '10px 12px',
                   fontSize: 13, fontFamily: V2.space, width: '100%',
-                }}
-              />
+                }}>
+                  <div style={{ marginBottom: 8 }}>
+                    Selected: {dealBankDeckFile.name}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setDealBankDeckFile(null)}
+                    style={{
+                      background: 'transparent', color: V2.red, border: 'none',
+                      fontSize: 11, cursor: 'pointer', fontFamily: V2.space,
+                    }}
+                  >
+                    Clear selection
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {dealBankEditForm.deck_url && (
+                    <div style={{
+                      background: V2.card2, border: `1px solid ${V2.border}`,
+                      color: V2.muted, borderRadius: 7, padding: '10px 12px',
+                      fontSize: 12, fontFamily: V2.space, width: '100%',
+                      marginBottom: 8,
+                    }}>
+                      <div style={{ marginBottom: 6 }}>Current deck:</div>
+                      <a
+                        href={dealBankEditForm.deck_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: V2.accent, textDecoration: 'underline', fontSize: 11 }}
+                      >
+                        Download
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => setDealBankEditForm(f => ({ ...f, deck_url: '' }))}
+                        style={{
+                          background: 'transparent', color: V2.red, border: 'none',
+                          fontSize: 11, cursor: 'pointer', marginLeft: 12, fontFamily: V2.space,
+                        }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                  <label
+                    style={{
+                      display: 'block', background: V2.card2, border: `2px dashed ${V2.border}`,
+                      color: V2.muted, borderRadius: 7, padding: '16px 12px',
+                      fontSize: 12, fontFamily: V2.space, width: '100%',
+                      textAlign: 'center', cursor: 'pointer',
+                    }}
+                  >
+                    Click to upload deck (PDF, DOCX, etc.)
+                    <input
+                      type="file"
+                      onChange={(e) => {
+                        if (e.target.files && e.target.files[0]) {
+                          setDealBankDeckFile(e.target.files[0]);
+                        }
+                      }}
+                      accept=".pdf,.docx,.doc,.pptx,.ppt"
+                      style={{ display: 'none' }}
+                    />
+                  </label>
+                </>
+              )}
+
+              {/* Or paste a URL */}
+              {!dealBankDeckFile && (
+                <>
+                  <div style={{ fontSize: 11, color: V2.muted, textAlign: 'center' }}>or paste a URL</div>
+                  <input
+                    type="url"
+                    value={dealBankEditForm.deck_url}
+                    onChange={(e) => setDealBankEditForm(f => ({ ...f, deck_url: e.target.value }))}
+                    placeholder="https://example.com/deck.pdf"
+                    style={{
+                      background: V2.card2, border: `1px solid ${V2.border}`,
+                      color: V2.text, borderRadius: 7, padding: '10px 12px',
+                      fontSize: 13, fontFamily: V2.space, width: '100%',
+                    }}
+                  />
+                </>
+              )}
             </div>
 
             {/* Error message */}

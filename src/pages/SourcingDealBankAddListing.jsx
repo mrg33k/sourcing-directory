@@ -39,6 +39,8 @@ function SourcingDealBankAddListingInner() {
     leadership: [{ name: '', title: '', photo_url: '', bio: '', linkedin_url: '' }],
   });
 
+  const [deckFile, setDeckFile] = useState(null);
+  const [deckUploading, setDeckUploading] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -144,6 +146,45 @@ function SourcingDealBankAddListingInner() {
     }));
   };
 
+  const uploadDeckFile = async () => {
+    if (!deckFile) return null; // No file to upload
+
+    setDeckUploading(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) { setError('Please sign in to upload a deck.'); return null; }
+
+      // Upload file to the disk-based endpoint
+      const formData = new FormData();
+      formData.append('file', deckFile);
+      formData.append('company_id', selectedCompanyId);
+
+      const uploadRes = await fetch('/api/sourcing/upload-deal-bank-deck', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!uploadRes.ok) {
+        const err = await uploadRes.json().catch(() => ({}));
+        setError(err.error || 'Failed to upload deck');
+        setDeckUploading(false);
+        return null;
+      }
+
+      const { deckUrl } = await uploadRes.json();
+      setDeckUploading(false);
+      return deckUrl;
+    } catch (err) {
+      setError(`Deck upload failed: ${err.message}`);
+      setDeckUploading(false);
+      return null;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -156,6 +197,16 @@ function SourcingDealBankAddListingInner() {
     setLoading(true);
 
     try {
+      // Upload deck file if selected
+      let deckUrl = formData.deck_url;
+      if (deckFile) {
+        deckUrl = await uploadDeckFile();
+        if (!deckUrl) {
+          setLoading(false);
+          return;
+        }
+      }
+
       // Filter out empty leadership entries
       const leadership = formData.leadership.filter((l) => l.name || l.title);
 
@@ -432,14 +483,56 @@ function SourcingDealBankAddListingInner() {
           </div>
         </div>
 
-        <FormField
-          label="Pitch Deck URL (Optional)"
-          name="deck_url"
-          type="url"
-          value={formData.deck_url}
-          onChange={handleChange}
-          placeholder="https://example.com/deck.pdf"
-        />
+        <div style={{ marginBottom: 24 }}>
+          <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--tx2)' }}>
+            Pitch Deck (Optional)
+          </label>
+          <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
+            <input
+              type="file"
+              accept="application/pdf,.pdf"
+              onChange={(e) => setDeckFile(e.target.files?.[0] || null)}
+              style={{
+                flex: 1,
+                padding: '10px 12px',
+                border: '1px solid var(--bd)',
+                borderRadius: 6,
+                background: 'var(--s1)',
+                color: 'var(--tx)',
+                fontSize: 13,
+              }}
+            />
+            {deckFile && (
+              <button
+                type="button"
+                onClick={() => setDeckFile(null)}
+                style={{
+                  padding: '10px 12px',
+                  background: 'rgba(239, 68, 68, 0.08)',
+                  border: '1px solid rgba(239, 68, 68, 0.2)',
+                  borderRadius: 6,
+                  color: '#ef4444',
+                  fontSize: 12,
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                Clear
+              </button>
+            )}
+          </div>
+          {deckFile && (
+            <div style={{ fontSize: 12, color: 'var(--tx2)', marginBottom: 8 }}>
+              Selected: {deckFile.name}
+            </div>
+          )}
+          {formData.deck_url && !deckFile && (
+            <div style={{ fontSize: 12, color: 'var(--tx2)', marginBottom: 8 }}>
+              Current deck: <a href={formData.deck_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--cyan)', textDecoration: 'none' }}>view</a>
+            </div>
+          )}
+        </div>
 
         <div style={{ marginBottom: 24 }}>
           <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--tx2)' }}>
