@@ -1,74 +1,27 @@
 // SourcingEventsV2.jsx
 // Calendar redesign — upcoming-first, month-grouped, past events collapsed.
+// Design-system refactor: all styles via .sr-* classes in space-rising-theme-v2.css
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
+import { SourcingThemeProvider, useSourcingTheme } from './SourcingTheme.jsx';
 import { V2ChipNav } from './V2ChipNav.jsx';
 import '../space-rising-theme-v2.css';
 
 const TENANT_SLUG_V2 = 'space-rising-v2';
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
-// ─── date helpers ────────────────────────────────────────────────────────────
+function parseDate(dateStr) { if (!dateStr) return null; const d = new Date(dateStr); return Number.isNaN(d.getTime()) ? null : d; }
+function formatShortDate(dateStr) { const d = parseDate(dateStr); if (!d) return ''; return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+function getMonthLabel(dateStr) { const d = parseDate(dateStr); if (!d) return 'UNDATED'; return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase(); }
+function getDayNum(dateStr) { const d = parseDate(dateStr); return d ? d.getDate() : null; }
+function getDayName(dateStr) { const d = parseDate(dateStr); if (!d) return ''; return d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase(); }
+function getMonthAbbr(dateStr) { const d = parseDate(dateStr); if (!d) return ''; return d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase(); }
+function isToday(dateStr) { const d = parseDate(dateStr); if (!d) return false; const now = new Date(); return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate(); }
+function groupByMonth(events) { const groups = {}; const order = []; events.forEach((e) => { const key = getMonthLabel(e.event_date); if (!groups[key]) { groups[key] = []; order.push(key); } groups[key].push(e); }); return { groups, order }; }
 
-function parseDate(dateStr) {
-  if (!dateStr) return null;
-  const d = new Date(dateStr);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-
-function formatShortDate(dateStr) {
-  const d = parseDate(dateStr);
-  if (!d) return '';
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
-function getMonthLabel(dateStr) {
-  const d = parseDate(dateStr);
-  if (!d) return 'UNDATED';
-  return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).toUpperCase();
-}
-
-function getDayNum(dateStr) {
-  const d = parseDate(dateStr);
-  return d ? d.getDate() : null;
-}
-
-function getDayName(dateStr) {
-  const d = parseDate(dateStr);
-  if (!d) return '';
-  return d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
-}
-
-function getMonthAbbr(dateStr) {
-  const d = parseDate(dateStr);
-  if (!d) return '';
-  return d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
-}
-
-function isToday(dateStr) {
-  const d = parseDate(dateStr);
-  if (!d) return false;
-  const now = new Date();
-  return d.getFullYear() === now.getFullYear() &&
-    d.getMonth() === now.getMonth() &&
-    d.getDate() === now.getDate();
-}
-
-function groupByMonth(events) {
-  const groups = {};
-  const order = [];
-  events.forEach((e) => {
-    const key = getMonthLabel(e.event_date);
-    if (!groups[key]) { groups[key] = []; order.push(key); }
-    groups[key].push(e);
-  });
-  return { groups, order };
-}
-
-// ─── sub-components ──────────────────────────────────────────────────────────
+// ─── CalendarEventRow ─────────────────────────────────────────────────────────
 
 function CalendarEventRow({ listing, companies }) {
   const company = companies[listing.company_id];
@@ -76,62 +29,51 @@ function CalendarEventRow({ listing, companies }) {
   const dayNum = getDayNum(listing.event_date);
   const dayName = getDayName(listing.event_date);
   const today = isToday(listing.event_date);
-
   return (
-    <Link
-      to={`/space-rising-v2/events/${listing.id}`}
-      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center', gap: 16, padding: '14px 20px', borderBottom: '1px solid rgba(232,228,218,0.07)', transition: 'background 0.15s' }}
-      onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(232,162,58,0.05)'; }}
-      onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; }}
-    >
-      {/* Date pill */}
-      <div style={{ flexShrink: 0, width: 48, textAlign: 'center', padding: '6px 0', borderRadius: 8, background: today ? 'rgba(232,162,58,0.15)' : 'rgba(232,228,218,0.06)', border: today ? '1px solid rgba(232,162,58,0.40)' : '1px solid transparent' }}>
-        <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', color: today ? '#E8A23A' : 'rgba(232,228,218,0.45)', fontFamily: 'JetBrains Mono, ui-monospace, monospace' }}>{dayName}</div>
-        <div style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.1, color: today ? '#E8A23A' : '#E8E4DA', fontFamily: '"Space Grotesk", system-ui, sans-serif' }}>{dayNum}</div>
+    <Link to={`/space-rising-v2/events/${listing.id}`} className="sr-event-row">
+      <div className={`sr-event-row__datepill${today ? ' today' : ''}`}>
+        <div className="sr-event-row__weekday">{dayName}</div>
+        <div className="sr-event-row__daynum">{dayNum}</div>
       </div>
-      {/* Body */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#E8E4DA', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{listing.title}</div>
-        <div style={{ fontSize: 12, color: 'rgba(232,228,218,0.55)', marginTop: 2, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+      <div className="sr-event-row__body">
+        <div className="sr-event-row__title">{listing.title}</div>
+        <div className="sr-event-row__meta">
           {listing.organizer || company?.name ? <span>{listing.organizer || company?.name}</span> : null}
-          {loc ? <><span style={{ opacity: 0.35 }}>·</span><span>{loc}</span></> : null}
-          {listing.event_type ? <><span style={{ opacity: 0.35 }}>·</span><span style={{ textTransform: 'capitalize' }}>{listing.event_type}</span></> : null}
+          {loc ? <><span className="sr-sep">·</span><span>{loc}</span></> : null}
+          {listing.event_type ? <><span className="sr-sep">·</span><span className="sr-type">{listing.event_type}</span></> : null}
         </div>
       </div>
-      {/* Arrow */}
-      <svg width="14" height="14" fill="none" stroke="rgba(232,228,218,0.30)" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
+      <svg className="sr-event-row__arrow" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
         <path d="M9 18l6-6-6-6" />
       </svg>
     </Link>
   );
 }
 
+// ─── MonthSection ─────────────────────────────────────────────────────────────
+
 function MonthSection({ label, events, companies }) {
   const [open, setOpen] = useState(true);
   return (
-    <div style={{ marginBottom: 4 }}>
-      {/* Month header */}
-      <button
-        onClick={() => setOpen((o) => !o)}
-        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '10px 20px', background: 'none', border: 'none', borderTop: '1px solid rgba(232,228,218,0.10)', cursor: 'pointer', color: 'inherit' }}
-      >
-        <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', color: '#E8A23A', fontFamily: 'JetBrains Mono, ui-monospace, monospace', whiteSpace: 'nowrap' }}>{label}</span>
-        <span style={{ flex: 1, height: 1, background: 'rgba(232,228,218,0.08)' }} />
-        <span style={{ fontSize: 11, color: 'rgba(232,228,218,0.40)', fontFamily: 'JetBrains Mono, ui-monospace, monospace', whiteSpace: 'nowrap' }}>{events.length} event{events.length !== 1 ? 's' : ''}</span>
-        <svg width="12" height="12" fill="none" stroke="rgba(232,228,218,0.35)" strokeWidth="2.5" viewBox="0 0 24 24" style={{ transition: 'transform 0.2s', transform: open ? 'rotate(0deg)' : 'rotate(-90deg)', flexShrink: 0 }}>
+    <div className="sr-month-section">
+      <button onClick={() => setOpen((o) => !o)} className="sr-month-hdr">
+        <span className="sr-month-hdr__label">{label}</span>
+        <span className="sr-month-hdr__rule" />
+        <span className="sr-month-hdr__count">{events.length} event{events.length !== 1 ? 's' : ''}</span>
+        <svg className={`sr-month-hdr__chevron${open ? '' : ' closed'}`} width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
           <path d="M6 9l6 6 6-6" />
         </svg>
       </button>
       {open && (
         <div>
-          {events.map((e) => (
-            <CalendarEventRow key={e.id} listing={e} companies={companies} />
-          ))}
+          {events.map((e) => <CalendarEventRow key={e.id} listing={e} companies={companies} />)}
         </div>
       )}
     </div>
   );
 }
+
+// ─── NextUpCard ───────────────────────────────────────────────────────────────
 
 function NextUpCard({ listing, companies }) {
   const company = companies[listing.company_id];
@@ -140,42 +82,33 @@ function NextUpCard({ listing, companies }) {
   const dayName = getDayName(listing.event_date);
   const monthAbbr = getMonthAbbr(listing.event_date);
   const today = isToday(listing.event_date);
-
   return (
-    <Link
-      to={`/space-rising-v2/events/${listing.id}`}
-      style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'flex-start', gap: 18, padding: '18px 20px', background: 'rgba(232,162,58,0.07)', border: '1px solid rgba(232,162,58,0.28)', borderRadius: 12, transition: 'border-color 0.15s, background 0.15s' }}
-      onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(232,162,58,0.12)'; e.currentTarget.style.borderColor = 'rgba(232,162,58,0.50)'; }}
-      onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(232,162,58,0.07)'; e.currentTarget.style.borderColor = 'rgba(232,162,58,0.28)'; }}
-    >
-      {/* Big date block */}
-      <div style={{ flexShrink: 0, width: 56, textAlign: 'center' }}>
-        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.12em', color: '#E8A23A', fontFamily: 'JetBrains Mono, ui-monospace, monospace' }}>{today ? 'TODAY' : monthAbbr}</div>
-        <div style={{ fontSize: 32, fontWeight: 700, lineHeight: 1, color: '#E8E4DA', fontFamily: '"Space Grotesk", system-ui, sans-serif', marginTop: 2 }}>{dayNum}</div>
-        <div style={{ fontSize: 9, fontWeight: 600, letterSpacing: '0.10em', color: 'rgba(232,228,218,0.40)', fontFamily: 'JetBrains Mono, ui-monospace, monospace', marginTop: 2 }}>{dayName}</div>
+    <Link to={`/space-rising-v2/events/${listing.id}`} className="sr-next-card">
+      <div className="sr-next-card__date">
+        <div className="sr-next-card__month">{today ? 'TODAY' : monthAbbr}</div>
+        <div className="sr-next-card__day">{dayNum}</div>
+        <div className="sr-next-card__weekday">{dayName}</div>
       </div>
-      {/* Body */}
-      <div style={{ flex: 1, minWidth: 0 }}>
-        {today && <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.14em', color: '#E8A23A', fontFamily: 'JetBrains Mono, ui-monospace, monospace', marginBottom: 4 }}>HAPPENING TODAY</div>}
-        <div style={{ fontSize: 15, fontWeight: 700, color: '#E8E4DA', lineHeight: 1.3 }}>{listing.title}</div>
-        <div style={{ fontSize: 12, color: 'rgba(232,228,218,0.55)', marginTop: 5, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+      <div className="sr-next-card__body">
+        {today && <div className="sr-next-card__today-badge">HAPPENING TODAY</div>}
+        <div className="sr-next-card__title">{listing.title}</div>
+        <div className="sr-next-card__meta">
           {listing.organizer || company?.name ? <span>{listing.organizer || company?.name}</span> : null}
-          {loc ? <><span style={{ opacity: 0.35 }}>·</span><span>{loc}</span></> : null}
-          {listing.event_type ? <><span style={{ opacity: 0.35 }}>·</span><span style={{ textTransform: 'capitalize' }}>{listing.event_type}</span></> : null}
+          {loc ? <><span className="sr-sep">·</span><span>{loc}</span></> : null}
+          {listing.event_type ? <><span className="sr-sep">·</span><span className="sr-type">{listing.event_type}</span></> : null}
         </div>
       </div>
-      <svg width="14" height="14" fill="none" stroke="rgba(232,162,58,0.60)" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0, marginTop: 4 }}>
+      <svg className="sr-next-card__arrow" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
         <path d="M9 18l6-6-6-6" />
       </svg>
     </Link>
   );
 }
 
-// ─── main inner component ─────────────────────────────────────────────────────
+// ─── Main inner component ─────────────────────────────────────────────────────
 
 function SourcingEventsV2Inner() {
-  const { dark } = useSourcingTheme();
-  const V = getTokens(dark);
+  useSourcingTheme();
 
   const [tenant, setTenant] = useState(null);
   const [listings, setListings] = useState([]);
@@ -236,7 +169,7 @@ function SourcingEventsV2Inner() {
     return () => { cancelled = true; };
   }, [tenant]);
 
-  // Search-filtered flat list (used when searching)
+  // Search-filtered flat list
   const filtered = useMemo(() => {
     if (!searchInput.trim()) return listings;
     const terms = searchInput.toLowerCase().split(/\s+/).filter(Boolean);
@@ -262,10 +195,9 @@ function SourcingEventsV2Inner() {
     return !d || d < now;
   }), [listings]);
 
-  // Next Up: first 3 upcoming events
+  // Next Up: first 3 upcoming events (highlighted)
   const nextUp = upcomingAll.slice(0, 3);
-
-  // Remaining upcoming grouped by month (skip the first 3)
+  // Remaining upcoming — grouped by month
   const remaining = upcomingAll.slice(3);
   const { groups: upcomingGroups, order: upcomingOrder } = useMemo(() => groupByMonth(remaining), [remaining]);
   const { groups: pastGroups, order: pastOrder } = useMemo(() => groupByMonth(pastAll), [pastAll]);
@@ -273,32 +205,7 @@ function SourcingEventsV2Inner() {
   const isSearching = searchInput.trim().length > 0;
 
   return (
-    <div
-      data-tenant={TENANT_SLUG_V2}
-      style={{
-        minHeight: '100dvh',
-        background: 'var(--bg)',
-        color: 'var(--tx)',
-        position: 'relative',
-        fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
-        '--bg': 'transparent',
-        '--tx': '#E8E4DA',
-        '--tx2': 'rgba(232,228,218,0.60)',
-        '--tx3': 'rgba(232,228,218,0.25)',
-        '--s1': 'rgba(11,11,13,0.72)',
-        '--s2': 'rgba(11,11,13,0.82)',
-        '--s3': 'rgba(11,11,13,0.92)',
-        '--bd': 'rgba(232,228,218,0.10)',
-        '--bd2': 'rgba(232,228,218,0.16)',
-        '--cyan': '#E8A23A',
-        '--cyan-dim': 'rgba(232,162,58,0.10)',
-        '--cyan-brd': 'rgba(232,162,58,0.32)',
-      }}
-    >
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }
-      `}</style>
+    <div data-tenant={TENANT_SLUG_V2} style={{ minHeight: '100dvh', color: '#E8E4DA' }}>
 
       {/* Hero */}
       <div className="browse-hero" style={{ '--page-hero-bg': "url('/v2-assets/starfield-dense.png')" }}>
@@ -344,7 +251,7 @@ function SourcingEventsV2Inner() {
           {loading ? 'Loading...' : isSearching ? `${filtered.length} result${filtered.length === 1 ? '' : 's'}.` : `${listings.length} Events.`}
         </div>
         <div className="sec-count">
-          <Link to="/space-rising-v2/events/post" style={{ textDecoration: 'none', color: 'var(--cyan)', fontSize: 12, fontWeight: 600 }}>
+          <Link to="/space-rising-v2/events/post" style={{ textDecoration: 'none', color: 'var(--srv2-orange)', fontSize: 12, fontWeight: 600 }}>
             + Post an Event
           </Link>
         </div>
@@ -352,16 +259,14 @@ function SourcingEventsV2Inner() {
 
       {/* No supabase */}
       {!supabase && (
-        <div style={{ margin: '0 20px 16px', padding: '24px 20px', border: '1px solid rgba(232,162,58,0.32)', background: 'rgba(232,162,58,0.10)', borderRadius: 10, color: '#E8A23A', fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 13, textAlign: 'center' }}>
-          Supabase not configured
-        </div>
+        <div className="sr-config-notice">Supabase not configured</div>
       )}
 
       {/* Loading skeletons */}
       {loading && supabase && (
         <div className="co-list">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} style={{ height: 72, borderRadius: 10, background: 'rgba(18,20,28,0.40)', border: '1px solid rgba(232,228,218,0.05)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+            <div key={i} className="sr-skel-row" />
           ))}
         </div>
       )}
@@ -393,25 +298,23 @@ function SourcingEventsV2Inner() {
             );
           })}
           {filtered.length === 0 && (
-            <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              No events match &ldquo;{searchInput}&rdquo;
-            </div>
+            <div className="sr-cal-empty">No events match &ldquo;{searchInput}&rdquo;</div>
           )}
         </div>
       )}
 
       {/* ── Calendar mode ── */}
       {!loading && !isSearching && (
-        <div style={{ paddingBottom: 48 }}>
+        <div className="sr-events-cal">
 
-          {/* Next Up section */}
+          {/* Next Up — first 3 highlighted cards */}
           {nextUp.length > 0 && (
-            <div style={{ padding: '0 20px 24px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.16em', color: '#E8A23A', fontFamily: 'JetBrains Mono, ui-monospace, monospace' }}>COMING UP NEXT</span>
-                <span style={{ flex: 1, height: 1, background: 'rgba(232,162,58,0.20)' }} />
+            <div className="sr-next-section">
+              <div className="sr-next-hdr">
+                <span className="sr-next-hdr__label">COMING UP NEXT</span>
+                <span className="sr-next-hdr__rule" />
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div className="sr-next-list">
                 {nextUp.map((e) => (
                   <NextUpCard key={e.id} listing={e} companies={companies} />
                 ))}
@@ -419,34 +322,29 @@ function SourcingEventsV2Inner() {
             </div>
           )}
 
-          {/* Upcoming month groups */}
+          {/* Remaining upcoming — month groups */}
           {upcomingOrder.map((monthLabel) => (
             <MonthSection key={monthLabel} label={monthLabel} events={upcomingGroups[monthLabel]} companies={companies} />
           ))}
 
-          {/* No upcoming events */}
+          {/* No upcoming */}
           {upcomingAll.length === 0 && (
-            <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              No upcoming events posted yet.
-            </div>
+            <div className="sr-cal-empty">No upcoming events posted yet.</div>
           )}
 
           {/* Past events — collapsed accordion */}
           {pastAll.length > 0 && (
-            <div style={{ marginTop: 24 }}>
-              <button
-                onClick={() => setPastExpanded((o) => !o)}
-                style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '10px 20px', background: 'none', border: 'none', borderTop: '1px solid rgba(232,228,218,0.10)', cursor: 'pointer', color: 'inherit' }}
-              >
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', color: 'rgba(232,228,218,0.40)', fontFamily: 'JetBrains Mono, ui-monospace, monospace', whiteSpace: 'nowrap' }}>PAST EVENTS</span>
-                <span style={{ flex: 1, height: 1, background: 'rgba(232,228,218,0.06)' }} />
-                <span style={{ fontSize: 11, color: 'rgba(232,228,218,0.30)', fontFamily: 'JetBrains Mono, ui-monospace, monospace', whiteSpace: 'nowrap' }}>{pastAll.length} event{pastAll.length !== 1 ? 's' : ''}</span>
-                <svg width="12" height="12" fill="none" stroke="rgba(232,228,218,0.30)" strokeWidth="2.5" viewBox="0 0 24 24" style={{ transition: 'transform 0.2s', transform: pastExpanded ? 'rotate(0deg)' : 'rotate(-90deg)', flexShrink: 0 }}>
+            <div className="sr-past-section">
+              <button onClick={() => setPastExpanded((o) => !o)} className="sr-past-toggle">
+                <span className="sr-past-toggle__label">PAST EVENTS</span>
+                <span className="sr-past-toggle__rule" />
+                <span className="sr-past-toggle__count">{pastAll.length} event{pastAll.length !== 1 ? 's' : ''}</span>
+                <svg className={`sr-past-toggle__chevron${pastExpanded ? '' : ' closed'}`} width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                   <path d="M6 9l6 6 6-6" />
                 </svg>
               </button>
               {pastExpanded && (
-                <div style={{ opacity: 0.65 }}>
+                <div className="sr-past-body">
                   {pastOrder.map((monthLabel) => (
                     <MonthSection key={monthLabel} label={monthLabel} events={pastGroups[monthLabel]} companies={companies} />
                   ))}
@@ -454,6 +352,7 @@ function SourcingEventsV2Inner() {
               )}
             </div>
           )}
+
         </div>
       )}
     </div>
