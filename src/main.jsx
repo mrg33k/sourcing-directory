@@ -101,6 +101,8 @@ const SRWPartnershipsV2 = lazy(() => import('./pages/srw/SRWPartnershipsV2.jsx')
 const SRWEventsV2 = lazy(() => import('./pages/srw/SRWEventsV2.jsx'))
 const SRWMediaV2 = lazy(() => import('./pages/srw/SRWMediaV2.jsx'))
 const SRWSignUpV2 = lazy(() => import('./pages/srw/SRWSignUpV2.jsx'))
+// space-rising:website:blueprint — Arizona Space Blueprint™ campaign landing page.
+const SRWBlueprintV2 = lazy(() => import('./pages/srw/SRWBlueprintV2.jsx'))
 // nat-geo-uplift — V2 post forms (Jobs / Events / Marketplace / Articles).
 // Replaces the Navigate-to-V1 redirects that broke V2 immersion.
 const SourcingJobsPostV2 = lazy(() => import('./pages/SourcingJobsPostV2.jsx'))
@@ -158,6 +160,9 @@ createRoot(document.getElementById('root')).render(
           <Route path="/srw-v2/events" element={<SRWEventsV2 />} />
           <Route path="/srw-v2/media" element={<SRWMediaV2 />} />
           <Route path="/srw-v2/sign-up" element={<SRWSignUpV2 />} />
+          <Route path="/srw-v2/blueprint" element={<SRWBlueprintV2 />} />
+          {/* Short alias: /blueprint */}
+          <Route path="/blueprint" element={<Navigate to="/srw-v2/blueprint" replace />} />
           <Route path="/space-rising-v2" element={<SourcingDirectoryV2 />} />
           <Route path="/space-rising-v2/jobs" element={<SourcingJobsV2 />} />
           <Route path="/space-rising-v2/events" element={<SourcingEventsV2 />} />

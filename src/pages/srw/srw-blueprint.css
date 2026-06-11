@@ -1,0 +1,336 @@
+/* ── Arizona Space Blueprint™ Campaign Page ──────────────────────────────── */
+/* Part of the /srw-v2/blueprint route. Uses [data-srw="v2"] root from       */
+/* srw-v2.css and adds blueprint-specific components.                         */
+
+/* ── Hero ────────────────────────────────────────────────────────────────── */
+[data-page="blueprint"] .bp-hero {
+  position: relative;
+  min-height: 680px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+[data-page="blueprint"] .bp-hero-img {
+  position: absolute;
+  inset: 0;
+  background: url('/v2-assets/blueprint-hero.png') center center / cover no-repeat;
+  transform: scale(1.04);
+}
+
+[data-page="blueprint"] .bp-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    rgba(6, 15, 30, 0.88) 0%,
+    rgba(6, 15, 30, 0.72) 55%,
+    rgba(6, 15, 30, 0.35) 100%
+  );
+}
+
+[data-page="blueprint"] .bp-hero-inner {
+  position: relative;
+  z-index: 2;
+  padding: 160px 0 100px;
+}
+
+[data-page="blueprint"] .bp-hero-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: clamp(2.4rem, 5.5vw, 4.2rem);
+  font-weight: 400;
+  color: #E8E4DA;
+  line-height: 1.1;
+  margin: 12px 0 24px;
+  max-width: 660px;
+}
+
+[data-page="blueprint"] .bp-hero-sub {
+  font-size: clamp(1rem, 1.8vw, 1.15rem);
+  color: rgba(232, 228, 218, 0.78);
+  max-width: 520px;
+  line-height: 1.65;
+  margin-bottom: 36px;
+}
+
+[data-page="blueprint"] .bp-hero-cta-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+[data-page="blueprint"] .bp-hero-note {
+  font-size: 0.82rem;
+  color: rgba(232, 228, 218, 0.5);
+  letter-spacing: 0.02em;
+  margin: 0;
+}
+
+/* ── Access grid ─────────────────────────────────────────────────────────── */
+[data-page="blueprint"] .bp-access-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: rgba(232, 228, 218, 0.1);
+  border: 1px solid rgba(232, 228, 218, 0.1);
+  margin-top: 48px;
+}
+
+[data-page="blueprint"] .bp-access-card {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  padding: 32px 32px;
+  background: var(--srw-ink, #0A0E17);
+}
+
+[data-page="blueprint"] .bp-access-check {
+  font-size: 1.1rem;
+  color: #E8A23A;
+  font-weight: 700;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+[data-page="blueprint"] .bp-access-label {
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #E8E4DA;
+  margin-bottom: 6px;
+}
+
+[data-page="blueprint"] .bp-access-desc {
+  font-size: 0.88rem;
+  color: rgba(232, 228, 218, 0.62);
+  line-height: 1.55;
+}
+
+/* ── Blueprint callout ───────────────────────────────────────────────────── */
+[data-page="blueprint"] .bp-callout {
+  background: #0D1520;
+  border-top: 1px solid rgba(232, 228, 218, 0.1);
+  border-bottom: 1px solid rgba(232, 228, 218, 0.1);
+  padding: 88px 0;
+}
+
+[data-page="blueprint"] .bp-callout-inner {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 64px;
+  align-items: start;
+}
+
+[data-page="blueprint"] .bp-callout-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight: 400;
+  color: #E8E4DA;
+  line-height: 1.15;
+  margin: 12px 0 20px;
+}
+
+[data-page="blueprint"] .bp-callout-body {
+  font-size: 0.95rem;
+  color: rgba(232, 228, 218, 0.72);
+  line-height: 1.7;
+  max-width: 560px;
+}
+
+[data-page="blueprint"] .bp-callout-pricing {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+  margin-top: 40px;
+}
+
+[data-page="blueprint"] .bp-price-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #E8A23A;
+  margin-bottom: 8px;
+}
+
+[data-page="blueprint"] .bp-price-value {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 2.4rem;
+  font-weight: 400;
+  color: #E8E4DA;
+  line-height: 1;
+}
+
+[data-page="blueprint"] .bp-price-sub {
+  font-size: 0.8rem;
+  color: rgba(232, 228, 218, 0.5);
+  margin-top: 6px;
+}
+
+[data-page="blueprint"] .bp-price-divider {
+  width: 1px;
+  background: rgba(232, 228, 218, 0.12);
+  align-self: stretch;
+  min-height: 80px;
+}
+
+/* ── Blueprint badge / document icon ────────────────────────────────────── */
+[data-page="blueprint"] .bp-callout-badge {
+  flex-shrink: 0;
+}
+
+[data-page="blueprint"] .bp-badge-inner {
+  width: 200px;
+  padding: 32px 24px;
+  border: 1px solid rgba(232, 162, 58, 0.35);
+  background: rgba(232, 162, 58, 0.04);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+[data-page="blueprint"] .bp-badge-icon {
+  font-size: 2.4rem;
+  color: #E8A23A;
+}
+
+[data-page="blueprint"] .bp-badge-name {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #E8E4DA;
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+}
+
+[data-page="blueprint"] .bp-badge-pages {
+  font-size: 0.72rem;
+  color: rgba(232, 228, 218, 0.5);
+}
+
+[data-page="blueprint"] .bp-badge-tag {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #E8A23A;
+  padding: 4px 10px;
+  border: 1px solid rgba(232, 162, 58, 0.4);
+  display: inline-block;
+}
+
+/* ── Findings ────────────────────────────────────────────────────────────── */
+[data-page="blueprint"] .bp-findings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 32px;
+  margin-top: 48px;
+}
+
+[data-page="blueprint"] .bp-finding {
+  padding: 32px;
+  border: 1px solid rgba(232, 228, 218, 0.1);
+  position: relative;
+}
+
+[data-page="blueprint"] .bp-finding::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #E8A23A;
+}
+
+[data-page="blueprint"] .bp-finding-num {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #E8A23A;
+  margin-bottom: 14px;
+}
+
+[data-page="blueprint"] .bp-finding-headline {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: #E8E4DA;
+  line-height: 1.3;
+  margin-bottom: 12px;
+}
+
+[data-page="blueprint"] .bp-finding-body {
+  font-size: 0.875rem;
+  color: rgba(232, 228, 218, 0.65);
+  line-height: 1.6;
+}
+
+[data-page="blueprint"] .bp-findings-cta-note {
+  margin-top: 32px;
+  text-align: center;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: rgba(232, 228, 218, 0.45);
+}
+
+/* ── Bottom CTA ──────────────────────────────────────────────────────────── */
+[data-page="blueprint"] .bp-bottom-cta {
+  background: rgba(232, 162, 58, 0.04);
+  border-top: 1px solid rgba(232, 162, 58, 0.2);
+  padding: 96px 0;
+  text-align: center;
+}
+
+[data-page="blueprint"] .bp-bottom-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight: 400;
+  color: #E8E4DA;
+  line-height: 1.2;
+  margin: 12px 0 24px;
+}
+
+[data-page="blueprint"] .bp-bottom-sub {
+  font-size: 1rem;
+  color: rgba(232, 228, 218, 0.65);
+  max-width: 500px;
+  margin: 0 auto 40px;
+  line-height: 1.65;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  [data-page="blueprint"] .bp-access-grid {
+    grid-template-columns: 1fr;
+  }
+
+  [data-page="blueprint"] .bp-callout-inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  [data-page="blueprint"] .bp-callout-badge {
+    display: none;
+  }
+
+  [data-page="blueprint"] .bp-callout-pricing {
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  [data-page="blueprint"] .bp-price-divider {
+    width: 100%;
+    height: 1px;
+    min-height: auto;
+  }
+
+  [data-page="blueprint"] .bp-findings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  [data-page="blueprint"] .bp-hero-cta-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
