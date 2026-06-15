@@ -250,7 +250,13 @@ export default function SourcingMarketplacePostV2() {
 
   // ── Form ──────────────────────────────────────────────────────────────────
   return (
-    <div data-srw="v2" style={{ minHeight: '100dvh', background: BG, color: TEXT, fontFamily: FONT }}>
+    <div data-srw="v2" style={{
+      minHeight: '100dvh', background: BG, color: TEXT, fontFamily: FONT,
+      '--tx2': MUTED, '--tx3': DIM,
+      '--s1': 'rgba(6,6,10,0.72)', '--s2': 'rgba(6,6,10,0.82)',
+      '--bd': BORDER, '--bd2': 'rgba(245,238,215,0.16)',
+      '--cyan': AMBER, '--cyan-dim': 'rgba(232,162,58,0.10)', '--cyan-brd': 'rgba(232,162,58,0.32)',
+    }}>
       <style>{`
         * { box-sizing: border-box; }
         input::placeholder, textarea::placeholder { color: ${DIM}; }
