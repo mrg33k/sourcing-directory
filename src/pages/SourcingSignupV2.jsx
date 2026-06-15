@@ -306,7 +306,7 @@ function ChooseAccountType({ basePath, onPick }) {
       key: 'free',
       tag: 'Free',
       title: 'Watch from the floor',
-      sub: 'Get on the map and read the room — directory listing, intelligence reports, jobs, events, and deals, all readable. No card required.',
+      sub: 'Get on the map and read the room. Directory listing, intelligence reports, jobs, events, and deals, all readable. No card required.',
       cta: 'Continue free',
       solid: false,
     },

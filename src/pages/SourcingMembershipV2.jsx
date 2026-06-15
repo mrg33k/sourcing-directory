@@ -474,7 +474,7 @@ function SourcingMembershipV2Inner() {
           <TierCard
             kind="free"
             title="Watch from the floor"
-            lede="Get on the map and read the room. Free forever — listing, reports, jobs, deals, events, all readable."
+            lede="Get on the map and read the room. Free forever. Listing, reports, jobs, deals, events, all readable."
             benefits={FREE_BENEFITS}
             footnote="No card required"
             cta="Join Free"
