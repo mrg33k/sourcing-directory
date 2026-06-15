@@ -123,6 +123,11 @@ export default function DealBankSection({ adminSupabase, selectedTenantId, curre
   const [importPreview, setImportPreview] = useState(null); // { rows, headers }
   const [importStatus, setImportStatus] = useState('');
   const importRef = React.useRef(null);
+
+  // ── CSV import (completed rounds) ──
+  const [roundPreview, setRoundPreview] = useState(null);
+  const [roundStatus, setRoundStatus] = useState('');
+
   const handleImportFile = (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
@@ -171,9 +176,6 @@ export default function DealBankSection({ adminSupabase, selectedTenantId, curre
     </label>
   );
 
-  // ── CSV import (completed rounds) ──
-  const [roundPreview, setRoundPreview] = useState(null);
-  const [roundStatus, setRoundStatus] = useState('');
   const handleRoundFile = (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
