@@ -110,7 +110,10 @@ function Shell({ children }) {
         input[type="number"]::-webkit-inner-spin-button { filter: invert(0.4); }
       `}</style>
       <SRWNavV2 />
-      {children}
+      {/* Offset the fixed 155px nav so the hero/gate never renders underneath it. */}
+      <div style={{ paddingTop: 'var(--srw-nav-h, 155px)' }}>
+        {children}
+      </div>
     </div>
   );
 }

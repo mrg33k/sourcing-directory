@@ -2,7 +2,9 @@
 // nat-geo-uplift — V2 post form for Articles.
 // Supabase logic preserved exactly from SourcingArticlesPost.jsx.
 // Visual system: dark BG (#06060A), amber accent (#E8A23A), line-style inputs.
-// No SourcingThemeProvider, no SourcingNav, no MembershipGate.
+// GATED to signed-in community members, mirroring SourcingDiscoveryPostV2 — you
+// must have an account to contribute. The Shell offsets the fixed 155px nav so
+// the hero never renders underneath it.
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -130,7 +132,45 @@ function SectionHeader({ children }) {
   );
 }
 
+// Shell — owns the page chrome AND the fixed-nav offset. SRWNavV2 is
+// position:fixed at 155px tall; without the paddingTop the hero would render
+// underneath it (the bug this round fixes). Everything else nests inside.
+function Shell({ children }) {
+  return (
+    <div data-srw="v2" style={{ minHeight: '100dvh', background: BG, color: TEXT, fontFamily: FONT }}>
+      <style>{`
+        * { box-sizing: border-box; }
+        input::placeholder, textarea::placeholder { color: ${DIM}; }
+        select option { background: #111; color: ${TEXT}; }
+        input[type="number"]::-webkit-inner-spin-button { filter: invert(0.4); }
+      `}</style>
+      <SRWNavV2 />
+      <div style={{ paddingTop: 'var(--srw-nav-h, 155px)' }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export default function SourcingArticlesPostV2() {
+  // ── Auth state — you must be signed in to contribute ───────────────────────
+  const [session, setSession]     = useState(null);
+  const [authReady, setAuthReady] = useState(false);
+
+  useEffect(() => {
+    if (!supabase) { setAuthReady(true); return; }
+    let mounted = true;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
+      setSession(session);
+      setAuthReady(true);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
+      if (mounted) setSession(s);
+    });
+    return () => { mounted = false; subscription?.unsubscribe(); };
+  }, []);
+
   const [companies, setCompanies]   = useState([]);
   const [tagsInput, setTagsInput]   = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -169,6 +209,10 @@ export default function SourcingArticlesPostV2() {
       return;
     }
 
+    // Re-check the session at submit time — contributions require an account.
+    const { data: { session: live } } = await supabase.auth.getSession();
+    if (!live) { setError('Your session expired. Please sign in again to submit.'); return; }
+
     setSubmitting(true);
     setError(null);
 
@@ -206,12 +250,58 @@ export default function SourcingArticlesPostV2() {
     }
   };
 
+  // ── While we resolve the session, show a neutral shell (never flash the form
+  // to a signed-out visitor before the gate appears). ─────────────────────────
+  if (!authReady) {
+    return (
+      <Shell>
+        <V2ChipNav active="articles" />
+        <div style={{ maxWidth: 520, margin: '0 auto', padding: '120px 24px', textAlign: 'center', color: MUTED, fontFamily: FONT, fontSize: 14 }}>
+          Loading…
+        </div>
+      </Shell>
+    );
+  }
+
+  // ── Auth gate ──────────────────────────────────────────────────────────────
+  if (!session) {
+    return (
+      <Shell>
+        <V2ChipNav active="articles" />
+        <div style={{ maxWidth: 520, margin: '0 auto', padding: '80px 24px', textAlign: 'center' }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: AMBER, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 14, fontFamily: FONT }}>
+            Industry Articles
+          </div>
+          <div style={{ fontSize: 30, fontWeight: 700, color: TEXT, lineHeight: 1.15, fontFamily: FONT }}>
+            Sign in to post an article<span style={{ color: AMBER }}>.</span>
+          </div>
+          <div style={{ fontSize: 15, color: MUTED, marginTop: 14, lineHeight: 1.6, fontFamily: FONT }}>
+            Publishing to the Space OS articles feed is open to the community — you just need an account. Sign in or create one to share insights, company news, or technical content, and it will appear here once reviewed.
+          </div>
+          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginTop: 28 }}>
+            <Link to="/space-rising-v2/login" style={{
+              background: AMBER, color: '#06060A', textDecoration: 'none',
+              borderRadius: 6, padding: '12px 28px', fontWeight: 700, fontSize: 14, fontFamily: FONT,
+            }}>
+              Sign in / Create account
+            </Link>
+            <Link to="/space-rising-v2/articles" style={{
+              background: 'transparent', border: `1px solid ${BORDER}`,
+              color: MUTED, borderRadius: 6, padding: '12px 28px',
+              fontSize: 14, fontWeight: 600, fontFamily: FONT, textDecoration: 'none',
+            }}>
+              Browse articles
+            </Link>
+          </div>
+        </div>
+      </Shell>
+    );
+  }
+
   // ── Success state ──────────────────────────────────────────────────────────
   if (done) {
     return (
-      <div data-srw="v2" style={{ minHeight: '100dvh', background: BG, color: TEXT, fontFamily: FONT }}>
-        <style>{`* { box-sizing: border-box; }`}</style>
-        <SRWNavV2 />
+      <Shell>
         <div style={{ textAlign: 'center', padding: '80px 24px' }}>
           <div style={{ fontSize: 48, color: AMBER, marginBottom: 20 }}>✓</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: TEXT, marginBottom: 12, fontFamily: FONT }}>
@@ -243,22 +333,13 @@ export default function SourcingArticlesPostV2() {
             </button>
           </div>
         </div>
-      </div>
+      </Shell>
     );
   }
 
   // ── Form ───────────────────────────────────────────────────────────────────
   return (
-    <div data-srw="v2" style={{ minHeight: '100dvh', background: BG, color: TEXT, fontFamily: FONT }}>
-      <style>{`
-        * { box-sizing: border-box; }
-        input::placeholder, textarea::placeholder { color: ${DIM}; }
-        select option { background: #111; color: ${TEXT}; }
-        input[type="number"]::-webkit-inner-spin-button { filter: invert(0.4); }
-      `}</style>
-
-      <SRWNavV2 />
-
+    <Shell>
       {/* Hero */}
       <div style={{
         background: 'linear-gradient(180deg, rgba(232,162,58,0.06) 0%, transparent 100%)',
@@ -434,6 +515,6 @@ export default function SourcingArticlesPostV2() {
           </div>
         </form>
       </div>
-    </div>
+    </Shell>
   );
 }
