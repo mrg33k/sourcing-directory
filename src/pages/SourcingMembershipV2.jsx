@@ -461,8 +461,8 @@ function SourcingMembershipV2Inner() {
       {/* Two-up tier cards — the conversion centerpiece.
           marginTop override pulls the cards up under the hero — the default
           56px .mem-section gap left a dead band between hero and memberships. */}
-      <section className="mem-section" style={{ marginTop: 24 }}>
-        <div className="sec-hdr" style={{ maxWidth: 'none', padding: 0, marginBottom: 32 }}>
+      <section className="mem-section" style={{ marginTop: 16 }}>
+        <div className="sec-hdr" style={{ maxWidth: 'none', padding: 0, marginBottom: 20 }}>
           <div className="sec-title" style={{ whiteSpace: 'normal' }}>Pick how you walk in.</div>
           <div className="sec-count">
             <span style={{ color: 'var(--tx3)', fontSize: 12, fontFamily: 'JetBrains Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
