@@ -458,8 +458,10 @@ function SourcingMembershipV2Inner() {
 
       <V2ChipNav active="membership" />
 
-      {/* Two-up tier cards — the conversion centerpiece */}
-      <section className="mem-section">
+      {/* Two-up tier cards — the conversion centerpiece.
+          marginTop override pulls the cards up under the hero — the default
+          56px .mem-section gap left a dead band between hero and memberships. */}
+      <section className="mem-section" style={{ marginTop: 24 }}>
         <div className="sec-hdr" style={{ maxWidth: 'none', padding: 0, marginBottom: 32 }}>
           <div className="sec-title" style={{ whiteSpace: 'normal' }}>Pick how you walk in.</div>
           <div className="sec-count">
