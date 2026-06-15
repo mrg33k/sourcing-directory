@@ -123,12 +123,19 @@ function SourcingDiscoveryV2Inner() {
         [data-tenant="space-rising-v2"] .wp-card:hover {
           border-color: rgba(232,162,58,0.45); background: rgba(232,162,58,0.06); transform: translateY(-1px);
         }
-        [data-tenant="space-rising-v2"] .wp-card:hover .wp-arrow { color: #E8A23A; transform: translateX(2px); }
-        [data-tenant="space-rising-v2"] .wp-title { font-size: 16px; font-weight: 700; color: #F1ECE0; line-height: 1.3; }
+        [data-tenant="space-rising-v2"] .wp-card:hover .wp-arrow { color: #E8A23A; transform: translate(2px,-2px); }
+        [data-tenant="space-rising-v2"] .wp-card:hover .wp-title { color: #F3C57E; }
+        [data-tenant="space-rising-v2"] .wp-card:hover .wp-open { color: #E8A23A; }
+        [data-tenant="space-rising-v2"] .wp-title { font-size: 16px; font-weight: 700; color: #F1ECE0; line-height: 1.3; transition: color 0.16s ease; }
         [data-tenant="space-rising-v2"] .wp-meta { font-size: 12px; color: rgba(232,228,218,0.55); margin-top: 5px; letter-spacing: 0.01em; }
         [data-tenant="space-rising-v2"] .wp-abstract {
           font-size: 13px; color: rgba(232,228,218,0.66); margin-top: 9px; line-height: 1.55;
-          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+          display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        [data-tenant="space-rising-v2"] .wp-open {
+          display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; margin-top: 2px;
+          font-size: 12px; font-weight: 600; color: rgba(232,228,218,0.45);
+          transition: color 0.16s ease; white-space: nowrap;
         }
         [data-tenant="space-rising-v2"] .wp-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 12px; }
         [data-tenant="space-rising-v2"] .wp-badge {
@@ -139,7 +146,7 @@ function SourcingDiscoveryV2Inner() {
           color: #E8A23A; border-color: rgba(232,162,58,0.40); background: rgba(232,162,58,0.10);
           display: inline-flex; align-items: center; gap: 4px;
         }
-        [data-tenant="space-rising-v2"] .wp-arrow { color: rgba(232,228,218,0.35); flex-shrink: 0; margin-top: 2px; transition: color 0.16s ease, transform 0.16s ease; }
+        [data-tenant="space-rising-v2"] .wp-arrow { color: inherit; flex-shrink: 0; transition: transform 0.16s ease; }
       `}</style>
 
       <div className="browse-hero" style={{ '--page-hero-bg': "url('/v2-assets/earth.png')" }}>
@@ -248,9 +255,12 @@ function SourcingDiscoveryV2Inner() {
                     </div>
                   </div>
                 </div>
-                <div className="wp-arrow">
-                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
-                </div>
+                {href && (
+                  <div className="wp-open" aria-hidden="true">
+                    Open
+                    <svg className="wp-arrow" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
+                  </div>
+                )}
               </CardTag>
             );
           })}
