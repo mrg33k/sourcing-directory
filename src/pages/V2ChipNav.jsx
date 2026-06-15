@@ -17,6 +17,7 @@ const CHIPS = [
   { slug: 'events',     label: 'Events',     to: '/space-rising-v2/events' },
   { slug: 'reports',    label: 'Reports',    to: '/space-rising-v2/reports' },
   { slug: 'articles',   label: 'Articles',   to: '/space-rising-v2/articles' },
+  { slug: 'discovery',  label: 'Discovery',  to: '/space-rising-v2/discovery' },
   { slug: 'grants',     label: 'Grants',     to: '/space-rising-v2/grants' },
   { slug: 'marketplace',label: 'Marketplace',to: '/space-rising-v2/marketplace' },
   { slug: 'membership', label: 'Membership', to: '/space-rising-v2/membership' },

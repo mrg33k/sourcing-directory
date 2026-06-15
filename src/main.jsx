@@ -90,6 +90,9 @@ const SourcingSignupV2 = lazy(() => import('./pages/SourcingSignupV2.jsx'))
 const SourcingCompanyV2 = lazy(() => import('./pages/SourcingCompanyV2.jsx'))
 const SourcingSignupComplete = lazy(() => import('./pages/SourcingSignupComplete.jsx'))
 const SourcingArticlesV2 = lazy(() => import('./pages/SourcingArticlesV2.jsx'))
+// Discovery — community whitepaper library (modeled on Articles).
+const SourcingDiscoveryV2 = lazy(() => import('./pages/SourcingDiscoveryV2.jsx'))
+const SourcingDiscoveryPostV2 = lazy(() => import('./pages/SourcingDiscoveryPostV2.jsx'))
 const SourcingGrantsV2 = lazy(() => import('./pages/SourcingGrantsV2.jsx'))
 const SourcingLoginV2 = lazy(() => import('./pages/SourcingLoginV2.jsx'))
 // R6 (nat-geo-uplift) — SRW marketing sub-pages cloned to V2.
@@ -182,6 +185,8 @@ createRoot(document.getElementById('root')).render(
           <Route path="/space-rising-v2/signup/complete" element={<SourcingSignupComplete />} />
           {/* Articles + Grants — V2 skinned, list-pattern (parity with Jobs/Events). */}
           <Route path="/space-rising-v2/articles" element={<SourcingArticlesV2 />} />
+          {/* Discovery — community whitepaper library. List + gated submit form. */}
+          <Route path="/space-rising-v2/discovery" element={<SourcingDiscoveryV2 />} />
           <Route path="/space-rising-v2/grants" element={<SourcingGrantsV2 />} />
           {/* Login — V2 skinned (replaces previous Navigate-redirect to V1). */}
           <Route path="/space-rising-v2/login" element={<SourcingLoginV2 />} />
@@ -192,6 +197,8 @@ createRoot(document.getElementById('root')).render(
           <Route path="/space-rising-v2/events/post" element={<SourcingEventsPostV2 />} />
           <Route path="/space-rising-v2/marketplace/post" element={<SourcingMarketplacePostV2 />} />
           <Route path="/space-rising-v2/articles/post" element={<SourcingArticlesPostV2 />} />
+          {/* Discovery submit — gated to signed-in community members inside the page. */}
+          <Route path="/space-rising-v2/discovery/post" element={<SourcingDiscoveryPostV2 />} />
           {/* 2026-06-05 — listing + report detail pages. Two segments, so they rank
               above the single-segment /:slug company route and never collide. */}
           <Route path="/space-rising-v2/jobs/:id" element={<SourcingListingV2 kind="job" />} />
@@ -210,6 +217,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/space-rising/events" element={<Navigate to="/space-rising-v2/events" replace />} />
           <Route path="/space-rising/marketplace" element={<Navigate to="/space-rising-v2/marketplace" replace />} />
           <Route path="/space-rising/articles" element={<Navigate to="/space-rising-v2/articles" replace />} />
+          <Route path="/space-rising/discovery" element={<Navigate to="/space-rising-v2/discovery" replace />} />
           <Route path="/space-rising/grants" element={<Navigate to="/space-rising-v2/grants" replace />} />
           <Route path="/space-rising/deal-bank" element={<Navigate to="/space-rising-v2/deal-bank" replace />} />
           <Route path="/space-rising/membership" element={<Navigate to="/space-rising-v2/membership" replace />} />
@@ -221,6 +229,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/space-rising/events/post" element={<Navigate to="/space-rising-v2/events/post" replace />} />
           <Route path="/space-rising/marketplace/post" element={<Navigate to="/space-rising-v2/marketplace/post" replace />} />
           <Route path="/space-rising/articles/post" element={<Navigate to="/space-rising-v2/articles/post" replace />} />
+          <Route path="/space-rising/discovery/post" element={<Navigate to="/space-rising-v2/discovery/post" replace />} />
           <Route path="/space-rising/settings" element={<Navigate to="/space-rising-v2" replace />} />
           <Route path="/space-rising-v2/settings" element={<Navigate to="/space-rising-v2" replace />} />
           {/* Legacy V1 checkout retired (2026-06-05). Paid signup now uses Stripe
