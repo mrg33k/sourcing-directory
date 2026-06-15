@@ -29,7 +29,16 @@ export default function SourcingSignupV2() {
   const { tenant, tenantSlug } = useTenant();
   const tierParam = useQueryParam('tier');
   const planParam = useQueryParam('plan'); // e.g. 'small-annual', 'mid-monthly', 'large-annual'
-  const tier = tierParam === 'free' ? 'free' : 'paid';
+
+  // The account type can arrive two ways:
+  //   1. a ?tier= param — the membership-page doors deep-link straight in, or
+  //   2. unset — the visitor came from the sign-in / content gate, so we ask
+  //      them to pick a door FIRST instead of silently defaulting to paid signup.
+  const paramTier = tierParam === 'free' ? 'free' : (tierParam ? 'paid' : null);
+  const [chosenTier, setChosenTier] = useState(null);
+  const tier = chosenTier || paramTier;   // null until a door is picked
+  const needsChoice = !tier;
+
   const validPlanTypes = Object.keys(PLAN_PRICING);
   const planType = planParam && validPlanTypes.includes(planParam)
     ? planParam
@@ -224,7 +233,7 @@ export default function SourcingSignupV2() {
       <div className="srsv2-topbar">
         <Link to={basePath} className="srsv2-wordmark">SPACE RISING</Link>
         <div className="srsv2-progress">
-          {!submitted && (
+          {!submitted && !needsChoice && (
             <span>
               {String(step + 1).padStart(2, '0')} <span className="srsv2-progress-sep">/</span> {String(totalSteps).padStart(2, '0')}
             </span>
@@ -236,7 +245,7 @@ export default function SourcingSignupV2() {
       </div>
 
       {/* Progress rail */}
-      {!submitted && (
+      {!submitted && !needsChoice && (
         <div className="srsv2-rail">
           <div className="srsv2-rail-fill" style={{ width: `${((step + 1) / totalSteps) * 100}%` }} />
         </div>
@@ -244,7 +253,9 @@ export default function SourcingSignupV2() {
 
       {/* Body */}
       <div className="srsv2-body">
-        {submitted ? (
+        {needsChoice ? (
+          <ChooseAccountType basePath={basePath} onPick={setChosenTier} />
+        ) : submitted ? (
           <div className="srsv2-step srsv2-step-success">
             <div className="srsv2-eyebrow">YOU'RE IN</div>
             <div className="srsv2-title srsv2-title-xl">
@@ -274,6 +285,7 @@ export default function SourcingSignupV2() {
             loading={loading}
             onContinue={handleContinue}
             onBack={back}
+            onReChoose={!paramTier ? () => setChosenTier(null) : null}
             canContinue={stepValid()}
           />
         )}
@@ -283,10 +295,105 @@ export default function SourcingSignupV2() {
 }
 
 // ────────────────────────────────────────────────────────────────────────────────
+// Account-type chooser — shown first when no ?tier was supplied (i.e. the visitor
+// arrived from the sign-in / content gate). Two doors, mirroring the membership
+// page so the language is consistent: Free (watch from the floor) vs Members
+// (join the room). Picking one drops them into that flow.
+// ────────────────────────────────────────────────────────────────────────────────
+function ChooseAccountType({ basePath, onPick }) {
+  const OPTIONS = [
+    {
+      key: 'free',
+      tag: 'Free',
+      title: 'Watch from the floor',
+      sub: 'Get on the map and read the room — directory listing, intelligence reports, jobs, events, and deals, all readable. No card required.',
+      cta: 'Continue free',
+      solid: false,
+    },
+    {
+      key: 'paid',
+      tag: 'Members',
+      title: 'Join the room',
+      sub: 'Everything in Free, plus full posting privileges, monthly research, member events, logo placement, and Congress discounts.',
+      cta: 'Become a member',
+      solid: true,
+    },
+  ];
+
+  return (
+    <div className="srsv2-step">
+      <div className="srsv2-eyebrow">CHOOSE YOUR ACCOUNT</div>
+      <h1 className="srsv2-title">Pick how you walk in<span className="srsv2-period">.</span></h1>
+      <div className="srsv2-sub">Two doors, same room. You can upgrade any time.</div>
+
+      <div style={{ display: 'grid', gap: 16, marginTop: 28 }}>
+        {OPTIONS.map((o) => (
+          <button
+            key={o.key}
+            type="button"
+            onClick={() => onPick(o.key)}
+            style={{
+              textAlign: 'left',
+              background: o.solid ? 'rgba(232,162,58,0.07)' : 'rgba(255,255,255,0.03)',
+              border: `1px solid ${o.solid ? 'rgba(232,162,58,0.45)' : 'rgba(232,228,218,0.14)'}`,
+              borderRadius: 12,
+              padding: '22px 24px',
+              cursor: 'pointer',
+              color: '#E8E4DA',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 8,
+              transition: 'all 0.14s ease',
+            }}
+          >
+            <span style={{
+              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+              fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase',
+              color: o.solid ? '#E8A23A' : 'rgba(232,228,218,0.55)',
+            }}>
+              {o.tag}
+            </span>
+            <span style={{
+              fontFamily: '"Space Grotesk", sans-serif',
+              fontSize: 22, fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.01em',
+            }}>
+              {o.title}<span style={{ color: '#E8A23A' }}>.</span>
+            </span>
+            <span style={{ fontSize: 14, lineHeight: 1.5, color: 'rgba(232,228,218,0.7)' }}>
+              {o.sub}
+            </span>
+            <span style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 6,
+              fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, fontSize: 14,
+              color: o.solid ? '#E8A23A' : '#E8E4DA',
+            }}>
+              {o.cta}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
+            </span>
+          </button>
+        ))}
+      </div>
+
+      <div style={{
+        marginTop: 28, textAlign: 'center',
+        fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+        fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase',
+        color: 'rgba(232,228,218,0.45)',
+      }}>
+        Already have an account?{' '}
+        <Link to={`${basePath}/login`} style={{ color: '#E8A23A', textDecoration: 'none' }}>
+          Sign in
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────────
 // Step views
 // ────────────────────────────────────────────────────────────────────────────────
 
-function StepView({ stepName, stepIndex, tier, planType, isAnnual, form, set, error, loading, onContinue, onBack, canContinue }) {
+function StepView({ stepName, stepIndex, tier, planType, isAnnual, form, set, error, loading, onContinue, onBack, onReChoose, canContinue }) {
   const inputRef = useRef(null);
   useEffect(() => {
     const t = setTimeout(() => inputRef.current?.focus?.(), 380);
@@ -523,11 +630,15 @@ function StepView({ stepName, stepIndex, tier, planType, isAnnual, form, set, er
       {error && <div className="srsv2-error">{error}</div>}
 
       <div className="srsv2-actions">
-        {stepIndex > 0 && (
+        {stepIndex > 0 ? (
           <button type="button" className="srsv2-cta srsv2-cta-line" onClick={onBack}>
             Back
           </button>
-        )}
+        ) : onReChoose ? (
+          <button type="button" className="srsv2-cta srsv2-cta-line" onClick={onReChoose}>
+            Back
+          </button>
+        ) : null}
         <button
           type="button"
           className="srsv2-cta srsv2-cta-solid"
