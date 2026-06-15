@@ -206,8 +206,21 @@ export default function SourcingDiscoveryPostV2() {
     }
   };
 
+  // ── While we resolve the session, show a neutral shell (never flash the form
+  // to a signed-out visitor before the gate appears). ─────────────────────────
+  if (!authReady) {
+    return (
+      <Shell>
+        <V2ChipNav active="discovery" />
+        <div style={{ maxWidth: 520, margin: '0 auto', padding: '120px 24px', textAlign: 'center', color: MUTED, fontFamily: FONT, fontSize: 14 }}>
+          Loading…
+        </div>
+      </Shell>
+    );
+  }
+
   // ── Auth gate ──────────────────────────────────────────────────────────────
-  if (authReady && !session) {
+  if (!session) {
     return (
       <Shell>
         <V2ChipNav active="discovery" />
