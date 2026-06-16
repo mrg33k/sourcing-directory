@@ -29,18 +29,16 @@ const STATS = [
   { num: '7.4%',  target: 7.4, prefix: '',  suffix: '%', decimals: 1, label: 'Annual Growth Rate' },
 ];
 
-// polish-srw-home-2: noun-phrase compression. Two longest entries dropped
-// modifiers that read as filler on mobile two-col tiles ("Launch Rideshare +
-// Space Trucking" → "Launch Rideshare"; "Commercial Space Stations & Orbital
-// Platforms" → "Orbital Platforms"). "Space-Based Energy" hyphenated for
-// editorial tightness. The other three were already short.
+// The Six Space Market Goals (Taryn's deck, slide 41). Framed as goals, each
+// with a one-word market. Defense (Secure Space) intentionally LAST. The heavy
+// per-goal visual treatment is a later pass; this is the structural swap.
 const OPPORTUNITIES = [
-  'Launch Rideshare',
-  'Orbital Construction',
-  'Lunar Resource Extraction',
-  'AI + Robotics',
-  'Space-Based Energy',
-  'Orbital Platforms',
+  { title: 'Build Space',      market: 'Infrastructure' },
+  { title: 'Move in Space',    market: 'Mobility' },
+  { title: 'Live in Space',    market: 'Life' },
+  { title: 'Prosper in Space', market: 'Industry' },
+  { title: 'Operate in Space', market: 'Intelligence' },
+  { title: 'Secure Space',     market: 'Defense' },
 ];
 
 // Each service row mirrors .org exactly: a single <p> per service with a
@@ -334,11 +332,12 @@ export default function SRWHomeV2() {
           grid for CSS to drive the stagger via nth-child transition-delays. */}
       <section className="srw-section" style={{ textAlign: 'center', paddingTop: 0 }}>
         <div className="srw-wrap">
-          <h2 className="srw-h2-mid">EMERGING OPPORTUNITIES FOR SPACE INFRASTRUCTURE</h2>
+          <h2 className="srw-h2-mid">THE SIX SPACE MARKET GOALS</h2>
           <div ref={oppsGridRef} className="srw-opp-grid">
             {OPPORTUNITIES.map((o) => (
-              <div className="srw-opp" key={o}>
-                <span className="srw-opp-label">{o}</span>
+              <div className="srw-opp" key={o.title}>
+                <span className="srw-opp-market">{o.market}</span>
+                <span className="srw-opp-label">{o.title}</span>
                 <span className="srw-opp-rule" aria-hidden="true" />
               </div>
             ))}

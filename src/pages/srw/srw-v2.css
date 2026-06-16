@@ -2956,6 +2956,44 @@
   [data-srw="v2"] .srw-opp .srw-opp-rule { transition: none !important; }
 }
 
+/* ── Six Market Goals (Defense last) ──────────────────────────────────────────
+   Reframe the opp tiles as goals: a small uppercase market kicker above a large
+   goal title, both bottom-anchored. Appended last so it wins the earlier .srw-opp
+   cascade. Bigger title per "make the bullets larger". */
+[data-srw="v2"] .srw-opp {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-end !important;
+  text-align: left !important;
+  gap: 8px !important;
+  min-height: 230px !important;
+  padding: 34px 32px !important;
+}
+[data-srw="v2"] .srw-opp-market {
+  font-family: var(--srw-mono, 'JetBrains Mono', monospace);
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  color: var(--srv2-orange) !important;
+}
+[data-srw="v2"] .srw-opp-label {
+  font-size: 30px !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.01em !important;
+  line-height: 1.08 !important;
+  color: #F4F1EA !important;
+}
+@media (max-width: 900px) {
+  [data-srw="v2"] .srw-opp { min-height: 190px !important; padding: 26px 24px !important; }
+  [data-srw="v2"] .srw-opp-label { font-size: 24px !important; }
+}
+@media (max-width: 600px) {
+  [data-srw="v2"] .srw-opp { min-height: 150px !important; padding: 22px 20px !important; }
+  [data-srw="v2"] .srw-opp-label { font-size: 21px !important; }
+  [data-srw="v2"] .srw-opp-market { font-size: 11px !important; }
+}
+
 /* (2) Footer grid — 1 / 2 / 2 proportions */
 [data-srw="v2"] .srw-footer-inner {
   grid-template-columns: 1fr 2fr 2fr !important;
