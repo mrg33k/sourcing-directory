@@ -489,10 +489,14 @@ export default function SRWHomeV2() {
                   return <div className="srw-search-takeover-cats-label">Searching&hellip;</div>;
                 }
 
-                // Query, nothing matched — fall back to the launcher so they can still move.
+                // Query, nothing matched — a clear empty state, then the launcher
+                // under its own label so it reads as "browse", never as results.
                 return (
                   <>
-                    <div className="srw-search-takeover-cats-label">No matches for <span>{q}</span>. Jump into</div>
+                    <div className="srw-search-empty">
+                      No direct matches for <span>{q}</span> yet.
+                    </div>
+                    <div className="srw-search-takeover-cats-label">Browse the OS</div>
                     {SEARCH_CATEGORIES.map((cat) => (
                       <button type="button" className="srw-search-cat-row" key={cat.key} onClick={() => goToCategory(cat)}>
                         <span className="srw-search-cat-label">{cat.label}</span>

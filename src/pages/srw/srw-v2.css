@@ -3190,3 +3190,10 @@
 [data-srw="v2"] .srw-search-result-sub { flex: 1; font-size: 13px; color: var(--srw-text-2); }
 [data-srw="v2"] .srw-search-result-item .srw-search-cat-arrow { font-size: 16px; }
 [data-srw="v2"] .srw-search-result-item:hover .srw-search-cat-arrow { color: var(--srw-accent); transform: translateX(3px); }
+
+/* home-search-takeover — distinct empty state (never reads as results) */
+[data-srw="v2"] .srw-search-empty {
+  padding: 22px 6px 10px; font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px; color: var(--srw-text-2);
+}
+[data-srw="v2"] .srw-search-empty span { color: var(--srw-accent); }
