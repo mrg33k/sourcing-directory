@@ -166,6 +166,40 @@ createRoot(document.getElementById('root')).render(
           <Route path="/srw-v2/blueprint" element={<SRWBlueprintV2 />} />
           {/* Short alias: /blueprint */}
           <Route path="/blueprint" element={<Navigate to="/srw-v2/blueprint" replace />} />
+          {/* SpaceOS canonical surface (item 3 / spaceos-naming). Same components
+              as /space-rising-v2/*, so /spaceos and every /spaceos/* deep link
+              loads. The legacy /space-rising-v2/* routes below stay live so no
+              existing link rots. Internal nav still uses the legacy prefix until
+              the canonical-link flip (tracked separately). :slug stays LAST. */}
+          <Route path="/spaceos" element={<SourcingDirectoryV2 />} />
+          <Route path="/spaceos/jobs" element={<SourcingJobsV2 />} />
+          <Route path="/spaceos/events" element={<SourcingEventsV2 />} />
+          <Route path="/spaceos/reports" element={<SourcingReportsV2 />} />
+          <Route path="/spaceos/marketplace" element={<SourcingMarketplaceV2 />} />
+          <Route path="/spaceos/deal-bank" element={<SourcingDealBankV2 />} />
+          <Route path="/spaceos/deal-bank/investments/add" element={<SourcingDealBankAddListing />} />
+          <Route path="/spaceos/deal-bank/investments/:slug" element={<SourcingDealBankInvestmentProfile />} />
+          <Route path="/spaceos/deal-bank/investors/signup" element={<SourcingDealBankInvestorSignup />} />
+          <Route path="/spaceos/deal-bank/investors/:slug" element={<SourcingDealBankInvestorProfile />} />
+          <Route path="/spaceos/membership" element={<SourcingMembershipV2 />} />
+          <Route path="/spaceos/signup" element={<SourcingSignupV2 />} />
+          <Route path="/spaceos/signup/complete" element={<SourcingSignupComplete />} />
+          <Route path="/spaceos/articles" element={<SourcingArticlesV2 />} />
+          <Route path="/spaceos/discovery" element={<SourcingDiscoveryV2 />} />
+          <Route path="/spaceos/grants" element={<SourcingGrantsV2 />} />
+          <Route path="/spaceos/login" element={<SourcingLoginV2 />} />
+          <Route path="/spaceos/portal" element={<SourcingPortalV2 />} />
+          <Route path="/spaceos/jobs/post" element={<SourcingJobsPostV2 />} />
+          <Route path="/spaceos/events/post" element={<SourcingEventsPostV2 />} />
+          <Route path="/spaceos/marketplace/post" element={<SourcingMarketplacePostV2 />} />
+          <Route path="/spaceos/articles/post" element={<SourcingArticlesPostV2 />} />
+          <Route path="/spaceos/discovery/post" element={<SourcingDiscoveryPostV2 />} />
+          <Route path="/spaceos/jobs/:id" element={<SourcingListingV2 kind="job" />} />
+          <Route path="/spaceos/events/:id" element={<SourcingListingV2 kind="event" />} />
+          <Route path="/spaceos/marketplace/:id" element={<SourcingListingV2 kind="marketplace" />} />
+          <Route path="/spaceos/reports/:id" element={<SourcingReportDetailV2 />} />
+          <Route path="/spaceos/:slug" element={<SourcingCompanyV2 />} />
+
           <Route path="/space-rising-v2" element={<SourcingDirectoryV2 />} />
           <Route path="/space-rising-v2/jobs" element={<SourcingJobsV2 />} />
           <Route path="/space-rising-v2/events" element={<SourcingEventsV2 />} />
