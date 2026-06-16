@@ -153,7 +153,7 @@ export default function TagsSection({ V, adminSupabase, selectedTenantId, curren
         <div style={{ padding: '24px 0', color: V.dim, fontSize: 13, fontFamily: V.space }}>Loading tags…</div>
       ) : topTags.length === 0 ? (
         <div style={{ background: V.card, border: `1px solid ${V.border}`, borderRadius: 10, padding: '32px 16px', textAlign: 'center', color: V.dim, fontSize: 13, fontFamily: V.space }}>
-          No tags yet. Seed the six market goals (scripts/seed-directory-tags.mjs) or add the first tag above.
+          No tags yet. Seed the six market missions (scripts/seed-directory-tags.mjs) or add the first tag above.
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>

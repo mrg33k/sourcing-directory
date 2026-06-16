@@ -29,9 +29,9 @@ const STATS = [
   { num: '7.4%',  target: 7.4, prefix: '',  suffix: '%', decimals: 1, label: 'Annual Growth Rate' },
 ];
 
-// The Six Space Market Goals (Taryn's deck, slide 41). Framed as goals, each
+// The Six Space Market Missions (Taryn's deck, slide 41). Framed as missions, each
 // with a one-word market. Defense (Secure Space) intentionally LAST. The heavy
-// per-goal visual treatment is a later pass; this is the structural swap.
+// per-mission visual treatment is a later pass; this is the structural swap.
 const OPPORTUNITIES = [
   { title: 'Build Space',      market: 'Infrastructure' },
   { title: 'Move in Space',    market: 'Mobility' },
@@ -332,7 +332,7 @@ export default function SRWHomeV2() {
           grid for CSS to drive the stagger via nth-child transition-delays. */}
       <section className="srw-section" style={{ textAlign: 'center', paddingTop: 0 }}>
         <div className="srw-wrap">
-          <h2 className="srw-h2-mid">THE SIX SPACE MARKET GOALS</h2>
+          <h2 className="srw-h2-mid">THE SIX SPACE MARKET MISSIONS</h2>
           <div ref={oppsGridRef} className="srw-opp-grid">
             {OPPORTUNITIES.map((o) => (
               <div className="srw-opp" key={o.title}>
