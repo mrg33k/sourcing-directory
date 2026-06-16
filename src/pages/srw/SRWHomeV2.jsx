@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import SRWNavV2 from './SRWNavV2.jsx';
 import SRWFooterV2 from './SRWFooterV2.jsx';
 import useSRWTitle from './useSRWTitle.js';
@@ -10,6 +10,19 @@ import './srw-v2.css';
 // HERO_VIDEO constant below is from the original Squarespace mirror and is
 // not used by the V2 home hero — kept for reference until removed in R8.
 const HERO_VIDEO_VEO3 = '/v2-assets/home-hero.mp4';
+
+// home-search-takeover — the hero search drops a visitor straight into the OS.
+// Companies is the live directory search (?q=); the rest route into their section
+// carrying the query. Order = how people enter the OS most often.
+const SEARCH_CATEGORIES = [
+  { key: 'companies',  label: 'Companies',  hint: 'The space-economy directory',      to: (q) => `/spaceos${q ? `?q=${encodeURIComponent(q)}` : ''}` },
+  { key: 'jobs',       label: 'Jobs',       hint: 'Roles across the ecosystem',        to: (q) => `/spaceos/jobs${q ? `?q=${encodeURIComponent(q)}` : ''}` },
+  { key: 'deal-bank',  label: 'Deal Bank',  hint: 'Capital, raises, and investors',    to: (q) => `/spaceos/deal-bank${q ? `?q=${encodeURIComponent(q)}` : ''}` },
+  { key: 'reports',    label: 'Reports',    hint: 'Blueprints and market intelligence',to: (q) => `/spaceos/reports${q ? `?q=${encodeURIComponent(q)}` : ''}` },
+  { key: 'events',     label: 'Events',     hint: 'Conferences and convenings',        to: (q) => `/spaceos/events${q ? `?q=${encodeURIComponent(q)}` : ''}` },
+  { key: 'grants',     label: 'Grants',     hint: 'Funding and opportunities',         to: (q) => `/spaceos/grants${q ? `?q=${encodeURIComponent(q)}` : ''}` },
+  { key: 'articles',   label: 'Articles',   hint: 'Dispatches and knowledge',          to: (q) => `/spaceos/articles${q ? `?q=${encodeURIComponent(q)}` : ''}` },
+];
 
 // Legacy — unused by V2.
 const HERO_VIDEO = '/videos/spacerising-hero.mp4';
@@ -64,6 +77,38 @@ const SERVICES = [
 
 export default function SRWHomeV2() {
   useSRWTitle('Space Rising V2 | A New Way To Space');
+  const navigate = useNavigate();
+
+  // home-search-takeover — the hero search opens a full-screen takeover that
+  // routes the visitor into the OS. searchOpen drives the overlay; searchValue
+  // is the live query that every category link carries.
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState('');
+  const searchInputRef = useRef(null);
+
+  const openSearch = () => setSearchOpen(true);
+  const closeSearch = () => setSearchOpen(false);
+  const goToCategory = (cat) => { closeSearch(); navigate(cat.to(searchValue.trim())); };
+  const onSearchSubmit = (e) => {
+    e.preventDefault();
+    // Enter defaults to the directory (Companies) carrying the query.
+    goToCategory(SEARCH_CATEGORIES[0]);
+  };
+
+  // Focus the takeover input when it opens; Esc closes; lock body scroll.
+  useEffect(() => {
+    if (!searchOpen) return;
+    const t = setTimeout(() => searchInputRef.current?.focus(), 60);
+    const onKey = (e) => { if (e.key === 'Escape') closeSearch(); };
+    document.addEventListener('keydown', onKey);
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      clearTimeout(t);
+      document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [searchOpen]);
 
   // Contact form state
   const [contact, setContact] = useState({ first_name: '', last_name: '', email: '', message: '' });
@@ -288,12 +333,63 @@ export default function SRWHomeV2() {
           <p className="srw-hero-v2-sub">
             The interactive intelligence infrastructure for the global space economy. Where suppliers, manufacturers, capital, and missions find each other.
           </p>
-          <div className="srw-hero-v2-cta-row">
-            <Link to="/space-rising-v2" className="srw-hero-v2-cta-primary">Enter SpaceOS&trade;</Link>
+          {/* home-search-takeover — the hero's primary action. Click opens the
+              full-screen takeover; the visitor types and lands in the OS. */}
+          <button type="button" className="srw-hero-search-trigger" onClick={openSearch} aria-label="Search SpaceOS">
+            <svg className="srw-hero-search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+              <path d="M21 21l-4.3-4.3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            <span className="srw-hero-search-placeholder">What do you need from space today?</span>
+            <span className="srw-hero-search-kbd">Search</span>
+          </button>
+          <div className="srw-hero-v2-cta-row srw-hero-v2-cta-row-slim">
+            <Link to="/spaceos" className="srw-hero-v2-cta-secondary">Enter SpaceOS&trade;</Link>
             <Link to="/srw-v2/about" className="srw-hero-v2-cta-secondary">About Space Rising</Link>
           </div>
         </div>
       </header>
+
+      {/* home-search-takeover — full-screen overlay over the orbital bg. Big
+          query input + the category rows that carry the query into the OS. */}
+      {searchOpen && (
+        <div className="srw-search-takeover" role="dialog" aria-modal="true" aria-label="Search SpaceOS">
+          <button type="button" className="srw-search-takeover-scrim" aria-label="Close search" onClick={closeSearch} />
+          <div className="srw-search-takeover-panel">
+            <div className="srw-search-takeover-top">
+              <form className="srw-search-takeover-form" onSubmit={onSearchSubmit}>
+                <svg className="srw-search-takeover-icon" width="26" height="26" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
+                  <path d="M21 21l-4.3-4.3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                <input
+                  ref={searchInputRef}
+                  className="srw-search-takeover-input"
+                  type="text"
+                  value={searchValue}
+                  onChange={(e) => setSearchValue(e.target.value)}
+                  placeholder="What do you need from space today?"
+                  autoComplete="off"
+                  spellCheck="false"
+                />
+                <button type="button" className="srw-search-takeover-close" onClick={closeSearch} aria-label="Close">Esc</button>
+              </form>
+            </div>
+            <div className="srw-search-takeover-cats">
+              <div className="srw-search-takeover-cats-label">
+                {searchValue.trim() ? <>Find <span>{searchValue.trim()}</span> in</> : 'Jump into'}
+              </div>
+              {SEARCH_CATEGORIES.map((cat) => (
+                <button type="button" className="srw-search-cat-row" key={cat.key} onClick={() => goToCategory(cat)}>
+                  <span className="srw-search-cat-label">{cat.label}</span>
+                  <span className="srw-search-cat-hint">{cat.hint}</span>
+                  <span className="srw-search-cat-arrow" aria-hidden="true">&rarr;</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* The space economy is scaling — stat block.
           polish-directory-1: count-up animation on the four numbers fires
