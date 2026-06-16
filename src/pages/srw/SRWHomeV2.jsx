@@ -316,7 +316,7 @@ export default function SRWHomeV2() {
           ref={heroVideoRef}
           className="srw-hero-v2-video"
           src={HERO_VIDEO_VEO3}
-          poster="/v2-assets/earth.png"
+          poster="/v2-assets/home-hero-poster.jpg"
           autoPlay
           muted
           loop
