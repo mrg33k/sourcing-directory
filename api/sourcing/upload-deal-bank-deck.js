@@ -1,32 +1,40 @@
 // POST /api/sourcing/upload-deal-bank-deck
 // Handles deck file upload for deal bank listings.
-// Files are saved to ~/Documents/Corner/files/aom/ on the studio disk.
-// Returns a rag-tunnel URL (not Supabase Storage).
+//
+// Files are stored in the public Supabase Storage bucket `deal-bank-decks`
+// (decks are PUBLIC download — see migration 018). Returns the public URL, which
+// the client saves to deal_bank_listings.deck_url.
+//
+// NOTE (2026-06-16): this route previously wrote to ~/Documents/Corner/files/aom
+// on local disk and returned a rag-tunnel URL. That only works on the studio Mac;
+// on Vercel serverless the home dir is read-only (writes 500) and the instance is
+// ephemeral, so the file never reached the tunnel. Switched to Supabase Storage to
+// match the company-logos / sourcing-reports pattern used everywhere else.
 //
 // Accepts:
 //   FormData with:
 //   - file: File object
 //   - company_id: string (for ownership verification)
 //
-// Returns: { deckUrl: "https://rag.aheadofmarket.com/files/aom/..." }
+// Returns: { deckUrl: "https://<project>.supabase.co/storage/v1/object/public/deal-bank-decks/..." }
 
 import fs from 'fs';
-import path from 'path';
-import os from 'os';
 import crypto from 'crypto';
 import { createClient } from '@supabase/supabase-js';
 import formidable from 'formidable';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://kzzvjtthknsozktmpvak.supabase.co';
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const DECK_BUCKET = 'deal-bank-decks';
 
-// Studio disk path for deal bank deck files
-const DECK_STORAGE_DIR = path.join(os.homedir(), 'Documents', 'Corner', 'files', 'aom');
-
-// Ensure the directory exists
-function ensureDeckDir() {
-  if (!fs.existsSync(DECK_STORAGE_DIR)) {
-    fs.mkdirSync(DECK_STORAGE_DIR, { recursive: true });
+// Create the public decks bucket on first use (idempotent — ignore "already exists").
+async function ensureBucket(sb) {
+  const { error } = await sb.storage.createBucket(DECK_BUCKET, {
+    public: true,
+    fileSizeLimit: '52428800', // 50 MB
+  });
+  if (error && !/already exists|exists/i.test(error.message || '')) {
+    throw new Error(`Could not provision deck storage: ${error.message}`);
   }
 }
 
@@ -54,7 +62,7 @@ export default async function handler(req, res) {
   const { data: { user }, error: userErr } = await sb.auth.getUser(token);
   if (userErr || !user) return res.status(401).json({ error: 'Invalid or expired token' });
 
-  // Parse the FormData
+  // Parse the FormData (formidable writes the temp file to /tmp, writable on Vercel)
   const form = formidable({ multiples: false });
 
   try {
@@ -63,13 +71,8 @@ export default async function handler(req, res) {
     const file = Array.isArray(files.file) ? files.file[0] : files.file;
     const companyId = Array.isArray(fields.company_id) ? fields.company_id[0] : fields.company_id;
 
-    if (!file) {
-      return res.status(400).json({ error: 'No file provided' });
-    }
-
-    if (!companyId) {
-      return res.status(400).json({ error: 'company_id is required' });
-    }
+    if (!file) return res.status(400).json({ error: 'No file provided' });
+    if (!companyId) return res.status(400).json({ error: 'company_id is required' });
 
     // Verify ownership: user must be a member of the company
     const { data: member, error: memberErr } = await sb
@@ -83,38 +86,31 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'You do not have permission to upload a deck for this company' });
     }
 
-    // Read the file from disk (formidable saves it temporarily)
+    // Read the temp file formidable saved
     const fileData = fs.readFileSync(file.filepath);
 
-    // Generate a UUID-prefixed filename for uniqueness and safety
+    // UUID-prefixed, sanitized filename, foldered by company for tidiness
     const uuid = crypto.randomUUID();
     const originalName = file.originalFilename || 'deck.pdf';
-    // Sanitize filename: remove dangerous characters
-    const safeName = originalName
-      .replace(/[^a-zA-Z0-9._-]/g, '_')
-      .toLowerCase()
-      .slice(0, 100);
+    const safeName = originalName.replace(/[^a-zA-Z0-9._-]/g, '_').toLowerCase().slice(0, 100);
+    const objectPath = `${companyId}/${uuid}-${safeName}`;
 
-    const filename = `${uuid}-${safeName}`;
-    const filepath = path.join(DECK_STORAGE_DIR, filename);
+    await ensureBucket(sb);
 
-    // Ensure directory exists
-    ensureDeckDir();
+    const { error: upErr } = await sb.storage
+      .from(DECK_BUCKET)
+      .upload(objectPath, fileData, {
+        contentType: file.mimetype || 'application/octet-stream',
+        upsert: false,
+      });
+    if (upErr) throw new Error(upErr.message || 'Storage upload failed');
 
-    // Write file to disk
-    fs.writeFileSync(filepath, fileData);
-
-    // Build the rag-tunnel URL
-    const deckUrl = `https://rag.aheadofmarket.com/files/aom/${filename}`;
+    const { data: pub } = sb.storage.from(DECK_BUCKET).getPublicUrl(objectPath);
 
     // Clean up temp file
-    try {
-      fs.unlinkSync(file.filepath);
-    } catch {
-      // Ignore cleanup errors
-    }
+    try { fs.unlinkSync(file.filepath); } catch { /* ignore */ }
 
-    return res.status(200).json({ deckUrl });
+    return res.status(200).json({ deckUrl: pub.publicUrl });
   } catch (err) {
     console.error('Deck upload error:', err);
     return res.status(500).json({ error: err.message || 'Upload failed' });
