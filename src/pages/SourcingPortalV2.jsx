@@ -165,6 +165,15 @@ export default function SourcingPortalV2() {
         resolvedMember = newMember;
       }
 
+      // Admins belong in the admin panel, not the member portal. The login-form
+      // redirect only fires on a fresh credential submit; an admin who arrives
+      // here with an existing session (or via a bookmark / directory account
+      // link) would otherwise be stranded on the member view. (2026-06-16)
+      if (resolvedMember.role === 'admin') {
+        navigate('/admin', { replace: true });
+        return;
+      }
+
       setMember(resolvedMember);
 
       // Get company
@@ -221,7 +230,7 @@ export default function SourcingPortalV2() {
     } finally {
       setLoading(false);
     }
-  }, [authUser, tenant]);
+  }, [authUser, tenant, navigate]);
 
   useEffect(() => {
     if (authUser && tenant) fetchData();
