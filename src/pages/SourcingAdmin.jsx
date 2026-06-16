@@ -25,6 +25,7 @@ import MessagesSection from './admin/MessagesSection.jsx';
 import ActionsSection from './admin/ActionsSection.jsx';
 import DealBankSection from './admin/DealBankSection.jsx';
 import TicketsSection from './admin/TicketsSection.jsx';
+import TagsSection from './admin/TagsSection.jsx';
 
 // Auth is handled via Supabase Auth (email + password)
 
@@ -986,6 +987,7 @@ function SourcingAdminInner() {
     { key: 'articles',   label: `Pending Content${pendingContent.length > 0 ? ` (${pendingContent.length})` : ''}` },
     { key: 'deal-bank',  label: 'Deal Bank' },
     { key: 'tickets',    label: 'Tickets' },
+    { key: 'tags',       label: 'Tags' },
     { key: 'add',        label: '+ Add Company' },
     { key: 'orgs',       label: 'Organizations' },
     { key: 'listings',   label: 'Listings' },
@@ -1182,6 +1184,16 @@ function SourcingAdminInner() {
         {/* Tickets */}
         {!loading && activeTab === 'tickets' && (
           <TicketsSection
+            adminSupabase={adminSupabase}
+            selectedTenantId={selectedTenantId}
+            currentUserEmail={currentUserEmail}
+            V={V}
+          />
+        )}
+
+        {/* Tags */}
+        {!loading && activeTab === 'tags' && (
+          <TagsSection
             adminSupabase={adminSupabase}
             selectedTenantId={selectedTenantId}
             currentUserEmail={currentUserEmail}
