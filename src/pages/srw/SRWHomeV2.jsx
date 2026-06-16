@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import SRWNavV2 from './SRWNavV2.jsx';
 import SRWFooterV2 from './SRWFooterV2.jsx';
+import { supabase } from '../../lib/supabase.js';
 import useSRWTitle from './useSRWTitle.js';
 import './srw-v2.css';
 
@@ -94,6 +95,66 @@ export default function SRWHomeV2() {
     // Enter defaults to the directory (Companies) carrying the query.
     goToCategory(SEARCH_CATEGORIES[0]);
   };
+
+  // home-search-takeover live results — query real content as the visitor types
+  // and only surface the categories that actually have matches.
+  const [tenantId, setTenantId] = useState(null);
+  const [results, setResults] = useState(null); // null = no query yet; object = searched
+  const [searching, setSearching] = useState(false);
+
+  const goToHref = (href) => { closeSearch(); navigate(href); };
+
+  // Tenant id once (for the tenant_id filter on companies + listings).
+  useEffect(() => {
+    if (!searchOpen || tenantId) return;
+    let cancelled = false;
+    supabase.from('directory_tenants').select('id').eq('slug', 'space-rising').single()
+      .then(({ data }) => { if (!cancelled && data) setTenantId(data.id); });
+    return () => { cancelled = true; };
+  }, [searchOpen, tenantId]);
+
+  // Debounced multi-source search. Companies, jobs, events, grants, articles
+  // (directory_listings by category) and reports. Empty categories are dropped.
+  useEffect(() => {
+    const q = searchValue.trim();
+    if (q.length < 2) { setResults(null); setSearching(false); return; }
+    setSearching(true);
+    const handle = setTimeout(async () => {
+      const like = `%${q}%`;
+      const out = {};
+      try {
+        let companiesQ = supabase.from('directory_companies')
+          .select('name,slug,city,state').eq('status', 'active')
+          .or(`name.ilike.${like},description.ilike.${like},city.ilike.${like}`).limit(5);
+        let listingsQ = supabase.from('directory_listings')
+          .select('id,title,category').in('category', ['job', 'event', 'grant', 'article'])
+          .eq('status', 'active').ilike('title', like).limit(16);
+        if (tenantId) { companiesQ = companiesQ.eq('tenant_id', tenantId); listingsQ = listingsQ.eq('tenant_id', tenantId); }
+        const reportsQ = supabase.from('directory_reports').select('id,title').ilike('title', like).limit(4);
+        const [companies, listings, reports] = await Promise.all([companiesQ, listingsQ, reportsQ]);
+
+        if (companies.data?.length) out.companies = companies.data.map(c => ({
+          label: c.name, sub: [c.city, c.state].filter(Boolean).join(', '), href: `/spaceos/${c.slug}`,
+        }));
+        const byCat = {};
+        (listings.data || []).forEach(l => { (byCat[l.category] ||= []).push(l); });
+        const itemHref = {
+          job: (l) => `/spaceos/jobs/${l.id}`,
+          event: (l) => `/spaceos/events/${l.id}`,
+          grant: () => `/spaceos/grants?q=${encodeURIComponent(q)}`,
+          article: () => `/spaceos/articles?q=${encodeURIComponent(q)}`,
+        };
+        const catKey = { job: 'jobs', event: 'events', grant: 'grants', article: 'articles' };
+        ['job', 'event', 'grant', 'article'].forEach(cat => {
+          if (byCat[cat]?.length) out[catKey[cat]] = byCat[cat].slice(0, 4).map(l => ({ label: l.title, href: itemHref[cat](l) }));
+        });
+        if (reports.data?.length) out.reports = reports.data.map(r => ({ label: r.title, href: `/spaceos/reports/${r.id}` }));
+      } catch (e) { /* search is best-effort; fall back to category routing */ }
+      setResults(out);
+      setSearching(false);
+    }, 220);
+    return () => clearTimeout(handle);
+  }, [searchValue, tenantId]);
 
   // Focus the takeover input when it opens; Esc closes; lock body scroll.
   useEffect(() => {
@@ -376,16 +437,72 @@ export default function SRWHomeV2() {
               </form>
             </div>
             <div className="srw-search-takeover-cats">
-              <div className="srw-search-takeover-cats-label">
-                {searchValue.trim() ? <>Find <span>{searchValue.trim()}</span> in</> : 'Jump into'}
-              </div>
-              {SEARCH_CATEGORIES.map((cat) => (
-                <button type="button" className="srw-search-cat-row" key={cat.key} onClick={() => goToCategory(cat)}>
-                  <span className="srw-search-cat-label">{cat.label}</span>
-                  <span className="srw-search-cat-hint">{cat.hint}</span>
-                  <span className="srw-search-cat-arrow" aria-hidden="true">&rarr;</span>
-                </button>
-              ))}
+              {(() => {
+                const q = searchValue.trim();
+                const hasQuery = q.length >= 2;
+                const groups = hasQuery && results
+                  ? SEARCH_CATEGORIES.filter((cat) => results[cat.key]?.length)
+                  : [];
+
+                // No query yet — the "jump into" launcher.
+                if (!hasQuery) {
+                  return (
+                    <>
+                      <div className="srw-search-takeover-cats-label">Jump into</div>
+                      {SEARCH_CATEGORIES.map((cat) => (
+                        <button type="button" className="srw-search-cat-row" key={cat.key} onClick={() => goToCategory(cat)}>
+                          <span className="srw-search-cat-label">{cat.label}</span>
+                          <span className="srw-search-cat-hint">{cat.hint}</span>
+                          <span className="srw-search-cat-arrow" aria-hidden="true">&rarr;</span>
+                        </button>
+                      ))}
+                    </>
+                  );
+                }
+
+                // Query, results in — show only categories that have matches.
+                if (groups.length) {
+                  return (
+                    <>
+                      <div className="srw-search-takeover-cats-label">Results for <span>{q}</span></div>
+                      {groups.map((cat) => (
+                        <div className="srw-search-result-group" key={cat.key}>
+                          <button type="button" className="srw-search-result-head" onClick={() => goToCategory(cat)}>
+                            <span className="srw-search-result-cat">{cat.label}</span>
+                            <span className="srw-search-result-all">All {cat.label.toLowerCase()} &rarr;</span>
+                          </button>
+                          {results[cat.key].map((item, i) => (
+                            <button type="button" className="srw-search-result-item" key={i} onClick={() => goToHref(item.href)}>
+                              <span className="srw-search-result-label">{item.label}</span>
+                              {item.sub ? <span className="srw-search-result-sub">{item.sub}</span> : null}
+                              <span className="srw-search-cat-arrow" aria-hidden="true">&rarr;</span>
+                            </button>
+                          ))}
+                        </div>
+                      ))}
+                    </>
+                  );
+                }
+
+                // Query, still loading.
+                if (searching || !results) {
+                  return <div className="srw-search-takeover-cats-label">Searching&hellip;</div>;
+                }
+
+                // Query, nothing matched — fall back to the launcher so they can still move.
+                return (
+                  <>
+                    <div className="srw-search-takeover-cats-label">No matches for <span>{q}</span>. Jump into</div>
+                    {SEARCH_CATEGORIES.map((cat) => (
+                      <button type="button" className="srw-search-cat-row" key={cat.key} onClick={() => goToCategory(cat)}>
+                        <span className="srw-search-cat-label">{cat.label}</span>
+                        <span className="srw-search-cat-hint">{cat.hint}</span>
+                        <span className="srw-search-cat-arrow" aria-hidden="true">&rarr;</span>
+                      </button>
+                    ))}
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>
