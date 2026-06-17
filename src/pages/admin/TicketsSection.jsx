@@ -31,9 +31,15 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
 
+  // Expandable notes thread per ticket
+  const [expandedId, setExpandedId] = useState(null);
+  const [comments, setComments] = useState({}); // ticketId -> [comment]
+  const [commentDraft, setCommentDraft] = useState('');
+  const [commentBusy, setCommentBusy] = useState(false);
+
   // New-ticket form
   const [showForm, setShowForm] = useState(false);
-  const [draft, setDraft] = useState({ title: '', description: '', priority: 'medium', assigned_to: '' });
+  const [draft, setDraft] = useState({ title: '', description: '', priority: 'medium', assigned_to: '', area: '', link: '' });
   const [saving, setSaving] = useState(false);
   const [formErr, setFormErr] = useState('');
 
@@ -61,12 +67,14 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
         description: draft.description.trim() || null,
         priority: draft.priority,
         assigned_to: draft.assigned_to.trim() || null,
+        area: draft.area.trim() || null,
+        link: draft.link.trim() || null,
         created_by: currentUserEmail || null,
         status: 'needs_fix',
       }).select().single();
       if (error) throw error;
       logAudit(adminSupabase, { tenant_id: selectedTenantId, actor_email: currentUserEmail, action: 'ticket.create', entity_type: 'ticket', entity_id: data?.id, detail: { title } });
-      setDraft({ title: '', description: '', priority: 'medium', assigned_to: '' });
+      setDraft({ title: '', description: '', priority: 'medium', assigned_to: '', area: '', link: '' });
       setShowForm(false);
       await load();
     } catch (err) {
@@ -80,7 +88,7 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
     if (!adminSupabase) return;
     setBusy(ticket.id);
     try {
-      await adminSupabase.from('admin_tickets').update({ status, updated_at: new Date().toISOString() }).eq('id', ticket.id);
+      await adminSupabase.from('admin_tickets').update({ status, updated_by: currentUserEmail || null, updated_at: new Date().toISOString() }).eq('id', ticket.id);
       logAudit(adminSupabase, { tenant_id: selectedTenantId, actor_email: currentUserEmail, action: `ticket.status.${status}`, entity_type: 'ticket', entity_id: ticket.id, detail: { title: ticket.title } });
       await load();
     } finally { setBusy(null); }
@@ -90,9 +98,33 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
     if (!adminSupabase) return;
     setBusy(ticket.id);
     try {
-      await adminSupabase.from('admin_tickets').update({ priority, updated_at: new Date().toISOString() }).eq('id', ticket.id);
+      await adminSupabase.from('admin_tickets').update({ priority, updated_by: currentUserEmail || null, updated_at: new Date().toISOString() }).eq('id', ticket.id);
       await load();
     } finally { setBusy(null); }
+  };
+
+  // Notes thread — load + add comments for a ticket.
+  const toggleExpand = async (ticket) => {
+    if (expandedId === ticket.id) { setExpandedId(null); return; }
+    setExpandedId(ticket.id);
+    setCommentDraft('');
+    if (!comments[ticket.id] && adminSupabase) {
+      const { data } = await adminSupabase.from('admin_ticket_comments')
+        .select('*').eq('ticket_id', ticket.id).order('created_at', { ascending: true });
+      setComments(c => ({ ...c, [ticket.id]: data || [] }));
+    }
+  };
+  const addComment = async (ticket) => {
+    const body = commentDraft.trim();
+    if (!body || !adminSupabase) return;
+    setCommentBusy(true);
+    try {
+      const { data, error } = await adminSupabase.from('admin_ticket_comments')
+        .insert({ ticket_id: ticket.id, author: currentUserEmail || null, body, is_agent: false }).select().single();
+      if (error) throw error;
+      setComments(c => ({ ...c, [ticket.id]: [...(c[ticket.id] || []), data] }));
+      setCommentDraft('');
+    } finally { setCommentBusy(false); }
   };
 
   const deleteTicket = async (ticket) => {
@@ -111,7 +143,7 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
     return tickets.filter(t => {
       if (statusFilter !== 'all' && t.status !== statusFilter) return false;
       if (!ql) return true;
-      return [t.title, t.description, t.assigned_to, t.created_by].filter(Boolean).some(v => String(v).toLowerCase().includes(ql));
+      return [t.title, t.description, t.assigned_to, t.created_by, t.area].filter(Boolean).some(v => String(v).toLowerCase().includes(ql));
     });
   }, [tickets, query, statusFilter]);
 
@@ -174,6 +206,14 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
               <label style={labelStyle}>Assigned to (optional)</label>
               <input style={inputStyle} value={draft.assigned_to} onChange={e => setDraft(p => ({ ...p, assigned_to: e.target.value }))} placeholder="name or email" />
             </div>
+            <div>
+              <label style={labelStyle}>Area / screen (optional)</label>
+              <input style={inputStyle} value={draft.area} onChange={e => setDraft(p => ({ ...p, area: e.target.value }))} placeholder="Homepage, Deal Bank, Jobs…" />
+            </div>
+            <div>
+              <label style={labelStyle}>Link (optional)</label>
+              <input style={inputStyle} value={draft.link} onChange={e => setDraft(p => ({ ...p, link: e.target.value }))} placeholder="https://… where to see it" />
+            </div>
           </div>
           <div style={{ marginBottom: 12 }}>
             <label style={labelStyle}>Description (optional)</label>
@@ -212,16 +252,25 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
           const sm = statusMeta(t.status);
           const pm = priorityMeta(t.priority);
           return (
-            <div key={t.id} style={{
+            <React.Fragment key={t.id}>
+            <div style={{
               display: 'grid', gridTemplateColumns: '1fr 110px 110px 130px 90px 150px',
               gap: 12, padding: '12px 16px', alignItems: 'center',
-              borderBottom: `1px solid ${V.border}`, opacity: busy === t.id ? 0.5 : 1,
+              borderBottom: expandedId === t.id ? 'none' : `1px solid ${V.border}`, opacity: busy === t.id ? 0.5 : 1,
             }}>
               <div style={{ minWidth: 0 }}>
-                <div style={{ fontSize: 14, fontWeight: 600, fontFamily: V.space, color: V.text }}>{t.title}</div>
-                {t.description && (
-                  <div style={{ fontSize: 12, color: V.dim, fontFamily: V.space, marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.description}</div>
-                )}
+                <button type="button" onClick={() => toggleExpand(t)} title="Open notes" style={{ background: 'transparent', border: 'none', padding: 0, textAlign: 'left', cursor: 'pointer', display: 'block', width: '100%' }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, fontFamily: V.space, color: V.text }}>
+                    <span style={{ color: V.dim, fontSize: 11, marginRight: 6 }}>{expandedId === t.id ? '▾' : '▸'}</span>{t.title}
+                  </div>
+                </button>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 4, flexWrap: 'wrap' }}>
+                  {t.area && <span style={{ fontSize: 10, fontWeight: 700, fontFamily: V.mono, color: V.dim, border: `1px solid ${V.border}`, borderRadius: 3, padding: '2px 6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.area}</span>}
+                  {t.link && <a href={t.link} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 11, color: V.accent, fontFamily: V.mono, textDecoration: 'none' }}>open ↗</a>}
+                  {t.description && (
+                    <span style={{ fontSize: 12, color: V.dim, fontFamily: V.space, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 360 }}>{t.description}</span>
+                  )}
+                </div>
               </div>
               <div>
                 <select value={t.priority} onChange={e => setPriority(t, e.target.value)} disabled={busy === t.id} style={{
@@ -244,6 +293,11 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
                 <div style={{ fontSize: 10, color: V.dim, marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', opacity: 0.85 }}>
                   by {t.created_by ? String(t.created_by).split('@')[0] : 'unknown'}
                 </div>
+                {t.updated_by && (
+                  <div style={{ fontSize: 10, color: V.dim, marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', opacity: 0.7 }}>
+                    moved by {String(t.updated_by).split('@')[0]}
+                  </div>
+                )}
               </div>
               <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                 {STATUSES.filter(s => s.key !== t.status).map(s => (
@@ -258,6 +312,30 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
                 }}>Delete</button>
               </div>
             </div>
+            {expandedId === t.id && (
+              <div style={{ padding: '8px 16px 18px', borderBottom: `1px solid ${V.border}`, background: V.card2 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, fontFamily: V.mono, color: V.dim, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>Notes</div>
+                {(comments[t.id] || []).length === 0 ? (
+                  <div style={{ fontSize: 12, color: V.dim, fontFamily: V.space, marginBottom: 10 }}>No notes yet.</div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 10 }}>
+                    {(comments[t.id] || []).map(c => (
+                      <div key={c.id} style={{ fontSize: 13, fontFamily: V.space, color: V.text, borderLeft: `2px solid ${c.is_agent ? V.accent : V.border}`, paddingLeft: 10 }}>
+                        <div>{c.body}</div>
+                        <div style={{ fontSize: 10, color: V.dim, fontFamily: V.mono, marginTop: 2 }}>
+                          {c.is_agent ? 'agent' : (c.author ? String(c.author).split('@')[0] : 'unknown')} · {formatDate(c.created_at)}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input value={commentDraft} onChange={e => setCommentDraft(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') addComment(t); }} placeholder="Add a note…" style={{ ...inputStyle, flex: 1 }} />
+                  <button onClick={() => addComment(t)} disabled={commentBusy || !commentDraft.trim()} style={{ background: V.accent, border: 'none', color: '#fff', borderRadius: 6, padding: '8px 14px', fontSize: 12, fontWeight: 700, fontFamily: V.space, cursor: commentBusy ? 'wait' : 'pointer', opacity: commentBusy || !commentDraft.trim() ? 0.6 : 1 }}>Add</button>
+                </div>
+              </div>
+            )}
+            </React.Fragment>
           );
         })}
       </div>
