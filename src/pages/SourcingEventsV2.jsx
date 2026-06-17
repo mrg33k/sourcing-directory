@@ -6,6 +6,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme } from './SourcingTheme.jsx';
+import useSRWTitle from './srw/useSRWTitle.js';
 import { V2ChipNav } from './V2ChipNav.jsx';
 import '../space-rising-theme-v2.css';
 
@@ -120,6 +121,7 @@ function NextUpCard({ listing, companies }) {
 
 function SourcingEventsV2Inner() {
   useSourcingTheme();
+  useSRWTitle('Space Events | Space OS');
 
   const [tenant, setTenant] = useState(null);
   const [listings, setListings] = useState([]);

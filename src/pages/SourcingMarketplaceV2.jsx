@@ -5,6 +5,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
+import useSRWTitle from './srw/useSRWTitle.js';
 import { V2ChipNav } from './V2ChipNav.jsx';
 import '../space-rising-theme-v2.css';
 
@@ -29,6 +30,7 @@ function formatPosted(dateStr) {
 function SourcingMarketplaceV2Inner() {
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
+  useSRWTitle('Space Marketplace | Space OS');
 
   const [tenant, setTenant] = useState(null);
   const [listings, setListings] = useState([]);

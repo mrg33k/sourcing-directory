@@ -299,17 +299,30 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
                   </div>
                 )}
               </div>
-              <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                {STATUSES.filter(s => s.key !== t.status).map(s => (
-                  <button key={s.key} onClick={() => setStatus(t, s.key)} disabled={busy === t.id} title={`Move to ${s.label}`} style={{
-                    background: s.bg, border: `1px solid ${s.border}`, color: s.text,
-                    borderRadius: 5, padding: '4px 8px', fontSize: 10, fontWeight: 700, fontFamily: V.space, cursor: 'pointer', whiteSpace: 'nowrap',
-                  }}>{s.label}</button>
-                ))}
-                <button onClick={() => deleteTicket(t)} disabled={busy === t.id} title="Delete ticket" style={{
-                  background: 'rgba(239,68,68,0.18)', border: '1px solid rgba(239,68,68,0.5)', color: '#FCA5A5',
-                  borderRadius: 5, padding: '4px 8px', fontSize: 10, fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
-                }}>Delete</button>
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <select
+                  value=""
+                  disabled={busy === t.id}
+                  onChange={e => {
+                    const v = e.target.value;
+                    e.target.value = '';
+                    if (!v) return;
+                    if (v === 'delete') deleteTicket(t);
+                    else setStatus(t, v);
+                  }}
+                  title="Ticket actions"
+                  style={{
+                    background: V.card2, border: `1px solid ${V.border}`, color: V.text,
+                    borderRadius: 5, padding: '5px 8px', fontSize: 11, fontWeight: 700,
+                    fontFamily: V.space, cursor: busy === t.id ? 'wait' : 'pointer', whiteSpace: 'nowrap',
+                  }}
+                >
+                  <option value="" style={{ color: '#111' }}>Actions ▾</option>
+                  {STATUSES.filter(s => s.key !== t.status).map(s => (
+                    <option key={s.key} value={s.key} style={{ color: '#111' }}>Move to {s.label}</option>
+                  ))}
+                  <option value="delete" style={{ color: '#111' }}>Delete ticket</option>
+                </select>
               </div>
             </div>
             {expandedId === t.id && (

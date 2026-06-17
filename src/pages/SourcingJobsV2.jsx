@@ -8,6 +8,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
+import useSRWTitle from './srw/useSRWTitle.js';
 import { V2ChipNav } from './V2ChipNav.jsx';
 // Loads the V2 theme + R5a hero-archetype rules. Required for /space-rising-v2/*
 // routes to pick up the locked palette, type, and card grid.
@@ -39,6 +40,7 @@ function postedAgo(created_at) {
 }
 
 function SourcingJobsV2Inner() {
+  useSRWTitle('Space Jobs | Space OS');
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
 

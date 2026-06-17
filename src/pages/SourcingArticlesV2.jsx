@@ -6,6 +6,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
+import useSRWTitle from './srw/useSRWTitle.js';
 import { V2ChipNav } from './V2ChipNav.jsx';
 import '../space-rising-theme-v2.css';
 
@@ -22,6 +23,7 @@ function formatDate(dateStr) {
 function SourcingArticlesV2Inner() {
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
+  useSRWTitle('Space Industry Articles | Space OS');
 
   const [tenant, setTenant] = useState(null);
   const [listings, setListings] = useState([]);

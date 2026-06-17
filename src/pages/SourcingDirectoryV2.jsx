@@ -576,10 +576,11 @@ function SourcingDirectoryInner() {
 
     if (tenant) {
       // space-rising IS SpaceOS — lead with the product, not the legacy suffix.
-      const suffix = tenant.slug === 'space-rising' ? 'Space Rising' : 'Sourcing Directory';
-      document.title = `${tenant.name} — ${suffix}`;
+      const isSR = tenant.slug === 'space-rising';
+      const pageTitle = isSR ? 'Space OS | Space Rising' : `${tenant.name} — Sourcing Directory`;
+      document.title = pageTitle;
       setMeta('name', 'description', tenant.hero_text || tenant.description);
-      setMeta('property', 'og:title', `${tenant.name} — ${suffix}`);
+      setMeta('property', 'og:title', pageTitle);
       setMeta('property', 'og:description', tenant.hero_text || tenant.description);
     } else if (!tenantSlug) {
       document.title = 'Sourcing Directory | Find Certified Suppliers';

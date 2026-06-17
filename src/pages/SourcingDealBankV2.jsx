@@ -7,6 +7,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
+import useSRWTitle from './srw/useSRWTitle.js';
 import { V2ChipNav } from './V2ChipNav.jsx';
 import '../space-rising-theme-v2.css';
 
@@ -116,6 +117,7 @@ function amountHeadline(raw, m) {
 function SourcingDealBankV2Inner() {
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
+  useSRWTitle('Space Deal Bank | Space OS');
 
   const [deals, setDeals] = useState([]);
   const [loading, setLoading] = useState(true);
