@@ -197,7 +197,7 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
       {/* Ticket list */}
       <div style={{ background: V.card, border: `1px solid ${V.border}`, borderRadius: 10, overflow: 'hidden' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px 110px 130px 90px 150px', gap: 12, padding: '8px 16px', background: V.card2 }}>
-          {['Ticket', 'Priority', 'Status', 'Assigned', 'Created', 'Actions'].map(h => (
+          {['Ticket', 'Priority', 'Status', 'Assigned', 'Created / By', 'Actions'].map(h => (
             <div key={h} style={{ fontSize: 10, fontWeight: 700, fontFamily: V.mono, color: V.dim, textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: h === 'Actions' ? 'right' : 'left' }}>{h}</div>
           ))}
         </div>
@@ -239,7 +239,12 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
                 }}>{sm.label}</span>
               </div>
               <div style={{ fontSize: 12, color: V.dim, fontFamily: V.mono, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.assigned_to || '—'}</div>
-              <div style={{ fontSize: 12, color: V.dim, fontFamily: V.mono }}>{formatDate(t.created_at)}</div>
+              <div style={{ fontSize: 12, color: V.dim, fontFamily: V.mono }}>
+                {formatDate(t.created_at)}
+                <div style={{ fontSize: 10, color: V.dim, marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', opacity: 0.85 }}>
+                  by {t.created_by ? String(t.created_by).split('@')[0] : 'unknown'}
+                </div>
+              </div>
               <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
                 {STATUSES.filter(s => s.key !== t.status).map(s => (
                   <button key={s.key} onClick={() => setStatus(t, s.key)} disabled={busy === t.id} title={`Move to ${s.label}`} style={{
