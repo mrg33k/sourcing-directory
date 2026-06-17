@@ -11,31 +11,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>SpaceOS — Space Rising</title>
+    <title>Space Rising | A New Way to Space</title>
 
     <!-- Link previews (Slack / iMessage / X). Crawlers don't run JS, so these
-         static tags are what render in a pasted-link card. Per-page React titles
-         refine the browser tab + JS-aware crawlers; these are the baseline. -->
-    <meta name="description" content="SpaceOS — the operating system for the space economy. Companies, deals, events, and intelligence in one directory by Space Rising." />
+         static tags are the home/baseline card. Per-page React titles refine the
+         browser tab + JS-aware crawlers; the Space OS app pages override these to
+         "<feature> | Space OS". Home leads with the Space Rising brand. -->
+    <meta name="description" content="Space Rising is the platform of record for the space economy — companies, capital, events, and intelligence in one place." />
     <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="SpaceOS" />
-    <meta property="og:title" content="SpaceOS — Space Rising" />
-    <meta property="og:description" content="The operating system for the space economy. Companies, deals, events, and intelligence in one directory by Space Rising." />
+    <meta property="og:site_name" content="Space Rising" />
+    <meta property="og:title" content="Space Rising | A New Way to Space" />
+    <meta property="og:description" content="The platform of record for the space economy — companies, capital, events, and intelligence in one place." />
     <meta property="og:url" content="https://www.spacerising.org/" />
     <meta property="og:image" content="https://www.spacerising.org/v2-assets/blueprint-hero.png" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="SpaceOS — Space Rising" />
-    <meta name="twitter:description" content="The operating system for the space economy. Companies, deals, events, and intelligence in one directory by Space Rising." />
+    <meta name="twitter:title" content="Space Rising | A New Way to Space" />
+    <meta name="twitter:description" content="The platform of record for the space economy — companies, capital, events, and intelligence in one place." />
     <meta name="twitter:image" content="https://www.spacerising.org/v2-assets/blueprint-hero.png" />
 
     <script>
-      // Per-domain default title. On the Space Rising domain it leads with the
-      // SpaceOS product name. Other tenant domains keep their own default.
+      // Per-domain default title. Home leads with the Space Rising brand; the
+      // Space OS app pages set their own "<feature> | Space OS" titles in React.
       (function () {
         try {
           var h = (location.hostname || '').toLowerCase();
           if (h.indexOf('spacerising') !== -1) {
-            document.title = 'SpaceOS — Space Rising';
+            document.title = 'Space Rising | A New Way to Space';
           }
         } catch (e) {}
       })();

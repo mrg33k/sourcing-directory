@@ -77,7 +77,7 @@ const SERVICES = [
 ];
 
 export default function SRWHomeV2() {
-  useSRWTitle('Space Rising V2 | A New Way To Space');
+  useSRWTitle('Space Rising | A New Way to Space');
   const navigate = useNavigate();
 
   // home-search-takeover — the hero search opens a full-screen takeover that
