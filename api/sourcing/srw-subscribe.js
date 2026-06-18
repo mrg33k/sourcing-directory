@@ -13,7 +13,7 @@ const SERVICE_KEY  = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const RESEND_KEY   = process.env.RESEND_API_KEY;
 const FROM_ADDRESS = process.env.SRW_FROM_ADDRESS || 'Space Rising <hello@aom-inhouse.com>';
 const NOTIFY_EMAIL = process.env.SRW_NOTIFY_EMAIL || 'info@spacerising.org';
-const SPACEOS_URL  = process.env.SRW_SPACEOS_URL  || 'https://spacerising.org/space-rising-v2';
+const SPACEOS_URL  = process.env.SRW_SPACEOS_URL  || 'https://spacerising.org/spaceos';
 
 // Airtable — Website Submissions table on the Space Rising base. Added 2026-05-31.
 // PAT scoped to data.records:write + schema.bases:* on this one base only.

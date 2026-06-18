@@ -10,9 +10,9 @@ import '../space-rising-theme-v2.css';
 // instead of bouncing to the directory (no matching detail route existed before).
 
 const KIND_META = {
-  job:         { eyebrow: 'JOB',         backLabel: 'jobs',        backPath: '/space-rising-v2/jobs',        hero: '/v2-assets/rocket-orbital.png' },
-  event:       { eyebrow: 'EVENT',       backLabel: 'events',      backPath: '/space-rising-v2/events',      hero: '/v2-assets/rocket-orbital.png' },
-  marketplace: { eyebrow: 'MARKETPLACE', backLabel: 'marketplace', backPath: '/space-rising-v2/marketplace', hero: '/v2-assets/asteroid-close.png' },
+  job:         { eyebrow: 'JOB',         backLabel: 'jobs',        backPath: '/spaceos/jobs',        hero: '/v2-assets/rocket-orbital.png' },
+  event:       { eyebrow: 'EVENT',       backLabel: 'events',      backPath: '/spaceos/events',      hero: '/v2-assets/rocket-orbital.png' },
+  marketplace: { eyebrow: 'MARKETPLACE', backLabel: 'marketplace', backPath: '/spaceos/marketplace', hero: '/v2-assets/asteroid-close.png' },
 };
 
 function fmtDate(v) {
@@ -148,7 +148,7 @@ export default function SourcingListingV2({ kind = 'job' }) {
             )}
             {/* Don't show "View Space Rising" on events — the company is the platform, not the event host */}
             {kind !== 'event' && company?.slug && (
-              <Link to={`/space-rising-v2/${company.slug}`} className="srsv2-cta srsv2-cta-line">
+              <Link to={`/spaceos/${company.slug}`} className="srsv2-cta srsv2-cta-line">
                 View {company.name}
               </Link>
             )}
@@ -168,7 +168,7 @@ export default function SourcingListingV2({ kind = 'job' }) {
             <dl className="srcv2-facts">
               {/* For events the company is the platform (Space Rising) — suppress "Posted by" */}
               {kind !== 'event' && company?.name && <Fact label="Posted by" value={company.slug
-                ? <Link to={`/space-rising-v2/${company.slug}`} style={{ color: 'inherit' }}>{company.name}</Link>
+                ? <Link to={`/spaceos/${company.slug}`} style={{ color: 'inherit' }}>{company.name}</Link>
                 : company.name} />}
               {loc && <Fact label="Location" value={loc} />}
               {kind === 'job' && listing.job_type && <Fact label="Type" value={String(listing.job_type).replace('-', ' ')} />}

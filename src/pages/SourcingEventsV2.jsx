@@ -42,7 +42,7 @@ function CalendarEventRow({ listing, companies }) {
   const dayName = getDayName(listing.event_date);
   const today = isToday(listing.event_date);
   return (
-    <Link to={`/space-rising-v2/events/${listing.id}`} className="sr-event-row">
+    <Link to={`/spaceos/events/${listing.id}`} className="sr-event-row">
       <div className={`sr-event-row__datepill${today ? ' today' : ''}`}>
         <div className="sr-event-row__weekday">{dayName}</div>
         <div className="sr-event-row__daynum">{dayNum}</div>
@@ -95,7 +95,7 @@ function NextUpCard({ listing, companies }) {
   const monthAbbr = getMonthAbbr(listing.event_date);
   const today = isToday(listing.event_date);
   return (
-    <Link to={`/space-rising-v2/events/${listing.id}`} className="sr-next-card">
+    <Link to={`/spaceos/events/${listing.id}`} className="sr-next-card">
       <div className="sr-next-card__date">
         <div className="sr-next-card__month">{today ? 'TODAY' : monthAbbr}</div>
         <div className="sr-next-card__day">{dayNum}</div>
@@ -230,7 +230,7 @@ function SourcingEventsV2Inner() {
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
           <div className="browse-hero-toprow">
-            <Link to="/space-rising-v2" className="browse-back" style={{ textDecoration: 'none' }}>
+            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path d="M15 19l-7-7 7-7" />
               </svg>
@@ -268,7 +268,7 @@ function SourcingEventsV2Inner() {
           {loading ? 'Loading...' : isSearching ? `${filtered.length} result${filtered.length === 1 ? '' : 's'}.` : `${listings.length} Events.`}
         </div>
         <div className="sec-count">
-          <Link to="/space-rising-v2/events/post" style={{ textDecoration: 'none', color: 'var(--srv2-orange)', fontSize: 12, fontWeight: 600 }}>
+          <Link to="/spaceos/events/post" style={{ textDecoration: 'none', color: 'var(--srv2-orange)', fontSize: 12, fontWeight: 600 }}>
             + Post an Event
           </Link>
         </div>
@@ -297,7 +297,7 @@ function SourcingEventsV2Inner() {
             const loc = listing.event_location || (listing.virtual_url ? 'Virtual' : '');
             const isPast = listing.event_date && parseDate(listing.event_date) < new Date();
             return (
-              <Link key={listing.id} to={`/space-rising-v2/events/${listing.id}`} className="co-card" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <Link key={listing.id} to={`/spaceos/events/${listing.id}`} className="co-card" style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div className="co-body">
                   {company?.slug ? <img className="co-mono-logo" src={`/v2-assets/logos/${company.slug}-white.png`} alt="" aria-hidden="true" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}
                   <div className="co-name">{listing.title}</div>

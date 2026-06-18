@@ -292,7 +292,7 @@ function SourcingPortalInner() {
         </Link>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
           <Link
-            to="/space-rising-v2"
+            to="/spaceos"
             style={{
               fontSize: 11,
               letterSpacing: '0.12em',

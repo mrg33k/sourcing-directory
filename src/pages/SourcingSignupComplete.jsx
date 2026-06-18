@@ -82,9 +82,9 @@ export default function SourcingSignupComplete() {
     <div className="srsv2-shell" data-tenant="space-rising-v2">
       <div className="srsv2-veil" />
       <div className="srsv2-topbar">
-        <Link to="/space-rising-v2" className="srsv2-wordmark">SPACE RISING</Link>
+        <Link to="/spaceos" className="srsv2-wordmark">SPACE RISING</Link>
         <div className="srsv2-progress"></div>
-        <Link to="/space-rising-v2" className="srsv2-close" aria-label="Close">
+        <Link to="/spaceos" className="srsv2-close" aria-label="Close">
           <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
         </Link>
       </div>
@@ -110,10 +110,10 @@ export default function SourcingSignupComplete() {
                 )}
               </div>
               <div className="srsv2-cta-row">
-                <Link to={company?.slug ? `/space-rising-v2/${company.slug}` : '/space-rising-v2'} className="srsv2-cta srsv2-cta-solid">
+                <Link to={company?.slug ? `/spaceos/${company.slug}` : '/spaceos'} className="srsv2-cta srsv2-cta-solid">
                   Go to your profile
                 </Link>
-                <Link to="/space-rising-v2" className="srsv2-cta srsv2-cta-line">
+                <Link to="/spaceos" className="srsv2-cta srsv2-cta-line">
                   Browse the directory
                 </Link>
               </div>
@@ -129,7 +129,7 @@ export default function SourcingSignupComplete() {
               </div>
               <div className="srsv2-cta-row">
                 <button onClick={() => window.location.reload()} className="srsv2-cta srsv2-cta-solid">Refresh</button>
-                <Link to="/space-rising-v2" className="srsv2-cta srsv2-cta-line">Browse the directory</Link>
+                <Link to="/spaceos" className="srsv2-cta srsv2-cta-line">Browse the directory</Link>
               </div>
             </>
           )}
@@ -140,7 +140,7 @@ export default function SourcingSignupComplete() {
               <h1 className="srsv2-title srsv2-title-xl">Sign back in to see your account<span className="srsv2-period">.</span></h1>
               <div className="srsv2-sub">You're not signed in on this device. If you completed payment, check the email we sent for next steps.</div>
               <div className="srsv2-cta-row">
-                <Link to="/space-rising-v2" className="srsv2-cta srsv2-cta-solid">Back to the directory</Link>
+                <Link to="/spaceos" className="srsv2-cta srsv2-cta-solid">Back to the directory</Link>
               </div>
             </>
           )}

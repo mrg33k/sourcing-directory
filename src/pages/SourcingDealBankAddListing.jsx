@@ -1,6 +1,6 @@
 // SourcingDealBankAddListing.jsx
 // Deal Bank R7 (Round B, 2026-06-09) — Company form to add a deal bank listing.
-// Route: /space-rising-v2/deal-bank/investments/add
+// Route: /spaceos/deal-bank/investments/add
 // Gated to existing directory companies. Form submits to deal_bank_listings (status='pending').
 
 import React, { useEffect, useState } from 'react';

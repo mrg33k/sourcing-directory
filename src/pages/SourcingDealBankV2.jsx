@@ -192,7 +192,7 @@ function SourcingDealBankV2Inner() {
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
           <div className="browse-hero-toprow">
-            <Link to="/space-rising-v2" className="browse-back" style={{ textDecoration: 'none' }}>
+            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Back
             </Link>
@@ -385,7 +385,7 @@ function InvestmentsLane({ searchInput }) {
       {filtered.map((item) => (
         <Link
           key={item.id || item.slug}
-          to={`/space-rising-v2/deal-bank/investments/${item.slug}`}
+          to={`/spaceos/deal-bank/investments/${item.slug}`}
           className="co-card"
           style={{ textDecoration: 'none', color: 'inherit' }}
         >
@@ -473,7 +473,7 @@ function InvestorsLane({ searchInput }) {
       {filtered.map((item) => (
         <Link
           key={item.id || item.slug}
-          to={`/space-rising-v2/deal-bank/investors/${item.slug}`}
+          to={`/spaceos/deal-bank/investors/${item.slug}`}
           className="co-card"
           style={{ textDecoration: 'none', color: 'inherit' }}
         >
@@ -505,7 +505,7 @@ function InvestorsLane({ searchInput }) {
 
       <div style={{ padding: '24px', borderTop: '1px solid rgba(232,228,218,0.10)' }}>
         <Link
-          to="/space-rising-v2/deal-bank/investors/signup"
+          to="/spaceos/deal-bank/investors/signup"
           style={{
             display: 'block',
             padding: '12px 16px',

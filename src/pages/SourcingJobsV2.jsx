@@ -1,6 +1,6 @@
 // SourcingJobsV2.jsx
 // nat-geo-uplift R5a — Jobs page in the locked V2 list-pattern.
-// Mirrors /space-rising-v2 directory: same hero + chip row + live fuzzy
+// Mirrors /spaceos directory: same hero + chip row + live fuzzy
 // search + list-of-rows + sec-hdr CTA. The data is jobs, the shell is
 // the directory's. Proving the list pattern adapts cleanly.
 
@@ -10,7 +10,7 @@ import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
 import useSRWTitle from './srw/useSRWTitle.js';
 import { V2ChipNav } from './V2ChipNav.jsx';
-// Loads the V2 theme + R5a hero-archetype rules. Required for /space-rising-v2/*
+// Loads the V2 theme + R5a hero-archetype rules. Required for /spaceos/*
 // routes to pick up the locked palette, type, and card grid.
 import '../space-rising-theme-v2.css';
 
@@ -168,7 +168,7 @@ function SourcingJobsV2Inner() {
         @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }
       `}</style>
 
-      {/* R5a hero archetype — same shell as /space-rising-v2 directory; only
+      {/* R5a hero archetype — same shell as /spaceos directory; only
           the heading + --page-hero-bg change per page. */}
       <div
         className="browse-hero"
@@ -178,7 +178,7 @@ function SourcingJobsV2Inner() {
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
           <div className="browse-hero-toprow">
-            <Link to="/space-rising-v2" className="browse-back" style={{ textDecoration: 'none' }}>
+            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path d="M15 19l-7-7 7-7" />
               </svg>
@@ -225,7 +225,7 @@ function SourcingJobsV2Inner() {
         </div>
         <div className="sec-count">
           <Link
-            to="/space-rising-v2/jobs/post"
+            to="/spaceos/jobs/post"
             style={{
               textDecoration: 'none',
               color: 'var(--cyan)',
@@ -285,7 +285,7 @@ function SourcingJobsV2Inner() {
             return (
               <Link
                 key={listing.id}
-                to={`/space-rising-v2/jobs/${listing.id}`}
+                to={`/spaceos/jobs/${listing.id}`}
                 className="co-card"
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >

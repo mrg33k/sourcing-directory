@@ -7,10 +7,10 @@ import './srw-v2.css';
 
 // R10b (nat-geo-uplift) — each tile clicks into its directory surface.
 const FEATURES = [
-  { name: 'Companies', desc: "Arizona's space companies — from primes to early-stage startups — in one searchable directory.", to: '/space-rising-v2' },
-  { name: 'Jobs',      desc: 'Open roles across the state aerospace sector, posted by the companies hiring.',                    to: '/space-rising-v2/jobs' },
-  { name: 'Events',    desc: 'Conferences, roundtables, and convenings keeping the ecosystem connected.',                       to: '/space-rising-v2/events' },
-  { name: 'Resources', desc: 'Grants, reports, and tools for builders navigating the space economy.',                            to: '/space-rising-v2/reports' },
+  { name: 'Companies', desc: "Arizona's space companies — from primes to early-stage startups — in one searchable directory.", to: '/spaceos' },
+  { name: 'Jobs',      desc: 'Open roles across the state aerospace sector, posted by the companies hiring.',                    to: '/spaceos/jobs' },
+  { name: 'Events',    desc: 'Conferences, roundtables, and convenings keeping the ecosystem connected.',                       to: '/spaceos/events' },
+  { name: 'Resources', desc: 'Grants, reports, and tools for builders navigating the space economy.',                            to: '/spaceos/reports' },
 ];
 
 export default function SRWSpaceOSV2() {
@@ -33,7 +33,7 @@ export default function SRWSpaceOSV2() {
             The connective layer for the space industry. Companies, jobs, events, and resources in one interactive platform — a living map of the ecosystem.
           </p>
           <div className="srw-pg-cta-row">
-            <Link to="/space-rising-v2" className="srw-pg-cta solid">Enter the directory →</Link>
+            <Link to="/spaceos" className="srw-pg-cta solid">Enter the directory →</Link>
             <Link to="/srw-v2/about" className="srw-pg-cta line">About Space Rising</Link>
           </div>
         </div>

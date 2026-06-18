@@ -1,6 +1,6 @@
 // SourcingDealBankInvestorSignup.jsx
 // Deal Bank R6 (Round A, 2026-06-09) — Public investor firm signup form.
-// Route: /space-rising-v2/deal-bank/investors/signup
+// Route: /spaceos/deal-bank/investors/signup
 // No auth gate. Submits to deal_bank_investors (status='pending'),
 // appears in admin queue for approval.
 

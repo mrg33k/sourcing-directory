@@ -10,7 +10,7 @@
 // with rule lines between, mono-caps labels, period-treated headlines.
 //
 // The signup flow modal that fires on CTA click is the next round (R5h);
-// for now the CTAs link to /space-rising-v2/signup which routes to V1.
+// for now the CTAs link to /spaceos/signup which routes to V1.
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -375,7 +375,7 @@ function SourcingMembershipV2Inner() {
   const premiumFootnote = billing === 'annual'
     ? `${tierData.annual} · billed once annually`
     : `${tierData.monthly} · recurring monthly`;
-  const premiumCtaHref = `/space-rising-v2/signup?tier=paid&plan=${planKey}`;
+  const premiumCtaHref = `/spaceos/signup?tier=paid&plan=${planKey}`;
 
   const BILLING_CHIPS = [
     { key: 'annual',  label: 'Annual',  sub: 'billed once/year' },
@@ -443,7 +443,7 @@ function SourcingMembershipV2Inner() {
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
           <div className="browse-hero-toprow">
-            <Link to="/space-rising-v2" className="browse-back" style={{ textDecoration: 'none' }}>
+            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Back
             </Link>
@@ -478,7 +478,7 @@ function SourcingMembershipV2Inner() {
             benefits={FREE_BENEFITS}
             footnote="No card required"
             cta="Join Free"
-            ctaHref="/space-rising-v2/signup?tier=free"
+            ctaHref="/spaceos/signup?tier=free"
           />
           <TierCard
             kind="premium"
@@ -620,7 +620,7 @@ function SourcingMembershipV2Inner() {
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 36, flexWrap: 'wrap' }}>
             <Link
-              to="/space-rising-v2/signup?tier=free"
+              to="/spaceos/signup?tier=free"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -640,7 +640,7 @@ function SourcingMembershipV2Inner() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
             </Link>
             <Link
-              to="/space-rising-v2/signup?tier=paid"
+              to="/spaceos/signup?tier=paid"
               className="v2-membership-cta"
               style={{
                 display: 'inline-flex',

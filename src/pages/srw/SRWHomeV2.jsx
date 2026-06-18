@@ -67,7 +67,7 @@ const SERVICES = [
   {
     name: 'SpaceOS™',
     body: (<>The <strong>intelligence infrastructure</strong> connecting the space economy.</>),
-    to: '/space-rising-v2',
+    to: '/spaceos',
   },
   {
     name: 'Partnerships',

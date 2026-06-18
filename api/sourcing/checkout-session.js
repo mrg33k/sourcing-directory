@@ -115,8 +115,8 @@ export default async function handler(req, res) {
             quantity: 1,
           },
         ],
-        success_url: `${origin}/space-rising-v2/signup/complete?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url:  `${origin}/space-rising-v2/signup?tier=paid&plan=${planType}&canceled=1`,
+        success_url: `${origin}/spaceos/signup/complete?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url:  `${origin}/spaceos/signup?tier=paid&plan=${planType}&canceled=1`,
         metadata: {
           kind: 'space-rising-membership',
           company_id: resolvedCompanyId,
@@ -147,8 +147,8 @@ export default async function handler(req, res) {
             quantity: 1,
           },
         ],
-        success_url: `${origin}/space-rising-v2/signup/complete?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url:  `${origin}/space-rising-v2/signup?tier=paid&plan=${planType}&canceled=1`,
+        success_url: `${origin}/spaceos/signup/complete?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url:  `${origin}/spaceos/signup?tier=paid&plan=${planType}&canceled=1`,
         metadata: {
           kind: 'space-rising-membership',
           company_id: resolvedCompanyId,

@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    { "source": "/space-rising-v2", "destination": "/spaceos", "permanent": true },
+    { "source": "/space-rising-v2/:path*", "destination": "/spaceos/:path*", "permanent": true },
+    { "source": "/space-rising", "destination": "/spaceos", "permanent": true },
+    { "source": "/space-rising/:path*", "destination": "/spaceos/:path*", "permanent": true },
+    { "source": "/srw-v2", "destination": "/", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/signup", "destination": "/index.html" },

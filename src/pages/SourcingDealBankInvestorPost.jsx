@@ -1,6 +1,6 @@
 // SourcingDealBankInvestorPost.jsx
 // Deal Bank Round A (2026-06-09) — public "List your firm" submission form.
-// Route: /space-rising-v2/deal-bank/list-your-firm.
+// Route: /spaceos/deal-bank/list-your-firm.
 // Posts to /api/sourcing/deal-bank-submit-investor (service role, forces
 // status='pending'). Firm appears in the admin queue; once approved it shows
 // on the Investors lane + profile. contact_email_internal is collected here
@@ -139,7 +139,7 @@ export default function SourcingDealBankInvestorPost() {
           <div style={{ fontSize: 15, color: MUTED, marginBottom: 28, lineHeight: 1.6, maxWidth: 480, margin: '0 auto 28px' }}>
             Thanks — your firm is in review. Once the Space Rising team approves it, your profile goes live on the Investors lane. Your contact email stays internal; founders reach you through Space Rising.
           </div>
-          <Link to="/space-rising-v2/deal-bank" style={{ background: AMBER, color: '#0B0B0D', textDecoration: 'none', borderRadius: 6, padding: '12px 28px', fontWeight: 700, fontSize: 14 }}>
+          <Link to="/spaceos/deal-bank" style={{ background: AMBER, color: '#0B0B0D', textDecoration: 'none', borderRadius: 6, padding: '12px 28px', fontWeight: 700, fontSize: 14 }}>
             Back to Deal Bank
           </Link>
         </div>
@@ -159,7 +159,7 @@ export default function SourcingDealBankInvestorPost() {
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
           <div className="browse-hero-toprow">
-            <Link to="/space-rising-v2/deal-bank" className="browse-back" style={{ textDecoration: 'none' }}>
+            <Link to="/spaceos/deal-bank" className="browse-back" style={{ textDecoration: 'none' }}>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Deal Bank
             </Link>

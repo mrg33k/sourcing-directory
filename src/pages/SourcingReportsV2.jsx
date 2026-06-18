@@ -92,7 +92,7 @@ function SourcingReportsV2Inner() {
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
           <div className="browse-hero-toprow">
-            <Link to="/space-rising-v2" className="browse-back" style={{ textDecoration: 'none' }}>
+            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Back
             </Link>
@@ -151,7 +151,7 @@ function SourcingReportsV2Inner() {
           return (
             <Link
               key={report.id}
-              to={`/space-rising-v2/reports/${report.id}`}
+              to={`/spaceos/reports/${report.id}`}
               className="co-card"
               style={{ textDecoration: 'none', color: 'inherit' }}
             >

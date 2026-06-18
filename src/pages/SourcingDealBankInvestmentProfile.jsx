@@ -1,6 +1,6 @@
 // SourcingDealBankInvestmentProfile.jsx
 // Deal Bank R7c (2026-06-09) — Investments profile page, real data.
-// Route: /space-rising-v2/deal-bank/investments/:slug.
+// Route: /spaceos/deal-bank/investments/:slug.
 // Fetches real deal_bank_listings (approved status) with company metadata.
 // Hero with breadcrumb + capital/round/revenue grid + three-tab content area
 // (Profile / Team / Pitch Deck). Executive summary, leadership, deck download.
@@ -136,7 +136,7 @@ function SourcingDealBankInvestmentProfileInner() {
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 14, marginBottom: 16 }}>Listing not found.</div>
           <Link
-            to="/space-rising-v2/deal-bank?tab=investments"
+            to="/spaceos/deal-bank?tab=investments"
             style={{ fontSize: 12, color: 'var(--cyan)', textDecoration: 'none' }}
           >
             Back to Investments
@@ -172,7 +172,7 @@ function SourcingDealBankInvestmentProfileInner() {
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
           <div className="browse-hero-toprow">
-            <Link to="/space-rising-v2/deal-bank?tab=investments" className="browse-back" style={{ textDecoration: 'none' }}>
+            <Link to="/spaceos/deal-bank?tab=investments" className="browse-back" style={{ textDecoration: 'none' }}>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Investments
             </Link>

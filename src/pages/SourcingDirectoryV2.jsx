@@ -403,7 +403,7 @@ function SearchBar({ value, onChange, onSearch, loading, aiLoading, V }) {
 function SourcingDirectoryInner() {
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
-  // V2 route is static (/space-rising-v2), so useParams() doesn't supply a
+  // V2 route is static (/spaceos), so useParams() doesn't supply a
   // tenantSlug. Hardcode it so the data-tenant attribute is set, the
   // isSpaceRising branch fires, and the V2 theme CSS scoping matches.
   const tenantSlug = 'space-rising-v2';

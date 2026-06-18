@@ -44,7 +44,7 @@ export default function SourcingSignupV2() {
     ? planParam
     : tier === 'paid' ? 'small-annual' : null;
   const isAnnual = planType?.endsWith('-annual');
-  const basePath = tenantSlug ? `/${tenantSlug}` : '/space-rising-v2';
+  const basePath = tenantSlug ? `/${tenantSlug}` : '/spaceos';
 
   const steps = tier === 'free' ? FREE_STEPS : PAID_STEPS;
   const totalSteps = steps.length;

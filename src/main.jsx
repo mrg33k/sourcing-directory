@@ -32,11 +32,13 @@ function PageTransition({ children }) {
   )
 }
 
-// Redirect wrapper for /space-rising/:slug → /space-rising-v2/:slug.
-// Needed because Navigate's `to` prop can't interpolate route params directly.
-function SpaceRisingCompanyRedirect() {
-  const { slug } = useParams()
-  return <Navigate to={'/space-rising-v2/' + slug} replace />
+// Redirect any legacy prefix (/space-rising, /space-rising-v2) to the clean
+// /spaceos URL, preserving the rest of the path + query + hash. Navigate's `to`
+// can't interpolate splat params directly, so we read them here.
+function ToSpaceOS() {
+  const rest = useParams()['*'] || ''
+  const { search, hash } = useLocation()
+  return <Navigate to={'/spaceos' + (rest ? '/' + rest : '') + search + hash} replace />
 }
 
 // Lazy-load all pages
@@ -130,20 +132,21 @@ createRoot(document.getElementById('root')).render(
         <PageTransition>
         <Routes>
           {/* Global */}
-          {/* R10 (nat-geo-uplift) — Swap shipped 2026-05-31. Root now lands on
-              the V2 Space Rising marketing site. V1 routes (/srw, /space-rising)
-              stay live as archive for rollback + legacy deep-link compat. */}
-          <Route path="/" element={<Navigate to="/srw-v2" replace />} />
-          {/* Legacy V1 utility pages retired (2026-06-05) → Space OS V2. No V1 surface. */}
-          <Route path="/signup" element={<Navigate to="/space-rising-v2/signup" replace />} />
+          {/* Home is the root URL (clean-urls, 2026-06-18). The marketing home
+              renders directly at "/", no /srw-v2 hop. The bare /srw-v2 route below
+              redirects back to "/" so the old marketing URL never rots. V1 routes
+              (/srw, /space-rising) stay as redirects for legacy deep-link compat. */}
+          <Route path="/" element={<SRWHomeV2 />} />
+          {/* Legacy V1 utility pages retired (2026-06-05) → Space OS. No V1 surface. */}
+          <Route path="/signup" element={<Navigate to="/spaceos/signup" replace />} />
           <Route path="/about" element={<Navigate to="/srw-v2/about" replace />} />
-          <Route path="/create" element={<Navigate to="/space-rising-v2" replace />} />
+          <Route path="/create" element={<Navigate to="/spaceos" replace />} />
           {/* Admin stays — internal tooling, not a public surface. */}
           <Route path="/admin" element={<SourcingAdmin />} />
           <Route path="/admin/new" element={<SourcingAdmin />} />
           <Route path="/admin/settings/:tenantSlug" element={<SourcingAdmin />} />
           {/* Space Rising Website (SRW) V1 → V2 redirects. V2 is production. */}
-          <Route path="/srw" element={<Navigate to="/srw-v2" replace />} />
+          <Route path="/srw" element={<Navigate to="/" replace />} />
           <Route path="/srw/spaceos" element={<Navigate to="/srw-v2/spaceos" replace />} />
           <Route path="/srw/space-congress" element={<Navigate to="/srw-v2/space-congress" replace />} />
           <Route path="/srw/arizona" element={<Navigate to="/srw-v2/arizona" replace />} />
@@ -152,8 +155,9 @@ createRoot(document.getElementById('root')).render(
           <Route path="/srw/events" element={<Navigate to="/srw-v2/events" replace />} />
           <Route path="/srw/media" element={<Navigate to="/srw-v2/media" replace />} />
           <Route path="/srw/sign-up" element={<Navigate to="/srw-v2/sign-up" replace />} />
-          {/* Nat Geo Uplift V2 clones — placed before tenant catch-all */}
-          <Route path="/srw-v2" element={<SRWHomeV2 />} />
+          {/* Nat Geo Uplift V2 clones — placed before tenant catch-all.
+              Bare /srw-v2 redirects to the root home; its subpages stay live. */}
+          <Route path="/srw-v2" element={<Navigate to="/" replace />} />
           {/* R6 — SRW marketing sub-pages */}
           <Route path="/srw-v2/about" element={<SRWAboutV2 />} />
           <Route path="/srw-v2/spaceos" element={<SRWSpaceOSV2 />} />
@@ -166,11 +170,10 @@ createRoot(document.getElementById('root')).render(
           <Route path="/srw-v2/blueprint" element={<SRWBlueprintV2 />} />
           {/* Short alias: /blueprint */}
           <Route path="/blueprint" element={<Navigate to="/srw-v2/blueprint" replace />} />
-          {/* SpaceOS canonical surface (item 3 / spaceos-naming). Same components
-              as /space-rising-v2/*, so /spaceos and every /spaceos/* deep link
-              loads. The legacy /space-rising-v2/* routes below stay live so no
-              existing link rots. Internal nav still uses the legacy prefix until
-              the canonical-link flip (tracked separately). :slug stays LAST. */}
+          {/* SpaceOS canonical surface — the ONE public prefix now. Internal nav
+              links all point here (canonical-link flip done 2026-06-18); the legacy
+              /space-rising-v2/* and /space-rising/* paths below 301-redirect in.
+              :slug stays LAST so static segments win. */}
           <Route path="/spaceos" element={<SourcingDirectoryV2 />} />
           <Route path="/spaceos/jobs" element={<SourcingJobsV2 />} />
           <Route path="/spaceos/events" element={<SourcingEventsV2 />} />
@@ -200,86 +203,19 @@ createRoot(document.getElementById('root')).render(
           <Route path="/spaceos/reports/:id" element={<SourcingReportDetailV2 />} />
           <Route path="/spaceos/:slug" element={<SourcingCompanyV2 />} />
 
-          <Route path="/space-rising-v2" element={<SourcingDirectoryV2 />} />
-          <Route path="/space-rising-v2/jobs" element={<SourcingJobsV2 />} />
-          <Route path="/space-rising-v2/events" element={<SourcingEventsV2 />} />
-          <Route path="/space-rising-v2/reports" element={<SourcingReportsV2 />} />
-          <Route path="/space-rising-v2/marketplace" element={<SourcingMarketplaceV2 />} />
-          <Route path="/space-rising-v2/deal-bank" element={<SourcingDealBankV2 />} />
-          {/* Deal Bank R7b/c — Investments + Investors profile pages. Three
-              segments deep so they win over /space-rising-v2/:slug (2 segs)
-              and over /space-rising-v2/deal-bank (literal, also 2 segs). */}
-          <Route path="/space-rising-v2/deal-bank/investments/add" element={<SourcingDealBankAddListing />} />
-          <Route path="/space-rising-v2/deal-bank/investments/:slug" element={<SourcingDealBankInvestmentProfile />} />
-          <Route path="/space-rising-v2/deal-bank/investors/signup" element={<SourcingDealBankInvestorSignup />} />
-          <Route path="/space-rising-v2/deal-bank/investors/:slug" element={<SourcingDealBankInvestorProfile />} />
-          <Route path="/space-rising-v2/membership" element={<SourcingMembershipV2 />} />
-          <Route path="/space-rising-v2/signup" element={<SourcingSignupV2 />} />
-          {/* R5i — Square checkout return URL. Must be above the :slug catch-all. */}
-          <Route path="/space-rising-v2/signup/complete" element={<SourcingSignupComplete />} />
-          {/* Articles + Grants — V2 skinned, list-pattern (parity with Jobs/Events). */}
-          <Route path="/space-rising-v2/articles" element={<SourcingArticlesV2 />} />
-          {/* Discovery — community whitepaper library. List + gated submit form. */}
-          <Route path="/space-rising-v2/discovery" element={<SourcingDiscoveryV2 />} />
-          <Route path="/space-rising-v2/grants" element={<SourcingGrantsV2 />} />
-          {/* Login — V2 skinned (replaces previous Navigate-redirect to V1). */}
-          <Route path="/space-rising-v2/login" element={<SourcingLoginV2 />} />
-          {/* Portal V2 — full V2 skin (no more redirect to V1). */}
-          <Route path="/space-rising-v2/portal" element={<SourcingPortalV2 />} />
-          {/* nat-geo-uplift — V2 post forms live; Navigate redirects to V1 retired. */}
-          <Route path="/space-rising-v2/jobs/post" element={<SourcingJobsPostV2 />} />
-          <Route path="/space-rising-v2/events/post" element={<SourcingEventsPostV2 />} />
-          <Route path="/space-rising-v2/marketplace/post" element={<SourcingMarketplacePostV2 />} />
-          <Route path="/space-rising-v2/articles/post" element={<SourcingArticlesPostV2 />} />
-          {/* Discovery submit — gated to signed-in community members inside the page. */}
-          <Route path="/space-rising-v2/discovery/post" element={<SourcingDiscoveryPostV2 />} />
-          {/* 2026-06-05 — listing + report detail pages. Two segments, so they rank
-              above the single-segment /:slug company route and never collide. */}
-          <Route path="/space-rising-v2/jobs/:id" element={<SourcingListingV2 kind="job" />} />
-          <Route path="/space-rising-v2/events/:id" element={<SourcingListingV2 kind="event" />} />
-          <Route path="/space-rising-v2/marketplace/:id" element={<SourcingListingV2 kind="marketplace" />} />
-          <Route path="/space-rising-v2/reports/:id" element={<SourcingReportDetailV2 />} />
-          {/* R5j — Company profile. MUST be the last /space-rising-v2/* route so static segments above win. */}
-          <Route path="/space-rising-v2/:slug" element={<SourcingCompanyV2 />} />
-          {/* Space Rising V1 → V2 redirects — specific routes win over /:tenantSlug catch-all.
-              Remaining V1-only routes: /checkout (Square return URL), /:slug company profiles
-              that fall through to SpaceRisingCompanyRedirect. */}
-          <Route path="/space-rising" element={<Navigate to="/space-rising-v2" replace />} />
-          <Route path="/space-rising/login" element={<Navigate to="/space-rising-v2/login" replace />} />
-          <Route path="/space-rising/signup" element={<Navigate to="/space-rising-v2/signup" replace />} />
-          <Route path="/space-rising/jobs" element={<Navigate to="/space-rising-v2/jobs" replace />} />
-          <Route path="/space-rising/events" element={<Navigate to="/space-rising-v2/events" replace />} />
-          <Route path="/space-rising/marketplace" element={<Navigate to="/space-rising-v2/marketplace" replace />} />
-          <Route path="/space-rising/articles" element={<Navigate to="/space-rising-v2/articles" replace />} />
-          <Route path="/space-rising/discovery" element={<Navigate to="/space-rising-v2/discovery" replace />} />
-          <Route path="/space-rising/grants" element={<Navigate to="/space-rising-v2/grants" replace />} />
-          <Route path="/space-rising/deal-bank" element={<Navigate to="/space-rising-v2/deal-bank" replace />} />
-          <Route path="/space-rising/membership" element={<Navigate to="/space-rising-v2/membership" replace />} />
-          <Route path="/space-rising/reports" element={<Navigate to="/space-rising-v2/reports" replace />} />
-          <Route path="/space-rising/reports/:reportId" element={<Navigate to="/space-rising-v2/reports" replace />} />
-          {/* nat-geo-uplift: V1 portal → V2 portal. V1 post forms → V2 equivalents. Settings → V2 home. */}
-          <Route path="/space-rising/portal" element={<Navigate to="/space-rising-v2/portal" replace />} />
-          <Route path="/space-rising/jobs/post" element={<Navigate to="/space-rising-v2/jobs/post" replace />} />
-          <Route path="/space-rising/events/post" element={<Navigate to="/space-rising-v2/events/post" replace />} />
-          <Route path="/space-rising/marketplace/post" element={<Navigate to="/space-rising-v2/marketplace/post" replace />} />
-          <Route path="/space-rising/articles/post" element={<Navigate to="/space-rising-v2/articles/post" replace />} />
-          <Route path="/space-rising/discovery/post" element={<Navigate to="/space-rising-v2/discovery/post" replace />} />
-          <Route path="/space-rising/settings" element={<Navigate to="/space-rising-v2" replace />} />
-          <Route path="/space-rising-v2/settings" element={<Navigate to="/space-rising-v2" replace />} />
-          {/* Legacy V1 checkout retired (2026-06-05). Paid signup now uses Stripe
-              checkout-session and returns to /space-rising-v2/signup/complete. */}
-          <Route path="/space-rising/checkout" element={<Navigate to="/space-rising-v2" replace />} />
-          {/* Company profile catch-all — any other /space-rising/<slug> redirects to V2. */}
-          <Route path="/space-rising/:slug" element={<SpaceRisingCompanyRedirect />} />
-          {/* Legacy multi-tenant V1 routes retired (2026-06-05). spacerising.org is
-              Space-Rising-only now. The old /:tenantSlug V1 directories
-              (s3c-semiconductor, az-biotech, az-defense) and ANY unknown/typo slug
-              fall through to the catch-all below and redirect to the Space OS V2
-              directory. Tenant company DATA stays in the DB; only the V1 browse
-              surface is removed. Per Patrik 2026-06-05: "no page shows v1." */}
-          {/* Catch-all → Space OS V2 directory. With the /:tenantSlug V1 block gone,
-              EVERY unmatched path (1, 2, or 3+ segments) lands here — no V1, no 404. */}
-          <Route path="*" element={<Navigate to="/space-rising-v2" replace />} />
+          {/* Legacy URL cleanup (2026-06-18): /space-rising-v2/* 301-redirects to
+              the clean /spaceos/* surface above. Same render components live under
+              /spaceos, so nothing is lost; old shared links + bookmarks forward
+              automatically. The splat preserves the rest of the path + query + hash.
+              Server-side 301s are also set in vercel.json for direct hits + SEO. */}
+          <Route path="/space-rising-v2/*" element={<ToSpaceOS />} />
+          {/* Legacy /space-rising/* (V1) → clean /spaceos/*. One splat covers the
+              bare path, every sub-page, and company /:slug profiles. */}
+          <Route path="/space-rising/*" element={<ToSpaceOS />} />
+          {/* Catch-all → Space OS directory. Every unmatched path (unknown/typo slug,
+              retired V1 tenant directories) lands on /spaceos — no V1, no 404.
+              Tenant company DATA stays in the DB; only old browse surfaces are gone. */}
+          <Route path="*" element={<Navigate to="/spaceos" replace />} />
         </Routes>
         </PageTransition>
       </Suspense>

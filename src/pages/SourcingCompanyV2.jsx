@@ -131,7 +131,7 @@ export default function SourcingCompanyV2() {
           <div className="srsv2-eyebrow">NOT FOUND</div>
           <h1 className="srsv2-title">This company isn't in the directory<span className="srsv2-period">.</span></h1>
           <div className="srsv2-sub">We couldn't find <code>{slug}</code>. It may have been removed or renamed.</div>
-          <Link to="/space-rising-v2" className="srsv2-cta srsv2-cta-solid">Back to the directory</Link>
+          <Link to="/spaceos" className="srsv2-cta srsv2-cta-solid">Back to the directory</Link>
         </div>
       </div>
     );
@@ -151,7 +151,7 @@ export default function SourcingCompanyV2() {
           Replaces the previous wordmark + breadcrumb layout. */}
       <div className="srcv2-topbar">
         <div className="browse-hero-toprow">
-          <Link to="/space-rising-v2" className="browse-back" style={{ textDecoration: 'none' }}>
+          <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
             Back to directory
           </Link>
@@ -336,7 +336,7 @@ export default function SourcingCompanyV2() {
             <div className="srcv2-aside-back-copy">
               Looking for similar companies in {verticalLabel.toLowerCase()}? Walk the room.
             </div>
-            <Link to="/space-rising-v2" className="srsv2-cta srsv2-cta-line">All companies</Link>
+            <Link to="/spaceos" className="srsv2-cta srsv2-cta-line">All companies</Link>
           </div>
         </aside>
       </div>

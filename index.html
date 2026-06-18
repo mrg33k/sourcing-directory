@@ -56,7 +56,7 @@
           var isRecovery = frag.indexOf('type=recovery') !== -1;
           var onLogin = location.pathname.indexOf('/login') !== -1;
           if (isRecovery && !onLogin) {
-            location.replace('/space-rising-v2/login' + location.search + location.hash);
+            location.replace('/spaceos/login' + location.search + location.hash);
           }
         } catch (e) {}
       })();

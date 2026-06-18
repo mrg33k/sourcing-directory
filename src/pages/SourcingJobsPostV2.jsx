@@ -261,7 +261,7 @@ export default function SourcingJobsPostV2() {
           <div style={{ fontSize: 15, color: MUTED, marginBottom: 28, lineHeight: 1.6, fontFamily: FONT }}>
             Your listing is live. Members of the Space OS directory can now find it.
           </div>
-          <Link to="/space-rising-v2/jobs" style={{
+          <Link to="/spaceos/jobs" style={{
             background: AMBER, color: '#06060A', textDecoration: 'none',
             borderRadius: 6, padding: '12px 28px', fontWeight: 700, fontSize: 14, fontFamily: FONT,
           }}>
@@ -298,7 +298,7 @@ export default function SourcingJobsPostV2() {
           <div style={{ fontSize: 36, fontWeight: 700, color: TEXT, lineHeight: 1.1, fontFamily: FONT }}>
             Post an Open Position<span style={{ color: AMBER }}>.</span>
           </div>
-          <Link to="/space-rising-v2/jobs" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 16, fontSize: 13, color: MUTED, textDecoration: 'none', fontFamily: FONT }}>
+          <Link to="/spaceos/jobs" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 16, fontSize: 13, color: MUTED, textDecoration: 'none', fontFamily: FONT }}>
             <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
             Back to Jobs
           </Link>

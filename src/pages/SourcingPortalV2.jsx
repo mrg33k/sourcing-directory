@@ -24,7 +24,7 @@ const V2 = {
 
 // ─── Tenant + route constants ─────────────────────────────────────────────────
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
-const BASE_PATH_V2 = '/space-rising-v2';
+const BASE_PATH_V2 = '/spaceos';
 
 // ─── Listing metadata ─────────────────────────────────────────────────────────
 const LISTING_CATEGORIES = [

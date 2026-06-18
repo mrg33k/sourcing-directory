@@ -1,5 +1,5 @@
 // V2ChipNav.jsx
-// nat-geo-uplift R5f — shared category-chip navigation for /space-rising-v2/*.
+// nat-geo-uplift R5f — shared category-chip navigation for /spaceos/*.
 // Single source of truth for the chip order, labels, routes, and active-state
 // behavior. Pages pass `active` as the slug of the chip that should be lit.
 //
@@ -12,16 +12,16 @@ import { Link } from 'react-router-dom';
 // Order locked: Companies → Jobs → Events → Reports → Marketplace →
 // Membership → Deal Bank. Patrik 2026-05-30 chip row.
 const CHIPS = [
-  { slug: 'companies',  label: 'Companies',  to: '/space-rising-v2' },
-  { slug: 'jobs',       label: 'Jobs',       to: '/space-rising-v2/jobs' },
-  { slug: 'events',     label: 'Events',     to: '/space-rising-v2/events' },
-  { slug: 'reports',    label: 'Reports',    to: '/space-rising-v2/reports' },
-  { slug: 'articles',   label: 'Articles',   to: '/space-rising-v2/articles' },
-  { slug: 'discovery',  label: 'Discovery',  to: '/space-rising-v2/discovery' },
-  { slug: 'grants',     label: 'Grants',     to: '/space-rising-v2/grants' },
-  { slug: 'marketplace',label: 'Marketplace',to: '/space-rising-v2/marketplace' },
-  { slug: 'membership', label: 'Membership', to: '/space-rising-v2/membership' },
-  { slug: 'deal-bank',  label: 'Deal Bank',  to: '/space-rising-v2/deal-bank' },
+  { slug: 'companies',  label: 'Companies',  to: '/spaceos' },
+  { slug: 'jobs',       label: 'Jobs',       to: '/spaceos/jobs' },
+  { slug: 'events',     label: 'Events',     to: '/spaceos/events' },
+  { slug: 'reports',    label: 'Reports',    to: '/spaceos/reports' },
+  { slug: 'articles',   label: 'Articles',   to: '/spaceos/articles' },
+  { slug: 'discovery',  label: 'Discovery',  to: '/spaceos/discovery' },
+  { slug: 'grants',     label: 'Grants',     to: '/spaceos/grants' },
+  { slug: 'marketplace',label: 'Marketplace',to: '/spaceos/marketplace' },
+  { slug: 'membership', label: 'Membership', to: '/spaceos/membership' },
+  { slug: 'deal-bank',  label: 'Deal Bank',  to: '/spaceos/deal-bank' },
 ];
 
 export function V2ChipNav({ active }) {

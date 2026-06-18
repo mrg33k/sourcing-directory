@@ -1,6 +1,6 @@
 // SourcingDealBankInvestorProfile.jsx
 // Deal Bank R6 (Round A, 2026-06-09) — Investors profile page.
-// Route: /space-rising-v2/deal-bank/investors/:slug.
+// Route: /spaceos/deal-bank/investors/:slug.
 // Reads real firm data from deal_bank_investors table (approved status only).
 // Hero with breadcrumb + focus statement + criteria block (check size, deal
 // types, last-18-mo deals, LinkedIn). Contact email is intentionally NOT
@@ -104,7 +104,7 @@ function SourcingDealBankInvestorProfileInner() {
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 14, marginBottom: 16 }}>Firm not found.</div>
           <Link
-            to="/space-rising-v2/deal-bank?tab=investors"
+            to="/spaceos/deal-bank?tab=investors"
             style={{ fontSize: 12, color: 'var(--cyan)', textDecoration: 'none' }}
           >
             Back to Investors
@@ -137,7 +137,7 @@ function SourcingDealBankInvestorProfileInner() {
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
           <div className="browse-hero-toprow">
-            <Link to="/space-rising-v2/deal-bank" className="browse-back" style={{ textDecoration: 'none' }}>
+            <Link to="/spaceos/deal-bank" className="browse-back" style={{ textDecoration: 'none' }}>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Deal Bank
             </Link>

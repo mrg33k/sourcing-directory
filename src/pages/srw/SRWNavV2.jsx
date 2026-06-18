@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom';
 // Every link now stays inside /srw-v2/* so the V2 flow walks end-to-end.
 const LINKS = [
   { label: 'Home', to: '/srw-v2' },
-  { label: 'SpaceOS™', to: '/space-rising-v2' },
+  { label: 'SpaceOS™', to: '/spaceos' },
   {
     label: 'Space Congress™',
     to: '/srw-v2/space-congress',
@@ -38,7 +38,7 @@ export default function SRWNavV2() {
     <>
       <nav className={`srw-nav${scrolled ? ' is-scrolled' : ''}`}>
         <div className="srw-nav-inner">
-          <Link to="/srw-v2" className="srw-logo" aria-label="Space Rising home">
+          <Link to="/" className="srw-logo" aria-label="Space Rising home">
             <img
               src="https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/82e43967-ce2d-47fc-9d5d-efe3433d1876/SpaceRising_LOGO-WHT.png?format=500w"
               alt="Space Rising"
@@ -65,7 +65,7 @@ export default function SRWNavV2() {
           </div>
 
           <div className="srw-nav-actions">
-            <Link to="/space-rising-v2/login" className="srw-nav-signin">SIGN IN</Link>
+            <Link to="/spaceos/login" className="srw-nav-signin">SIGN IN</Link>
             <Link to="/srw-v2/sign-up" className="srw-nav-subscribe">SUBSCRIBE</Link>
           </div>
 

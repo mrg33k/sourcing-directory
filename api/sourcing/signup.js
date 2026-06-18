@@ -135,7 +135,7 @@ export default async function handler(req, res) {
     };
     // Resolve the tenant for BOTH the company and member rows. The frontend may
     // pass tenant_id; when it can't (the signup form's useTenant hook can't
-    // resolve a tenant on the static /space-rising-v2/signup route, so it sends
+    // resolve a tenant on the static /spaceos/signup route, so it sends
     // null), fall back to the active tenant for this vertical. Before this fix
     // only the member insert resolved a tenant — companies were inserted with
     // tenant_id=null and never appeared in the tenant-scoped public directory.

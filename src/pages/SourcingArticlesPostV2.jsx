@@ -285,13 +285,13 @@ export default function SourcingArticlesPostV2() {
             Publishing to the Space OS articles feed is open to the community — you just need an account. Sign in or create one to share insights, company news, or technical content, and it will appear here once reviewed.
           </div>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginTop: 28 }}>
-            <Link to="/space-rising-v2/login" style={{
+            <Link to="/spaceos/login" style={{
               background: AMBER, color: '#06060A', textDecoration: 'none',
               borderRadius: 6, padding: '12px 28px', fontWeight: 700, fontSize: 14, fontFamily: FONT,
             }}>
               Sign in / Create account
             </Link>
-            <Link to="/space-rising-v2/articles" style={{
+            <Link to="/spaceos/articles" style={{
               background: 'transparent', border: `1px solid ${BORDER}`,
               color: MUTED, borderRadius: 6, padding: '12px 28px',
               fontSize: 14, fontWeight: 600, fontFamily: FONT, textDecoration: 'none',
@@ -317,7 +317,7 @@ export default function SourcingArticlesPostV2() {
             Your article has been submitted for review. It will appear on the articles page once an admin approves it.
           </div>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/space-rising-v2/articles" style={{
+            <Link to="/spaceos/articles" style={{
               background: AMBER, color: '#06060A', textDecoration: 'none',
               borderRadius: 6, padding: '12px 28px', fontWeight: 700, fontSize: 14, fontFamily: FONT,
             }}>
@@ -362,7 +362,7 @@ export default function SourcingArticlesPostV2() {
           <div style={{ fontSize: 15, color: MUTED, marginTop: 10, lineHeight: 1.6, fontFamily: FONT }}>
             Share insights, company news, or technical content with Arizona's advanced tech community.
           </div>
-          <Link to="/space-rising-v2/articles" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 16, fontSize: 13, color: MUTED, textDecoration: 'none', fontFamily: FONT }}>
+          <Link to="/spaceos/articles" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 16, fontSize: 13, color: MUTED, textDecoration: 'none', fontFamily: FONT }}>
             <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
             Back to Articles
           </Link>
