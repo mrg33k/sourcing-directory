@@ -41,6 +41,26 @@
         } catch (e) {}
       })();
     </script>
+    <script>
+      // Password-reset safety net.
+      // Supabase only redirects a reset link to its approved URL list; if the
+      // Space Rising login URL isn't approved it silently drops the reset token
+      // onto the site's default home page — a page with no "set new password"
+      // form, so the user just sees the homepage. Runs before the app bundle:
+      // if a recovery token is present and we're not already on the login page,
+      // carry the token (in the URL fragment/query) to the V2 login screen,
+      // where the existing PASSWORD_RECOVERY handler shows the reset form.
+      (function () {
+        try {
+          var frag = (location.hash || '') + (location.search || '');
+          var isRecovery = frag.indexOf('type=recovery') !== -1;
+          var onLogin = location.pathname.indexOf('/login') !== -1;
+          if (isRecovery && !onLogin) {
+            location.replace('/space-rising-v2/login' + location.search + location.hash);
+          }
+        } catch (e) {}
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Syne:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
