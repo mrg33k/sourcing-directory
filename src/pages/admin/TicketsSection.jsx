@@ -16,8 +16,10 @@ const PRIORITIES = [
 // Item type — what kind of work this is. 'issue' = something broken to fix;
 // 'feature' = new scope to build. Drives the colored chip + the type filter.
 const TYPES = [
-  { key: 'issue',   label: 'Issue',   bg: 'rgba(239,68,68,0.1)',   border: 'rgba(239,68,68,0.4)',  text: '#FCA5A5' },
-  { key: 'feature', label: 'Feature', bg: 'rgba(139,92,246,0.14)', border: 'rgba(139,92,246,0.45)', text: '#C4B5FD' },
+  // Type is orthogonal to status/priority, so it must NOT share their red/yellow/green.
+  // issue = neutral slate (reads as taxonomy, not urgency); feature = violet.
+  { key: 'issue',   label: 'Issue',   bg: 'rgba(100,116,139,0.12)', border: 'rgba(100,116,139,0.4)', text: '#CBD5E1' },
+  { key: 'feature', label: 'Feature', bg: 'rgba(139,92,246,0.14)',  border: 'rgba(139,92,246,0.45)', text: '#C4B5FD' },
 ];
 
 const statusMeta = (s) => STATUSES.find(x => x.key === s) || STATUSES[0];
