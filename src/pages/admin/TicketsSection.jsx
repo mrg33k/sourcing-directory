@@ -13,9 +13,16 @@ const PRIORITIES = [
   { key: 'medium', label: 'Medium', color: '#FDE68A' },
   { key: 'low',    label: 'Low',    color: '#93C5FD' },
 ];
+// Item type — what kind of work this is. 'issue' = something broken to fix;
+// 'feature' = new scope to build. Drives the colored chip + the type filter.
+const TYPES = [
+  { key: 'issue',   label: 'Issue',   bg: 'rgba(239,68,68,0.1)',   border: 'rgba(239,68,68,0.4)',  text: '#FCA5A5' },
+  { key: 'feature', label: 'Feature', bg: 'rgba(139,92,246,0.14)', border: 'rgba(139,92,246,0.45)', text: '#C4B5FD' },
+];
 
 const statusMeta = (s) => STATUSES.find(x => x.key === s) || STATUSES[0];
 const priorityMeta = (p) => PRIORITIES.find(x => x.key === p) || PRIORITIES[1];
+const typeMeta = (t) => TYPES.find(x => x.key === t) || TYPES[0];
 
 const formatDate = (value) => {
   if (!value) return '—';
@@ -30,6 +37,7 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
   const [busy, setBusy] = useState(null);
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [typeFilter, setTypeFilter] = useState('all');
 
   // Expandable notes thread per ticket
   const [expandedId, setExpandedId] = useState(null);
@@ -39,7 +47,7 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
 
   // New-ticket form
   const [showForm, setShowForm] = useState(false);
-  const [draft, setDraft] = useState({ title: '', description: '', priority: 'medium', assigned_to: '', area: '', link: '' });
+  const [draft, setDraft] = useState({ title: '', description: '', type: 'issue', priority: 'medium', assigned_to: '', area: '', link: '' });
   const [saving, setSaving] = useState(false);
   const [formErr, setFormErr] = useState('');
 
@@ -65,6 +73,7 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
         tenant_id: selectedTenantId || null,
         title,
         description: draft.description.trim() || null,
+        type: draft.type,
         priority: draft.priority,
         assigned_to: draft.assigned_to.trim() || null,
         area: draft.area.trim() || null,
@@ -74,7 +83,7 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
       }).select().single();
       if (error) throw error;
       logAudit(adminSupabase, { tenant_id: selectedTenantId, actor_email: currentUserEmail, action: 'ticket.create', entity_type: 'ticket', entity_id: data?.id, detail: { title } });
-      setDraft({ title: '', description: '', priority: 'medium', assigned_to: '', area: '', link: '' });
+      setDraft({ title: '', description: '', type: 'issue', priority: 'medium', assigned_to: '', area: '', link: '' });
       setShowForm(false);
       await load();
     } catch (err) {
@@ -99,6 +108,15 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
     setBusy(ticket.id);
     try {
       await adminSupabase.from('admin_tickets').update({ priority, updated_by: currentUserEmail || null, updated_at: new Date().toISOString() }).eq('id', ticket.id);
+      await load();
+    } finally { setBusy(null); }
+  };
+
+  const setType = async (ticket, type) => {
+    if (!adminSupabase) return;
+    setBusy(ticket.id);
+    try {
+      await adminSupabase.from('admin_tickets').update({ type, updated_by: currentUserEmail || null, updated_at: new Date().toISOString() }).eq('id', ticket.id);
       await load();
     } finally { setBusy(null); }
   };
@@ -142,10 +160,11 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
     const ql = query.trim().toLowerCase();
     return tickets.filter(t => {
       if (statusFilter !== 'all' && t.status !== statusFilter) return false;
+      if (typeFilter !== 'all' && (t.type || 'issue') !== typeFilter) return false;
       if (!ql) return true;
       return [t.title, t.description, t.assigned_to, t.created_by, t.area].filter(Boolean).some(v => String(v).toLowerCase().includes(ql));
     });
-  }, [tickets, query, statusFilter]);
+  }, [tickets, query, statusFilter, typeFilter]);
 
   const counts = React.useMemo(() => {
     const c = { needs_fix: 0, in_review: 0, done: 0 };
@@ -179,6 +198,10 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
             <option value="all">All statuses</option>
             {STATUSES.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
           </select>
+          <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} style={{ ...inputStyle, width: 'auto' }}>
+            <option value="all">All types</option>
+            {TYPES.map(t => <option key={t.key} value={t.key}>{t.label}s</option>)}
+          </select>
           <button onClick={() => { setShowForm(v => !v); setFormErr(''); }} style={{
             background: V.accent, border: 'none', color: '#fff', borderRadius: 6,
             padding: '8px 14px', fontSize: 12, fontWeight: 700, fontFamily: V.space, cursor: 'pointer', whiteSpace: 'nowrap',
@@ -195,6 +218,12 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
             <div style={{ gridColumn: '1 / -1' }}>
               <label style={labelStyle}>Title</label>
               <input style={inputStyle} value={draft.title} onChange={e => setDraft(p => ({ ...p, title: e.target.value }))} placeholder="What needs fixing?" autoFocus />
+            </div>
+            <div>
+              <label style={labelStyle}>Type</label>
+              <select style={inputStyle} value={draft.type} onChange={e => setDraft(p => ({ ...p, type: e.target.value }))}>
+                {TYPES.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
+              </select>
             </div>
             <div>
               <label style={labelStyle}>Priority</label>
@@ -265,6 +294,9 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
                   </div>
                 </button>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 4, flexWrap: 'wrap' }}>
+                  {(() => { const tm = typeMeta(t.type || 'issue'); return (
+                    <span style={{ fontSize: 10, fontWeight: 700, fontFamily: V.mono, color: tm.text, background: tm.bg, border: `1px solid ${tm.border}`, borderRadius: 3, padding: '2px 6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{tm.label}</span>
+                  ); })()}
                   {t.area && <span style={{ fontSize: 10, fontWeight: 700, fontFamily: V.mono, color: V.dim, border: `1px solid ${V.border}`, borderRadius: 3, padding: '2px 6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t.area}</span>}
                   {t.link && <a href={t.link} target="_blank" rel="noreferrer" onClick={e => e.stopPropagation()} style={{ fontSize: 11, color: V.accent, fontFamily: V.mono, textDecoration: 'none' }}>open ↗</a>}
                   {t.description && (
@@ -308,6 +340,7 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
                     e.target.value = '';
                     if (!v) return;
                     if (v === 'delete') deleteTicket(t);
+                    else if (v.startsWith('type:')) setType(t, v.slice(5));
                     else setStatus(t, v);
                   }}
                   title="Ticket actions"
@@ -320,6 +353,9 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
                   <option value="" style={{ color: '#111' }}>Actions ▾</option>
                   {STATUSES.filter(s => s.key !== t.status).map(s => (
                     <option key={s.key} value={s.key} style={{ color: '#111' }}>Move to {s.label}</option>
+                  ))}
+                  {TYPES.filter(ty => ty.key !== (t.type || 'issue')).map(ty => (
+                    <option key={ty.key} value={`type:${ty.key}`} style={{ color: '#111' }}>Mark as {ty.label}</option>
                   ))}
                   <option value="delete" style={{ color: '#111' }}>Delete ticket</option>
                 </select>
