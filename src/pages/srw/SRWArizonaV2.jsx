@@ -1,17 +1,18 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import SRWNavV2 from './SRWNavV2.jsx';
 import SRWFooterV2 from './SRWFooterV2.jsx';
 import SRWArizonaStatsV2 from './SRWArizonaStatsV2.jsx';
 import useSRWTitle from './useSRWTitle.js';
 import './srw-v2.css';
 
-// R10b: dropped 4 self-pointing chips ('26 Agenda/Speakers/Scholars/Collective).
-// Add back when those sub-pages exist. The 3 real navigations remain.
+// 2026-06-21 (Taryn): hero chips are the four Space Congress pages from the
+// original site. Removed the interim Photos/Media/Events chips. These point to
+// the existing spacerising.org pages, so they open as external links.
 const QUICK_LINKS = [
-  { label: "'26 Photos",     to: '/srw-v2/media' },
-  { label: 'Arizona Media',  to: '/srw-v2/media' },
-  { label: 'Arizona Events', to: '/srw-v2/events' },
+  { label: 'Agenda',     href: 'https://spacerising.org/agenda2026' },
+  { label: 'Speakers',   href: 'https://spacerising.org/26speakers' },
+  { label: 'Scholars',   href: 'https://spacerising.org/spacerisingstars' },
+  { label: 'Collective', href: 'https://spacerising.org/about-1' },
 ];
 
 export default function SRWArizonaV2() {
@@ -33,7 +34,7 @@ export default function SRWArizonaV2() {
           </p>
           <div className="srw-pg-chips">
             {QUICK_LINKS.map((q) => (
-              <Link key={q.label} to={q.to} className="srw-pg-chip">{q.label}</Link>
+              <a key={q.label} href={q.href} target="_blank" rel="noreferrer" className="srw-pg-chip">{q.label}</a>
             ))}
           </div>
         </div>

@@ -19,7 +19,7 @@ const LINKS = [
       { label: 'Arizona', to: '/srw-v2/arizona' },
     ],
   },
-  { label: 'Partnerships', to: '/srw-v2/partnerships' },
+  // Partnerships hidden 2026-06-21 (Taryn): no official partners yet.
   { label: 'About', to: '/srw-v2/about' },
 ];
 

@@ -151,7 +151,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/srw/space-congress" element={<Navigate to="/srw-v2/space-congress" replace />} />
           <Route path="/srw/arizona" element={<Navigate to="/srw-v2/arizona" replace />} />
           <Route path="/srw/about" element={<Navigate to="/srw-v2/about" replace />} />
-          <Route path="/srw/partnerships" element={<Navigate to="/srw-v2/partnerships" replace />} />
+          <Route path="/srw/partnerships" element={<Navigate to="/" replace />} />
           <Route path="/srw/events" element={<Navigate to="/srw-v2/events" replace />} />
           <Route path="/srw/media" element={<Navigate to="/srw-v2/media" replace />} />
           <Route path="/srw/sign-up" element={<Navigate to="/srw-v2/sign-up" replace />} />
@@ -163,7 +163,8 @@ createRoot(document.getElementById('root')).render(
           <Route path="/srw-v2/spaceos" element={<SRWSpaceOSV2 />} />
           <Route path="/srw-v2/arizona" element={<SRWArizonaV2 />} />
           <Route path="/srw-v2/space-congress" element={<SRWSpaceCongressV2 />} />
-          <Route path="/srw-v2/partnerships" element={<SRWPartnershipsV2 />} />
+          {/* Partnerships hidden 2026-06-21 (Taryn): no official partners yet. Redirect home. */}
+          <Route path="/srw-v2/partnerships" element={<Navigate to="/" replace />} />
           <Route path="/srw-v2/events" element={<SRWEventsV2 />} />
           <Route path="/srw-v2/media" element={<SRWMediaV2 />} />
           <Route path="/srw-v2/sign-up" element={<SRWSignUpV2 />} />

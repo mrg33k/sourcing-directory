@@ -4,12 +4,14 @@ import SRWFooterV2 from './SRWFooterV2.jsx';
 import useSRWTitle from './useSRWTitle.js';
 import './srw-v2.css';
 
+// 2026-06-21 (Taryn): Strategy = the Six Space Missions from the home page.
 const PILLARS = [
-  { name: 'Mission Forward Space Congress', desc: 'Convening method built to transform collective input into actionable strategy, supporting regional space economy development with national scalability.' },
-  { name: 'STEM + Jobs', desc: 'Prepare the next generation of space-ready talent through accelerators and workforce pathways.' },
-  { name: 'Partnered Innovation', desc: 'Accelerate technology transfer and collaboration across federal, state, and industry partners.' },
-  { name: 'Research Facilities', desc: 'Expand research laboratory infrastructure nationwide.' },
-  { name: 'Power Systems', desc: 'Drive advanced nuclear propulsion and emerging energy solutions to accelerate space innovation.' },
+  { name: 'Build Space',      desc: 'Infrastructure' },
+  { name: 'Move in Space',    desc: 'Mobility' },
+  { name: 'Live in Space',    desc: 'Life' },
+  { name: 'Prosper in Space', desc: 'Industry' },
+  { name: 'Operate in Space', desc: 'Intelligence' },
+  { name: 'Secure Space',     desc: 'Defense' },
 ];
 
 const TEAM = [
@@ -18,7 +20,6 @@ const TEAM = [
   { name: 'Tim Struck', title: 'Chief Brand Officer, Co-Founder', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/346ebcfa-f0ba-45de-ad84-d686053108be/Tim_Struck-3x5.jpg?format=750w' },
   { name: 'Angelica Sirotin', title: 'Chief Communications Officer', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/091acca6-f199-42ba-978e-6c5776cf1814/Angelica_Sirotin_Headshot_2026.jpg?format=750w' },
   { name: 'Joseph Valdez', title: 'Chief Strategy Officer', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/395b7154-417d-41f0-b7bc-34cd1dfe9563/1701816599744.jpeg?format=750w' },
-  { name: 'Robert S Katz', title: 'Strategic Advisor, CEO & Executive Director, World Innovation Network (WIN)', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/dfa45926-99d6-4c8e-8db9-93383577372c/Robert+S.+Katz+-+Photo+-+Profile+-+A+-+V1.png?format=750w' },
   { name: 'Patrik Matheson', title: 'Lead Systems & Media Architect', photo: 'https://images.squarespace-cdn.com/content/v1/68dd48ebe70058312aa9230b/743491ab-a7c1-4f32-b0f2-ba73a4bafd0d/1766092136378.jpeg?format=750w' },
 ];
 
@@ -62,11 +63,8 @@ export default function SRWAboutV2() {
           <div className="srw-pg-section-head">
             <div className="srw-pg-eyebrow">OUR VISION</div>
             <h2 className="srw-pg-section-title">
-              Become a spacefaring civilization guided by knowledge, cooperation, and stewardship<span className="srw-pg-period">.</span>
+              A future where every region can participate in and benefit from the global space economy<span className="srw-pg-period">.</span>
             </h2>
-            <p className="srw-pg-section-lede">
-              While empowering the next generation of leaders to carry that future forward. We serve as a connective layer for the evolving space economy — translating fragmented activity into coordinated ecosystem development.
-            </p>
           </div>
         </div>
       </section>
@@ -75,12 +73,12 @@ export default function SRWAboutV2() {
         <div className="srw-wrap">
           <div className="srw-pg-section-head">
             <div className="srw-pg-eyebrow">STRATEGY</div>
-            <h2 className="srw-pg-section-title">Mission forward<span className="srw-pg-period">.</span></h2>
+            <h2 className="srw-pg-section-title">Six space missions<span className="srw-pg-period">.</span></h2>
           </div>
           <div className="srw-pg-tile-grid">
             {PILLARS.map((p, i) => (
               <div className="srw-pg-tile" key={p.name}>
-                <div className="srw-pg-tile-num">PILLAR {String(i + 1).padStart(2, '0')}</div>
+                <div className="srw-pg-tile-num">MISSION {String(i + 1).padStart(2, '0')}</div>
                 <div className="srw-pg-tile-name">{p.name}</div>
                 <div className="srw-pg-tile-body">{p.desc}</div>
               </div>
@@ -93,7 +91,7 @@ export default function SRWAboutV2() {
         <div className="srw-wrap">
           <div className="srw-pg-section-head">
             <div className="srw-pg-eyebrow">LEADERSHIP</div>
-            <h2 className="srw-pg-section-title">The team building it<span className="srw-pg-period">.</span></h2>
+            <h2 className="srw-pg-section-title">Six Operators. One Mission<span className="srw-pg-period">.</span></h2>
           </div>
           <div className="srw-pg-team">
             {TEAM.map((m) => (
