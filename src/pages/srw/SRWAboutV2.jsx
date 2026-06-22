@@ -80,7 +80,12 @@ export default function SRWAboutV2() {
               <div className="srw-pg-tile" key={p.name}>
                 <div className="srw-pg-tile-num">MISSION {String(i + 1).padStart(2, '0')}</div>
                 <div className="srw-pg-tile-name">{p.name}</div>
-                <div className="srw-pg-tile-body">{p.desc}</div>
+                {/* Market word shown as a deliberate label (matches the home page framing),
+                    so it reads as the mission's market, not a thin sentence. */}
+                <div className="srw-pg-tile-body" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ width: 18, height: 1, background: '#E8A23A', flexShrink: 0 }} />
+                  <span style={{ textTransform: 'uppercase', letterSpacing: '0.14em', fontSize: 12, fontWeight: 700, color: '#E8A23A' }}>{p.desc}</span>
+                </div>
               </div>
             ))}
           </div>
