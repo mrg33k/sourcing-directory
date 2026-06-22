@@ -2289,6 +2289,10 @@
   background: var(--srw-bd);
   border: 1px solid var(--srw-bd);
 }
+/* cols-3: balanced 3+3 for the six-mission grid (avoids a 4+2 with an empty cell). */
+[data-srw="v2"] .srw-pg-tile-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 900px) { [data-srw="v2"] .srw-pg-tile-grid.cols-3 { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { [data-srw="v2"] .srw-pg-tile-grid.cols-3 { grid-template-columns: 1fr; } }
 [data-srw="v2"] .srw-pg-tile {
   background: var(--srw-bg);
   padding: 32px 28px;

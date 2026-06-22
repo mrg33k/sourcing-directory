@@ -75,7 +75,7 @@ export default function SRWAboutV2() {
             <div className="srw-pg-eyebrow">STRATEGY</div>
             <h2 className="srw-pg-section-title">Six space missions<span className="srw-pg-period">.</span></h2>
           </div>
-          <div className="srw-pg-tile-grid">
+          <div className="srw-pg-tile-grid cols-3">
             {PILLARS.map((p, i) => (
               <div className="srw-pg-tile" key={p.name}>
                 <div className="srw-pg-tile-num">MISSION {String(i + 1).padStart(2, '0')}</div>
