@@ -24,8 +24,9 @@ const FONT   = "'Space Grotesk', sans-serif";
 const MONO   = "'JetBrains Mono', monospace";
 
 const VERTICALS = [
-  { key: 'semiconductor', label: 'Semiconductor' },
-  { key: 'space',         label: 'Space & Aerospace' },
+  { key: 'semiconductor',  label: 'Semiconductor' },
+  { key: 'space',          label: 'Space & Aerospace' },
+  { key: 'space-medicine', label: 'Space Medicine & Life Sciences' },
 ];
 
 function Label({ children, required }) {
@@ -282,7 +283,7 @@ export default function SourcingArticlesPostV2() {
             Sign in to post an article<span style={{ color: AMBER }}>.</span>
           </div>
           <div style={{ fontSize: 15, color: MUTED, marginTop: 14, lineHeight: 1.6, fontFamily: FONT }}>
-            Publishing to the Space OS articles feed is open to the community — you just need an account. Sign in or create one to share insights, company news, or technical content, and it will appear here once reviewed.
+            Publishing to the Space OS articles feed is open to the community. You just need an account. Sign in or create one to share insights, company news, or technical content, and it will appear here once reviewed.
           </div>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginTop: 28 }}>
             <Link to="/spaceos/login" style={{
