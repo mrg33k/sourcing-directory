@@ -11,7 +11,7 @@ const STATUSES = [
 const PRIORITIES = [
   { key: 'high',   label: 'High',   color: '#FCA5A5' },
   { key: 'medium', label: 'Medium', color: '#FDE68A' },
-  { key: 'low',    label: 'Low',    color: '#93C5FD' },
+  { key: 'low',    label: 'Low',    color: '#7DD3FC' },
 ];
 // Item type — what kind of work this is. 'issue' = something broken to fix;
 // 'feature' = new scope to build. Drives the colored chip + the type filter.
