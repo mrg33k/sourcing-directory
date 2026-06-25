@@ -214,7 +214,7 @@ function SourcingArticlesV2Inner() {
                 ) : null}
                 <div className="co-name">{listing.title || 'Untitled article'}</div>
                 <div className="co-loc">
-                  {[company?.name, posted, listing.read_time_min && `${listing.read_time_min} min read`].filter(Boolean).join(' · ')}
+                  {[listing.author_name && `By ${listing.author_name}`, company?.name, posted, listing.read_time_min && `${listing.read_time_min} min read`].filter(Boolean).join(' · ')}
                 </div>
                 {tags.length > 0 && (
                   <div className="co-badges">

@@ -6,12 +6,20 @@
 // must have an account to contribute. The Shell offsets the fixed 155px nav so
 // the hero never renders underneath it.
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import snarkdown from 'snarkdown';
 import { supabase } from '../lib/supabase.js';
 import SRWNavV2 from './srw/SRWNavV2.jsx';
 import './srw/srw-v2.css';
 import { V2ChipNav } from './V2ChipNav.jsx';
+
+// ~200 words/min is the editorial standard for estimated read time.
+function estimateReadMinutes(text) {
+  const words = (text || '').trim().split(/\s+/).filter(Boolean).length;
+  if (!words) return 0;
+  return Math.max(1, Math.round(words / 200));
+}
 
 const BG     = '#06060A';
 const TEXT   = '#F5EED7';
@@ -150,6 +158,29 @@ function Shell({ children }) {
         input::placeholder, textarea::placeholder { color: ${DIM}; }
         select option { background: #111; color: ${TEXT}; }
         input[type="number"]::-webkit-inner-spin-button { filter: invert(0.4); }
+        .article-md-preview > *:first-child { margin-top: 0; }
+        .article-md-preview > *:last-child { margin-bottom: 0; }
+        .article-md-preview h1, .article-md-preview h2, .article-md-preview h3 {
+          font-family: ${FONT}; font-weight: 700; color: ${TEXT};
+          line-height: 1.25; margin: 1.4em 0 0.5em;
+        }
+        .article-md-preview h1 { font-size: 24px; }
+        .article-md-preview h2 { font-size: 19px; }
+        .article-md-preview h3 { font-size: 16px; }
+        .article-md-preview p { margin: 0 0 1em; }
+        .article-md-preview a { color: ${AMBER}; text-decoration: underline; }
+        .article-md-preview strong { color: ${TEXT}; font-weight: 700; }
+        .article-md-preview ul, .article-md-preview ol { margin: 0 0 1em; padding-left: 1.4em; }
+        .article-md-preview li { margin: 0.25em 0; }
+        .article-md-preview blockquote {
+          margin: 0 0 1em; padding: 4px 0 4px 16px;
+          border-left: 2px solid ${AMBER}; color: ${MUTED};
+        }
+        .article-md-preview code {
+          font-family: ${MONO}; font-size: 0.9em;
+          background: rgba(245,238,215,0.08); padding: 1px 5px; border-radius: 4px;
+        }
+        .article-md-preview img { max-width: 100%; border-radius: 8px; }
       `}</style>
       <SRWNavV2 />
       <div style={{ paddingTop: 'var(--srw-nav-h, 155px)' }}>
@@ -171,6 +202,11 @@ export default function SourcingArticlesPostV2() {
       if (!mounted) return;
       setSession(session);
       setAuthReady(true);
+      // Prefill the byline from the signed-in member's name so authorship is
+      // theirs by default (they can still edit it).
+      const name = session?.user?.user_metadata?.full_name
+        || session?.user?.user_metadata?.name || '';
+      if (name) setForm(prev => (prev.author_name ? prev : { ...prev, author_name: name }));
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, s) => {
       if (mounted) setSession(s);
@@ -183,8 +219,12 @@ export default function SourcingArticlesPostV2() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError]           = useState(null);
   const [done, setDone]             = useState(false);
+  const [bodyView, setBodyView]     = useState('write'); // 'write' | 'preview'
+  const [coverUploading, setCoverUploading] = useState(false);
+  const [coverDragging, setCoverDragging]   = useState(false);
 
   const [form, setForm] = useState({
+    author_name:      '',
     company_id:       '',
     vertical:         '',
     title:            '',
@@ -193,6 +233,9 @@ export default function SourcingArticlesPostV2() {
     cover_image_url:  '',
     read_time_min:    '',
   });
+
+  // Live, auto-calculated read time from the body (author can still override).
+  const autoReadMin = useMemo(() => estimateReadMinutes(form.body), [form.body]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -206,8 +249,36 @@ export default function SourcingArticlesPostV2() {
 
   const set = (key, val) => setForm(prev => ({ ...prev, [key]: val }));
 
+  // Upload a cover image via the serverless endpoint (service-role write to the
+  // public sourcing-reports bucket), then store the returned public URL.
+  const handleCoverUpload = async (file) => {
+    if (!file) return;
+    if (file.size > 8 * 1024 * 1024) { setError('Cover image must be under 8 MB.'); return; }
+    setError(null);
+    setCoverUploading(true);
+    try {
+      const { data: { session: live } } = await supabase.auth.getSession();
+      if (!live) { setError('Your session expired. Please sign in again.'); return; }
+      const fd = new FormData();
+      fd.append('file', file);
+      const resp = await fetch('/api/sourcing/upload-article-cover', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${live.access_token}` },
+        body: fd,
+      });
+      const json = await resp.json();
+      if (!resp.ok) throw new Error(json.error || 'Upload failed');
+      set('cover_image_url', json.coverUrl);
+    } catch (err) {
+      setError(err.message || 'Cover upload failed. You can paste an image URL instead.');
+    } finally {
+      setCoverUploading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!form.author_name.trim()) { setError('Author name is required.');             return; }
     if (!form.title.trim())    { setError('Title is required.');                     return; }
     if (!form.body.trim())     { setError('Article body is required.');               return; }
     if (!form.vertical)        { setError('Please select an industry vertical.');     return; }
@@ -230,22 +301,30 @@ export default function SourcingArticlesPostV2() {
         .filter(Boolean);
 
       const payload = {
+        author_name:      form.author_name.trim(),
         company_id:       form.company_id || null,
         title:            form.title.trim(),
         description:      form.excerpt.trim() || null,
         body:             form.body.trim(),
         excerpt:          form.excerpt.trim() || null,
         cover_image_url:  form.cover_image_url.trim() || null,
-        read_time_min:    form.read_time_min ? parseInt(form.read_time_min) : null,
+        read_time_min:    form.read_time_min ? parseInt(form.read_time_min) : (autoReadMin || null),
         tags:             tags.length > 0 ? tags : null,
         vertical:         form.vertical,
         category:         'article',
         status:           'pending',
       };
 
-      const { error: insertErr } = await supabase
+      let { error: insertErr } = await supabase
         .from('directory_listings')
         .insert(payload);
+
+      // Graceful fallback: if the author_name column has not been provisioned
+      // yet, drop it and resubmit so posting never breaks on schema drift.
+      if (insertErr && /author_name/i.test(insertErr.message || '')) {
+        const { author_name, ...rest } = payload;
+        ({ error: insertErr } = await supabase.from('directory_listings').insert(rest));
+      }
 
       if (insertErr) throw insertErr;
       setDone(true);
@@ -327,7 +406,8 @@ export default function SourcingArticlesPostV2() {
             <button
               onClick={() => {
                 setDone(false);
-                setForm({ company_id: '', vertical: '', title: '', excerpt: '', body: '', cover_image_url: '', read_time_min: '' });
+                setBodyView('write');
+                setForm(prev => ({ author_name: prev.author_name, company_id: '', vertical: '', title: '', excerpt: '', body: '', cover_image_url: '', read_time_min: '' }));
                 setTagsInput('');
               }}
               style={{
@@ -380,6 +460,16 @@ export default function SourcingArticlesPostV2() {
             {/* Attribution */}
             <div>
               <SectionHeader>Attribution</SectionHeader>
+              <div style={{ marginBottom: 20 }}>
+                <InputField
+                  label="Author Name"
+                  required
+                  hint="Your byline, shown on the published article."
+                  placeholder="e.g. Christine Rincon, MSN, RN, CCRN"
+                  value={form.author_name}
+                  onChange={e => set('author_name', e.target.value)}
+                />
+              </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
                   <Label>Author Company</Label>
@@ -441,47 +531,145 @@ export default function SourcingArticlesPostV2() {
                   rows={2}
                   style={{ minHeight: 70 }}
                 />
-                <TextareaField
-                  label="Article Body"
-                  required
-                  hint="Markdown is supported. Use blank lines to separate paragraphs."
-                  placeholder="Write your full article here…"
-                  value={form.body}
-                  onChange={e => set('body', e.target.value)}
-                  rows={18}
-                  style={{ minHeight: 340, fontFamily: MONO, fontSize: 13 }}
-                />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Label required>Article Body</Label>
+                    <div style={{ display: 'inline-flex', gap: 2, border: `1px solid ${BORDER}`, borderRadius: 6, padding: 2 }}>
+                      {['write', 'preview'].map(mode => (
+                        <button
+                          key={mode}
+                          type="button"
+                          onClick={() => setBodyView(mode)}
+                          style={{
+                            background: bodyView === mode ? AMBER : 'transparent',
+                            color: bodyView === mode ? '#06060A' : MUTED,
+                            border: 'none', borderRadius: 4, padding: '4px 14px',
+                            fontSize: 12, fontWeight: 600, fontFamily: FONT, cursor: 'pointer',
+                            textTransform: 'capitalize',
+                          }}
+                        >
+                          {mode}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <Hint>Markdown is supported. Use blank lines to separate paragraphs.</Hint>
+                  {bodyView === 'write' ? (
+                    <textarea
+                      value={form.body}
+                      onChange={e => set('body', e.target.value)}
+                      rows={18}
+                      placeholder="Write your full article here…"
+                      style={lineInputStyle({ resize: 'vertical', minHeight: 340, fontFamily: MONO, fontSize: 13 })}
+                      onFocus={e => { e.target.style.borderBottomColor = AMBER; }}
+                      onBlur={e  => { e.target.style.borderBottomColor = BORDER; }}
+                    />
+                  ) : (
+                    <div
+                      className="article-md-preview"
+                      style={{
+                        minHeight: 340, padding: '18px 20px', borderRadius: 8,
+                        border: `1px solid ${BORDER}`, background: CARD,
+                        fontSize: 15, lineHeight: 1.7, color: TEXT, fontFamily: FONT,
+                      }}
+                      dangerouslySetInnerHTML={{
+                        __html: form.body.trim()
+                          ? snarkdown(form.body)
+                          : `<span style="color:${DIM}">Nothing to preview yet. Switch to Write and start your article.</span>`,
+                      }}
+                    />
+                  )}
+                  <div style={{ fontSize: 11, color: DIM, fontFamily: MONO }}>
+                    {form.body.trim() ? form.body.trim().split(/\s+/).filter(Boolean).length : 0} words · about {autoReadMin || 0} min read
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Media & Metadata */}
             <div>
               <SectionHeader>Media &amp; Metadata</SectionHeader>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-                <InputField
-                  label="Cover Image URL"
-                  hint="Optional. Direct link to a cover image."
-                  placeholder="https://…"
-                  type="url"
-                  value={form.cover_image_url}
-                  onChange={e => set('cover_image_url', e.target.value)}
-                />
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+                <Label>Cover Image</Label>
+                <Hint>Optional. Drag an image in or upload a file. PNG, JPG, WEBP, or GIF, up to 8 MB.</Hint>
+                <div
+                  onDragOver={e => { e.preventDefault(); if (!coverDragging) setCoverDragging(true); }}
+                  onDragLeave={e => { e.preventDefault(); setCoverDragging(false); }}
+                  onDrop={e => {
+                    e.preventDefault();
+                    setCoverDragging(false);
+                    const f = e.dataTransfer?.files?.[0];
+                    if (f) handleCoverUpload(f);
+                  }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 16, marginTop: 6,
+                    padding: 12, marginLeft: -12, borderRadius: 10,
+                    border: `1px solid ${coverDragging ? AMBER : 'transparent'}`,
+                    background: coverDragging ? 'rgba(232,162,58,0.06)' : 'transparent',
+                    transition: 'background 120ms, border-color 120ms',
+                  }}
+                >
+                  {form.cover_image_url ? (
+                    <img
+                      src={form.cover_image_url}
+                      alt="Cover preview"
+                      style={{ width: 76, height: 76, borderRadius: 8, objectFit: 'cover', border: `1px solid ${BORDER}` }}
+                    />
+                  ) : (
+                    <div style={{
+                      width: 76, height: 76, borderRadius: 8,
+                      border: `1px dashed ${coverDragging ? AMBER : BORDER}`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      color: coverDragging ? AMBER : DIM,
+                    }}>
+                      <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-start' }}>
+                    <label style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 8,
+                      background: 'transparent', border: `1px solid ${AMBER}`, color: AMBER,
+                      borderRadius: 6, padding: '9px 18px', fontSize: 13, fontWeight: 600,
+                      fontFamily: FONT, cursor: coverUploading ? 'wait' : 'pointer', opacity: coverUploading ? 0.6 : 1,
+                    }}>
+                      {coverUploading ? 'Uploading…' : (form.cover_image_url ? 'Replace image' : 'Upload image')}
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp,image/gif"
+                        style={{ display: 'none' }}
+                        disabled={coverUploading}
+                        onChange={e => { handleCoverUpload(e.target.files?.[0]); e.target.value = ''; }}
+                      />
+                    </label>
+                    {form.cover_image_url && (
+                      <button
+                        type="button"
+                        onClick={() => set('cover_image_url', '')}
+                        style={{ background: 'none', border: 'none', color: MUTED, fontSize: 12, fontFamily: FONT, cursor: 'pointer', padding: 0 }}
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginTop: 20 }}>
                 <InputField
                   label="Read Time (minutes)"
-                  hint="Estimated read time."
-                  placeholder="5"
+                  hint={`Auto-set to ~${autoReadMin || 0} min from your article. Edit only to override.`}
+                  placeholder={String(autoReadMin || 5)}
                   type="number"
                   min="1"
                   max="120"
                   value={form.read_time_min}
                   onChange={e => set('read_time_min', e.target.value)}
                 />
-              </div>
-              <div style={{ marginTop: 20 }}>
                 <InputField
                   label="Tags"
-                  hint="Comma-separated. e.g. CHIPS Act, Workforce, TSMC"
-                  placeholder="Supply Chain, Semiconductor, Arizona"
+                  hint="Comma-separated. e.g. Space Medicine, Workforce"
+                  placeholder="Space Medicine, Clinical, Arizona"
                   value={tagsInput}
                   onChange={e => setTagsInput(e.target.value)}
                 />
