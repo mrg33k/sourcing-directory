@@ -5,7 +5,7 @@ import { logAudit } from './audit.js';
 // Status + priority vocab. Order of STATUSES drives the board column order.
 const STATUSES = [
   { key: 'needs_fix', label: 'Needs Fix', bg: 'rgba(239,68,68,0.1)',  border: 'rgba(239,68,68,0.4)',  text: '#FCA5A5' },
-  { key: 'in_review', label: 'In Review', bg: 'rgba(234,179,8,0.1)',  border: 'rgba(234,179,8,0.4)',  text: '#FDE68A' },
+  { key: 'in_review', label: 'Needs Review', bg: 'rgba(59,130,246,0.12)', border: 'rgba(59,130,246,0.45)', text: '#93C5FD' },
   { key: 'done',      label: 'Done',      bg: 'rgba(34,197,94,0.1)',  border: 'rgba(34,197,94,0.4)',  text: '#86EFAC' },
 ];
 const PRIORITIES = [
@@ -186,7 +186,7 @@ export default function TicketsSection({ V, adminSupabase, selectedTenantId, cur
 
   return (
     <AdminSection
-      title={`Tickets — ${counts.needs_fix} needs fix · ${counts.in_review} in review · ${counts.done} done`}
+      title={`Tickets — ${counts.needs_fix} needs fix · ${counts.in_review} needs review · ${counts.done} done`}
       V={V}
       action={
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
