@@ -1381,7 +1381,6 @@ function SourcingDirectoryInner() {
                 key={company.id}
                 company={company}
                 certs={certs[company.id] || []}
-                V={V}
                 tenantSlug={tenantSlug}
                 isFavorite={favorites.includes(company.slug)}
                 onToggleFavorite={toggleFavorite}
@@ -1391,21 +1390,25 @@ function SourcingDirectoryInner() {
           </div>
         )}
 
-        {!loading && supabase && filteredCompanies.length === 0 && (
-          <div className="empty-state">
-            <svg width="32" height="32" fill="none" stroke="var(--tx3)" strokeWidth="1.5" viewBox="0 0 24 24">
-              <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-            </svg>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--tx)' }}>
-              {showSaved ? 'No saved companies yet' : 'No companies found'}
-            </div>
-            <div style={{ fontSize: 13, color: 'var(--tx2)' }}>
-              {showSaved
-                ? 'Tap the heart on any listing to save it.'
-                : (query ? `No results for "${query}".` : 'No companies in this vertical yet.')}
-            </div>
+      {!loading && supabase && filteredCompanies.length === 0 && (
+        <div style={{
+          textAlign: 'center',
+          padding: '48px 32px',
+          background: 'white',
+          border: '1px solid #D7DEE2',
+          borderRadius: 8,
+        }}>
+          <div style={{ fontSize: 28, marginBottom: 12 }}>🔍</div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: '#010B13', marginBottom: 6, fontFamily: 'var(--v3-font-family-base)' }}>
+            {query ? 'No companies found' : 'No companies to display'}
           </div>
-        )}
+          <div style={{ fontSize: 14, color: '#6B7280', fontFamily: 'var(--v3-font-family-base)' }}>
+            {query
+              ? `No results for "${query}".`
+              : 'Try adjusting your filters or search terms.'}
+          </div>
+        </div>
+      )}
 
         {/* Reports / Resources section -- shown when tenant has reports */}
         {reports.length > 0 && (
@@ -1597,109 +1600,81 @@ function SourcingDirectoryInner() {
         Made by <a href="https://www.aom-inhouse.com" target="_blank" rel="noopener noreferrer" style={{ color: '#f44611', textDecoration: 'underline', textUnderlineOffset: '2px', fontWeight: 700 }}>AOM</a>
       </p>
 
-      {/* Welcome modal */}
+      {/* Membership join modal */}
       {showWelcome && (
         <>
           <div
             onClick={() => setShowWelcome(false)}
             style={{
-              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
-              zIndex: 300, animation: 'fadeIn 0.2s',
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)',
+              zIndex: 300, animation: 'fadeIn 200ms ease-out',
             }}
           />
           <div style={{
-            position: 'fixed', bottom: 'var(--nav-h, 72px)', left: '50%',
-            width: '100%', maxWidth: 480, zIndex: 301,
-            background: '#0E0E14', borderTop: '1px solid var(--bd2)',
-            borderRadius: '20px 20px 0 0', overflow: 'hidden',
-            transform: 'translate(-50%, 0)',
-            animation: 'slideUpCenter 0.35s cubic-bezier(0.16,1,0.3,1) both',
-            willChange: 'transform',
-            boxShadow: '0 -12px 32px rgba(0,0,0,0.45)',
+            position: 'fixed', top: '50%', left: '50%',
+            width: '100%', maxWidth: 420, zIndex: 301,
+            background: 'white',
+            border: '1px solid #D7DEE2',
+            borderRadius: 12, overflow: 'hidden',
+            transform: 'translate(-50%, -50%)',
+            animation: 'fadeIn 200ms ease-out',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
           }}>
             <style>{`
               @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-              @keyframes slideUpCenter {
-                from { transform: translate(-50%, 100%); }
-                to   { transform: translate(-50%, 0); }
-              }
             `}</style>
-            {/* polish-directory-2-join-cta — quieter editorial redesign.
-                Was: full-bleed bg image + glassy "Free and paid listings"
-                pill badge + 22px/900 "Join {tenant}" title + heavy orange
-                "Sign Up Free" button + dim "Maybe later" link. Heavy +
-                forced-upgrade feel.
-                Now: deep cool-ink ground with subtle bottom amber accent,
-                mono-caps "MEMBERSHIP" eyebrow + amber-period title in
-                Space Grotesk 300, line-style copy, line-style amber
-                Sign-up CTA, mono-caps "Maybe later" with chevron right. */}
-            {/* Editorial header strip — quieter than the previous bg image */}
-            <div style={{
-              height: 64, position: 'relative',
-              borderBottom: '1px solid rgba(232,228,218,0.08)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
+            <div style={{ padding: 32 }}>
               <div style={{
-                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                fontSize: 11, fontWeight: 600, letterSpacing: '0.22em',
-                color: '#EE7C25', textTransform: 'uppercase',
+                fontSize: 12, fontWeight: 700, fontFamily: 'var(--v3-font-family-base)',
+                letterSpacing: '0.08em', color: '#6B7280', textTransform: 'uppercase',
+                marginBottom: 16,
               }}>
                 Membership
               </div>
-            </div>
-            {/* Content */}
-            <div style={{ padding: '28px 28px max(env(safe-area-inset-bottom),28px)', textAlign: 'left' }}>
-              <div style={{
-                fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif",
-                fontSize: 28, fontWeight: 300, color: '#E8E4DA',
-                letterSpacing: '-0.01em', lineHeight: 1.12, marginBottom: 12,
+              <h3 style={{
+                fontSize: 28, fontWeight: 700, fontFamily: 'var(--v3-font-family-base)',
+                color: '#010B13', lineHeight: 1.2, marginBottom: 12,
               }}>
-                Join {tenant?.nav_label || tenant?.name || 'the directory'}<span style={{ color: '#EE7C25' }}>.</span>
-              </div>
-              <div style={{
-                fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif",
-                fontSize: 14, fontWeight: 300, lineHeight: 1.55,
-                color: 'rgba(232,228,218,0.62)', marginBottom: 28,
+                Claim your company
+              </h3>
+              <p style={{
+                fontSize: 15, fontFamily: 'var(--v3-font-family-base)',
+                color: '#6B7280', lineHeight: 1.6, marginBottom: 28,
               }}>
-                Get found by procurement teams, contractors, and partners in {tenant?.name || 'the directory'}.
-              </div>
+                Add your company to the directory and get found by procurement teams and contractors.
+              </p>
               <Link
-                to={tenantSlug ? `/${tenantSlug}/membership` : '/membership'}
+                to="/membership"
                 onClick={() => setShowWelcome(false)}
                 style={{
                   display: 'block', textDecoration: 'none', textAlign: 'center',
-                  padding: '14px 24px', marginBottom: 14,
-                  background: 'transparent', color: '#EE7C25',
-                  border: '1px solid #EE7C25',
-                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: 12, fontWeight: 600, letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  transition: 'background 0.2s, color 0.2s',
+                  padding: '12px 20px', marginBottom: 12,
+                  background: '#CE4421', color: 'white',
+                  border: 'none',
+                  borderRadius: 8,
+                  fontFamily: 'var(--v3-font-family-base)',
+                  fontSize: 14, fontWeight: 600,
+                  cursor: 'pointer',
+                  transition: 'background 150ms ease-out',
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#EE7C25';
-                  e.currentTarget.style.color = '#0B0B0D';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = '#EE7C25';
-                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = '#b83916'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = '#CE4421'; }}
               >
-                Sign up free →
+                Join Now
               </Link>
               <button
                 onClick={() => setShowWelcome(false)}
                 style={{
+                  width: '100%',
                   background: 'none', border: 'none',
-                  color: 'rgba(232,228,218,0.45)',
-                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: 11, fontWeight: 600, letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  cursor: 'pointer', padding: '10px 0', width: '100%',
-                  transition: 'color 0.2s',
+                  color: '#6B7280',
+                  fontFamily: 'var(--v3-font-family-base)',
+                  fontSize: 14, fontWeight: 500,
+                  cursor: 'pointer', padding: '12px 0',
+                  transition: 'color 150ms ease-out',
                 }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = 'rgba(232,228,218,0.85)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(232,228,218,0.45)'; }}
+                onMouseEnter={(e) => { e.currentTarget.style.color = '#010B13'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280'; }}
               >
                 Maybe later
               </button>
@@ -1713,9 +1688,5 @@ function SourcingDirectoryInner() {
 
 // ─── Main export ──────────────────────────────────────────────────────────────
 export default function SourcingDirectoryV2() {
-  return (
-    <SourcingThemeProvider>
-      <SourcingDirectoryInner />
-    </SourcingThemeProvider>
-  );
+  return <SourcingDirectoryInner />;
 }
