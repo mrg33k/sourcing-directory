@@ -1,5 +1,5 @@
 // SourcingReportsV2.jsx
-// Space OS v3 — Reports page (light design with designed navy covers)
+// Space OS v3 — Reports page (magazine pattern with feature hero + editorial grid)
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -9,11 +9,31 @@ import './osv3-reports.css';
 
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
+// Asset rotation array (deterministic per report ID)
+const ASSET_POOL = [
+  'blueprint-hero.png',
+  'earth.png',
+  'rocket-orbital.png',
+  'bg-opp-orbital-construction.png',
+  'bg-opp-lunar.png',
+  'bg-opp-energy.png',
+  'asteroid-close.png',
+  'bg-opp-stations.png',
+  'planet-red.png',
+  'rocket-ascent.png',
+];
+
 function formatPubDate(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
   if (Number.isNaN(d.getTime())) return '';
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function getImageForReport(report, index) {
+  // Deterministic mapping: use report ID hash or fallback to index
+  const hashCode = report.id ? report.id.toString().charCodeAt(0) : index;
+  return `/v2-assets/${ASSET_POOL[hashCode % ASSET_POOL.length]}`;
 }
 
 export default function SourcingReportsV2() {
@@ -58,28 +78,18 @@ export default function SourcingReportsV2() {
     });
   }, [reports, searchInput]);
 
+  // Split reports: feature (first) + grid (rest)
+  const featureReport = filtered.length > 0 ? filtered[0] : null;
+  const gridReports = filtered.length > 1 ? filtered.slice(1) : [];
+
   return (
     <div className="osv3-reports-page">
-      {/* Page Header */}
+      {/* Page Header: "Intelligence" + Subtitle */}
       <div className="osv3-reports-header">
         <div>
-          <h2 className="osv3-reports-title">Reports</h2>
-          <p className="osv3-reports-subtitle">Intelligence reports for the space economy.</p>
+          <h1 className="osv3-reports-page-title">Intelligence</h1>
+          <p className="osv3-reports-page-subtitle">Curated research, reports, and insights from the space ecosystem.</p>
         </div>
-      </div>
-
-      {/* Search Input */}
-      <div className="osv3-reports-search-container">
-        <input
-          type="text"
-          className="osv3-reports-search"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          placeholder="Search reports, categories, authors..."
-          aria-label="Search reports"
-          autoComplete="off"
-          spellCheck="false"
-        />
       </div>
 
       {/* No Supabase Error */}
@@ -89,64 +99,108 @@ export default function SourcingReportsV2() {
         </div>
       )}
 
-      {/* Loading Skeletons */}
+      {/* Loading State */}
       {loading && supabase && (
-        <div className="osv3-reports-grid">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} className="osv3-report-card osv3-report-card-skeleton">
-              <div className="osv3-report-card-cover-skeleton" />
-              <div className="osv3-report-card-content">
-                <div className="osv3-report-card-skeleton-line" />
-                <div className="osv3-report-card-skeleton-line-short" />
+        <>
+          {/* Feature Hero Skeleton */}
+          <div className="osv3-magazine-feature-skeleton" />
+          {/* Grid Skeletons */}
+          <div className="osv3-reports-grid">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="osv3-report-card osv3-report-card-skeleton">
+                <div className="osv3-report-card-image-skeleton" />
+                <div className="osv3-report-card-content">
+                  <div className="osv3-report-card-skeleton-line" />
+                  <div className="osv3-report-card-skeleton-line-short" />
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        </>
       )}
 
-      {/* Reports Grid */}
-      {!loading && (
+      {/* Content */}
+      {!loading && supabase && (
         <>
-          <div className="osv3-reports-grid">
-            {filtered.map((report) => {
-              const date = formatPubDate(report.published_at);
-              const isFree = report.access === 'free' || !report.access;
-              return (
-                <Link
-                  key={report.id}
-                  to={`/reports/${report.id}`}
-                  className="osv3-report-card"
-                  style={{ textDecoration: 'none', color: 'inherit' }}
+          {/* FEATURE HERO (Tier 1) */}
+          {featureReport && (
+            <Link
+              to={`/reports/${featureReport.id}`}
+              className="osv3-magazine-feature-card"
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <img
+                src={getImageForReport(featureReport, 0)}
+                alt={featureReport.title}
+                className="osv3-magazine-feature-image"
+                loading="eager"
+              />
+              <div className="osv3-magazine-feature-overlay" />
+              <div className="osv3-magazine-feature-content">
+                <div className="osv3-magazine-feature-kicker">{featureReport.category || 'Featured'}</div>
+                <h2 className="osv3-magazine-feature-headline">{featureReport.title}</h2>
+                <p className="osv3-magazine-feature-deck">{featureReport.description || ''}</p>
+                <button
+                  className="osv3-magazine-feature-button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                  }}
                 >
-                  {/* Navy Mini-Cover */}
-                  <div className="osv3-report-card-cover">
-                    <div className="osv3-report-card-cover-eyebrow">
-                      SPACE RISING / REPORT
-                    </div>
-                    <div className="osv3-report-card-cover-title">
-                      {report.title}
-                    </div>
-                  </div>
+                  {featureReport.access === 'members' ? 'Unlock with Membership' : 'View Report'} →
+                </button>
+              </div>
+            </Link>
+          )}
 
-                  {/* Card Content */}
-                  <div className="osv3-report-card-content">
-                    <h3 className="osv3-report-card-title">{report.title}</h3>
-                    <div className="osv3-report-card-meta">
-                      {[report.category, report.author, date].filter(Boolean).join(' · ')}
-                    </div>
-                    <div className="osv3-report-card-pills">
-                      {isFree && <span className="osv3-report-card-pill osv3-pill-free">Free</span>}
-                      {!isFree && <span className="osv3-report-card-pill osv3-pill-members">Members Only</span>}
-                      {report.file_url && <span className="osv3-report-card-pill osv3-pill-pdf">PDF</span>}
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+          {/* EDITORIAL GRID (Tier 2) */}
+          {gridReports.length > 0 && (
+            <>
+              <div className="osv3-magazine-section-header">
+                <div className="osv3-magazine-section-eyebrow">Latest Reports</div>
+                <Link to="#" className="osv3-magazine-section-link">See all →</Link>
+              </div>
+              <div className="osv3-reports-grid">
+                {gridReports.map((report, idx) => {
+                  const date = formatPubDate(report.published_at);
+                  const isFree = report.access === 'free' || !report.access;
+                  return (
+                    <Link
+                      key={report.id}
+                      to={`/reports/${report.id}`}
+                      className="osv3-report-card"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      {/* Card Image (3:2) */}
+                      <div className="osv3-report-card-image-wrapper">
+                        <img
+                          src={getImageForReport(report, idx + 1)}
+                          alt={report.title}
+                          className="osv3-report-card-image"
+                          loading="lazy"
+                        />
+                        {!isFree && (
+                          <div className="osv3-report-card-badge">Members Only</div>
+                        )}
+                      </div>
+
+                      {/* Card Content */}
+                      <div className="osv3-report-card-content">
+                        <div className="osv3-report-card-kicker">{report.category || 'Report'}</div>
+                        <h3 className="osv3-report-card-headline">{report.title}</h3>
+                        <p className="osv3-report-card-deck">{report.description || ''}</p>
+                        <div className="osv3-report-card-meta">
+                          {[report.author || 'Space Rising', date].filter(Boolean).join(' · ')}
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </>
+          )}
 
           {/* Empty State */}
-          {supabase && filtered.length === 0 && (
+          {filtered.length === 0 && (
             <div className="osv3-reports-empty">
               {searchInput ? `No reports match "${searchInput}"` : 'No reports published yet.'}
             </div>
