@@ -1,22 +1,13 @@
-// SourcingJobsV2.jsx
-// nat-geo-uplift R5a — Jobs page in the locked V2 list-pattern.
-// Mirrors /spaceos directory: same hero + chip row + live fuzzy
-// search + list-of-rows + sec-hdr CTA. The data is jobs, the shell is
-// the directory's. Proving the list pattern adapts cleanly.
+// SourcingJobsV2.jsx (v3 reskin)
+// Space OS v3 Jobs/Careers page — renders inside OSLayoutV3 shell
+// Replaces old dark hero + V2ChipNav with clean v3 header + list-item cards
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
 import useSRWTitle from './srw/useSRWTitle.js';
-import { V2ChipNav } from './V2ChipNav.jsx';
-// Loads the V2 theme + R5a hero-archetype rules. Required for /spaceos/*
-// routes to pick up the locked palette, type, and card grid.
-import '../space-rising-theme-v2.css';
 
-// V2 route is static (no :tenantSlug); we hardcode so data-tenant matches the
-// V2 theme CSS selectors and we filter against the space-rising tenant row.
-const TENANT_SLUG_V2 = 'space-rising-v2';
+// Space Rising tenant for filtering
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
 function formatSalary(min, max, jobType) {
@@ -40,15 +31,15 @@ function postedAgo(created_at) {
 }
 
 function SourcingJobsV2Inner() {
-  useSRWTitle('Space Jobs | Space OS');
-  const { dark } = useSourcingTheme();
-  const V = getTokens(dark);
+  useSRWTitle('Careers | Space OS');
+  const navigate = useNavigate();
 
   const [tenant, setTenant] = useState(null);
   const [listings, setListings] = useState([]);
   const [companies, setCompanies] = useState({});
   const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState('');
+  const [bookmarks, setBookmarks] = useState(new Set());
 
   // Load SR tenant row once (for tenant_id filter and hero subtitle)
   useEffect(() => {
@@ -135,217 +126,293 @@ function SourcingJobsV2Inner() {
     });
   }, [listings, companies, searchInput]);
 
-  const isSpaceRising = true; // V2 route is always space-rising
-
   return (
-    <div
-      data-tenant={TENANT_SLUG_V2}
-      style={{
-        minHeight: '100dvh',
-        background: 'var(--bg)',
-        color: 'var(--tx)',
-        position: 'relative',
-        fontFamily:
-          '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
-        ...(isSpaceRising && {
-          '--bg': 'transparent',
-          '--tx': '#E8E4DA',
-          '--tx2': 'rgba(232,228,218,0.60)',
-          '--tx3': 'rgba(232,228,218,0.25)',
-          '--s1': 'rgba(11,11,13,0.72)',
-          '--s2': 'rgba(11,11,13,0.82)',
-          '--s3': 'rgba(11,11,13,0.92)',
-          '--bd': 'rgba(232,228,218,0.10)',
-          '--bd2': 'rgba(232,228,218,0.16)',
-          '--cyan': '#E8A23A',
-          '--cyan-dim': 'rgba(232,162,58,0.10)',
-          '--cyan-brd': 'rgba(232,162,58,0.32)',
-        }),
-      }}
-    >
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }
-      `}</style>
-
-      {/* R5a hero archetype — same shell as /spaceos directory; only
-          the heading + --page-hero-bg change per page. */}
-      <div
-        className="browse-hero"
-        style={{ '--page-hero-bg': "url('/v2-assets/rocket-ascent.png')" }}
-      >
-        <div className="browse-hero-bg" />
-        <div className="browse-hero-overlay" />
-        <div className="browse-hero-content" style={{ position: 'relative' }}>
-          <div className="browse-hero-toprow">
-            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                <path d="M15 19l-7-7 7-7" />
-              </svg>
-              Back
-            </Link>
-            <img
-              src="/images/space-rising/logo-white.png"
-              alt="Space Rising"
-              className="tenant-hero-logo"
-            />
+    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        {/* Page Header */}
+        <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+          <div>
+            <h2 style={{
+              fontSize: 'var(--v3-h2-font-size)',
+              fontWeight: 'var(--v3-h2-font-weight)',
+              color: 'var(--v3-ink-primary)',
+              marginBottom: '8px',
+              lineHeight: 'var(--v3-h2-line-height)',
+            }}>
+              Careers
+            </h2>
+            <p style={{
+              fontSize: 'var(--v3-body-sm-font-size)',
+              color: 'var(--v3-muted)',
+              lineHeight: 'var(--v3-body-sm-line-height)',
+              maxWidth: '600px',
+            }}>
+              Discover opportunities across Arizona's space ecosystem. Explore roles at launch suppliers, defense contractors, and R&D firms.
+            </p>
           </div>
-          <div className="browse-title">Open Roles.</div>
-          <div className="browse-sub">
-            Hiring across Arizona&rsquo;s space industry. Launch suppliers, defense contractors,
-            and R&amp;D firms.
-          </div>
-        </div>
-      </div>
-
-      {/* Live fuzzy search */}
-      <div className="browse-search">
-        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-          <circle cx="11" cy="11" r="8" />
-          <path d="m21 21-4.35-4.35" />
-        </svg>
-        <input
-          type="text"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          placeholder="Search roles, companies, locations..."
-          aria-label="Search jobs"
-          autoComplete="off"
-          spellCheck="false"
-        />
-        {loading && <div className="spinner" />}
-      </div>
-
-      <V2ChipNav active="jobs" />
-
-      {/* Section header — count + Post CTA */}
-      <div className="sec-hdr">
-        <div className="sec-title">
-          {loading ? 'Loading...' : `${filteredListings.length} Open Role${filteredListings.length === 1 ? '' : 's'}.`}
-        </div>
-        <div className="sec-count">
           <Link
-            to="/spaceos/jobs/post"
+            to="/jobs/post"
             style={{
+              padding: '10px 16px',
+              backgroundColor: 'var(--v3-accent)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: 'var(--v3-body-sm-font-size)',
+              fontWeight: 'var(--v3-font-weight-semibold)',
+              cursor: 'pointer',
               textDecoration: 'none',
-              color: 'var(--cyan)',
-              fontSize: 12,
-              fontWeight: 600,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: 'background-color var(--v3-transition-fast)',
+              whiteSpace: 'nowrap',
             }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#b83916'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--v3-accent)'}
           >
-            + Post a Role
+            <span style={{ fontSize: '16px' }}>+</span> Post a Job
           </Link>
         </div>
-      </div>
 
-      {/* List */}
-      <div className="co-list">
+        {/* Search & Filter */}
+        <div style={{ marginBottom: '24px' }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            position: 'relative',
+          }}>
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ position: 'absolute', left: '12px', color: 'var(--v3-muted)' }}>
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
+            <input
+              type="text"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              placeholder="Search by title, company, or location..."
+              aria-label="Search jobs"
+              autoComplete="off"
+              spellCheck="false"
+              style={{
+                flex: 1,
+                maxWidth: '500px',
+                padding: '10px 16px 10px 40px',
+                border: '1px solid var(--v3-border)',
+                borderRadius: '6px',
+                fontSize: 'var(--v3-body-sm-font-size)',
+                fontFamily: 'var(--v3-font-family-base)',
+                color: 'var(--v3-ink-secondary)',
+                transition: 'border-color var(--v3-transition-fast)',
+                boxSizing: 'border-box',
+              }}
+              onFocus={(e) => e.currentTarget.style.borderColor = 'var(--v3-accent)'}
+              onBlur={(e) => e.currentTarget.style.borderColor = 'var(--v3-border)'}
+            />
+          </div>
+        </div>
+
+        {/* No Supabase Warning */}
         {!supabase && (
-          <div
-            style={{
-              padding: '24px 20px',
-              border: '1px solid rgba(232,162,58,0.32)',
-              background: 'rgba(232,162,58,0.10)',
-              borderRadius: 10,
-              color: '#E8A23A',
-              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-              fontSize: 13,
-              textAlign: 'center',
-            }}
-          >
+          <div style={{
+            padding: '16px',
+            border: '1px solid var(--v3-border)',
+            background: 'var(--v3-panel-bg)',
+            borderRadius: '8px',
+            color: 'var(--v3-muted)',
+            fontSize: 'var(--v3-body-sm-font-size)',
+            textAlign: 'center',
+            marginBottom: '24px',
+          }}>
             Supabase not configured — copy your env keys to .env.local
           </div>
         )}
 
-        {loading && supabase && (
-          <>
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div
-                key={i}
-                style={{
-                  height: 84,
-                  borderRadius: 10,
-                  background: 'rgba(18,20,28,0.40)',
-                  border: '1px solid rgba(232,228,218,0.05)',
-                  animation: 'pulse 1.5s ease-in-out infinite',
-                }}
-              />
-            ))}
-          </>
-        )}
+        {/* Job Listings */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+        }}>
+          {loading && supabase && (
+            <>
+              {[1, 2, 3, 4, 5].map((i) => (
+                <div
+                  key={i}
+                  style={{
+                    height: '84px',
+                    borderRadius: '6px',
+                    background: 'var(--v3-panel-bg)',
+                    border: '1px solid var(--v3-border)',
+                    animation: 'pulse 1.5s ease-in-out infinite',
+                  }}
+                />
+              ))}
+            </>
+          )}
 
-        {!loading &&
-          filteredListings.map((listing) => {
+          {!loading && filteredListings.length > 0 && filteredListings.map((listing) => {
             const company = companies[listing.company_id];
             const salary = formatSalary(listing.salary_min, listing.salary_max, listing.job_type);
             const ago = postedAgo(listing.created_at);
             const loc = listing.remote
               ? 'Remote'
               : listing.location || [company?.city, company?.state].filter(Boolean).join(', ');
+            const isBookmarked = bookmarks.has(listing.id);
+
             return (
-              <Link
+              <div
                 key={listing.id}
-                to={`/spaceos/jobs/${listing.id}`}
-                className="co-card"
-                style={{ textDecoration: 'none', color: 'inherit' }}
+                onClick={() => navigate(`/jobs/${listing.id}`)}
+                style={{
+                  padding: '16px',
+                  border: '1px solid var(--v3-border)',
+                  borderRadius: '6px',
+                  transition: 'all var(--v3-transition-fast)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  backgroundColor: 'white',
+                  position: 'relative',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--v3-accent)';
+                  e.currentTarget.style.backgroundColor = 'var(--v3-panel-bg)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'var(--v3-border)';
+                  e.currentTarget.style.backgroundColor = 'white';
+                }}
               >
-                <div className="co-body">
-                  {company?.slug ? (
-                    <img
-                      className="co-mono-logo"
-                      src={`/v2-assets/logos/${company.slug}-white.png`}
-                      alt=""
-                      aria-hidden="true"
-                      onError={(e) => {
-                        e.currentTarget.style.display = 'none';
-                      }}
-                    />
-                  ) : null}
-                  <div className="co-name">{listing.title || 'Untitled role'}</div>
-                  <div className="co-loc">
-                    {[company?.name, loc, ago].filter(Boolean).join(' · ')}
-                  </div>
-                  <div className="co-badges">
-                    {listing.job_type && (
-                      <span className="co-badge cert">{listing.job_type.replace('-', ' ')}</span>
-                    )}
-                    {listing.remote && <span className="co-badge cert">Remote</span>}
-                    {salary && <span className="co-badge feat">{salary}</span>}
-                  </div>
+                {/* Bookmark icon */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '16px',
+                    right: '16px',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    color: isBookmarked ? 'var(--v3-accent)' : 'var(--v3-muted)',
+                    transition: 'color var(--v3-transition-fast)',
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setBookmarks(prev => {
+                      const next = new Set(prev);
+                      if (next.has(listing.id)) next.delete(listing.id);
+                      else next.add(listing.id);
+                      return next;
+                    });
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--v3-accent)'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = isBookmarked ? 'var(--v3-accent)' : 'var(--v3-muted)'}
+                >
+                  {isBookmarked ? '★' : '☆'}
                 </div>
-                <div className="co-arrow">
-                  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                    <path d="M9 18l6-6-6-6" />
-                  </svg>
+
+                {/* Title */}
+                <div style={{
+                  fontSize: 'var(--v3-body-font-size)',
+                  fontWeight: 'var(--v3-font-weight-bold)',
+                  color: 'var(--v3-ink-primary)',
+                  paddingRight: '40px',
+                }}>
+                  {listing.title || 'Untitled role'}
                 </div>
-              </Link>
+
+                {/* Company + Location + Meta */}
+                <div style={{
+                  fontSize: 'var(--v3-body-sm-font-size)',
+                  fontWeight: 'var(--v3-font-weight-medium)',
+                  color: 'var(--v3-ink-secondary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  flexWrap: 'wrap',
+                }}>
+                  {company?.name && <span>{company.name}</span>}
+                  {loc && <span style={{ color: 'var(--v3-muted)' }}>•</span>}
+                  {loc && <span style={{ color: 'var(--v3-muted)' }}>{loc}</span>}
+                  {ago && <span style={{ color: 'var(--v3-muted)' }}>•</span>}
+                  {ago && <span style={{ color: 'var(--v3-muted)' }}>{ago}</span>}
+                </div>
+
+                {/* Badges: job_type + remote + salary */}
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  flexWrap: 'wrap',
+                  marginTop: '4px',
+                }}>
+                  {listing.job_type && (
+                    <span style={{
+                      display: 'inline-block',
+                      fontSize: '12px',
+                      fontWeight: 'var(--v3-font-weight-medium)',
+                      backgroundColor: 'var(--v3-panel-bg)',
+                      color: 'var(--v3-ink-secondary)',
+                      padding: '4px 10px',
+                      borderRadius: '4px',
+                      textTransform: 'capitalize',
+                    }}>
+                      {listing.job_type.replace('-', ' ')}
+                    </span>
+                  )}
+                  {listing.remote && (
+                    <span style={{
+                      display: 'inline-block',
+                      fontSize: '12px',
+                      fontWeight: 'var(--v3-font-weight-medium)',
+                      backgroundColor: 'var(--v3-panel-bg)',
+                      color: 'var(--v3-ink-secondary)',
+                      padding: '4px 10px',
+                      borderRadius: '4px',
+                    }}>
+                      Remote
+                    </span>
+                  )}
+                  {salary && (
+                    <span style={{
+                      display: 'inline-block',
+                      fontSize: '12px',
+                      fontWeight: 'var(--v3-font-weight-semibold)',
+                      color: 'var(--v3-accent)',
+                    }}>
+                      {salary}
+                    </span>
+                  )}
+                </div>
+              </div>
             );
           })}
 
-        {!loading && supabase && filteredListings.length === 0 && (
-          <div
-            style={{
+          {/* Empty State */}
+          {!loading && supabase && filteredListings.length === 0 && (
+            <div style={{
               padding: '48px 24px',
               textAlign: 'center',
-              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-              color: 'rgba(232,228,218,0.55)',
-              fontSize: 13,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-            }}
-          >
-            {searchInput ? `No roles match "${searchInput}"` : 'No roles posted yet.'}
-          </div>
-        )}
+              color: 'var(--v3-muted)',
+              fontSize: 'var(--v3-body-font-size)',
+            }}>
+              {searchInput ? `No roles match "${searchInput}"` : 'No open positions yet. Check back soon!'}
+            </div>
+          )}
+        </div>
+
+        {/* Inline animation styles */}
+        <style>{`
+          @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.7; }
+          }
+        `}</style>
       </div>
     </div>
   );
 }
 
 export default function SourcingJobsV2() {
-  return (
-    <SourcingThemeProvider>
-      <SourcingJobsV2Inner />
-    </SourcingThemeProvider>
-  );
+  return <SourcingJobsV2Inner />;
 }
