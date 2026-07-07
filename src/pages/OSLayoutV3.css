@@ -173,6 +173,18 @@
   flex-shrink: 0;
 }
 
+/* Guest avatar — neutral, legible (was rust bg + gray icon = no contrast) */
+.osv3-avatar.osv3-avatar-guest,
+.osv3-topbar-avatar.osv3-avatar-guest {
+  background: #E7EAEE;
+  color: #64748B;
+}
+.osv3-avatar-guest svg {
+  color: #64748B;
+  width: 60%;
+  height: 60%;
+}
+
 .osv3-user-name {
   flex: 1;
   font-size: 13px;

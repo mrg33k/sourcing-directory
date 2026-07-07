@@ -219,67 +219,73 @@ const SpaceOSHomeV3 = () => {
           </div>
         </section>
 
-        {/* Featured Report */}
-        {featuredReport && (
-          <section className="osv3-featured-section">
-            <h2 className="osv3-section-heading">Featured Report</h2>
-            <div className="osv3-featured-report-card">
-              <div
-                className="osv3-featured-report-image"
-                style={featuredReport.cover ? {
-                  backgroundImage: `url(${featuredReport.cover})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                } : undefined}
-              ></div>
-              <div className="osv3-featured-report-content">
-                <div className="osv3-featured-report-eyebrow">{featuredReport.eyebrow || featuredReport.category}</div>
-                <h3 className="osv3-featured-report-title">{featuredReport.title}</h3>
-                <p className="osv3-featured-report-desc">
-                  {featuredReport.description || 'Insights and research on Arizona\'s space economy.'}
-                </p>
-                <button
-                  className="osv3-featured-report-btn"
+        {/* Featured Report (compact, left) + Latest Reports (right) — one row, per reference */}
+        {(featuredReport || latestReports.length > 0) && (
+          <section className="osv3-reports-section">
+            {featuredReport && (
+              <div className="osv3-featured-col">
+                <h2 className="osv3-section-heading">Featured Report</h2>
+                <div
+                  className="osv3-featured-report-card"
                   onClick={() => {
-                    // Paid product: send everyone to the paywall. Member-only PDF
-                    // delivery is wired separately once the file lives in a private bucket.
                     if (featuredReport.membersOnly) { navigate('/membership'); return }
                     if (featuredReport.file_url) { window.open(featuredReport.file_url, '_blank') }
                   }}
+                  style={featuredReport.cover ? {
+                    backgroundImage: `linear-gradient(180deg, rgba(1,11,19,0.15) 0%, rgba(1,11,19,0.72) 55%, rgba(1,11,19,0.94) 100%), url(${featuredReport.cover})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                  } : undefined}
                 >
-                  {featuredReport.membersOnly ? (
-                    <>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8, verticalAlign: '-2px' }}>
-                        <rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
-                      </svg>
-                      Unlock with Membership
-                    </>
-                  ) : 'View Report'}
-                </button>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Latest Reports */}
-        {latestReports.length > 0 && (
-          <section className="osv3-latest-reports-container">
-            <h2 className="osv3-section-heading">Latest Reports</h2>
-            <div className="osv3-reports-scroll">
-              {latestReports.map((report) => (
-                <div key={report.id} className="osv3-report-card">
-                  <div className="osv3-report-image">
-                    <div className="osv3-report-image-eyebrow">SPACE RISING / REPORT</div>
-                  </div>
-                  <div className="osv3-report-card-body">
-                    <div className="osv3-report-card-title">{report.title}</div>
-                    <div className="osv3-report-card-meta">
-                      {report.published_at ? new Date(report.published_at).toLocaleDateString() : 'recently'}
-                    </div>
+                  <div className="osv3-featured-report-content">
+                    <div className="osv3-featured-report-eyebrow">{featuredReport.eyebrow || featuredReport.category}</div>
+                    <h3 className="osv3-featured-report-title">{featuredReport.title}</h3>
+                    <p className="osv3-featured-report-desc">
+                      {featuredReport.description || 'Insights and research on Arizona\'s space economy.'}
+                    </p>
+                    <button className="osv3-featured-report-btn" type="button">
+                      {featuredReport.membersOnly ? (
+                        <>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8, verticalAlign: '-2px' }}>
+                            <rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                          </svg>
+                          Unlock with Membership
+                        </>
+                      ) : 'View Report'}
+                    </button>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
+
+            {latestReports.length > 0 && (
+              <div className="osv3-latest-col">
+                <div className="osv3-section-heading-row">
+                  <h2 className="osv3-section-heading">Latest Reports</h2>
+                  <a className="osv3-column-header-action" href="/reports">View all</a>
+                </div>
+                <div className="osv3-reports-scroll">
+                  {latestReports.map((report) => (
+                    <a
+                      key={report.id}
+                      href={report.id ? `/reports/${report.id}` : '/reports'}
+                      className="osv3-report-card"
+                    >
+                      <div className="osv3-report-image">
+                        <div className="osv3-report-image-eyebrow">SPACE RISING / REPORT</div>
+                        <div className="osv3-report-image-title">{report.title}</div>
+                      </div>
+                      <div className="osv3-report-card-body">
+                        <div className="osv3-report-card-meta">
+                          {report.published_at ? new Date(report.published_at).toLocaleDateString() : 'Recent'}
+                        </div>
+                        <svg className="osv3-report-bookmark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4h12a1 1 0 0 1 1 1v15l-7-4-7 4V5a1 1 0 0 1 1-1z"/></svg>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           </section>
         )}
 
