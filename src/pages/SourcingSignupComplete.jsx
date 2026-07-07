@@ -167,18 +167,8 @@ export default function SourcingSignupComplete() {
   );
 
   return (
-    <div className="osv3 osv3-shell">
-      <div className="osv3-sidebar">
-        <div className="osv3-sidebar-logo">Space OS</div>
-      </div>
-      <div className="osv3-main-container">
-        <div className="osv3-topbar">
-          <div className="osv3-search-container"></div>
-        </div>
-        <div className="osv3-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
-          {cardContent}
-        </div>
-      </div>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
+      {cardContent}
     </div>
   );
 }
