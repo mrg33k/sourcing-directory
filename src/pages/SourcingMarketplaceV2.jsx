@@ -1,5 +1,5 @@
 // SourcingMarketplaceV2.jsx
-// Space OS v3 — Marketplace page (reskinned from V2 dark list pattern).
+// Space OS v3 — Marketplace page (magazine pattern with feature hero + editorial grid)
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -9,6 +9,20 @@ import './osv3-marketplace.css';
 
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 const CATEGORIES = ['equipment', 'services', 'products'];
+
+// Asset rotation array (deterministic per listing ID)
+const ASSET_POOL = [
+  'blueprint-hero.png',
+  'earth.png',
+  'rocket-orbital.png',
+  'bg-opp-orbital-construction.png',
+  'bg-opp-lunar.png',
+  'bg-opp-energy.png',
+  'asteroid-close.png',
+  'bg-opp-stations.png',
+  'planet-red.png',
+  'rocket-ascent.png',
+];
 
 function formatPrice(price) {
   if (!price) return null;
@@ -23,6 +37,15 @@ function formatPosted(dateStr) {
   if (days < 7) return `${days}d`;
   if (days < 30) return `${Math.floor(days / 7)}w`;
   return `${Math.floor(days / 30)}mo`;
+}
+
+function getImageForListing(listing, index) {
+  // Deterministic + diverse: hash the full id string (+ index) so cards don't
+  // repeat the same photo. charCodeAt(0) alone collided across most listings.
+  const s = (listing.id ? String(listing.id) : '') + ':' + index;
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return `/v2-assets/${ASSET_POOL[h % ASSET_POOL.length]}`;
 }
 
 function getCategoryIcon(category) {
@@ -116,106 +139,161 @@ function SourcingMarketplaceV2Inner() {
     });
   }, [listings, companies, searchInput]);
 
+  // Split listings: feature (first) + grid (rest)
+  const featureListing = filtered.length > 0 ? filtered[0] : null;
+  const gridListings = filtered.length > 1 ? filtered.slice(1) : [];
+
   return (
-    <div className="osv3-marketplace">
-      {/* Page Header */}
-      <div className="osv3-page-header">
-        <div className="osv3-header-content">
-          <div className="osv3-header-title-block">
-            <h2 className="osv3-page-title">Marketplace</h2>
-            <p className="osv3-page-subtitle">Equipment, services, and products across the ecosystem.</p>
-          </div>
-          <Link to="/marketplace/post" className="osv3-primary-btn">
-            Post a Listing
-          </Link>
+    <div className="osv3-marketplace-page">
+      {/* Page Header: "Marketplace" + Subtitle */}
+      <div className="osv3-marketplace-header">
+        <div>
+          <h1 className="osv3-marketplace-page-title">Marketplace</h1>
+          <p className="osv3-marketplace-page-subtitle">Equipment, services, and products across the space ecosystem.</p>
         </div>
       </div>
+
+      {/* No Supabase Error */}
+      {!supabase && (
+        <div className="osv3-marketplace-error">
+          Supabase not configured
+        </div>
+      )}
 
       {/* Category Filters */}
-      <div className="osv3-marketplace-filters">
-        <div className="osv3-filter-pills">
-          {CATEGORIES.map((category) => (
-            <button
-              key={category}
-              className={`osv3-filter-pill ${selectedCategory === category ? 'active' : ''}`}
-              onClick={() => {
-                setSelectedCategory(category);
-                setSearchInput('');
-              }}
-              aria-pressed={selectedCategory === category}
-            >
-              <span className="osv3-filter-icon">{getCategoryIcon(category)}</span>
-              <span className="osv3-filter-label">
-                {category.charAt(0).toUpperCase() + category.slice(1)}
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Listings Grid */}
-      <div className="osv3-marketplace-grid">
-        {!supabase && (
-          <div className="osv3-empty-state">
-            Supabase not configured
-          </div>
-        )}
-
-        {loading && supabase && (
-          <>
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="osv3-card-skeleton" />
+      {supabase && (
+        <div className="osv3-marketplace-filters">
+          <div className="osv3-filter-pills">
+            {CATEGORIES.map((category) => (
+              <button
+                key={category}
+                className={`osv3-filter-pill ${selectedCategory === category ? 'active' : ''}`}
+                onClick={() => {
+                  setSelectedCategory(category);
+                  setSearchInput('');
+                }}
+                aria-pressed={selectedCategory === category}
+              >
+                <span className="osv3-filter-icon">{getCategoryIcon(category)}</span>
+                <span className="osv3-filter-label">
+                  {category.charAt(0).toUpperCase() + category.slice(1)}
+                </span>
+              </button>
             ))}
-          </>
-        )}
+          </div>
+          <Link to="/marketplace/post" className="osv3-primary-btn">
+            Post a Listing →
+          </Link>
+        </div>
+      )}
 
-        {!loading && supabase && filtered.length > 0 && filtered.map((listing) => {
-          const company = companies[listing.company_id];
-          const price = formatPrice(listing.price);
-          return (
-            <Link
-              key={listing.id}
-              to={`/marketplace/${listing.id}`}
-              className="osv3-listing-card"
-            >
-              <div className="osv3-card-image-wrapper">
-                {company?.slug ? (
-                  <img
-                    src={`/v2-assets/logos/${company.slug}-white.png`}
-                    alt=""
-                    aria-hidden="true"
-                    className="osv3-card-logo"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                  />
-                ) : (
-                  <div className="osv3-card-icon-placeholder">
-                    {getCategoryIcon(selectedCategory)}
-                  </div>
-                )}
+      {/* Loading State */}
+      {loading && supabase && (
+        <>
+          {/* Feature Hero Skeleton */}
+          <div className="osv3-magazine-feature-skeleton" />
+          {/* Grid Skeletons */}
+          <div className="osv3-marketplace-grid">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="osv3-listing-card osv3-listing-card-skeleton">
+                <div className="osv3-listing-card-image-skeleton" />
+                <div className="osv3-listing-card-content">
+                  <div className="osv3-listing-card-skeleton-line" />
+                  <div className="osv3-listing-card-skeleton-line-short" />
+                </div>
               </div>
-              <div className="osv3-card-content">
-                <h3 className="osv3-card-title">{listing.title}</h3>
-                <div className="osv3-card-meta">
-                  {company?.name && <span>{company.name}</span>}
-                  {listing.condition && <span>{listing.condition}</span>}
-                </div>
-                {price && <div className="osv3-card-price">{price}</div>}
-                <div className="osv3-card-footer">
-                  <span className="osv3-card-category-pill">
-                    {selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}
-                  </span>
-                </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Content */}
+      {!loading && supabase && (
+        <>
+          {/* FEATURE HERO (Tier 1) */}
+          {featureListing && (
+            <Link
+              to={`/marketplace/${featureListing.id}`}
+              className="osv3-magazine-feature-card"
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <img
+                src={getImageForListing(featureListing, 0)}
+                alt={featureListing.title}
+                className="osv3-magazine-feature-image"
+                loading="eager"
+              />
+              <div className="osv3-magazine-feature-overlay" />
+              <div className="osv3-magazine-feature-content">
+                <div className="osv3-magazine-feature-kicker">{selectedCategory}</div>
+                <h2 className="osv3-magazine-feature-headline">{featureListing.title}</h2>
+                <p className="osv3-magazine-feature-deck">
+                  {companies[featureListing.company_id]?.name || 'Seller'} · {formatPrice(featureListing.price) || 'Price TBD'} · {featureListing.condition || 'Condition TBD'}
+                </p>
+                <button
+                  className="osv3-magazine-feature-button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                  }}
+                >
+                  View Listing →
+                </button>
               </div>
             </Link>
-          );
-        })}
+          )}
 
-        {!loading && supabase && filtered.length === 0 && (
-          <div className="osv3-empty-state">
-            {searchInput ? `No listings match "${searchInput}"` : 'No listings posted yet.'}
-          </div>
-        )}
-      </div>
+          {/* EDITORIAL GRID (Tier 2) */}
+          {gridListings.length > 0 && (
+            <>
+              <div className="osv3-magazine-section-header">
+                <div className="osv3-magazine-section-eyebrow">Available Listings</div>
+                <Link to="#" className="osv3-magazine-section-link">See all →</Link>
+              </div>
+              <div className="osv3-marketplace-grid">
+                {gridListings.map((listing, idx) => {
+                  const company = companies[listing.company_id];
+                  const price = formatPrice(listing.price);
+                  return (
+                    <Link
+                      key={listing.id}
+                      to={`/marketplace/${listing.id}`}
+                      className="osv3-listing-card"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      {/* Card Image (3:2) */}
+                      <div className="osv3-listing-card-image-wrapper">
+                        <img
+                          src={getImageForListing(listing, idx + 1)}
+                          alt={listing.title}
+                          className="osv3-listing-card-image"
+                          loading="lazy"
+                        />
+                      </div>
+
+                      {/* Card Content */}
+                      <div className="osv3-listing-card-content">
+                        <div className="osv3-listing-card-kicker">{selectedCategory}</div>
+                        <h3 className="osv3-listing-card-headline">{listing.title}</h3>
+                        <p className="osv3-listing-card-deck">{listing.condition || 'Condition TBD'}</p>
+                        <div className="osv3-listing-card-meta">
+                          {[company?.name || 'Seller', price].filter(Boolean).join(' · ')}
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+            </>
+          )}
+
+          {/* Empty State */}
+          {filtered.length === 0 && (
+            <div className="osv3-marketplace-empty">
+              {searchInput ? `No listings match "${searchInput}"` : 'No listings posted yet.'}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
