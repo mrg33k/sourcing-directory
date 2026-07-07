@@ -474,7 +474,7 @@ export default function SourcingPortalV2() {
     if (dealBankEditing) {
       return (
         <div style={{
-          background: 'white', border: `1px solid ${'var(--v3-accent)'Brd}`,
+          background: 'white', border: `1px solid ${'rgba(206,68,33,0.25)'}`,
           borderRadius: 12, padding: '24px 20px', marginBottom: 32,
         }}>
           <div style={{
@@ -501,7 +501,7 @@ export default function SourcingPortalV2() {
                 onChange={(e) => setDealBankEditForm(f => ({ ...f, exec_summary: e.target.value }))}
                 placeholder="Brief overview of your business, market, and why you're raising."
                 style={{
-                  background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                  background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                   color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                   fontSize: 13, fontFamily: 'Roboto, sans-serif', width: '100%',
                   minHeight: 80, resize: 'vertical',
@@ -522,7 +522,7 @@ export default function SourcingPortalV2() {
                   placeholder="e.g. 5"
                   step="0.1"
                   style={{
-                    background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                    background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                     color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                     fontSize: 13, fontFamily: 'Roboto, sans-serif', width: '100%',
                   }}
@@ -536,7 +536,7 @@ export default function SourcingPortalV2() {
                   value={dealBankEditForm.round_stage}
                   onChange={(e) => setDealBankEditForm(f => ({ ...f, round_stage: e.target.value }))}
                   style={{
-                    background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                    background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                     color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                     fontSize: 13, fontFamily: 'Roboto, sans-serif', width: '100%',
                   }}
@@ -568,7 +568,7 @@ export default function SourcingPortalV2() {
                     placeholder="0"
                     step="0.1"
                     style={{
-                      background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                      background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                       color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                       fontSize: 13, fontFamily: 'Roboto, sans-serif', width: '100%',
                     }}
@@ -586,7 +586,7 @@ export default function SourcingPortalV2() {
               {/* File upload or current deck display */}
               {dealBankDeckFile ? (
                 <div style={{
-                  background: 'white'2, border: `1px solid ${'var(--v3-accent)'Brd}`,
+                  background: 'white', border: `1px solid ${'rgba(206,68,33,0.25)'}`,
                   color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                   fontSize: 13, fontFamily: 'Roboto, sans-serif', width: '100%',
                 }}>
@@ -608,7 +608,7 @@ export default function SourcingPortalV2() {
                 <>
                   {dealBankEditForm.deck_url && (
                     <div style={{
-                      background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                      background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                       color: 'var(--v3-muted)', borderRadius: 7, padding: '10px 12px',
                       fontSize: 12, fontFamily: 'Roboto, sans-serif', width: '100%',
                       marginBottom: 8,
@@ -636,7 +636,7 @@ export default function SourcingPortalV2() {
                   )}
                   <label
                     style={{
-                      display: 'block', background: 'white'2, border: `2px dashed ${'var(--v3-border)'}`,
+                      display: 'block', background: 'white', border: `2px dashed ${'var(--v3-border)'}`,
                       color: 'var(--v3-muted)', borderRadius: 7, padding: '16px 12px',
                       fontSize: 12, fontFamily: 'Roboto, sans-serif', width: '100%',
                       textAlign: 'center', cursor: 'pointer',
@@ -667,7 +667,7 @@ export default function SourcingPortalV2() {
                     onChange={(e) => setDealBankEditForm(f => ({ ...f, deck_url: e.target.value }))}
                     placeholder="https://example.com/deck.pdf"
                     style={{
-                      background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                      background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                       color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                       fontSize: 13, fontFamily: 'Roboto, sans-serif', width: '100%',
                     }}
@@ -704,7 +704,7 @@ export default function SourcingPortalV2() {
                   setDealBankError('');
                 }}
                 style={{
-                  background: 'transparent', color: 'var(--v3-accent)', border: `1px solid ${'var(--v3-accent)'Brd}`,
+                  background: 'transparent', color: 'var(--v3-accent)', border: `1px solid ${'rgba(206,68,33,0.25)'}`,
                   borderRadius: 7, padding: '10px 16px', fontSize: 12,
                   fontWeight: 700, fontFamily: 'Roboto, sans-serif', cursor: 'pointer',
                 }}
@@ -746,7 +746,7 @@ export default function SourcingPortalV2() {
         {dealBankListing?.capital_sought && (
           <div style={{
             display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-            gap: 1, background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+            gap: 1, background: 'white', border: `1px solid ${'var(--v3-border)'}`,
             borderRadius: 8, overflow: 'hidden', marginBottom: 16,
           }}>
             {[
@@ -797,7 +797,7 @@ export default function SourcingPortalV2() {
               setDealBankError('');
             }}
             style={{
-              background: 'var(--v3-accent)'Dim, color: 'var(--v3-accent)', border: `1px solid ${'var(--v3-accent)'Brd}`,
+              background: 'rgba(206,68,33,0.08)', color: 'var(--v3-accent)', border: `1px solid ${'rgba(206,68,33,0.25)'}`,
               borderRadius: 7, padding: '8px 14px', fontSize: 12,
               fontWeight: 600, fontFamily: 'Roboto, sans-serif', cursor: 'pointer',
             }}
@@ -846,7 +846,7 @@ export default function SourcingPortalV2() {
         input::placeholder, textarea::placeholder { color: ${'var(--v3-muted)'}; }
         input:focus, textarea:focus, select:focus {
           border-color: ${'var(--v3-accent)'} !important;
-          box-shadow: 0 0 0 2px ${'var(--v3-accent)'Dim};
+          box-shadow: 0 0 0 2px ${'rgba(206,68,33,0.08)'};
           outline: none;
         }
       `}</style>
@@ -859,8 +859,8 @@ export default function SourcingPortalV2() {
           <Link
             to={`${BASE_PATH_V2}/articles/post`}
             style={{
-              background: 'var(--v3-accent)'Dim,
-              border: `1px solid ${'var(--v3-accent)'Brd}`,
+              background: 'rgba(206,68,33,0.08)',
+              border: `1px solid ${'rgba(206,68,33,0.25)'}`,
               color: 'var(--v3-accent)',
               borderRadius: 8,
               padding: '10px 18px',
@@ -918,8 +918,8 @@ export default function SourcingPortalV2() {
                   <button
                     onClick={() => setEditing(true)}
                     style={{
-                      background: 'var(--v3-accent)'Dim,
-                      border: `1px solid ${'var(--v3-accent)'Brd}`,
+                      background: 'rgba(206,68,33,0.08)',
+                      border: `1px solid ${'rgba(206,68,33,0.25)'}`,
                       color: 'var(--v3-accent)',
                       borderRadius: 6,
                       padding: '6px 14px',
@@ -1004,7 +1004,7 @@ export default function SourcingPortalV2() {
                     value={editForm.name}
                     onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
                     style={{
-                      background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                      background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                       color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                       fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                     }}
@@ -1019,7 +1019,7 @@ export default function SourcingPortalV2() {
                     onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))}
                     rows={3}
                     style={{
-                      background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                      background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                       color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                       fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                       resize: 'vertical', minHeight: 80,
@@ -1036,7 +1036,7 @@ export default function SourcingPortalV2() {
                       onChange={e => setEditForm(f => ({ ...f, website: e.target.value }))}
                       placeholder="https://company.com"
                       style={{
-                        background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                        background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                         color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                         fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                       }}
@@ -1051,7 +1051,7 @@ export default function SourcingPortalV2() {
                       onChange={e => setEditForm(f => ({ ...f, phone: e.target.value }))}
                       placeholder="(480) 555-0100"
                       style={{
-                        background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                        background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                         color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                         fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                       }}
@@ -1068,7 +1068,7 @@ export default function SourcingPortalV2() {
                       onChange={e => setEditForm(f => ({ ...f, email: e.target.value }))}
                       placeholder="info@company.com"
                       style={{
-                        background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                        background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                         color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                         fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                       }}
@@ -1083,7 +1083,7 @@ export default function SourcingPortalV2() {
                       onChange={e => setEditForm(f => ({ ...f, logo_url: e.target.value }))}
                       placeholder="https://..."
                       style={{
-                        background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                        background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                         color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                         fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                       }}
@@ -1177,8 +1177,8 @@ export default function SourcingPortalV2() {
             <button
               onClick={() => setShowNewListing(s => !s)}
               style={{
-                background: showNewListing ? 'var(--v3-accent)'Dim : 'var(--v3-accent)',
-                border: showNewListing ? `1px solid ${'var(--v3-accent)'Brd}` : 'none',
+                background: showNewListing ? 'rgba(206,68,33,0.08)' : 'var(--v3-accent)',
+                border: showNewListing ? `1px solid ${'rgba(206,68,33,0.25)'}` : 'none',
                 color: showNewListing ? 'var(--v3-accent)' : '#fff',
                 borderRadius: 7,
                 padding: '8px 16px',
@@ -1195,7 +1195,7 @@ export default function SourcingPortalV2() {
           {/* New Listing Form */}
           {showNewListing && (
             <div style={{
-              background: 'white', border: `1px solid ${'var(--v3-accent)'Brd}`,
+              background: 'white', border: `1px solid ${'rgba(206,68,33,0.25)'}`,
               borderRadius: 10, padding: '24px 20px', marginBottom: 16,
             }}>
               <div style={{
@@ -1213,8 +1213,8 @@ export default function SourcingPortalV2() {
                       type="button"
                       onClick={() => setListingForm(f => ({ ...f, category: cat.key }))}
                       style={{
-                        background: listingForm.category === cat.key ? 'var(--v3-accent)'Dim : 'transparent',
-                        border: `1px solid ${listingForm.category === cat.key ? 'var(--v3-accent)'Brd : 'var(--v3-border)'}`,
+                        background: listingForm.category === cat.key ? 'rgba(206,68,33,0.08)' : 'transparent',
+                        border: `1px solid ${listingForm.category === cat.key ? 'rgba(206,68,33,0.25)' : 'var(--v3-border)'}`,
                         color: listingForm.category === cat.key ? 'var(--v3-accent)' : 'var(--v3-muted)',
                         borderRadius: 6,
                         padding: '6px 14px',
@@ -1238,7 +1238,7 @@ export default function SourcingPortalV2() {
                     onChange={e => setListingForm(f => ({ ...f, title: e.target.value }))}
                     placeholder={listingForm.category === 'job' ? 'e.g. Process Engineer' : 'e.g. CMP System'}
                     style={{
-                      background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                      background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                       color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                       fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                     }}
@@ -1255,7 +1255,7 @@ export default function SourcingPortalV2() {
                     rows={3}
                     placeholder="Details about the listing..."
                     style={{
-                      background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                      background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                       color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                       fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                       resize: 'vertical', minHeight: 80,
@@ -1277,7 +1277,7 @@ export default function SourcingPortalV2() {
                         onChange={e => setListingForm(f => ({ ...f, price: e.target.value }))}
                         placeholder="25000"
                         style={{
-                          background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                          background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                           color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                           fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                         }}
@@ -1291,7 +1291,7 @@ export default function SourcingPortalV2() {
                         value={listingForm.condition}
                         onChange={e => setListingForm(f => ({ ...f, condition: e.target.value }))}
                         style={{
-                          background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                          background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                           color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                           fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                           appearance: 'none', cursor: 'pointer',
@@ -1315,7 +1315,7 @@ export default function SourcingPortalV2() {
                         onChange={e => setListingForm(f => ({ ...f, salary_range: e.target.value }))}
                         placeholder="$80-120K"
                         style={{
-                          background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                          background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                           color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                           fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                         }}
@@ -1329,7 +1329,7 @@ export default function SourcingPortalV2() {
                         value={listingForm.employment_type}
                         onChange={e => setListingForm(f => ({ ...f, employment_type: e.target.value }))}
                         style={{
-                          background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                          background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                           color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                           fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                           appearance: 'none', cursor: 'pointer',
@@ -1350,7 +1350,7 @@ export default function SourcingPortalV2() {
                         onChange={e => setListingForm(f => ({ ...f, location: e.target.value }))}
                         placeholder="Phoenix, AZ"
                         style={{
-                          background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                          background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                           color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                           fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                         }}
@@ -1369,7 +1369,7 @@ export default function SourcingPortalV2() {
                     onChange={e => setListingForm(f => ({ ...f, contact_email: e.target.value }))}
                     placeholder={company?.email || 'contact@company.com'}
                     style={{
-                      background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                      background: 'white', border: `1px solid ${'var(--v3-border)'}`,
                       color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
                       fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                     }}
@@ -1417,7 +1417,7 @@ export default function SourcingPortalV2() {
             }}>
               <div style={{
                 display: 'grid', gridTemplateColumns: '1fr 80px 80px 80px',
-                gap: 12, padding: '8px 16px', background: 'white'2,
+                gap: 12, padding: '8px 16px', background: 'white',
               }}>
                 {['Listing', 'Category', 'Status', 'Posted'].map(h => (
                   <div key={h} style={{
