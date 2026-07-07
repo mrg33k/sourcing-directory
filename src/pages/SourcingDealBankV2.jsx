@@ -1,7 +1,7 @@
-// SourcingDealBankV2.jsx — Space OS v3 reskin
+// SourcingDealBankV2.jsx — Space OS v3 reskin with feature hero
 // Renders inside OSLayoutV3 shell (navy sidebar + white topbar + light content)
 // Three lanes: Completed Rounds (live API), Investments (Supabase), Investors (Supabase)
-// Tabs as light underlines (navy active, muted inactive—not orange chips)
+// Feature hero on Completed lane (biggest/newest deal 16:9 image + scrim + kicker + headline + deck + CTA)
 // Cards: white bg, light borders, company/firm ink 600, meta/focus muted 13-14px,
 // pills as quiet gray (round/segment/region/check-size/deal-types)
 
@@ -9,6 +9,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import useSRWTitle from './srw/useSRWTitle.js';
+import './osv3-dealbank.css';
 
 const LANES = [
   { slug: 'completed', label: 'Completed Rounds' },
@@ -21,6 +22,20 @@ const LANE_PLACEHOLDERS = {
   investors: 'Search by firm, focus area, check size, or deal types',
   completed: 'Search companies, rounds, investors, segments...',
 };
+
+// Asset pool for feature hero
+const ASSET_POOL = [
+  'blueprint-hero.png',
+  'earth.png',
+  'rocket-orbital.png',
+  'bg-opp-orbital-construction.png',
+  'bg-opp-lunar.png',
+  'bg-opp-energy.png',
+  'asteroid-close.png',
+  'bg-opp-stations.png',
+  'planet-red.png',
+  'rocket-ascent.png',
+];
 
 // Sample data (fallback for empty states)
 const SAMPLE_INVESTMENTS = [
@@ -88,6 +103,13 @@ function amountHeadline(raw, m) {
     return n >= 1 ? `$${n}M` : `$${Math.round(n * 1000)}K`;
   }
   return null;
+}
+
+function getImageForDeal(deal, index) {
+  const s = (deal.id ? String(deal.id) : '') + ':' + index;
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return `/v2-assets/${ASSET_POOL[h % ASSET_POOL.length]}`;
 }
 
 function investmentSearchMatch(item, terms) {
@@ -158,284 +180,20 @@ function SourcingDealBankV2() {
     return [...base].sort(byNewest);
   }, [deals, searchInput, activeLane]);
 
+  // Feature deal (first/biggest from Completed lane)
+  const featureDeal = filtered.length > 0 ? filtered[0] : null;
+  const gridDeals = filtered.length > 1 ? filtered.slice(1) : [];
+
   return (
-    <div className="osv3 deal-bank-page">
-      <style>{`
-        .deal-bank-page {
-          padding: 32px 24px;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-
-        /* ===== PAGE HEADER ===== */
-        .db-page-header {
-          margin-bottom: 32px;
-        }
-
-        .db-page-title {
-          font-size: var(--v3-h2-font-size);
-          font-weight: var(--v3-h2-font-weight);
-          color: var(--v3-ink-primary);
-          margin-bottom: 8px;
-          line-height: var(--v3-h2-line-height);
-        }
-
-        .db-page-sub {
-          font-size: 16px;
-          font-weight: 400;
-          color: var(--v3-muted);
-          line-height: 1.5;
-        }
-
-        /* ===== TABS ===== */
-        .db-tabs {
-          display: flex;
-          gap: 32px;
-          border-bottom: 1px solid var(--v3-border);
-          margin-bottom: 24px;
-        }
-
-        .db-tab {
-          padding: 12px 0;
-          background: none;
-          border: none;
-          font-family: var(--v3-font-family-base);
-          font-size: 16px;
-          font-weight: 500;
-          color: var(--v3-muted);
-          cursor: pointer;
-          position: relative;
-          transition: color 0.2s;
-          text-decoration: none;
-          display: inline-block;
-        }
-
-        .db-tab:hover {
-          color: var(--v3-ink-primary);
-        }
-
-        .db-tab-active {
-          color: var(--v3-ink-primary);
-        }
-
-        .db-tab-active::after {
-          content: '';
-          position: absolute;
-          bottom: -1px;
-          left: 0;
-          right: 0;
-          height: 2px;
-          background-color: var(--v3-active-nav);
-        }
-
-        /* ===== SEARCH / FILTER ===== */
-        .db-search-row {
-          display: flex;
-          gap: 12px;
-          align-items: center;
-          margin-bottom: 24px;
-          flex-wrap: wrap;
-        }
-
-        .db-search-input {
-          flex: 1;
-          min-width: 200px;
-          padding: 10px 14px;
-          border: 1px solid var(--v3-border);
-          border-radius: 8px;
-          font-family: var(--v3-font-family-base);
-          font-size: 14px;
-          font-weight: 400;
-          color: var(--v3-ink-primary);
-          background: white;
-          transition: border-color 0.2s;
-        }
-
-        .db-search-input:focus {
-          outline: none;
-          border-color: var(--v3-accent);
-        }
-
-        .db-search-input::placeholder {
-          color: var(--v3-muted);
-        }
-
-        /* ===== CARDS / ROWS ===== */
-        .db-list {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .db-card {
-          display: flex;
-          align-items: stretch;
-          padding: 16px;
-          background: white;
-          border: 1px solid var(--v3-border);
-          border-radius: 8px;
-          text-decoration: none;
-          color: inherit;
-          transition: all 0.2s;
-          cursor: pointer;
-        }
-
-        .db-card:hover {
-          border-color: var(--v3-muted);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        }
-
-        .db-card-body {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .db-card-title {
-          font-size: 16px;
-          font-weight: 600;
-          color: var(--v3-ink-primary);
-          line-height: 1.4;
-        }
-
-        .db-card-meta {
-          font-size: 13px;
-          font-weight: 400;
-          color: var(--v3-muted);
-          line-height: 1.4;
-        }
-
-        .db-card-pills {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 6px;
-          align-items: center;
-        }
-
-        .db-pill {
-          display: inline-flex;
-          align-items: center;
-          padding: 4px 10px;
-          background-color: var(--v3-panel-bg);
-          border: 1px solid var(--v3-border);
-          border-radius: 6px;
-          font-size: 12px;
-          font-weight: 500;
-          color: var(--v3-ink-primary);
-          white-space: nowrap;
-        }
-
-        .db-card-arrow {
-          display: flex;
-          align-items: center;
-          margin-left: 16px;
-          color: var(--v3-muted);
-          transition: color 0.2s;
-        }
-
-        .db-card:hover .db-card-arrow {
-          color: var(--v3-ink-primary);
-        }
-
-        /* ===== EMPTY STATE ===== */
-        .db-empty {
-          padding: 48px 24px;
-          text-align: center;
-          color: var(--v3-muted);
-          font-size: 14px;
-          font-weight: 400;
-        }
-
-        /* ===== LOADING ===== */
-        .db-skeleton {
-          height: 80px;
-          background: linear-gradient(90deg, var(--v3-panel-bg) 0%, var(--v3-gray-100) 50%, var(--v3-panel-bg) 100%);
-          background-size: 200% 100%;
-          animation: skeleton-pulse 1.5s ease-in-out infinite;
-          border-radius: 8px;
-          border: 1px solid var(--v3-border);
-        }
-
-        @keyframes skeleton-pulse {
-          0% { background-position: 200% 0; }
-          100% { background-position: -200% 0; }
-        }
-
-        /* ===== CTA BUTTON ===== */
-        .db-cta-button {
-          display: inline-block;
-          padding: 12px 18px;
-          background-color: white;
-          border: 1px solid var(--v3-border);
-          border-radius: 8px;
-          font-size: 14px;
-          font-weight: 600;
-          color: var(--v3-link);
-          text-decoration: none;
-          cursor: pointer;
-          transition: all 0.2s;
-          text-align: center;
-        }
-
-        .db-cta-button:hover {
-          border-color: var(--v3-link);
-          background-color: rgba(37, 99, 235, 0.04);
-        }
-
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 640px) {
-          .deal-bank-page {
-            padding: 20px 16px;
-          }
-
-          .db-page-header {
-            margin-bottom: 24px;
-          }
-
-          .db-page-title {
-            font-size: 24px;
-          }
-
-          .db-tabs {
-            gap: 16px;
-            margin-bottom: 16px;
-          }
-
-          .db-tab {
-            font-size: 14px;
-          }
-
-          .db-search-row {
-            flex-direction: column;
-          }
-
-          .db-search-input {
-            width: 100%;
-          }
-
-          .db-card {
-            flex-direction: column;
-            padding: 12px;
-          }
-
-          .db-card-arrow {
-            display: none;
-          }
-
-          .db-card-pills {
-            margin-top: 4px;
-          }
-        }
-      `}</style>
-
+    <div className="osv3-dealbank-page">
       {/* Page Header */}
       <div className="db-page-header">
-        <h2 className="db-page-title">Deal Bank</h2>
-        <p className="db-page-sub">
-          Three ways to connect with deal flow in the space economy: completed rounds,
-          companies raising capital, and investor firms.
-        </p>
+        <div>
+          <h1 className="db-page-title">Deal Bank</h1>
+          <p className="db-page-sub">
+            Three ways to connect with deal flow in the space economy: completed rounds, companies raising capital, and investor firms.
+          </p>
+        </div>
       </div>
 
       {/* Tabs */}
@@ -454,6 +212,32 @@ function SourcingDealBankV2() {
         ))}
       </div>
 
+      {/* FEATURE HERO (only on Completed lane) */}
+      {activeLane === 'completed' && featureDeal && (
+        <div className="db-feature-hero">
+          <img
+            src={getImageForDeal(featureDeal, 0)}
+            alt={featureDeal.company}
+            className="db-feature-image"
+            loading="eager"
+          />
+          <div className="db-feature-overlay" />
+          <div className="db-feature-content">
+            <div className="db-feature-kicker">Funding</div>
+            <h2 className="db-feature-headline">{featureDeal.company} raises {amountHeadline(featureDeal.amount_raised, featureDeal.amount_usd_m)}</h2>
+            <p className="db-feature-deck">{[featureDeal.round, featureDeal.segment, featureDeal.region].filter(Boolean).join(' · ')}</p>
+            <button
+              className="db-feature-button"
+              onClick={(e) => {
+                e.preventDefault();
+              }}
+            >
+              View Deal →
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Search Input */}
       <div className="db-search-row">
         <input
@@ -470,7 +254,7 @@ function SourcingDealBankV2() {
 
       {/* Content */}
       <div className="db-list">
-        {activeLane === 'completed' && <CompletedRoundsLane loading={loading} filtered={filtered} searchInput={searchInput} />}
+        {activeLane === 'completed' && <CompletedRoundsLane loading={loading} filtered={gridDeals} searchInput={searchInput} featureDeal={featureDeal} />}
         {activeLane === 'investments' && <InvestmentsLane searchInput={searchInput} />}
         {activeLane === 'investors' && <InvestorsLane searchInput={searchInput} />}
       </div>
@@ -478,7 +262,7 @@ function SourcingDealBankV2() {
   );
 }
 
-function CompletedRoundsLane({ loading, filtered, searchInput }) {
+function CompletedRoundsLane({ loading, filtered, searchInput, featureDeal }) {
   if (loading) {
     return (
       <>
@@ -489,12 +273,16 @@ function CompletedRoundsLane({ loading, filtered, searchInput }) {
     );
   }
 
-  if (filtered.length === 0) {
+  if (filtered.length === 0 && !featureDeal) {
     return (
       <div className="db-empty">
         {searchInput ? `No deals match "${searchInput}"` : 'No deals available.'}
       </div>
     );
+  }
+
+  if (filtered.length === 0 && featureDeal) {
+    return null;
   }
 
   return (
@@ -508,14 +296,13 @@ function CompletedRoundsLane({ loading, filtered, searchInput }) {
             <div className="db-card-body">
               <div className="db-card-title">{deal.company}</div>
               <div className="db-card-meta">
-                {[deal.round, deal.segment, deal.region].filter(Boolean).join(' • ')}
+                {[deal.round, deal.segment, deal.region].filter(Boolean).join(' · ')}
               </div>
               <div className="db-card-pills">
-                {deal.round && <span className="db-pill">{deal.round}</span>}
                 {amount && <span className="db-pill">{amount}</span>}
               </div>
             </div>
-            {date && <div className="db-card-meta" style={{ marginLeft: 'auto', marginTop: 0, whiteSpace: 'nowrap' }}>{date}</div>}
+            {date && <div className="db-card-date">{date}</div>}
           </div>
         );
       })}
@@ -614,7 +401,7 @@ function InvestmentsLane({ searchInput }) {
           <div className="db-card-body">
             <div className="db-card-title">{item.company}</div>
             <div className="db-card-meta">
-              {[item.round, item.segment, item.region].filter(Boolean).join(' • ')}
+              {[item.round, item.segment, item.region].filter(Boolean).join(' · ')}
             </div>
             <div className="db-card-pills">
               {item.round && <span className="db-pill">{item.round}</span>}
