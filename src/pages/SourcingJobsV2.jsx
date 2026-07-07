@@ -408,7 +408,6 @@ function SourcingJobsV2Inner() {
             50% { opacity: 0.7; }
           }
         `}</style>
-      </div>
     </div>
   );
 }
