@@ -1,39 +1,28 @@
-// SourcingDealBankV2.jsx
-// nat-geo-uplift R5e — Deal Bank page in the V2 list-pattern.
-// R7a (2026-06-05) — 3-path directory hero. Bubble lane selector
-// (Investments / Investors / Completed). Completed leads by default.
+// SourcingDealBankV2.jsx — Space OS v3 reskin
+// Renders inside OSLayoutV3 shell (navy sidebar + white topbar + light content)
+// Three lanes: Completed Rounds (live API), Investments (Supabase), Investors (Supabase)
+// Tabs as light underlines (navy active, muted inactive—not orange chips)
+// Cards: white bg, light borders, company/firm ink 600, meta/focus muted 13-14px,
+// pills as quiet gray (round/segment/region/check-size/deal-types)
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
 import useSRWTitle from './srw/useSRWTitle.js';
-import { V2ChipNav } from './V2ChipNav.jsx';
-import '../space-rising-theme-v2.css';
-
-const TENANT_SLUG_V2 = 'space-rising-v2';
 
 const LANES = [
+  { slug: 'completed', label: 'Completed Rounds' },
   { slug: 'investments', label: 'Investments' },
-  { slug: 'investors',   label: 'Investors' },
-  { slug: 'completed',   label: 'Completed' },
+  { slug: 'investors', label: 'Investors' },
 ];
 
 const LANE_PLACEHOLDERS = {
   investments: 'Search by company, segment, round, or raise size',
-  investors:   'Search by firm, focus area, check size, or deal types',
-  completed:   'Search companies, rounds, investors, segments...',
+  investors: 'Search by firm, focus area, check size, or deal types',
+  completed: 'Search companies, rounds, investors, segments...',
 };
 
-const LANE_HEADINGS = {
-  investments: 'Companies raising',
-  investors:   'Investor firms',
-  completed:   'Completed rounds',
-};
-
-// R7d — preview-only sample entries. Clearly marked SAMPLE on each card and
-// behind a "Preview — sample listings" banner. The real data source is
-// deferred to a later round (Patrik 2026-05-31).
+// Sample data (fallback for empty states)
 const SAMPLE_INVESTMENTS = [
   {
     slug: 'sample-launch-co',
@@ -61,13 +50,6 @@ const SAMPLE_INVESTMENTS = [
   },
 ];
 
-function investmentSearchMatch(item, terms) {
-  const haystack = [item.company, item.round, item.segment, item.region, item.seeking]
-    .filter(Boolean).join(' ').toLowerCase();
-  return terms.every((t) => haystack.includes(t));
-}
-
-// R7e — preview-only sample firms. Same marking pattern as investments.
 const SAMPLE_INVESTORS = [
   {
     slug: 'sample-orbit-ventures',
@@ -92,12 +74,6 @@ const SAMPLE_INVESTORS = [
   },
 ];
 
-function investorSearchMatch(item, terms) {
-  const haystack = [item.firm, item.focus, item.checkSize, item.dealTypes]
-    .filter(Boolean).join(' ').toLowerCase();
-  return terms.every((t) => haystack.includes(t));
-}
-
 function formatDealDate(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
@@ -114,9 +90,19 @@ function amountHeadline(raw, m) {
   return null;
 }
 
-function SourcingDealBankV2Inner() {
-  const { dark } = useSourcingTheme();
-  const V = getTokens(dark);
+function investmentSearchMatch(item, terms) {
+  const haystack = [item.company, item.round, item.segment, item.region, item.seeking]
+    .filter(Boolean).join(' ').toLowerCase();
+  return terms.every((t) => haystack.includes(t));
+}
+
+function investorSearchMatch(item, terms) {
+  const haystack = [item.firm, item.focus, item.checkSize, item.dealTypes]
+    .filter(Boolean).join(' ').toLowerCase();
+  return terms.every((t) => haystack.includes(t));
+}
+
+function SourcingDealBankV2() {
   useSRWTitle('Space Deal Bank | Space OS');
 
   const [deals, setDeals] = useState([]);
@@ -124,31 +110,34 @@ function SourcingDealBankV2Inner() {
   const [searchInput, setSearchInput] = useState('');
   const [activeLane, setActiveLane] = useState('completed');
 
-  // Clear search when switching lanes — each lane scopes its own query.
+  // Clear search when switching lanes
   useEffect(() => { setSearchInput(''); }, [activeLane]);
 
+  // Fetch completed rounds from external API
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      setLoading(true);
-      try {
-        const r = await fetch('https://www.aheadofmarket.com/api/deal-bank/completed');
-        if (!r.ok) throw new Error('Deal Bank API ' + r.status);
-        const j = await r.json();
-        if (!cancelled) setDeals(Array.isArray(j.rounds) ? j.rounds : []);
-      } catch (err) {
-        console.error('DealBankV2 fetch error:', err);
-        if (!cancelled) setDeals([]);
-      } finally {
-        if (!cancelled) setLoading(false);
+      if (activeLane === 'completed') {
+        setLoading(true);
+        try {
+          const r = await fetch('https://www.aheadofmarket.com/api/deal-bank/completed');
+          if (!r.ok) throw new Error('Deal Bank API ' + r.status);
+          const j = await r.json();
+          if (!cancelled) setDeals(Array.isArray(j.rounds) ? j.rounds : []);
+        } catch (err) {
+          console.error('DealBankV2 fetch error:', err);
+          if (!cancelled) setDeals([]);
+        } finally {
+          if (!cancelled) setLoading(false);
+        }
       }
     })();
     return () => { cancelled = true; };
-  }, []);
+  }, [activeLane]);
 
   const filtered = useMemo(() => {
-    // Default display order: newest funding date at top, oldest at bottom.
-    // Undated rounds (no funding date on file) sort to the bottom.
+    if (activeLane !== 'completed') return [];
+
     const dealTime = (d) => {
       const t = d.date ? new Date(d.date).getTime() : NaN;
       return Number.isNaN(t) ? -Infinity : t;
@@ -167,61 +156,290 @@ function SourcingDealBankV2Inner() {
         });
 
     return [...base].sort(byNewest);
-  }, [deals, searchInput]);
+  }, [deals, searchInput, activeLane]);
 
   return (
-    <div
-      data-tenant={TENANT_SLUG_V2}
-      style={{
-        minHeight: '100dvh',
-        background: 'var(--bg)',
-        color: 'var(--tx)',
-        position: 'relative',
-        fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
-        '--bg': 'transparent', '--tx': '#E8E4DA',
-        '--tx2': 'rgba(232,228,218,0.60)', '--tx3': 'rgba(232,228,218,0.25)',
-        '--s1': 'rgba(11,11,13,0.72)', '--s2': 'rgba(11,11,13,0.82)', '--s3': 'rgba(11,11,13,0.92)',
-        '--bd': 'rgba(232,228,218,0.10)', '--bd2': 'rgba(232,228,218,0.16)',
-        '--cyan': '#E8A23A', '--cyan-dim': 'rgba(232,162,58,0.10)', '--cyan-brd': 'rgba(232,162,58,0.32)',
-      }}
-    >
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } } @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }`}</style>
+    <div className="osv3 deal-bank-page">
+      <style>{`
+        .deal-bank-page {
+          padding: 32px 24px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
 
-      <div className="browse-hero" style={{ '--page-hero-bg': "url('/v2-assets/earth.png')" }}>
-        <div className="browse-hero-bg" />
-        <div className="browse-hero-overlay" />
-        <div className="browse-hero-content" style={{ position: 'relative' }}>
-          <div className="browse-hero-toprow">
-            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
-              Back
-            </Link>
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
-          </div>
-          <div className="browse-title">Deal Bank.</div>
-          <div className="browse-sub">
-            Three ways to connect to space deal flow: companies raising, investor firms, and completed rounds.
-          </div>
-        </div>
+        /* ===== PAGE HEADER ===== */
+        .db-page-header {
+          margin-bottom: 32px;
+        }
+
+        .db-page-title {
+          font-size: var(--v3-h2-font-size);
+          font-weight: var(--v3-h2-font-weight);
+          color: var(--v3-ink-primary);
+          margin-bottom: 8px;
+          line-height: var(--v3-h2-line-height);
+        }
+
+        .db-page-sub {
+          font-size: 16px;
+          font-weight: 400;
+          color: var(--v3-muted);
+          line-height: 1.5;
+        }
+
+        /* ===== TABS ===== */
+        .db-tabs {
+          display: flex;
+          gap: 32px;
+          border-bottom: 1px solid var(--v3-border);
+          margin-bottom: 24px;
+        }
+
+        .db-tab {
+          padding: 12px 0;
+          background: none;
+          border: none;
+          font-family: var(--v3-font-family-base);
+          font-size: 16px;
+          font-weight: 500;
+          color: var(--v3-muted);
+          cursor: pointer;
+          position: relative;
+          transition: color 0.2s;
+          text-decoration: none;
+          display: inline-block;
+        }
+
+        .db-tab:hover {
+          color: var(--v3-ink-primary);
+        }
+
+        .db-tab-active {
+          color: var(--v3-ink-primary);
+        }
+
+        .db-tab-active::after {
+          content: '';
+          position: absolute;
+          bottom: -1px;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background-color: var(--v3-active-nav);
+        }
+
+        /* ===== SEARCH / FILTER ===== */
+        .db-search-row {
+          display: flex;
+          gap: 12px;
+          align-items: center;
+          margin-bottom: 24px;
+          flex-wrap: wrap;
+        }
+
+        .db-search-input {
+          flex: 1;
+          min-width: 200px;
+          padding: 10px 14px;
+          border: 1px solid var(--v3-border);
+          border-radius: 8px;
+          font-family: var(--v3-font-family-base);
+          font-size: 14px;
+          font-weight: 400;
+          color: var(--v3-ink-primary);
+          background: white;
+          transition: border-color 0.2s;
+        }
+
+        .db-search-input:focus {
+          outline: none;
+          border-color: var(--v3-accent);
+        }
+
+        .db-search-input::placeholder {
+          color: var(--v3-muted);
+        }
+
+        /* ===== CARDS / ROWS ===== */
+        .db-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .db-card {
+          display: flex;
+          align-items: stretch;
+          padding: 16px;
+          background: white;
+          border: 1px solid var(--v3-border);
+          border-radius: 8px;
+          text-decoration: none;
+          color: inherit;
+          transition: all 0.2s;
+          cursor: pointer;
+        }
+
+        .db-card:hover {
+          border-color: var(--v3-muted);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .db-card-body {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+
+        .db-card-title {
+          font-size: 16px;
+          font-weight: 600;
+          color: var(--v3-ink-primary);
+          line-height: 1.4;
+        }
+
+        .db-card-meta {
+          font-size: 13px;
+          font-weight: 400;
+          color: var(--v3-muted);
+          line-height: 1.4;
+        }
+
+        .db-card-pills {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          align-items: center;
+        }
+
+        .db-pill {
+          display: inline-flex;
+          align-items: center;
+          padding: 4px 10px;
+          background-color: var(--v3-panel-bg);
+          border: 1px solid var(--v3-border);
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 500;
+          color: var(--v3-ink-primary);
+          white-space: nowrap;
+        }
+
+        .db-card-arrow {
+          display: flex;
+          align-items: center;
+          margin-left: 16px;
+          color: var(--v3-muted);
+          transition: color 0.2s;
+        }
+
+        .db-card:hover .db-card-arrow {
+          color: var(--v3-ink-primary);
+        }
+
+        /* ===== EMPTY STATE ===== */
+        .db-empty {
+          padding: 48px 24px;
+          text-align: center;
+          color: var(--v3-muted);
+          font-size: 14px;
+          font-weight: 400;
+        }
+
+        /* ===== LOADING ===== */
+        .db-skeleton {
+          height: 80px;
+          background: linear-gradient(90deg, var(--v3-panel-bg) 0%, var(--v3-gray-100) 50%, var(--v3-panel-bg) 100%);
+          background-size: 200% 100%;
+          animation: skeleton-pulse 1.5s ease-in-out infinite;
+          border-radius: 8px;
+          border: 1px solid var(--v3-border);
+        }
+
+        @keyframes skeleton-pulse {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
+        }
+
+        /* ===== CTA BUTTON ===== */
+        .db-cta-button {
+          display: inline-block;
+          padding: 12px 18px;
+          background-color: white;
+          border: 1px solid var(--v3-border);
+          border-radius: 8px;
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--v3-link);
+          text-decoration: none;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-align: center;
+        }
+
+        .db-cta-button:hover {
+          border-color: var(--v3-link);
+          background-color: rgba(37, 99, 235, 0.04);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 640px) {
+          .deal-bank-page {
+            padding: 20px 16px;
+          }
+
+          .db-page-header {
+            margin-bottom: 24px;
+          }
+
+          .db-page-title {
+            font-size: 24px;
+          }
+
+          .db-tabs {
+            gap: 16px;
+            margin-bottom: 16px;
+          }
+
+          .db-tab {
+            font-size: 14px;
+          }
+
+          .db-search-row {
+            flex-direction: column;
+          }
+
+          .db-search-input {
+            width: 100%;
+          }
+
+          .db-card {
+            flex-direction: column;
+            padding: 12px;
+          }
+
+          .db-card-arrow {
+            display: none;
+          }
+
+          .db-card-pills {
+            margin-top: 4px;
+          }
+        }
+      `}</style>
+
+      {/* Page Header */}
+      <div className="db-page-header">
+        <h2 className="db-page-title">Deal Bank</h2>
+        <p className="db-page-sub">
+          Three ways to connect with deal flow in the space economy: completed rounds,
+          companies raising capital, and investor firms.
+        </p>
       </div>
 
-      <div className="browse-search">
-        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
-        <input
-          type="text"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          placeholder={LANE_PLACEHOLDERS[activeLane]}
-          aria-label={`Search Deal Bank ${activeLane}`}
-          autoComplete="off"
-          spellCheck="false"
-        />
-        {loading && activeLane === 'completed' && <div className="spinner" />}
-      </div>
-
-      {/* Deal-Bank-only lane selector — three bubbles, defaults to Completed
-          so the live R5b data leads while Investments + Investors fill in. */}
-      <div className="chips" style={{ paddingBottom: 4 }} role="tablist" aria-label="Deal Bank lanes">
+      {/* Tabs */}
+      <div className="db-tabs" role="tablist">
         {LANES.map((lane) => (
           <button
             key={lane.slug}
@@ -229,81 +447,79 @@ function SourcingDealBankV2Inner() {
             role="tab"
             aria-selected={lane.slug === activeLane}
             onClick={() => setActiveLane(lane.slug)}
-            className={`chip${lane.slug === activeLane ? ' on' : ''}`}
-            style={{ font: 'inherit', cursor: 'pointer' }}
+            className={`db-tab ${lane.slug === activeLane ? 'db-tab-active' : ''}`}
           >
             {lane.label}
           </button>
         ))}
       </div>
 
-      <V2ChipNav active="deal-bank" />
-
-      <div className="sec-hdr">
-        <div className="sec-title">
-          {activeLane === 'completed'
-            ? (loading ? 'Loading...' : `${filtered.length} Deal${filtered.length === 1 ? '' : 's'}.`)
-            : LANE_HEADINGS[activeLane] + '.'}
-        </div>
-        <div className="sec-count">
-          <span style={{ color: 'var(--tx3)', fontSize: 12, fontFamily: 'JetBrains Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            {LANE_HEADINGS[activeLane]}
-          </span>
-        </div>
+      {/* Search Input */}
+      <div className="db-search-row">
+        <input
+          type="text"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder={LANE_PLACEHOLDERS[activeLane]}
+          aria-label={`Search ${activeLane}`}
+          autoComplete="off"
+          spellCheck="false"
+          className="db-search-input"
+        />
       </div>
 
-      <div className="co-list">
-        {activeLane === 'completed' && (
-          <>
-            {loading && (
-              <>{[1, 2, 3, 4].map((i) => (
-                <div key={i} style={{ height: 84, borderRadius: 10, background: 'rgba(18,20,28,0.40)', border: '1px solid rgba(232,228,218,0.05)', animation: 'pulse 1.5s ease-in-out infinite' }} />
-              ))}</>
-            )}
-
-            {!loading && filtered.map((deal, idx) => {
-              const amount = amountHeadline(deal.amount_raised, deal.amount_usd_m);
-              const date = formatDealDate(deal.date);
-              return (
-                <div
-                  key={deal.id || `${deal.company}-${idx}`}
-                  className="co-card"
-                  style={{ textDecoration: 'none', color: 'inherit' }}
-                >
-                  <div className="co-body">
-                    <div className="co-name">{deal.company}</div>
-                    <div className="co-loc">
-                      {[deal.round, deal.segment, deal.region, date].filter(Boolean).join(' · ')}
-                    </div>
-                    <div className="co-badges">
-                      {deal.round && <span className="co-badge cert">{deal.round}</span>}
-                      {amount && <span className="co-badge feat">{amount}</span>}
-                    </div>
-                  </div>
-                  <div className="co-arrow">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
-                  </div>
-                </div>
-              );
-            })}
-
-            {!loading && filtered.length === 0 && (
-              <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                {searchInput ? `No deals match "${searchInput}"` : 'No deals available.'}
-              </div>
-            )}
-          </>
-        )}
-
-        {activeLane === 'investments' && (
-          <InvestmentsLane searchInput={searchInput} />
-        )}
-
-        {activeLane === 'investors' && (
-          <InvestorsLane searchInput={searchInput} />
-        )}
+      {/* Content */}
+      <div className="db-list">
+        {activeLane === 'completed' && <CompletedRoundsLane loading={loading} filtered={filtered} searchInput={searchInput} />}
+        {activeLane === 'investments' && <InvestmentsLane searchInput={searchInput} />}
+        {activeLane === 'investors' && <InvestorsLane searchInput={searchInput} />}
       </div>
     </div>
+  );
+}
+
+function CompletedRoundsLane({ loading, filtered, searchInput }) {
+  if (loading) {
+    return (
+      <>
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="db-skeleton" />
+        ))}
+      </>
+    );
+  }
+
+  if (filtered.length === 0) {
+    return (
+      <div className="db-empty">
+        {searchInput ? `No deals match "${searchInput}"` : 'No deals available.'}
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {filtered.map((deal, idx) => {
+        const amount = amountHeadline(deal.amount_raised, deal.amount_usd_m);
+        const date = formatDealDate(deal.date);
+
+        return (
+          <div key={deal.id || `${deal.company}-${idx}`} className="db-card">
+            <div className="db-card-body">
+              <div className="db-card-title">{deal.company}</div>
+              <div className="db-card-meta">
+                {[deal.round, deal.segment, deal.region].filter(Boolean).join(' • ')}
+              </div>
+              <div className="db-card-pills">
+                {deal.round && <span className="db-pill">{deal.round}</span>}
+                {amount && <span className="db-pill">{amount}</span>}
+              </div>
+            </div>
+            {date && <div className="db-card-meta" style={{ marginLeft: 'auto', marginTop: 0, whiteSpace: 'nowrap' }}>{date}</div>}
+          </div>
+        );
+      })}
+    </>
   );
 }
 
@@ -334,9 +550,6 @@ function InvestmentsLane({ searchInput }) {
 
         if (error) throw error;
 
-        // Transform DB data into display format + slugs for routing.
-        // directory_companies has no segment/region columns — segment maps to
-        // `vertical`, region to state/country (city + state when both exist).
         const transformed = (data || []).map((listing) => {
           const company = listing.directory_companies;
           const region = [company?.city, company?.state].filter(Boolean).join(', ') || company?.country || '';
@@ -372,44 +585,49 @@ function InvestmentsLane({ searchInput }) {
     return displayListings.filter((item) => investmentSearchMatch(item, terms));
   }, [searchInput, displayListings]);
 
-  const showEmptyState = listings.length === 0 && !loading && searchInput.trim();
+  if (loading) {
+    return (
+      <>
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="db-skeleton" />
+        ))}
+      </>
+    );
+  }
+
+  if (filtered.length === 0) {
+    return (
+      <div className="db-empty">
+        {searchInput ? `No listings match "${searchInput}"` : 'No listings available.'}
+      </div>
+    );
+  }
 
   return (
     <>
-      {loading && (
-        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.35)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-          Loading...
-        </div>
-      )}
-
       {filtered.map((item) => (
         <Link
           key={item.id || item.slug}
-          to={`/spaceos/deal-bank/investments/${item.slug}`}
-          className="co-card"
-          style={{ textDecoration: 'none', color: 'inherit' }}
+          to={`/deal-bank/investments/${item.slug}`}
+          className="db-card"
         >
-          <div className="co-body">
-            <div className="co-name">{item.company}</div>
-            <div className="co-loc">
-              {[item.round, item.segment, item.region].filter(Boolean).join(' · ')}
+          <div className="db-card-body">
+            <div className="db-card-title">{item.company}</div>
+            <div className="db-card-meta">
+              {[item.round, item.segment, item.region].filter(Boolean).join(' • ')}
             </div>
-            <div className="co-badges">
-              {item.round && <span className="co-badge cert">{item.round}</span>}
-              {item.seeking && <span className="co-badge feat">{`Seeking ${item.seeking}`}</span>}
+            <div className="db-card-pills">
+              {item.round && <span className="db-pill">{item.round}</span>}
+              {item.seeking && <span className="db-pill">Seeking {item.seeking}</span>}
             </div>
           </div>
-          <div className="co-arrow">
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
+          <div className="db-card-arrow">
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
           </div>
         </Link>
       ))}
-
-      {showEmptyState && (
-        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-          {`No listings match "${searchInput}"`}
-        </div>
-      )}
     </>
   );
 }
@@ -429,7 +647,6 @@ function InvestorsLane({ searchInput }) {
 
         if (error) throw error;
 
-        // Transform DB data into display format + slugs for routing
         const transformed = (data || []).map((firm) => ({
           id: firm.id,
           slug: firm.firm_name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
@@ -444,7 +661,6 @@ function InvestorsLane({ searchInput }) {
         setInvestors(transformed);
       } catch (err) {
         console.error('Error fetching investors:', err);
-        // Fallback to SAMPLE_INVESTORS on error
         setInvestors(SAMPLE_INVESTORS);
       } finally {
         setLoading(false);
@@ -462,65 +678,56 @@ function InvestorsLane({ searchInput }) {
 
   const showSample = investors.length === 0 && !loading;
 
+  if (loading) {
+    return (
+      <>
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="db-skeleton" />
+        ))}
+      </>
+    );
+  }
+
   return (
     <>
       {showSample && (
-        <SamplePreviewBanner
-          copy="No live listings yet. Be the first — list your firm."
-        />
+        <div style={{ padding: '16px', backgroundColor: 'var(--v3-panel-bg)', borderRadius: '8px', border: '1px solid var(--v3-border)', marginBottom: '16px', fontSize: '14px', color: 'var(--v3-muted)', textAlign: 'center' }}>
+          No live listings yet. Be the first to list your firm.
+        </div>
       )}
 
       {filtered.map((item) => (
         <Link
           key={item.id || item.slug}
-          to={`/spaceos/deal-bank/investors/${item.slug}`}
-          className="co-card"
-          style={{ textDecoration: 'none', color: 'inherit' }}
+          to={`/deal-bank/investors/${item.slug}`}
+          className="db-card"
         >
-          <div className="co-body">
-            <div className="co-name">{item.firm}</div>
-            <div className="co-loc">{item.focus}</div>
-            <div className="co-badges">
-              {item.checkSize && <span className="co-badge cert">{item.checkSize}</span>}
-              {item.dealTypes && <span className="co-badge feat">{item.dealTypes}</span>}
+          <div className="db-card-body">
+            <div className="db-card-title">{item.firm}</div>
+            <div className="db-card-meta">{item.focus || 'No focus area provided'}</div>
+            <div className="db-card-pills">
+              {item.checkSize && <span className="db-pill">{item.checkSize}</span>}
+              {item.dealTypes && <span className="db-pill">{item.dealTypes}</span>}
             </div>
           </div>
-          <div className="co-arrow">
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
+          <div className="db-card-arrow">
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+              <path d="M9 18l6-6-6-6" />
+            </svg>
           </div>
         </Link>
       ))}
 
       {filtered.length === 0 && !loading && (
-        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-          {`No firms match "${searchInput}"`}
+        <div className="db-empty">
+          {searchInput ? `No firms match "${searchInput}"` : 'No firms available.'}
         </div>
       )}
 
-      {loading && (
-        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.35)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-          Loading...
-        </div>
-      )}
-
-      <div style={{ padding: '24px', borderTop: '1px solid rgba(232,228,218,0.10)' }}>
+      <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--v3-border)' }}>
         <Link
-          to="/spaceos/deal-bank/investors/signup"
-          style={{
-            display: 'block',
-            padding: '12px 16px',
-            border: '1px solid rgba(232,162,58,0.32)',
-            borderRadius: 6,
-            background: 'rgba(232,162,58,0.08)',
-            color: 'var(--cyan)',
-            textDecoration: 'none',
-            fontSize: 12,
-            fontWeight: 600,
-            letterSpacing: '0.05em',
-            textAlign: 'center',
-            textTransform: 'uppercase',
-            transition: 'all 0.2s',
-          }}
+          to="/deal-bank/investors/signup"
+          className="db-cta-button"
         >
           List Your Firm
         </Link>
@@ -529,32 +736,4 @@ function InvestorsLane({ searchInput }) {
   );
 }
 
-function SamplePreviewBanner({ copy }) {
-  return (
-    <div
-      style={{
-        padding: '12px 16px',
-        marginBottom: 16,
-        borderRadius: 10,
-        border: '1px solid rgba(232,162,58,0.32)',
-        background: 'rgba(232,162,58,0.08)',
-        color: 'var(--cyan)',
-        fontSize: 12,
-        fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-        textTransform: 'uppercase',
-        letterSpacing: '0.10em',
-        textAlign: 'center',
-      }}
-    >
-      {copy}
-    </div>
-  );
-}
-
-export default function SourcingDealBankV2() {
-  return (
-    <SourcingThemeProvider>
-      <SourcingDealBankV2Inner />
-    </SourcingThemeProvider>
-  );
-}
+export default SourcingDealBankV2;
