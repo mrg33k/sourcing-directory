@@ -84,17 +84,17 @@ const SpaceOSHomeV3 = () => {
     loadData()
   }, [tenant])
 
-  const featuredReport = reports.find(r => r.category === 'Blueprint') || reports[0]
+  const featuredReport = reports.find(r => r.title?.includes('Blueprint') || r.category === 'Blueprint') || reports[0]
   const latestReports = reports.slice(1, 5)
   const userName = user?.user_metadata?.full_name?.split(' ')[0] || 'there'
 
   const missions = [
-    { title: 'Ecosystem', color: '#8B5CF6', links: [
+    { title: 'Ecosystem', color: '#8B5CF6', exploreHref: '/ecosystem', links: [
       { label: 'Companies', href: '/directory', real: true },
       { label: 'Organizations', href: '#', real: false },
       { label: 'People', href: '#', real: false },
     ]},
-    { title: 'Intelligence', color: '#3B82F6', links: [
+    { title: 'Intelligence', color: '#3B82F6', exploreHref: '/intelligence', links: [
       { label: 'Research (Papers)', href: '#', real: false },
       { label: 'News', href: '#', real: false },
       { label: 'Reports', href: '/reports', real: true },
@@ -103,28 +103,28 @@ const SpaceOSHomeV3 = () => {
       { label: 'Podcasts', href: '#', real: false },
       { label: 'Videos', href: '#', real: false },
     ]},
-    { title: 'Opportunities', color: '#F97316', links: [
+    { title: 'Opportunities', color: '#F97316', exploreHref: '/opportunities', links: [
       { label: 'RFPs', href: '#', real: false, future: true },
       { label: 'Grants', href: '/grants', real: true },
       { label: 'Dealbank', href: '/deal-bank', real: true },
     ]},
-    { title: 'Careers', color: '#FBBF24', links: [
+    { title: 'Careers', color: '#FBBF24', exploreHref: '/careers', links: [
       { label: 'Jobs', href: '/careers', real: true },
       { label: 'Internships', href: '#', real: false },
     ]},
-    { title: 'Marketplace', color: '#14B8A6', links: [
+    { title: 'Marketplace', color: '#14B8A6', exploreHref: '/marketplace', links: [
       { label: 'Equipment', href: '/marketplace', real: true },
       { label: 'Services', href: '/marketplace', real: true },
       { label: 'Products', href: '/marketplace', real: true },
     ]},
-    { title: 'Community', color: '#EC4899', links: [
+    { title: 'Community', color: '#EC4899', exploreHref: '/community', links: [
       { label: 'Events', href: '/community', real: true },
       { label: 'Forums', href: '#', real: false, future: true },
     ]},
-    { title: 'Learning', color: '#06B6D4', links: [
+    { title: 'Learning', color: '#06B6D4', exploreHref: '/learning', links: [
       { label: 'Coursera for Space', href: '/learning', real: true, future: true },
     ]},
-    { title: 'My Library', color: '#6366F1', links: [
+    { title: 'My Library', color: '#6366F1', exploreHref: '/library', links: [
       { label: 'Saved Items', href: '/library', real: true },
       { label: 'Follows', href: '/library', real: true },
     ]},
@@ -201,6 +201,9 @@ const SpaceOSHomeV3 = () => {
                     </div>
                   ))}
                 </div>
+                <a href={mission.exploreHref} className="osv3-mission-card-footer-link">
+                  Explore {mission.title} →
+                </a>
               </div>
             ))}
           </div>
@@ -211,7 +214,7 @@ const SpaceOSHomeV3 = () => {
           <section className="osv3-featured-section">
             <h2 className="osv3-section-heading">Featured Report</h2>
             <div className="osv3-featured-report-card">
-              <div className="osv3-featured-report-image">📄</div>
+              <div className="osv3-featured-report-image"></div>
               <div className="osv3-featured-report-content">
                 <div className="osv3-featured-report-eyebrow">{featuredReport.category}</div>
                 <h3 className="osv3-featured-report-title">{featuredReport.title}</h3>
@@ -237,7 +240,9 @@ const SpaceOSHomeV3 = () => {
             <div className="osv3-reports-scroll">
               {latestReports.map((report) => (
                 <div key={report.id} className="osv3-report-card">
-                  <div className="osv3-report-image">📊</div>
+                  <div className="osv3-report-image">
+                    <div className="osv3-report-image-eyebrow">SPACE RISING / REPORT</div>
+                  </div>
                   <div className="osv3-report-card-body">
                     <div className="osv3-report-card-title">{report.title}</div>
                     <div className="osv3-report-card-meta">
@@ -260,15 +265,25 @@ const SpaceOSHomeV3 = () => {
                   <span>Upcoming Events</span>
                   <a className="osv3-column-header-action" href="/community">View all</a>
                 </div>
-                {events.map((event) => (
-                  <div key={event.id} className="osv3-list-item">
-                    <div className="osv3-list-item-title">{event.title}</div>
-                    <div className="osv3-list-item-meta">
-                      <span>📍 {event.event_location || 'TBA'}</span>
-                      <span>📌</span>
+                {events.map((event) => {
+                  const eventDate = event.event_date ? new Date(event.event_date) : null
+                  const monthAbbrev = eventDate ? eventDate.toLocaleDateString('en-US', { month: 'short' }).toUpperCase() : 'TBA'
+                  const day = eventDate ? eventDate.getDate() : ''
+                  return (
+                    <div key={event.id} className="osv3-list-item">
+                      <div className="osv3-event-date-chip">
+                        <div className="osv3-event-date-month">{monthAbbrev}</div>
+                        <div className="osv3-event-date-day">{day}</div>
+                      </div>
+                      <div>
+                        <div className="osv3-list-item-title">{event.title}</div>
+                        <div className="osv3-list-item-meta">
+                          <span>{event.event_location || 'TBA'}</span>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
 
@@ -303,7 +318,7 @@ const SpaceOSHomeV3 = () => {
                   <div key={job.id} className="osv3-list-item">
                     <div className="osv3-list-item-title">{job.title}</div>
                     <div className="osv3-list-item-meta">
-                      <span>🏢 {job.company?.name || 'Company'}</span>
+                      <span>{job.company?.name || 'Company'}</span>
                       <span>{job.location || 'Remote'}</span>
                     </div>
                   </div>
