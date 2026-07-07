@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import V2ChipNav from './V2ChipNav.jsx';
-import '../space-rising-theme-v2.css';
 
 const VERTICAL_HERO = {
   space:         '/v2-assets/rocket-orbital.png',
@@ -116,259 +114,424 @@ export default function SourcingCompanyV2() {
 
   if (loading) {
     return (
-      <div className="srcv2-shell" data-tenant="space-rising-v2">
-        <div className="srcv2-loading">
-          <div className="srsv2-eyebrow">LOADING</div>
-        </div>
+      <div className="osv3" style={{ padding: '40px 24px', textAlign: 'center' }}>
+        <div style={{ fontSize: 14, color: 'var(--v3-muted)' }}>Loading company profile…</div>
       </div>
     );
   }
 
   if (notFound || !company) {
     return (
-      <div className="srcv2-shell" data-tenant="space-rising-v2">
-        <div className="srcv2-notfound">
-          <div className="srsv2-eyebrow">NOT FOUND</div>
-          <h1 className="srsv2-title">This company isn't in the directory<span className="srsv2-period">.</span></h1>
-          <div className="srsv2-sub">We couldn't find <code>{slug}</code>. It may have been removed or renamed.</div>
-          <Link to="/spaceos" className="srsv2-cta srsv2-cta-solid">Back to the directory</Link>
-        </div>
+      <div className="osv3" style={{ padding: '40px 24px', maxWidth: 600, margin: '0 auto' }}>
+        <h1 style={{
+          fontSize: 'var(--v3-h2-font-size)',
+          fontWeight: 'var(--v3-h2-font-weight)',
+          color: 'var(--v3-ink-primary)',
+          marginBottom: 16,
+        }}>
+          Company not found
+        </h1>
+        <p style={{ color: 'var(--v3-muted)', marginBottom: 24, fontSize: 14 }}>
+          We couldn't find <code>{slug}</code>. It may have been removed or renamed.
+        </p>
+        <Link to="/directory" style={{
+          display: 'inline-block',
+          padding: '10px 16px',
+          backgroundColor: 'var(--v3-accent)',
+          color: 'white',
+          textDecoration: 'none',
+          borderRadius: 6,
+          fontSize: 14,
+          fontWeight: 600,
+        }}>
+          Back to directory
+        </Link>
       </div>
     );
   }
 
-  const heroBg = VERTICAL_HERO[company.vertical] || VERTICAL_HERO.default;
   const cityState = [company.city, company.state].filter(Boolean).join(', ');
   const verticalLabel = company.vertical === 'space' ? 'Space & Aerospace'
     : company.vertical === 'semiconductor' ? 'Semiconductor'
     : (company.vertical || 'Directory');
 
   return (
-    <div className="srcv2-shell" data-tenant="space-rising-v2">
-      {/* Top bar — polish-srw-cleanup (2026-05-31): unified with the rest of the
-          directory pages. Back link (left) + Space Rising logo (right) as the
-          very top row, above the eyebrow / company-name headline below.
-          Replaces the previous wordmark + breadcrumb layout. */}
-      <div className="srcv2-topbar">
-        <div className="browse-hero-toprow">
-          <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
-            Back to directory
-          </Link>
-          <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
-        </div>
-      </div>
-
-      {/* Hero */}
-      <header
-        className="srcv2-hero"
-        style={{ '--profile-hero-bg': `url('${heroBg}')` }}
-      >
-        <div className="srcv2-hero-overlay" />
-        <div className="srcv2-hero-inner">
-          <div className="srsv2-eyebrow">{verticalLabel.toUpperCase()}{cityState ? ` · ${cityState.toUpperCase()}` : ''}</div>
-          <h1 className="srcv2-name">
-            {company.name}<span className="srsv2-period">.</span>
-          </h1>
-          {company.description && (
-            <p className="srcv2-lede">{company.description}</p>
-          )}
-          <div className="srcv2-hero-actions">
-            {company.website && (
-              <a
-                href={company.website.startsWith('http') ? company.website : `https://${company.website}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="srsv2-cta srsv2-cta-solid"
-              >
-                Visit website
-              </a>
+    <div className="osv3" style={{ padding: '40px 24px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{
+          background: 'white',
+          border: '1px solid var(--v3-border)',
+          borderRadius: 8,
+          padding: '32px 24px',
+          marginBottom: 32,
+        }}>
+          <div style={{ display: 'flex', gap: 20, alignItems: 'flex-start' }}>
+            {company.logo_url && (
+              <img
+                src={company.logo_url}
+                alt=""
+                style={{
+                  width: 80,
+                  height: 80,
+                  borderRadius: 8,
+                  objectFit: 'cover',
+                  border: '1px solid var(--v3-border)',
+                  flexShrink: 0,
+                }}
+              />
             )}
-            {company.email && (
-              <a href={`mailto:${company.email}`} className="srsv2-cta srsv2-cta-line">
-                Email {company.name.split(' ')[0]}
-              </a>
-            )}
-            {/* polish-srw-cleanup: Contact CTA moved here from the topbar so
-                we don't lose it when the topbar was reduced to back + logo. */}
-            {(company.email || company.phone) && !company.email && (
-              <a href={`tel:${company.phone}`} className="srsv2-cta srsv2-cta-line">
-                Contact {company.name.split(' ')[0]}
-              </a>
-            )}
-          </div>
-        </div>
-      </header>
-
-      {/* Body — two columns on desktop, stacked on mobile */}
-      <div className="srcv2-body">
-        <main className="srcv2-main">
-          {company.description && (
-            <Section eyebrow="ABOUT" title="What they do">
-              <p className="srcv2-paragraph">{company.description}</p>
-            </Section>
-          )}
-
-          {certs.length > 0 && (
-            <Section eyebrow="CERTIFICATIONS" title={`${certs.length} on file`}>
-              <div className="srcv2-cert-grid">
-                {certs.map(c => (
-                  <div key={c.id} className="srcv2-cert-tile">
-                    <div className="srcv2-cert-name">{c.cert_name}</div>
-                    {c.issuer && <div className="srcv2-cert-issuer">{c.issuer}</div>}
-                    {c.valid_through && (
-                      <div className="srcv2-cert-meta">VALID THRU · {c.valid_through}</div>
-                    )}
-                  </div>
-                ))}
+            <div style={{ flex: 1 }}>
+              <h1 style={{
+                fontSize: 32,
+                fontWeight: 700,
+                color: 'var(--v3-ink-primary)',
+                margin: '0 0 8px 0',
+              }}>
+                {company.name}
+              </h1>
+              <p style={{
+                fontSize: 16,
+                color: 'var(--v3-muted)',
+                margin: 0,
+                marginBottom: 16,
+              }}>
+                {company.description}
+              </p>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                {verticalLabel && (
+                  <span style={{
+                    display: 'inline-block',
+                    background: 'var(--v3-panel-bg)',
+                    color: 'var(--v3-ink-secondary)',
+                    padding: '6px 12px',
+                    borderRadius: 6,
+                    fontSize: 12,
+                    fontWeight: 500,
+                  }}>
+                    {verticalLabel}
+                  </span>
+                )}
+                {cityState && (
+                  <span style={{
+                    display: 'inline-block',
+                    background: 'var(--v3-panel-bg)',
+                    color: 'var(--v3-ink-secondary)',
+                    padding: '6px 12px',
+                    borderRadius: 6,
+                    fontSize: 12,
+                    fontWeight: 500,
+                  }}>
+                    {cityState}
+                  </span>
+                )}
               </div>
-            </Section>
-          )}
-
-          {Object.keys(listingsByCategory).length > 0 && Object.entries(listingsByCategory).map(([cat, items]) => (
-            <Section
-              key={cat}
-              eyebrow={(CATEGORY_LABEL[cat] || cat).toUpperCase()}
-              title={`${items.length} active`}
-            >
-              <ul className="srcv2-listing-list">
-                {items.map(l => (
-                  <li key={l.id} className="srcv2-listing">
-                    <div className="srcv2-listing-head">
-                      <div className="srcv2-listing-title">{l.title}</div>
-                      {l.location && <div className="srcv2-listing-loc">{l.location}</div>}
-                    </div>
-                    {l.description && (
-                      <div className="srcv2-listing-body">{l.description}</div>
-                    )}
-                    <div className="srcv2-listing-meta">
-                      {l.salary_range && <span>{l.salary_range}</span>}
-                      {l.employment_type && <span>· {l.employment_type}</span>}
-                      {l.created_at && <span>· POSTED {new Date(l.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase()}</span>}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          ))}
-
-          {reviews.length > 0 && (
-            <Section
-              eyebrow="REVIEWS"
-              title={`${avgRating} from ${reviews.length} ${reviews.length === 1 ? 'voice' : 'voices'}`}
-            >
-              <ul className="srcv2-review-list">
-                {reviews.slice(0, 5).map(r => (
-                  <li key={r.id} className="srcv2-review">
-                    <div className="srcv2-review-rating">
-                      {'★'.repeat(r.rating || 0)}{'☆'.repeat(5 - (r.rating || 0))}
-                    </div>
-                    {r.title && <div className="srcv2-review-title">{r.title}</div>}
-                    {r.body && <div className="srcv2-review-body">{r.body}</div>}
-                    <div className="srcv2-review-meta">
-                      {r.name || 'Anonymous'}
-                      {r.created_at && ` · ${new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase()}`}
-                    </div>
-                  </li>
-                ))}
-              </ul>
-            </Section>
-          )}
-
-          {certs.length === 0 && listings.length === 0 && reviews.length === 0 && (
-            <Section eyebrow="ACTIVITY" title="Just listed">
-              <div className="srcv2-empty">
-                {company.name} is in the directory but hasn't published certifications, listings, or reviews yet. {company.website && <>The team can be reached at <a href={company.website.startsWith('http') ? company.website : `https://${company.website}`} target="_blank" rel="noopener noreferrer">their website</a>.</>}
-              </div>
-            </Section>
-          )}
-        </main>
-
-        <aside className="srcv2-aside">
-          <div className="srcv2-aside-card">
-            <div className="srsv2-eyebrow">FACTS</div>
-            <dl className="srcv2-facts">
-              {company.year_founded && <Fact label="FOUNDED" value={company.year_founded} />}
-              {company.employee_count && <Fact label="TEAM" value={`${formatRangeOrValue(company.employee_count)} PEOPLE`} />}
-              {cityState && <Fact label="LOCATION" value={cityState.toUpperCase()} />}
-              <Fact label="VERTICAL" value={verticalLabel.toUpperCase()} />
-              {company.membership_tier && (
-                <Fact label="MEMBER" value={(company.membership_tier === 'paid' ? 'PREMIUM' : company.membership_tier).toUpperCase()} />
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+              {company.website && (
+                <a
+                  href={company.website.startsWith('http') ? company.website : `https://${company.website}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    padding: '10px 16px',
+                    backgroundColor: 'var(--v3-accent)',
+                    color: 'white',
+                    textDecoration: 'none',
+                    borderRadius: 6,
+                    fontSize: 14,
+                    fontWeight: 600,
+                  }}
+                >
+                  Visit website
+                </a>
               )}
-            </dl>
+              {company.email && (
+                <a
+                  href={`mailto:${company.email}`}
+                  style={{
+                    padding: '10px 16px',
+                    border: '1px solid var(--v3-border)',
+                    backgroundColor: 'white',
+                    color: 'var(--v3-accent)',
+                    textDecoration: 'none',
+                    borderRadius: 6,
+                    fontSize: 14,
+                    fontWeight: 600,
+                  }}
+                >
+                  Email
+                </a>
+              )}
+            </div>
           </div>
+        </div>
 
-          {(company.phone || company.email || company.website) && (
-            <div className="srcv2-aside-card">
-              <div className="srsv2-eyebrow">CONTACT</div>
-              <ul className="srcv2-contact-list">
-                {company.phone && (
-                  <li>
-                    <span className="srcv2-contact-label">PHONE</span>
-                    <a href={`tel:${company.phone}`} className="srcv2-contact-value">{company.phone}</a>
-                  </li>
-                )}
-                {company.email && (
-                  <li>
-                    <span className="srcv2-contact-label">EMAIL</span>
-                    <a href={`mailto:${company.email}`} className="srcv2-contact-value">{company.email}</a>
-                  </li>
-                )}
-                {company.website && (
-                  <li>
-                    <span className="srcv2-contact-label">WEB</span>
-                    <a
-                      href={company.website.startsWith('http') ? company.website : `https://${company.website}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="srcv2-contact-value"
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: 24 }}>
+          <main>
+            {company.description && (
+              <Section eyebrow="ABOUT" title="What they do">
+                <p style={{ color: 'var(--v3-ink-secondary)', lineHeight: 1.6, margin: 0 }}>
+                  {company.description}
+                </p>
+              </Section>
+            )}
+
+            {certs.length > 0 && (
+              <Section eyebrow="CERTIFICATIONS" title={`${certs.length} on file`}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
+                  {certs.map(c => (
+                    <div
+                      key={c.id}
+                      style={{
+                        background: 'white',
+                        border: '1px solid var(--v3-border)',
+                        borderRadius: 8,
+                        padding: 16,
+                      }}
                     >
-                      {company.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
-                    </a>
-                  </li>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--v3-ink-primary)', marginBottom: 4 }}>
+                        {c.cert_name}
+                      </div>
+                      {c.issuer && (
+                        <div style={{ fontSize: 12, color: 'var(--v3-muted)', marginBottom: 8 }}>
+                          {c.issuer}
+                        </div>
+                      )}
+                      {c.valid_through && (
+                        <div style={{ fontSize: 11, color: 'var(--v3-muted)' }}>
+                          VALID THRU: {c.valid_through}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </Section>
+            )}
+
+            {Object.keys(listingsByCategory).length > 0 && Object.entries(listingsByCategory).map(([cat, items]) => (
+              <Section
+                key={cat}
+                eyebrow={(CATEGORY_LABEL[cat] || cat).toUpperCase()}
+                title={`${items.length} active`}
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {items.map(l => (
+                    <div
+                      key={l.id}
+                      style={{
+                        background: 'white',
+                        border: '1px solid var(--v3-border)',
+                        borderRadius: 8,
+                        padding: 16,
+                      }}
+                    >
+                      <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--v3-ink-primary)', marginBottom: 4 }}>
+                        {l.title}
+                      </div>
+                      {l.location && (
+                        <div style={{ fontSize: 13, color: 'var(--v3-muted)', marginBottom: 8 }}>
+                          {l.location}
+                        </div>
+                      )}
+                      {l.description && (
+                        <p style={{ fontSize: 14, color: 'var(--v3-ink-secondary)', lineHeight: 1.6, margin: '0 0 12px 0' }}>
+                          {l.description}
+                        </p>
+                      )}
+                      <div style={{ fontSize: 12, color: 'var(--v3-muted)', display: 'flex', gap: 16 }}>
+                        {l.salary_range && <span>{l.salary_range}</span>}
+                        {l.employment_type && <span>{l.employment_type}</span>}
+                        {l.created_at && <span>POSTED {new Date(l.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Section>
+            ))}
+
+            {reviews.length > 0 && (
+              <Section
+                eyebrow="REVIEWS"
+                title={`${avgRating} from ${reviews.length} ${reviews.length === 1 ? 'voice' : 'voices'}`}
+              >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {reviews.slice(0, 5).map(r => (
+                    <div
+                      key={r.id}
+                      style={{
+                        background: 'white',
+                        border: '1px solid var(--v3-border)',
+                        borderRadius: 8,
+                        padding: 16,
+                      }}
+                    >
+                      <div style={{ fontSize: 14, marginBottom: 8, color: 'var(--v3-accent)' }}>
+                        {'★'.repeat(r.rating || 0)}{'☆'.repeat(5 - (r.rating || 0))}
+                      </div>
+                      {r.title && (
+                        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--v3-ink-primary)', marginBottom: 4 }}>
+                          {r.title}
+                        </div>
+                      )}
+                      {r.body && (
+                        <p style={{ fontSize: 13, color: 'var(--v3-ink-secondary)', lineHeight: 1.6, margin: '0 0 8px 0' }}>
+                          {r.body}
+                        </p>
+                      )}
+                      <div style={{ fontSize: 12, color: 'var(--v3-muted)' }}>
+                        {r.name || 'Anonymous'} — {r.created_at && new Date(r.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </Section>
+            )}
+
+            {certs.length === 0 && listings.length === 0 && reviews.length === 0 && (
+              <Section eyebrow="ACTIVITY" title="Just listed">
+                <div style={{ color: 'var(--v3-muted)', fontSize: 14, lineHeight: 1.6 }}>
+                  {company.name} is in the directory but hasn't published certifications, listings, or reviews yet.{' '}
+                  {company.website && (
+                    <>
+                      The team can be reached at{' '}
+                      <a
+                        href={company.website.startsWith('http') ? company.website : `https://${company.website}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: 'var(--v3-link)' }}
+                      >
+                        their website
+                      </a>
+                      .
+                    </>
+                  )}
+                </div>
+              </Section>
+            )}
+          </main>
+
+          <aside>
+            <div style={{
+              background: 'white',
+              border: '1px solid var(--v3-border)',
+              borderRadius: 8,
+              padding: 16,
+              marginBottom: 16,
+            }}>
+              <div style={{
+                fontSize: 11,
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em',
+                color: 'var(--v3-muted)',
+                marginBottom: 16,
+              }}>
+                Facts
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {company.year_founded && <Fact label="FOUNDED" value={company.year_founded} />}
+                {company.employee_count && <Fact label="TEAM" value={`${formatRangeOrValue(company.employee_count)} people`} />}
+                {cityState && <Fact label="LOCATION" value={cityState} />}
+                <Fact label="VERTICAL" value={verticalLabel} />
+                {company.membership_tier && (
+                  <Fact label="MEMBER" value={company.membership_tier === 'paid' ? 'Premium' : company.membership_tier} />
                 )}
-              </ul>
+              </div>
             </div>
-          )}
 
-          <div className="srcv2-aside-card srcv2-aside-back">
-            <div className="srsv2-eyebrow">DIRECTORY</div>
-            <div className="srcv2-aside-back-copy">
-              Looking for similar companies in {verticalLabel.toLowerCase()}? Walk the room.
-            </div>
-            <Link to="/spaceos" className="srsv2-cta srsv2-cta-line">All companies</Link>
-          </div>
-        </aside>
+            {(company.phone || company.email || company.website) && (
+              <div style={{
+                background: 'white',
+                border: '1px solid var(--v3-border)',
+                borderRadius: 8,
+                padding: 16,
+                marginBottom: 16,
+              }}>
+                <div style={{
+                  fontSize: 11,
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  color: 'var(--v3-muted)',
+                  marginBottom: 16,
+                }}>
+                  Contact
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {company.phone && (
+                    <div>
+                      <div style={{ fontSize: 10, color: 'var(--v3-muted)', marginBottom: 4 }}>PHONE</div>
+                      <a href={`tel:${company.phone}`} style={{ color: 'var(--v3-link)', fontSize: 14 }}>
+                        {company.phone}
+                      </a>
+                    </div>
+                  )}
+                  {company.email && (
+                    <div>
+                      <div style={{ fontSize: 10, color: 'var(--v3-muted)', marginBottom: 4 }}>EMAIL</div>
+                      <a href={`mailto:${company.email}`} style={{ color: 'var(--v3-link)', fontSize: 14 }}>
+                        {company.email}
+                      </a>
+                    </div>
+                  )}
+                  {company.website && (
+                    <div>
+                      <div style={{ fontSize: 10, color: 'var(--v3-muted)', marginBottom: 4 }}>WEB</div>
+                      <a
+                        href={company.website.startsWith('http') ? company.website : `https://${company.website}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: 'var(--v3-link)', fontSize: 14 }}
+                      >
+                        {company.website.replace(/^https?:\/\//, '').replace(/\/$/, '')}
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </aside>
+        </div>
       </div>
-
-      <footer className="srcv2-footer">
-        <V2ChipNav active="companies" />
-      </footer>
     </div>
   );
 }
 
-// ────────────────────────────────────────────────────────────────────────────────
-// Helpers
-// ────────────────────────────────────────────────────────────────────────────────
-
 function Section({ eyebrow, title, children }) {
   return (
-    <section className="srcv2-section">
-      <header className="srcv2-section-head">
-        <div className="srsv2-eyebrow">{eyebrow}</div>
-        <h2 className="srcv2-section-title">{title}<span className="srsv2-period">.</span></h2>
-      </header>
-      <div className="srcv2-section-body">{children}</div>
+    <section style={{ marginBottom: 32 }}>
+      <div style={{
+        fontSize: 11,
+        fontWeight: 700,
+        textTransform: 'uppercase',
+        letterSpacing: '0.08em',
+        color: 'var(--v3-muted)',
+        marginBottom: 12,
+      }}>
+        {eyebrow}
+      </div>
+      <h2 style={{
+        fontSize: 24,
+        fontWeight: 700,
+        color: 'var(--v3-ink-primary)',
+        margin: '0 0 16px 0',
+      }}>
+        {title}
+      </h2>
+      {children}
     </section>
   );
 }
 
 function Fact({ label, value }) {
   return (
-    <div className="srcv2-fact">
-      <dt>{label}</dt>
-      <dd>{value}</dd>
+    <div>
+      <div style={{ fontSize: 10, color: 'var(--v3-muted)', marginBottom: 2 }}>
+        {label}
+      </div>
+      <div style={{ fontSize: 14, color: 'var(--v3-ink-primary)', fontWeight: 500 }}>
+        {value}
+      </div>
     </div>
   );
 }

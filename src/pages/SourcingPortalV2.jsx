@@ -1,26 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import '../space-rising-theme-v2.css';
 
 // ─── V2 design tokens (hardcoded — no getTokens, no SourcingThemeProvider) ───
-const V2 = {
-  bg: '#06060A',
-  card: '#0D0D12',
-  card2: '#111115',
-  border: 'rgba(255,255,255,0.08)',
-  text: '#E8E4DA',
-  heading: '#E8E4DA',
-  muted: 'rgba(232,228,218,0.55)',
-  dim: 'rgba(232,228,218,0.35)',
-  accent: '#E8A23A',
-  accentDim: 'rgba(232,162,58,0.08)',
-  accentBrd: 'rgba(232,162,58,0.25)',
-  space: 'Space Grotesk, sans-serif',
-  mono: 'JetBrains Mono, ui-monospace, monospace',
-  red: '#EF4444',
-  green: '#86EFAC',
-};
 
 // ─── Tenant + route constants ─────────────────────────────────────────────────
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
@@ -454,23 +436,23 @@ export default function SourcingPortalV2() {
       // No listing — show prompt to create one
       return (
         <div style={{
-          background: V2.card, border: `1px solid ${V2.border}`,
+          background: 'white', border: `1px solid ${'var(--v3-border)'}`,
           borderRadius: 12, padding: '24px 20px', marginBottom: 32,
         }}>
           <div style={{
-            fontSize: 13, fontWeight: 700, fontFamily: V2.space,
-            color: V2.heading, marginBottom: 12,
+            fontSize: 13, fontWeight: 700, fontFamily: 'Roboto, sans-serif',
+            color: 'var(--v3-ink-primary)', marginBottom: 12,
           }}>
             My Deal Bank Listing
           </div>
           <p style={{
-            fontSize: 13, color: V2.muted, fontFamily: V2.space,
+            fontSize: 13, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif',
             lineHeight: 1.6, margin: 0,
           }}>
             You haven't posted a Deal Bank listing yet. To list your company as raising capital,{' '}
             <Link
               to={`${BASE_PATH_V2}/deal-bank/investments/add`}
-              style={{ color: V2.accent, fontWeight: 600 }}
+              style={{ color: 'var(--v3-accent)', fontWeight: 600 }}
             >
               create a new listing
             </Link>
@@ -492,12 +474,12 @@ export default function SourcingPortalV2() {
     if (dealBankEditing) {
       return (
         <div style={{
-          background: V2.card, border: `1px solid ${V2.accentBrd}`,
+          background: 'white', border: `1px solid ${'var(--v3-accent)'Brd}`,
           borderRadius: 12, padding: '24px 20px', marginBottom: 32,
         }}>
           <div style={{
-            fontSize: 13, fontWeight: 700, fontFamily: V2.space,
-            color: V2.heading, marginBottom: 16,
+            fontSize: 13, fontWeight: 700, fontFamily: 'Roboto, sans-serif',
+            color: 'var(--v3-ink-primary)', marginBottom: 16,
           }}>
             Edit Your Deal Bank Listing
           </div>
@@ -511,7 +493,7 @@ export default function SourcingPortalV2() {
           >
             {/* Executive Summary */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-              <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+              <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                 Executive Summary
               </label>
               <textarea
@@ -519,9 +501,9 @@ export default function SourcingPortalV2() {
                 onChange={(e) => setDealBankEditForm(f => ({ ...f, exec_summary: e.target.value }))}
                 placeholder="Brief overview of your business, market, and why you're raising."
                 style={{
-                  background: V2.card2, border: `1px solid ${V2.border}`,
-                  color: V2.text, borderRadius: 7, padding: '10px 12px',
-                  fontSize: 13, fontFamily: V2.space, width: '100%',
+                  background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                  color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                  fontSize: 13, fontFamily: 'Roboto, sans-serif', width: '100%',
                   minHeight: 80, resize: 'vertical',
                 }}
               />
@@ -530,7 +512,7 @@ export default function SourcingPortalV2() {
             {/* Capital Sought & Round Stage (2-col) */}
             <div style={{ display: 'flex', gap: 12 }}>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                   Capital Sought ($M)
                 </label>
                 <input
@@ -540,23 +522,23 @@ export default function SourcingPortalV2() {
                   placeholder="e.g. 5"
                   step="0.1"
                   style={{
-                    background: V2.card2, border: `1px solid ${V2.border}`,
-                    color: V2.text, borderRadius: 7, padding: '10px 12px',
-                    fontSize: 13, fontFamily: V2.space, width: '100%',
+                    background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                    color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                    fontSize: 13, fontFamily: 'Roboto, sans-serif', width: '100%',
                   }}
                 />
               </div>
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                   Round Stage
                 </label>
                 <select
                   value={dealBankEditForm.round_stage}
                   onChange={(e) => setDealBankEditForm(f => ({ ...f, round_stage: e.target.value }))}
                   style={{
-                    background: V2.card2, border: `1px solid ${V2.border}`,
-                    color: V2.text, borderRadius: 7, padding: '10px 12px',
-                    fontSize: 13, fontFamily: V2.space, width: '100%',
+                    background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                    color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                    fontSize: 13, fontFamily: 'Roboto, sans-serif', width: '100%',
                   }}
                 >
                   <option value="">Select round</option>
@@ -576,7 +558,7 @@ export default function SourcingPortalV2() {
             <div style={{ display: 'flex', gap: 12 }}>
               {['revenue_y1', 'revenue_y2', 'revenue_y3'].map((field, i) => (
                 <div key={field} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5 }}>
-                  <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                  <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                     Year {i + 1} Revenue ($M)
                   </label>
                   <input
@@ -586,9 +568,9 @@ export default function SourcingPortalV2() {
                     placeholder="0"
                     step="0.1"
                     style={{
-                      background: V2.card2, border: `1px solid ${V2.border}`,
-                      color: V2.text, borderRadius: 7, padding: '10px 12px',
-                      fontSize: 13, fontFamily: V2.space, width: '100%',
+                      background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                      color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                      fontSize: 13, fontFamily: 'Roboto, sans-serif', width: '100%',
                     }}
                   />
                 </div>
@@ -597,16 +579,16 @@ export default function SourcingPortalV2() {
 
             {/* Pitch Deck */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-              <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+              <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                 Pitch Deck
               </label>
 
               {/* File upload or current deck display */}
               {dealBankDeckFile ? (
                 <div style={{
-                  background: V2.card2, border: `1px solid ${V2.accentBrd}`,
-                  color: V2.text, borderRadius: 7, padding: '10px 12px',
-                  fontSize: 13, fontFamily: V2.space, width: '100%',
+                  background: 'white'2, border: `1px solid ${'var(--v3-accent)'Brd}`,
+                  color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                  fontSize: 13, fontFamily: 'Roboto, sans-serif', width: '100%',
                 }}>
                   <div style={{ marginBottom: 8 }}>
                     Selected: {dealBankDeckFile.name}
@@ -615,8 +597,8 @@ export default function SourcingPortalV2() {
                     type="button"
                     onClick={() => setDealBankDeckFile(null)}
                     style={{
-                      background: 'transparent', color: V2.red, border: 'none',
-                      fontSize: 11, cursor: 'pointer', fontFamily: V2.space,
+                      background: 'transparent', color: '#EF4444', border: 'none',
+                      fontSize: 11, cursor: 'pointer', fontFamily: 'Roboto, sans-serif',
                     }}
                   >
                     Clear selection
@@ -626,9 +608,9 @@ export default function SourcingPortalV2() {
                 <>
                   {dealBankEditForm.deck_url && (
                     <div style={{
-                      background: V2.card2, border: `1px solid ${V2.border}`,
-                      color: V2.muted, borderRadius: 7, padding: '10px 12px',
-                      fontSize: 12, fontFamily: V2.space, width: '100%',
+                      background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                      color: 'var(--v3-muted)', borderRadius: 7, padding: '10px 12px',
+                      fontSize: 12, fontFamily: 'Roboto, sans-serif', width: '100%',
                       marginBottom: 8,
                     }}>
                       <div style={{ marginBottom: 6 }}>Current deck:</div>
@@ -636,7 +618,7 @@ export default function SourcingPortalV2() {
                         href={dealBankEditForm.deck_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ color: V2.accent, textDecoration: 'underline', fontSize: 11 }}
+                        style={{ color: 'var(--v3-accent)', textDecoration: 'underline', fontSize: 11 }}
                       >
                         Download
                       </a>
@@ -644,8 +626,8 @@ export default function SourcingPortalV2() {
                         type="button"
                         onClick={() => setDealBankEditForm(f => ({ ...f, deck_url: '' }))}
                         style={{
-                          background: 'transparent', color: V2.red, border: 'none',
-                          fontSize: 11, cursor: 'pointer', marginLeft: 12, fontFamily: V2.space,
+                          background: 'transparent', color: '#EF4444', border: 'none',
+                          fontSize: 11, cursor: 'pointer', marginLeft: 12, fontFamily: 'Roboto, sans-serif',
                         }}
                       >
                         Remove
@@ -654,9 +636,9 @@ export default function SourcingPortalV2() {
                   )}
                   <label
                     style={{
-                      display: 'block', background: V2.card2, border: `2px dashed ${V2.border}`,
-                      color: V2.muted, borderRadius: 7, padding: '16px 12px',
-                      fontSize: 12, fontFamily: V2.space, width: '100%',
+                      display: 'block', background: 'white'2, border: `2px dashed ${'var(--v3-border)'}`,
+                      color: 'var(--v3-muted)', borderRadius: 7, padding: '16px 12px',
+                      fontSize: 12, fontFamily: 'Roboto, sans-serif', width: '100%',
                       textAlign: 'center', cursor: 'pointer',
                     }}
                   >
@@ -678,16 +660,16 @@ export default function SourcingPortalV2() {
               {/* Or paste a URL */}
               {!dealBankDeckFile && (
                 <>
-                  <div style={{ fontSize: 11, color: V2.muted, textAlign: 'center' }}>or paste a URL</div>
+                  <div style={{ fontSize: 11, color: 'var(--v3-muted)', textAlign: 'center' }}>or paste a URL</div>
                   <input
                     type="url"
                     value={dealBankEditForm.deck_url}
                     onChange={(e) => setDealBankEditForm(f => ({ ...f, deck_url: e.target.value }))}
                     placeholder="https://example.com/deck.pdf"
                     style={{
-                      background: V2.card2, border: `1px solid ${V2.border}`,
-                      color: V2.text, borderRadius: 7, padding: '10px 12px',
-                      fontSize: 13, fontFamily: V2.space, width: '100%',
+                      background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                      color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                      fontSize: 13, fontFamily: 'Roboto, sans-serif', width: '100%',
                     }}
                   />
                 </>
@@ -696,7 +678,7 @@ export default function SourcingPortalV2() {
 
             {/* Error message */}
             {dealBankError && (
-              <div style={{ fontSize: 12, color: V2.red, fontFamily: V2.space }}>
+              <div style={{ fontSize: 12, color: '#EF4444', fontFamily: 'Roboto, sans-serif' }}>
                 {dealBankError}
               </div>
             )}
@@ -707,9 +689,9 @@ export default function SourcingPortalV2() {
                 type="submit"
                 disabled={dealBankSaving}
                 style={{
-                  background: V2.accent, color: '#000', border: 'none',
+                  background: 'var(--v3-accent)', color: '#000', border: 'none',
                   borderRadius: 7, padding: '10px 16px', fontSize: 12,
-                  fontWeight: 700, fontFamily: V2.space, cursor: 'pointer',
+                  fontWeight: 700, fontFamily: 'Roboto, sans-serif', cursor: 'pointer',
                   opacity: dealBankSaving ? 0.6 : 1,
                 }}
               >
@@ -722,9 +704,9 @@ export default function SourcingPortalV2() {
                   setDealBankError('');
                 }}
                 style={{
-                  background: 'transparent', color: V2.accent, border: `1px solid ${V2.accentBrd}`,
+                  background: 'transparent', color: 'var(--v3-accent)', border: `1px solid ${'var(--v3-accent)'Brd}`,
                   borderRadius: 7, padding: '10px 16px', fontSize: 12,
-                  fontWeight: 700, fontFamily: V2.space, cursor: 'pointer',
+                  fontWeight: 700, fontFamily: 'Roboto, sans-serif', cursor: 'pointer',
                 }}
               >
                 Cancel
@@ -738,7 +720,7 @@ export default function SourcingPortalV2() {
     // Display view (not editing)
     return (
       <div style={{
-        background: V2.card, border: `1px solid ${V2.border}`,
+        background: 'white', border: `1px solid ${'var(--v3-border)'}`,
         borderRadius: 12, padding: '24px 20px', marginBottom: 32,
       }}>
         <div style={{
@@ -746,15 +728,15 @@ export default function SourcingPortalV2() {
           marginBottom: 16,
         }}>
           <div style={{
-            fontSize: 13, fontWeight: 700, fontFamily: V2.space,
-            color: V2.heading,
+            fontSize: 13, fontWeight: 700, fontFamily: 'Roboto, sans-serif',
+            color: 'var(--v3-ink-primary)',
           }}>
             My Deal Bank Listing
           </div>
           <div style={{
             background: colors.bg, border: `1px solid ${colors.border}`,
             color: colors.text, borderRadius: 5, padding: '4px 10px',
-            fontSize: 11, fontWeight: 600, fontFamily: V2.space,
+            fontSize: 11, fontWeight: 600, fontFamily: 'Roboto, sans-serif',
           }}>
             {colors.label}
           </div>
@@ -764,7 +746,7 @@ export default function SourcingPortalV2() {
         {dealBankListing?.capital_sought && (
           <div style={{
             display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-            gap: 1, background: V2.card2, border: `1px solid ${V2.border}`,
+            gap: 1, background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
             borderRadius: 8, overflow: 'hidden', marginBottom: 16,
           }}>
             {[
@@ -774,14 +756,14 @@ export default function SourcingPortalV2() {
               { label: 'Year 2 Revenue', value: dealBankListing.revenue_y2 ? `$${dealBankListing.revenue_y2}M` : '—' },
               { label: 'Year 3 Revenue', value: dealBankListing.revenue_y3 ? `$${dealBankListing.revenue_y3}M` : '—' },
             ].map((item, i) => (
-              <div key={i} style={{ padding: '12px', borderRight: i < 4 ? `1px solid ${V2.border}` : 'none' }}>
+              <div key={i} style={{ padding: '12px', borderRight: i < 4 ? `1px solid ${'var(--v3-border)'}` : 'none' }}>
                 <div style={{
-                  fontSize: 10, color: V2.muted, fontFamily: V2.mono,
+                  fontSize: 10, color: 'var(--v3-muted)', fontFamily: 'Roboto, monospace',
                   textTransform: 'uppercase', marginBottom: 4,
                 }}>
                   {item.label}
                 </div>
-                <div style={{ fontSize: 13, color: V2.text, fontFamily: V2.space, fontWeight: 600 }}>
+                <div style={{ fontSize: 13, color: 'var(--v3-ink-primary)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                   {item.value}
                 </div>
               </div>
@@ -793,13 +775,13 @@ export default function SourcingPortalV2() {
         {dealBankListing?.exec_summary && (
           <div style={{ marginBottom: 16 }}>
             <div style={{
-              fontSize: 11, color: V2.muted, fontFamily: V2.mono,
+              fontSize: 11, color: 'var(--v3-muted)', fontFamily: 'Roboto, monospace',
               textTransform: 'uppercase', marginBottom: 6,
             }}>
               Executive Summary
             </div>
             <p style={{
-              fontSize: 13, color: V2.text, fontFamily: V2.space,
+              fontSize: 13, color: 'var(--v3-ink-primary)', fontFamily: 'Roboto, sans-serif',
               lineHeight: 1.6, margin: 0,
             }}>
               {dealBankListing.exec_summary}
@@ -815,9 +797,9 @@ export default function SourcingPortalV2() {
               setDealBankError('');
             }}
             style={{
-              background: V2.accentDim, color: V2.accent, border: `1px solid ${V2.accentBrd}`,
+              background: 'var(--v3-accent)'Dim, color: 'var(--v3-accent)', border: `1px solid ${'var(--v3-accent)'Brd}`,
               borderRadius: 7, padding: '8px 14px', fontSize: 12,
-              fontWeight: 600, fontFamily: V2.space, cursor: 'pointer',
+              fontWeight: 600, fontFamily: 'Roboto, sans-serif', cursor: 'pointer',
             }}
           >
             Edit
@@ -826,9 +808,9 @@ export default function SourcingPortalV2() {
             onClick={handleWithdrawDealBankListing}
             disabled={dealBankSaving}
             style={{
-              background: 'transparent', color: V2.red, border: `1px solid rgba(239,68,68,0.3)`,
+              background: 'transparent', color: '#EF4444', border: `1px solid rgba(239,68,68,0.3)`,
               borderRadius: 7, padding: '8px 14px', fontSize: 12,
-              fontWeight: 600, fontFamily: V2.space, cursor: 'pointer',
+              fontWeight: 600, fontFamily: 'Roboto, sans-serif', cursor: 'pointer',
               opacity: dealBankSaving ? 0.6 : 1,
             }}
           >
@@ -842,11 +824,11 @@ export default function SourcingPortalV2() {
   // ── Loading state ──────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div style={{ minHeight: '100dvh', background: V2.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="osv3" style={{ padding: '40px 24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{
           width: 20, height: 20, borderRadius: '50%',
-          border: `2px solid ${V2.border}`,
-          borderTop: `2px solid ${V2.accent}`,
+          border: `2px solid ${'var(--v3-border)'}`,
+          borderTop: `2px solid ${'var(--v3-accent)'}`,
           animation: 'spin 0.8s linear infinite',
         }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
@@ -856,122 +838,35 @@ export default function SourcingPortalV2() {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div style={{ minHeight: '100dvh', background: V2.bg }}>
+    <div className="osv3" style={{ padding: "40px 24px" }}>
       <style>{`
         * { box-sizing: border-box; }
         @keyframes spin { to { transform: rotate(360deg); } }
         a { color: inherit; text-decoration: none; }
-        input::placeholder, textarea::placeholder { color: ${V2.dim}; }
+        input::placeholder, textarea::placeholder { color: ${'var(--v3-muted)'}; }
         input:focus, textarea:focus, select:focus {
-          border-color: ${V2.accent} !important;
-          box-shadow: 0 0 0 2px ${V2.accentDim};
+          border-color: ${'var(--v3-accent)'} !important;
+          box-shadow: 0 0 0 2px ${'var(--v3-accent)'Dim};
           outline: none;
         }
       `}</style>
 
-      {/* ── Portal topbar ── */}
-      <div style={{
-        borderBottom: `1px solid ${V2.border}`,
-        background: V2.card,
-        padding: '14px 24px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: 12,
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-      }}>
-        <Link
-          to="/srw-v2"
-          style={{
-            fontSize: 13,
-            fontWeight: 700,
-            letterSpacing: '0.16em',
-            textTransform: 'uppercase',
-            color: V2.accent,
-            fontFamily: V2.space,
-          }}
-        >
-          SPACE RISING
-        </Link>
-
-        <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
-          <Link
-            to={BASE_PATH_V2}
-            style={{
-              fontSize: 11,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              color: V2.muted,
-              fontFamily: V2.mono,
-            }}
-          >
-            ← Directory
-          </Link>
-          <button
-            onClick={handleLogout}
-            style={{
-              background: 'transparent',
-              border: `1px solid ${V2.accentBrd}`,
-              color: V2.accent,
-              borderRadius: 6,
-              padding: '6px 14px',
-              fontSize: 11,
-              letterSpacing: '0.12em',
-              textTransform: 'uppercase',
-              fontFamily: V2.mono,
-              cursor: 'pointer',
-            }}
-          >
-            Sign Out
-          </button>
-        </div>
-      </div>
-
       {/* ── Main content ── */}
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '40px 24px 80px' }}>
-
-        {/* Page header */}
-        <div style={{ marginBottom: 32 }}>
-          <div style={{
-            fontSize: 11,
-            fontFamily: V2.mono,
-            letterSpacing: '0.14em',
-            textTransform: 'uppercase',
-            color: V2.accent,
-            marginBottom: 8,
-          }}>
-            MEMBER PORTAL
-          </div>
-          <h1 style={{
-            fontSize: 28,
-            fontFamily: V2.space,
-            fontWeight: 700,
-            color: V2.heading,
-            margin: '0 0 32px',
-          }}>
-            {member?.full_name
-              ? `Welcome, ${member.full_name.split(' ')[0]}`
-              : 'Your Portal'}
-            <span style={{ color: V2.accent }}>.</span>
-          </h1>
-        </div>
 
         {/* Quick actions */}
         <div style={{ display: 'flex', gap: 10, marginBottom: 28, flexWrap: 'wrap' }}>
           <Link
             to={`${BASE_PATH_V2}/articles/post`}
             style={{
-              background: V2.accentDim,
-              border: `1px solid ${V2.accentBrd}`,
-              color: V2.accent,
+              background: 'var(--v3-accent)'Dim,
+              border: `1px solid ${'var(--v3-accent)'Brd}`,
+              color: 'var(--v3-accent)',
               borderRadius: 8,
               padding: '10px 18px',
               fontSize: 13,
               fontWeight: 700,
-              fontFamily: V2.space,
+              fontFamily: 'Roboto, sans-serif',
               display: 'inline-flex',
               alignItems: 'center',
               gap: 6,
@@ -984,9 +879,9 @@ export default function SourcingPortalV2() {
         {/* Error banner */}
         {error && (
           <div style={{
-            color: V2.red,
+            color: '#EF4444',
             fontSize: 13,
-            fontFamily: V2.space,
+            fontFamily: 'Roboto, sans-serif',
             padding: '12px 14px',
             background: 'rgba(239,68,68,0.08)',
             borderRadius: 8,
@@ -1000,22 +895,22 @@ export default function SourcingPortalV2() {
         {/* ── Company Profile Card ── */}
         {company && (
           <div style={{
-            background: V2.card,
-            border: `1px solid ${V2.border}`,
+            background: 'white',
+            border: `1px solid ${'var(--v3-border)'}`,
             borderRadius: 12,
             padding: '28px 24px',
             marginBottom: 32,
           }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
               <div style={{
-                fontSize: 11, fontWeight: 700, fontFamily: V2.mono,
-                color: V2.accent, letterSpacing: '0.12em', textTransform: 'uppercase',
+                fontSize: 11, fontWeight: 700, fontFamily: 'Roboto, monospace',
+                color: 'var(--v3-accent)', letterSpacing: '0.12em', textTransform: 'uppercase',
               }}>
                 Company Profile
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                 {saved && (
-                  <span style={{ fontSize: 12, color: V2.green, fontFamily: V2.space, fontWeight: 600 }}>
+                  <span style={{ fontSize: 12, color: '#34A853', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                     Saved
                   </span>
                 )}
@@ -1023,14 +918,14 @@ export default function SourcingPortalV2() {
                   <button
                     onClick={() => setEditing(true)}
                     style={{
-                      background: V2.accentDim,
-                      border: `1px solid ${V2.accentBrd}`,
-                      color: V2.accent,
+                      background: 'var(--v3-accent)'Dim,
+                      border: `1px solid ${'var(--v3-accent)'Brd}`,
+                      color: 'var(--v3-accent)',
                       borderRadius: 6,
                       padding: '6px 14px',
                       fontSize: 12,
                       fontWeight: 700,
-                      fontFamily: V2.space,
+                      fontFamily: 'Roboto, sans-serif',
                       cursor: 'pointer',
                     }}
                   >
@@ -1052,13 +947,13 @@ export default function SourcingPortalV2() {
                       }}
                       style={{
                         background: 'transparent',
-                        border: `1px solid ${V2.border}`,
-                        color: V2.muted,
+                        border: `1px solid ${'var(--v3-border)'}`,
+                        color: 'var(--v3-muted)',
                         borderRadius: 6,
                         padding: '6px 14px',
                         fontSize: 12,
                         fontWeight: 600,
-                        fontFamily: V2.space,
+                        fontFamily: 'Roboto, sans-serif',
                         cursor: 'pointer',
                       }}
                     >
@@ -1068,14 +963,14 @@ export default function SourcingPortalV2() {
                       onClick={handleSaveProfile}
                       disabled={saving}
                       style={{
-                        background: saving ? `${V2.accent}60` : V2.accent,
+                        background: saving ? `${'var(--v3-accent)'}60` : 'var(--v3-accent)',
                         border: 'none',
                         color: '#fff',
                         borderRadius: 6,
                         padding: '6px 14px',
                         fontSize: 12,
                         fontWeight: 700,
-                        fontFamily: V2.space,
+                        fontFamily: 'Roboto, sans-serif',
                         cursor: saving ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -1102,21 +997,21 @@ export default function SourcingPortalV2() {
             {editing ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                  <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                  <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                     Company Name
                   </label>
                   <input
                     value={editForm.name}
                     onChange={e => setEditForm(f => ({ ...f, name: e.target.value }))}
                     style={{
-                      background: V2.card2, border: `1px solid ${V2.border}`,
-                      color: V2.text, borderRadius: 7, padding: '10px 12px',
-                      fontSize: 14, fontFamily: V2.space, width: '100%',
+                      background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                      color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                      fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                     }}
                   />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                  <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                  <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                     Description
                   </label>
                   <textarea
@@ -1124,16 +1019,16 @@ export default function SourcingPortalV2() {
                     onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))}
                     rows={3}
                     style={{
-                      background: V2.card2, border: `1px solid ${V2.border}`,
-                      color: V2.text, borderRadius: 7, padding: '10px 12px',
-                      fontSize: 14, fontFamily: V2.space, width: '100%',
+                      background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                      color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                      fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                       resize: 'vertical', minHeight: 80,
                     }}
                   />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                    <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                    <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                       Website
                     </label>
                     <input
@@ -1141,14 +1036,14 @@ export default function SourcingPortalV2() {
                       onChange={e => setEditForm(f => ({ ...f, website: e.target.value }))}
                       placeholder="https://company.com"
                       style={{
-                        background: V2.card2, border: `1px solid ${V2.border}`,
-                        color: V2.text, borderRadius: 7, padding: '10px 12px',
-                        fontSize: 14, fontFamily: V2.space, width: '100%',
+                        background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                        color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                        fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                       }}
                     />
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                    <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                    <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                       Phone
                     </label>
                     <input
@@ -1156,16 +1051,16 @@ export default function SourcingPortalV2() {
                       onChange={e => setEditForm(f => ({ ...f, phone: e.target.value }))}
                       placeholder="(480) 555-0100"
                       style={{
-                        background: V2.card2, border: `1px solid ${V2.border}`,
-                        color: V2.text, borderRadius: 7, padding: '10px 12px',
-                        fontSize: 14, fontFamily: V2.space, width: '100%',
+                        background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                        color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                        fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                       }}
                     />
                   </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                    <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                    <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                       Email
                     </label>
                     <input
@@ -1173,14 +1068,14 @@ export default function SourcingPortalV2() {
                       onChange={e => setEditForm(f => ({ ...f, email: e.target.value }))}
                       placeholder="info@company.com"
                       style={{
-                        background: V2.card2, border: `1px solid ${V2.border}`,
-                        color: V2.text, borderRadius: 7, padding: '10px 12px',
-                        fontSize: 14, fontFamily: V2.space, width: '100%',
+                        background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                        color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                        fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                       }}
                     />
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                    <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                    <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                       Logo URL
                     </label>
                     <input
@@ -1188,9 +1083,9 @@ export default function SourcingPortalV2() {
                       onChange={e => setEditForm(f => ({ ...f, logo_url: e.target.value }))}
                       placeholder="https://..."
                       style={{
-                        background: V2.card2, border: `1px solid ${V2.border}`,
-                        color: V2.text, borderRadius: 7, padding: '10px 12px',
-                        fontSize: 14, fontFamily: V2.space, width: '100%',
+                        background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                        color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                        fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                       }}
                     />
                   </div>
@@ -1205,17 +1100,17 @@ export default function SourcingPortalV2() {
                       alt=""
                       style={{
                         width: 48, height: 48, borderRadius: 8,
-                        objectFit: 'cover', border: `1px solid ${V2.border}`,
+                        objectFit: 'cover', border: `1px solid ${'var(--v3-border)'}`,
                       }}
                     />
                   )}
                   <div>
                     <div style={{
-                      fontSize: 18, fontWeight: 700, fontFamily: V2.space, color: V2.heading,
+                      fontSize: 18, fontWeight: 700, fontFamily: 'Roboto, sans-serif', color: 'var(--v3-ink-primary)',
                     }}>
                       {company.name}
                     </div>
-                    <div style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space }}>
+                    <div style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif' }}>
                       {[company.city, company.state].filter(Boolean).join(', ')}
                       {company.vertical && ` · ${company.vertical}`}
                     </div>
@@ -1223,7 +1118,7 @@ export default function SourcingPortalV2() {
                 </div>
                 {company.description && (
                   <p style={{
-                    fontSize: 13, color: V2.muted, fontFamily: V2.space,
+                    fontSize: 13, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif',
                     lineHeight: 1.6, margin: '0 0 12px',
                   }}>
                     {company.description}
@@ -1231,14 +1126,14 @@ export default function SourcingPortalV2() {
                 )}
                 <div style={{
                   display: 'flex', gap: 16, flexWrap: 'wrap',
-                  fontSize: 12, fontFamily: V2.mono, color: V2.dim,
+                  fontSize: 12, fontFamily: 'Roboto, monospace', color: 'var(--v3-muted)',
                 }}>
                   {company.website && (
                     <a
                       href={company.website}
                       target="_blank"
                       rel="noreferrer"
-                      style={{ color: V2.accent }}
+                      style={{ color: 'var(--v3-accent)' }}
                     >
                       {company.website.replace(/^https?:\/\//, '')}
                     </a>
@@ -1257,11 +1152,11 @@ export default function SourcingPortalV2() {
         {/* No company linked — info state */}
         {!company && !loading && (
           <div style={{
-            background: V2.card, border: `1px solid ${V2.border}`,
+            background: 'white', border: `1px solid ${'var(--v3-border)'}`,
             borderRadius: 12, padding: '28px 24px', marginBottom: 32,
             textAlign: 'center',
           }}>
-            <div style={{ fontSize: 13, color: V2.muted, fontFamily: V2.space }}>
+            <div style={{ fontSize: 13, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif' }}>
               No company profile linked to your account. Contact Space Rising to get set up.
             </div>
           </div>
@@ -1274,22 +1169,22 @@ export default function SourcingPortalV2() {
             justifyContent: 'space-between', marginBottom: 16,
           }}>
             <div style={{
-              fontSize: 11, fontWeight: 700, fontFamily: V2.mono,
-              color: V2.accent, letterSpacing: '0.12em', textTransform: 'uppercase',
+              fontSize: 11, fontWeight: 700, fontFamily: 'Roboto, monospace',
+              color: 'var(--v3-accent)', letterSpacing: '0.12em', textTransform: 'uppercase',
             }}>
               Your Listings ({listings.length})
             </div>
             <button
               onClick={() => setShowNewListing(s => !s)}
               style={{
-                background: showNewListing ? V2.accentDim : V2.accent,
-                border: showNewListing ? `1px solid ${V2.accentBrd}` : 'none',
-                color: showNewListing ? V2.accent : '#fff',
+                background: showNewListing ? 'var(--v3-accent)'Dim : 'var(--v3-accent)',
+                border: showNewListing ? `1px solid ${'var(--v3-accent)'Brd}` : 'none',
+                color: showNewListing ? 'var(--v3-accent)' : '#fff',
                 borderRadius: 7,
                 padding: '8px 16px',
                 fontSize: 12,
                 fontWeight: 700,
-                fontFamily: V2.space,
+                fontFamily: 'Roboto, sans-serif',
                 cursor: 'pointer',
               }}
             >
@@ -1300,12 +1195,12 @@ export default function SourcingPortalV2() {
           {/* New Listing Form */}
           {showNewListing && (
             <div style={{
-              background: V2.card, border: `1px solid ${V2.accentBrd}`,
+              background: 'white', border: `1px solid ${'var(--v3-accent)'Brd}`,
               borderRadius: 10, padding: '24px 20px', marginBottom: 16,
             }}>
               <div style={{
-                fontSize: 14, fontWeight: 700, fontFamily: V2.space,
-                color: V2.heading, marginBottom: 16,
+                fontSize: 14, fontWeight: 700, fontFamily: 'Roboto, sans-serif',
+                color: 'var(--v3-ink-primary)', marginBottom: 16,
               }}>
                 New Listing
               </div>
@@ -1318,14 +1213,14 @@ export default function SourcingPortalV2() {
                       type="button"
                       onClick={() => setListingForm(f => ({ ...f, category: cat.key }))}
                       style={{
-                        background: listingForm.category === cat.key ? V2.accentDim : 'transparent',
-                        border: `1px solid ${listingForm.category === cat.key ? V2.accentBrd : V2.border}`,
-                        color: listingForm.category === cat.key ? V2.accent : V2.muted,
+                        background: listingForm.category === cat.key ? 'var(--v3-accent)'Dim : 'transparent',
+                        border: `1px solid ${listingForm.category === cat.key ? 'var(--v3-accent)'Brd : 'var(--v3-border)'}`,
+                        color: listingForm.category === cat.key ? 'var(--v3-accent)' : 'var(--v3-muted)',
                         borderRadius: 6,
                         padding: '6px 14px',
                         fontSize: 12,
                         fontWeight: 600,
-                        fontFamily: V2.space,
+                        fontFamily: 'Roboto, sans-serif',
                         cursor: 'pointer',
                       }}
                     >
@@ -1335,23 +1230,23 @@ export default function SourcingPortalV2() {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                  <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
-                    Title <span style={{ color: V2.accent }}>*</span>
+                  <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
+                    Title <span style={{ color: 'var(--v3-accent)' }}>*</span>
                   </label>
                   <input
                     value={listingForm.title}
                     onChange={e => setListingForm(f => ({ ...f, title: e.target.value }))}
                     placeholder={listingForm.category === 'job' ? 'e.g. Process Engineer' : 'e.g. CMP System'}
                     style={{
-                      background: V2.card2, border: `1px solid ${V2.border}`,
-                      color: V2.text, borderRadius: 7, padding: '10px 12px',
-                      fontSize: 14, fontFamily: V2.space, width: '100%',
+                      background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                      color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                      fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                     }}
                   />
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                  <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                  <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                     Description
                   </label>
                   <textarea
@@ -1360,9 +1255,9 @@ export default function SourcingPortalV2() {
                     rows={3}
                     placeholder="Details about the listing..."
                     style={{
-                      background: V2.card2, border: `1px solid ${V2.border}`,
-                      color: V2.text, borderRadius: 7, padding: '10px 12px',
-                      fontSize: 14, fontFamily: V2.space, width: '100%',
+                      background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                      color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                      fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                       resize: 'vertical', minHeight: 80,
                     }}
                   />
@@ -1372,7 +1267,7 @@ export default function SourcingPortalV2() {
                 {listingForm.category === 'equipment' && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                      <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                      <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                         Price ($)
                       </label>
                       <input
@@ -1382,23 +1277,23 @@ export default function SourcingPortalV2() {
                         onChange={e => setListingForm(f => ({ ...f, price: e.target.value }))}
                         placeholder="25000"
                         style={{
-                          background: V2.card2, border: `1px solid ${V2.border}`,
-                          color: V2.text, borderRadius: 7, padding: '10px 12px',
-                          fontSize: 14, fontFamily: V2.space, width: '100%',
+                          background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                          color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                          fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                         }}
                       />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                      <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                      <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                         Condition
                       </label>
                       <select
                         value={listingForm.condition}
                         onChange={e => setListingForm(f => ({ ...f, condition: e.target.value }))}
                         style={{
-                          background: V2.card2, border: `1px solid ${V2.border}`,
-                          color: V2.text, borderRadius: 7, padding: '10px 12px',
-                          fontSize: 14, fontFamily: V2.space, width: '100%',
+                          background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                          color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                          fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                           appearance: 'none', cursor: 'pointer',
                         }}
                       >
@@ -1412,7 +1307,7 @@ export default function SourcingPortalV2() {
                 {listingForm.category === 'job' && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                      <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                      <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                         Salary Range
                       </label>
                       <input
@@ -1420,23 +1315,23 @@ export default function SourcingPortalV2() {
                         onChange={e => setListingForm(f => ({ ...f, salary_range: e.target.value }))}
                         placeholder="$80-120K"
                         style={{
-                          background: V2.card2, border: `1px solid ${V2.border}`,
-                          color: V2.text, borderRadius: 7, padding: '10px 12px',
-                          fontSize: 14, fontFamily: V2.space, width: '100%',
+                          background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                          color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                          fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                         }}
                       />
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                      <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                      <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                         Type
                       </label>
                       <select
                         value={listingForm.employment_type}
                         onChange={e => setListingForm(f => ({ ...f, employment_type: e.target.value }))}
                         style={{
-                          background: V2.card2, border: `1px solid ${V2.border}`,
-                          color: V2.text, borderRadius: 7, padding: '10px 12px',
-                          fontSize: 14, fontFamily: V2.space, width: '100%',
+                          background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                          color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                          fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                           appearance: 'none', cursor: 'pointer',
                         }}
                       >
@@ -1447,7 +1342,7 @@ export default function SourcingPortalV2() {
                       </select>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                      <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                      <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                         Location
                       </label>
                       <input
@@ -1455,9 +1350,9 @@ export default function SourcingPortalV2() {
                         onChange={e => setListingForm(f => ({ ...f, location: e.target.value }))}
                         placeholder="Phoenix, AZ"
                         style={{
-                          background: V2.card2, border: `1px solid ${V2.border}`,
-                          color: V2.text, borderRadius: 7, padding: '10px 12px',
-                          fontSize: 14, fontFamily: V2.space, width: '100%',
+                          background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                          color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                          fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                         }}
                       />
                     </div>
@@ -1465,7 +1360,7 @@ export default function SourcingPortalV2() {
                 )}
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                  <label style={{ fontSize: 12, color: V2.muted, fontFamily: V2.space, fontWeight: 600 }}>
+                  <label style={{ fontSize: 12, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif', fontWeight: 600 }}>
                     Contact Email
                   </label>
                   <input
@@ -1474,9 +1369,9 @@ export default function SourcingPortalV2() {
                     onChange={e => setListingForm(f => ({ ...f, contact_email: e.target.value }))}
                     placeholder={company?.email || 'contact@company.com'}
                     style={{
-                      background: V2.card2, border: `1px solid ${V2.border}`,
-                      color: V2.text, borderRadius: 7, padding: '10px 12px',
-                      fontSize: 14, fontFamily: V2.space, width: '100%',
+                      background: 'white'2, border: `1px solid ${'var(--v3-border)'}`,
+                      color: 'var(--v3-ink-primary)', borderRadius: 7, padding: '10px 12px',
+                      fontSize: 14, fontFamily: 'Roboto, sans-serif', width: '100%',
                     }}
                   />
                 </div>
@@ -1485,14 +1380,14 @@ export default function SourcingPortalV2() {
                   <button
                     type="submit"
                     style={{
-                      background: V2.accent,
+                      background: 'var(--v3-accent)',
                       border: 'none',
                       color: '#fff',
                       borderRadius: 7,
                       padding: '10px 22px',
                       fontSize: 13,
                       fontWeight: 700,
-                      fontFamily: V2.space,
+                      fontFamily: 'Roboto, sans-serif',
                       cursor: 'pointer',
                     }}
                   >
@@ -1501,8 +1396,8 @@ export default function SourcingPortalV2() {
                   {listingStatus && (
                     <span style={{
                       fontSize: 12,
-                      fontFamily: V2.space,
-                      color: listingStatus.startsWith('Error') ? V2.red : V2.accent,
+                      fontFamily: 'Roboto, sans-serif',
+                      color: listingStatus.startsWith('Error') ? '#EF4444' : 'var(--v3-accent)',
                     }}>
                       {listingStatus}
                     </span>
@@ -1515,19 +1410,19 @@ export default function SourcingPortalV2() {
           {/* Listings table */}
           {listings.length > 0 ? (
             <div style={{
-              background: V2.card,
-              border: `1px solid ${V2.border}`,
+              background: 'white',
+              border: `1px solid ${'var(--v3-border)'}`,
               borderRadius: 10,
               overflow: 'hidden',
             }}>
               <div style={{
                 display: 'grid', gridTemplateColumns: '1fr 80px 80px 80px',
-                gap: 12, padding: '8px 16px', background: V2.card2,
+                gap: 12, padding: '8px 16px', background: 'white'2,
               }}>
                 {['Listing', 'Category', 'Status', 'Posted'].map(h => (
                   <div key={h} style={{
-                    fontSize: 10, fontWeight: 700, fontFamily: V2.mono,
-                    color: V2.dim, textTransform: 'uppercase', letterSpacing: '0.1em',
+                    fontSize: 10, fontWeight: 700, fontFamily: 'Roboto, monospace',
+                    color: 'var(--v3-muted)', textTransform: 'uppercase', letterSpacing: '0.1em',
                   }}>
                     {h}
                   </div>
@@ -1541,37 +1436,37 @@ export default function SourcingPortalV2() {
                     style={{
                       display: 'grid', gridTemplateColumns: '1fr 80px 80px 80px',
                       gap: 12, padding: '12px 16px', alignItems: 'center',
-                      borderBottom: `1px solid ${V2.border}`,
+                      borderBottom: `1px solid ${'var(--v3-border)'}`,
                     }}
                   >
                     <div style={{ minWidth: 0 }}>
                       <div style={{
-                        fontSize: 14, fontWeight: 600, fontFamily: V2.space,
-                        color: V2.text, whiteSpace: 'nowrap',
+                        fontSize: 14, fontWeight: 600, fontFamily: 'Roboto, sans-serif',
+                        color: 'var(--v3-ink-primary)', whiteSpace: 'nowrap',
                         overflow: 'hidden', textOverflow: 'ellipsis',
                       }}>
                         {listing.title}
                       </div>
                       {listing.price && (
-                        <div style={{ fontSize: 11, color: V2.accent, fontFamily: V2.mono, fontWeight: 700 }}>
+                        <div style={{ fontSize: 11, color: 'var(--v3-accent)', fontFamily: 'Roboto, monospace', fontWeight: 700 }}>
                           ${listing.price.toLocaleString()}
                         </div>
                       )}
                     </div>
-                    <div style={{ fontSize: 11, color: V2.muted, fontFamily: V2.mono, textTransform: 'capitalize' }}>
+                    <div style={{ fontSize: 11, color: 'var(--v3-muted)', fontFamily: 'Roboto, monospace', textTransform: 'capitalize' }}>
                       {listing.category}
                     </div>
                     <div>
                       <span style={{
                         background: sc.bg, border: `1px solid ${sc.border}`, color: sc.text,
-                        fontSize: 10, fontWeight: 700, fontFamily: V2.mono,
+                        fontSize: 10, fontWeight: 700, fontFamily: 'Roboto, monospace',
                         padding: '2px 7px', borderRadius: 3,
                         textTransform: 'uppercase', letterSpacing: '0.08em',
                       }}>
                         {listing.status}
                       </span>
                     </div>
-                    <div style={{ fontSize: 11, color: V2.dim, fontFamily: V2.mono }}>
+                    <div style={{ fontSize: 11, color: 'var(--v3-muted)', fontFamily: 'Roboto, monospace' }}>
                       {new Date(listing.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </div>
                   </div>
@@ -1580,14 +1475,14 @@ export default function SourcingPortalV2() {
             </div>
           ) : (
             <div style={{
-              background: V2.card, border: `1px solid ${V2.border}`,
+              background: 'white', border: `1px solid ${'var(--v3-border)'}`,
               borderRadius: 10, padding: '40px 24px', textAlign: 'center',
             }}>
               <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.4 }}>&#9881;&#65039;</div>
-              <div style={{ fontSize: 15, fontWeight: 700, fontFamily: V2.space, color: V2.text, marginBottom: 6 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, fontFamily: 'Roboto, sans-serif', color: 'var(--v3-ink-primary)', marginBottom: 6 }}>
                 No listings yet
               </div>
-              <div style={{ fontSize: 13, color: V2.muted, fontFamily: V2.space }}>
+              <div style={{ fontSize: 13, color: 'var(--v3-muted)', fontFamily: 'Roboto, sans-serif' }}>
                 Post your first listing to get started.
               </div>
             </div>
