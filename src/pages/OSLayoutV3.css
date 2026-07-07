@@ -33,11 +33,15 @@
 }
 
 .osv3-sidebar-logo {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
   margin-bottom: 32px;
-  line-height: 1.2;
+  padding: 0 4px;
+}
+
+.osv3-sidebar-logo-img {
+  width: 128px;
+  max-width: 80%;
+  height: auto;
+  display: block;
 }
 
 .osv3-nav-section {

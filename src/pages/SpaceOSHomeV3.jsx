@@ -146,29 +146,24 @@ const SpaceOSHomeV3 = () => {
     ]},
   ]
 
-  // SVG icon renderers by mission title
+  // Mission icons = Tim's actual Space Rising iconography (tinted white on the
+  // colored tile). My Library has no matching glyph in Tim's set → filled bookmark.
+  const TIM_ICON = {
+    'Ecosystem': 'outreach',
+    'Intelligence': 'intelligence',
+    'Opportunities': 'economic-dev',
+    'Careers': 'workforce-dev',
+    'Marketplace': 'commercial',
+    'Community': 'partnership',
+    'Learning': 'academia',
+  }
   const renderMissionIcon = (title) => {
-    const svgProps = { width: '32', height: '32', viewBox: '0 0 32 32', fill: 'none', stroke: 'white', strokeWidth: '1.5' }
-    switch(title) {
-      case 'Ecosystem':
-        return <svg {...svgProps}><rect x="4" y="8" width="6" height="10" rx="0.5"/><rect x="13" y="6" width="6" height="12" rx="0.5"/><rect x="22" y="10" width="6" height="8" rx="0.5"/><line x1="7" y1="20" x2="25" y2="20"/></svg>
-      case 'Intelligence':
-        return <svg {...svgProps}><circle cx="16" cy="11" r="5"/><path d="M10 22c0-3.314 2.686-6 6-6s6 2.686 6 6"/><path d="M8 16h16"/></svg>
-      case 'Opportunities':
-        return <svg {...svgProps}><path d="M16 4l3.536 7.071h7.778l-6.293 4.572 2.404 7.714L16 22.785l-6.425 4.572 2.404-7.714-6.293-4.572h7.778L16 4z"/></svg>
-      case 'Careers':
-        return <svg {...svgProps}><rect x="6" y="10" width="20" height="14" rx="1"/><path d="M10 10V8c0-1.105.895-2 2-2h8c1.105 0 2 .895 2 2v2"/><line x1="6" y1="16" x2="26" y2="16"/></svg>
-      case 'Marketplace':
-        return <svg {...svgProps}><path d="M6 8l2 12c.2 1.1 1.2 2 2.3 2h12.4c1.1 0 2.1-.9 2.3-2l2-12"/><line x1="10" y1="8" x2="10" y2="4"/><line x1="22" y1="8" x2="22" y2="4"/><path d="M8 8h16"/><circle cx="14" cy="22" r="1.5"/><circle cx="22" cy="22" r="1.5"/></svg>
-      case 'Community':
-        return <svg {...svgProps}><circle cx="10" cy="9" r="3"/><circle cx="22" cy="9" r="3"/><path d="M4 20c0-3.314 2.686-6 6-6s6 2.686 6 6"/><path d="M16 20c0-3.314 2.686-6 6-6s6 2.686 6 6"/></svg>
-      case 'Learning':
-        return <svg {...svgProps}><path d="M5 10l11-5 11 5v8c0 4.97-5.04 9-11 9s-11-4.03-11-9v-8z"/><path d="M16 14v6m-3-3h6"/></svg>
-      case 'My Library':
-        return <svg {...svgProps}><path d="M9 5v22c0 1.105.895 2 2 2h10c1.105 0 2-.895 2-2V5"/><path d="M16 10l2.5 4h-5z"/><line x1="12" y1="20" x2="20" y2="20"/></svg>
-      default:
-        return null
+    const file = TIM_ICON[title]
+    if (file) {
+      return <img src={`/v2-assets/tim-icons/${file}.png`} alt="" className="osv3-mission-tim-icon" />
     }
+    // My Library — filled bookmark, matches the filled weight of Tim's glyphs
+    return <svg width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>
   }
 
   if (loading) {
