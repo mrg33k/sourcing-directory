@@ -201,12 +201,12 @@
   justify-content: space-between;
 }
 
-/* Featured card — Blueprint cover as full background, content anchored bottom */
+/* Featured card — cover thumbnail (left) + text (right), no overlay collision */
 .osv3-featured-report-card {
   position: relative;
   flex: 1;
-  min-height: 320px;
-  background-color: var(--v3-ink-primary);
+  min-height: 300px;
+  background-color: #000C20;
   color: white;
   border-radius: 10px;
   overflow: hidden;
@@ -220,10 +220,20 @@
   box-shadow: 0 14px 30px rgba(1, 11, 19, 0.25);
 }
 
+.osv3-featured-cover {
+  width: 132px;
+  flex-shrink: 0;
+  background-size: cover;
+  background-position: top center;
+  background-repeat: no-repeat;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .osv3-featured-report-content {
   margin-top: auto;
+  margin-bottom: auto;
   padding: 24px;
-  width: 100%;
+  min-width: 0;
 }
 
 .osv3-featured-report-eyebrow {

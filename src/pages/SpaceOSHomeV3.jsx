@@ -231,12 +231,13 @@ const SpaceOSHomeV3 = () => {
                     if (featuredReport.membersOnly) { navigate('/membership'); return }
                     if (featuredReport.file_url) { window.open(featuredReport.file_url, '_blank') }
                   }}
-                  style={featuredReport.cover ? {
-                    backgroundImage: `linear-gradient(180deg, rgba(1,11,19,0.15) 0%, rgba(1,11,19,0.72) 55%, rgba(1,11,19,0.94) 100%), url(${featuredReport.cover})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                  } : undefined}
                 >
+                  {featuredReport.cover && (
+                    <div
+                      className="osv3-featured-cover"
+                      style={{ backgroundImage: `url(${featuredReport.cover})` }}
+                    ></div>
+                  )}
                   <div className="osv3-featured-report-content">
                     <div className="osv3-featured-report-eyebrow">{featuredReport.eyebrow || featuredReport.category}</div>
                     <h3 className="osv3-featured-report-title">{featuredReport.title}</h3>
