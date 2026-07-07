@@ -1,16 +1,14 @@
 // SourcingMarketplaceV2.jsx
-// nat-geo-uplift R5d — Marketplace page in the V2 list-pattern.
+// Space OS v3 — Marketplace page (reskinned from V2 dark list pattern).
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
 import useSRWTitle from './srw/useSRWTitle.js';
-import { V2ChipNav } from './V2ChipNav.jsx';
-import '../space-rising-theme-v2.css';
+import './osv3-marketplace.css';
 
-const TENANT_SLUG_V2 = 'space-rising-v2';
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
+const CATEGORIES = ['equipment', 'services', 'products'];
 
 function formatPrice(price) {
   if (!price) return null;
@@ -27,15 +25,35 @@ function formatPosted(dateStr) {
   return `${Math.floor(days / 30)}mo`;
 }
 
+function getCategoryIcon(category) {
+  const icons = {
+    equipment: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M12 2v20M2 12h20M6 6l12 12M18 6l-12 12" />
+      </svg>
+    ),
+    services: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M16 11a4 4 0 1 1 0-8 4 4 0 0 1 0 8zM23 21v-2a4 4 0 0 0-3-3.87" />
+      </svg>
+    ),
+    products: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4M9 2h6M6 6h12M9 6v12M15 6v12" />
+      </svg>
+    ),
+  };
+  return icons[category] || null;
+}
+
 function SourcingMarketplaceV2Inner() {
-  const { dark } = useSourcingTheme();
-  const V = getTokens(dark);
   useSRWTitle('Space Marketplace | Space OS');
 
   const [tenant, setTenant] = useState(null);
   const [listings, setListings] = useState([]);
   const [companies, setCompanies] = useState({});
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState('equipment');
   const [searchInput, setSearchInput] = useState('');
 
   useEffect(() => {
@@ -59,7 +77,7 @@ function SourcingMarketplaceV2Inner() {
         let qb = supabase
           .from('directory_listings')
           .select('*')
-          .eq('category', 'equipment')
+          .eq('category', selectedCategory)
           .eq('status', 'active')
           .order('created_at', { ascending: false });
         if (tenant?.id) qb = qb.eq('tenant_id', tenant.id);
@@ -84,7 +102,7 @@ function SourcingMarketplaceV2Inner() {
       }
     })();
     return () => { cancelled = true; };
-  }, [tenant]);
+  }, [tenant, selectedCategory]);
 
   const filtered = useMemo(() => {
     if (!searchInput.trim()) return listings;
@@ -99,114 +117,101 @@ function SourcingMarketplaceV2Inner() {
   }, [listings, companies, searchInput]);
 
   return (
-    <div
-      data-tenant={TENANT_SLUG_V2}
-      style={{
-        minHeight: '100dvh',
-        background: 'var(--bg)',
-        color: 'var(--tx)',
-        position: 'relative',
-        fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
-        '--bg': 'transparent', '--tx': '#E8E4DA',
-        '--tx2': 'rgba(232,228,218,0.60)', '--tx3': 'rgba(232,228,218,0.25)',
-        '--s1': 'rgba(11,11,13,0.72)', '--s2': 'rgba(11,11,13,0.82)', '--s3': 'rgba(11,11,13,0.92)',
-        '--bd': 'rgba(232,228,218,0.10)', '--bd2': 'rgba(232,228,218,0.16)',
-        '--cyan': '#E8A23A', '--cyan-dim': 'rgba(232,162,58,0.10)', '--cyan-brd': 'rgba(232,162,58,0.32)',
-      }}
-    >
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } } @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }`}</style>
-
-      <div className="browse-hero" style={{ '--page-hero-bg': "url('/v2-assets/asteroid-close.png')" }}>
-        <div className="browse-hero-bg" />
-        <div className="browse-hero-overlay" />
-        <div className="browse-hero-content" style={{ position: 'relative' }}>
-          <div className="browse-hero-toprow">
-            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
-              Back
-            </Link>
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
+    <div className="osv3-marketplace">
+      {/* Page Header */}
+      <div className="osv3-page-header">
+        <div className="osv3-header-content">
+          <div className="osv3-header-title-block">
+            <h2 className="osv3-page-title">Marketplace</h2>
+            <p className="osv3-page-subtitle">Equipment, services, and products across the ecosystem.</p>
           </div>
-          <div className="browse-title">Marketplace.</div>
-          <div className="browse-sub">
-            Equipment, capacity, and capabilities from Arizona&rsquo;s space-industry suppliers.
-          </div>
-        </div>
-      </div>
-
-      <div className="browse-search">
-        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
-        <input
-          type="text"
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-          placeholder="Search equipment, capabilities, sellers..."
-          aria-label="Search marketplace"
-          autoComplete="off"
-          spellCheck="false"
-        />
-        {loading && <div className="spinner" />}
-      </div>
-
-      <V2ChipNav active="marketplace" />
-
-      <div className="sec-hdr">
-        <div className="sec-title">
-          {loading ? 'Loading...' : `${filtered.length} Listing${filtered.length === 1 ? '' : 's'}.`}
-        </div>
-        <div className="sec-count">
-          <Link to="/spaceos/marketplace/post" style={{ textDecoration: 'none', color: 'var(--cyan)', fontSize: 12, fontWeight: 600 }}>
-            + Post a Listing
+          <Link to="/marketplace/post" className="osv3-primary-btn">
+            Post a Listing
           </Link>
         </div>
       </div>
 
-      <div className="co-list">
+      {/* Category Filters */}
+      <div className="osv3-marketplace-filters">
+        <div className="osv3-filter-pills">
+          {CATEGORIES.map((category) => (
+            <button
+              key={category}
+              className={`osv3-filter-pill ${selectedCategory === category ? 'active' : ''}`}
+              onClick={() => {
+                setSelectedCategory(category);
+                setSearchInput('');
+              }}
+              aria-pressed={selectedCategory === category}
+            >
+              <span className="osv3-filter-icon">{getCategoryIcon(category)}</span>
+              <span className="osv3-filter-label">
+                {category.charAt(0).toUpperCase() + category.slice(1)}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Listings Grid */}
+      <div className="osv3-marketplace-grid">
         {!supabase && (
-          <div style={{ padding: '24px 20px', border: '1px solid rgba(232,162,58,0.32)', background: 'rgba(232,162,58,0.10)', borderRadius: 10, color: '#E8A23A', fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 13, textAlign: 'center' }}>
+          <div className="osv3-empty-state">
             Supabase not configured
           </div>
         )}
 
         {loading && supabase && (
-          <>{[1, 2, 3, 4].map((i) => (
-            <div key={i} style={{ height: 84, borderRadius: 10, background: 'rgba(18,20,28,0.40)', border: '1px solid rgba(232,228,218,0.05)', animation: 'pulse 1.5s ease-in-out infinite' }} />
-          ))}</>
+          <>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="osv3-card-skeleton" />
+            ))}
+          </>
         )}
 
-        {!loading && filtered.map((listing) => {
+        {!loading && supabase && filtered.length > 0 && filtered.map((listing) => {
           const company = companies[listing.company_id];
           const price = formatPrice(listing.price);
-          const posted = formatPosted(listing.created_at);
           return (
             <Link
               key={listing.id}
-              to={`/spaceos/marketplace/${listing.id}`}
-              className="co-card"
-              style={{ textDecoration: 'none', color: 'inherit' }}
+              to={`/marketplace/${listing.id}`}
+              className="osv3-listing-card"
             >
-              <div className="co-body">
+              <div className="osv3-card-image-wrapper">
                 {company?.slug ? (
-                  <img className="co-mono-logo" src={`/v2-assets/logos/${company.slug}-white.png`} alt="" aria-hidden="true" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-                ) : null}
-                <div className="co-name">{listing.title}</div>
-                <div className="co-loc">
-                  {[company?.name, listing.condition, posted].filter(Boolean).join(' · ')}
-                </div>
-                <div className="co-badges">
-                  {listing.condition && <span className="co-badge cert">{listing.condition}</span>}
-                  {price && <span className="co-badge feat">{price}</span>}
-                </div>
+                  <img
+                    src={`/v2-assets/logos/${company.slug}-white.png`}
+                    alt=""
+                    aria-hidden="true"
+                    className="osv3-card-logo"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
+                ) : (
+                  <div className="osv3-card-icon-placeholder">
+                    {getCategoryIcon(selectedCategory)}
+                  </div>
+                )}
               </div>
-              <div className="co-arrow">
-                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
+              <div className="osv3-card-content">
+                <h3 className="osv3-card-title">{listing.title}</h3>
+                <div className="osv3-card-meta">
+                  {company?.name && <span>{company.name}</span>}
+                  {listing.condition && <span>{listing.condition}</span>}
+                </div>
+                {price && <div className="osv3-card-price">{price}</div>}
+                <div className="osv3-card-footer">
+                  <span className="osv3-card-category-pill">
+                    {selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)}
+                  </span>
+                </div>
               </div>
             </Link>
           );
         })}
 
         {!loading && supabase && filtered.length === 0 && (
-          <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          <div className="osv3-empty-state">
             {searchInput ? `No listings match "${searchInput}"` : 'No listings posted yet.'}
           </div>
         )}
@@ -216,9 +221,5 @@ function SourcingMarketplaceV2Inner() {
 }
 
 export default function SourcingMarketplaceV2() {
-  return (
-    <SourcingThemeProvider>
-      <SourcingMarketplaceV2Inner />
-    </SourcingThemeProvider>
-  );
+  return <SourcingMarketplaceV2Inner />;
 }
