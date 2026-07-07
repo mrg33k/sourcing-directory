@@ -13,6 +13,7 @@ const KIND_META = {
   job:         { backLabel: 'Careers',     backPath: '/jobs',        tabLabel: 'Open Positions' },
   event:       { backLabel: 'Community',   backPath: '/events',      tabLabel: 'Events' },
   marketplace: { backLabel: 'Marketplace', backPath: '/marketplace', tabLabel: 'Browse' },
+  article:     { backLabel: 'Intelligence', backPath: '/articles',   tabLabel: 'Articles' },
 };
 
 function fmtDate(v) {

@@ -186,6 +186,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/jobs/:id" element={<SourcingListingV2 kind="job" />} />
             <Route path="/events/:id" element={<SourcingListingV2 kind="event" />} />
             <Route path="/marketplace/:id" element={<SourcingListingV2 kind="marketplace" />} />
+            <Route path="/articles/:id" element={<SourcingListingV2 kind="article" />} />
             <Route path="/reports/:id" element={<SourcingReportDetailV2 />} />
             <Route path="/company/:slug" element={<SourcingCompanyV2 />} />
             <Route path="/:slug" element={<SourcingCompanyV2 />} />
