@@ -1,21 +1,17 @@
-// R5i (nat-geo-uplift) — return-from-checkout welcome page.
-// R5k (nat-geo-uplift) — swapped from Square to Stripe 2026-05-31.
-//
-// Stripe redirects the user here after they complete (or cancel) the hosted
-// checkout. We give the webhook a few seconds to flip the row, then render
-// the welcome state. The user is already signed in (account was created
-// before they were redirected to Stripe).
+// SourcingSignupComplete.jsx (v3 — reskinned)
+// Return-from-Stripe-checkout welcome page. Shows polling, success, timeout, or guest states.
 
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import '../space-rising-theme-v2.css';
+import '../osv3-tokens.css';
+import '../pages/OSLayoutV3.css';
 
 const POLL_INTERVAL_MS = 1500;
 const POLL_TIMEOUT_MS = 12000;
 
 export default function SourcingSignupComplete() {
-  const [status, setStatus] = useState('polling'); // polling | paid | timeout | guest
+  const [status, setStatus] = useState('polling');
   const [company, setCompany] = useState(null);
 
   useEffect(() => {
@@ -78,72 +74,109 @@ export default function SourcingSignupComplete() {
 
   const firstName = company?.name?.split(/\s+/)[0] || 'friend';
 
+  const cardContent = (
+    <div style={{
+      background: 'white',
+      border: '1px solid var(--v3-border)',
+      borderRadius: '8px',
+      padding: '40px 32px',
+      textAlign: 'center',
+      maxWidth: '420px',
+      margin: '0 auto',
+    }}>
+      {status === 'polling' && (
+        <>
+          <div style={{ fontSize: 'var(--v3-eyebrow-font-size)', fontWeight: 'var(--v3-eyebrow-font-weight)', color: 'var(--v3-muted)', letterSpacing: 'var(--v3-eyebrow-letter-spacing)', textTransform: 'uppercase', marginBottom: '16px' }}>
+            Finalizing
+          </div>
+          <h1 style={{ fontSize: 'var(--v3-h2-font-size)', fontWeight: 'var(--v3-h2-font-weight)', color: 'var(--v3-ink-primary)', margin: '0 0 12px' }}>
+            Confirming your payment
+          </h1>
+          <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginBottom: '32px', lineHeight: 'var(--v3-body-sm-line-height)' }}>
+            This usually takes a few seconds.
+          </div>
+          <div style={{ width: '40px', height: '40px', border: '3px solid var(--v3-border)', borderTop: '3px solid var(--v3-accent)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+        </>
+      )}
+
+      {status === 'paid' && (
+        <>
+          <div style={{ fontSize: 'var(--v3-eyebrow-font-size)', fontWeight: 'var(--v3-eyebrow-font-weight)', color: 'var(--v3-muted)', letterSpacing: 'var(--v3-eyebrow-letter-spacing)', textTransform: 'uppercase', marginBottom: '16px' }}>
+            Welcome
+          </div>
+          <h1 style={{ fontSize: 'var(--v3-h2-font-size)', fontWeight: 'var(--v3-h2-font-weight)', color: 'var(--v3-ink-primary)', margin: '0 0 12px' }}>
+            You're in, {firstName}.
+          </h1>
+          <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginBottom: '32px', lineHeight: 'var(--v3-body-sm-line-height)' }}>
+            Payment confirmed. {company?.paid_seats ? `${company.paid_seats} ${company.paid_seats === 1 ? 'seat' : 'seats'} on your account.` : ''} {company?.paid_receipt_url && <a href={company.paid_receipt_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--v3-link)', textDecoration: 'none' }}>View receipt</a>}
+          </div>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Link to={company?.slug ? `/spaceos/${company.slug}` : '/spaceos'} style={{ padding: '10px 20px', background: 'var(--v3-accent)', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>
+              View profile
+            </Link>
+            <Link to="/spaceos" style={{ padding: '10px 20px', background: 'white', border: '1px solid var(--v3-border)', color: 'var(--v3-ink-primary)', borderRadius: '6px', textDecoration: 'none', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>
+              Browse
+            </Link>
+          </div>
+        </>
+      )}
+
+      {status === 'timeout' && (
+        <>
+          <div style={{ fontSize: 'var(--v3-eyebrow-font-size)', fontWeight: 'var(--v3-eyebrow-font-weight)', color: 'var(--v3-muted)', letterSpacing: 'var(--v3-eyebrow-letter-spacing)', textTransform: 'uppercase', marginBottom: '16px' }}>
+            Almost there
+          </div>
+          <h1 style={{ fontSize: 'var(--v3-h2-font-size)', fontWeight: 'var(--v3-h2-font-weight)', color: 'var(--v3-ink-primary)', margin: '0 0 12px' }}>
+            Payment is processing.
+          </h1>
+          <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginBottom: '32px', lineHeight: 'var(--v3-body-sm-line-height)' }}>
+            Your account is created. We'll email you when the receipt clears, usually within a minute or two.
+          </div>
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button onClick={() => window.location.reload()} style={{ padding: '10px 20px', background: 'var(--v3-accent)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>
+              Refresh
+            </button>
+            <Link to="/spaceos" style={{ padding: '10px 20px', background: 'white', border: '1px solid var(--v3-border)', color: 'var(--v3-ink-primary)', borderRadius: '6px', textDecoration: 'none', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>
+              Browse
+            </Link>
+          </div>
+        </>
+      )}
+
+      {status === 'guest' && (
+        <>
+          <div style={{ fontSize: 'var(--v3-eyebrow-font-size)', fontWeight: 'var(--v3-eyebrow-font-weight)', color: 'var(--v3-muted)', letterSpacing: 'var(--v3-eyebrow-letter-spacing)', textTransform: 'uppercase', marginBottom: '16px' }}>
+            Not signed in
+          </div>
+          <h1 style={{ fontSize: 'var(--v3-h2-font-size)', fontWeight: 'var(--v3-h2-font-weight)', color: 'var(--v3-ink-primary)', margin: '0 0 12px' }}>
+            Sign back in to view your account.
+          </h1>
+          <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginBottom: '32px', lineHeight: 'var(--v3-body-sm-line-height)' }}>
+            If you completed payment, check your email for next steps.
+          </div>
+          <Link to="/spaceos" style={{ display: 'inline-block', padding: '10px 20px', background: 'var(--v3-accent)', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>
+            Back to Space OS
+          </Link>
+        </>
+      )}
+
+      <style>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
+    </div>
+  );
+
   return (
-    <div className="srsv2-shell" data-tenant="space-rising-v2">
-      <div className="srsv2-veil" />
-      <div className="srsv2-topbar">
-        <Link to="/spaceos" className="srsv2-wordmark">SPACE RISING</Link>
-        <div className="srsv2-progress"></div>
-        <Link to="/spaceos" className="srsv2-close" aria-label="Close">
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-        </Link>
+    <div className="osv3 osv3-shell">
+      <div className="osv3-sidebar">
+        <div className="osv3-sidebar-logo">Space OS</div>
       </div>
-
-      <div className="srsv2-body">
-        <div className="srsv2-step srsv2-step-success">
-          {status === 'polling' && (
-            <>
-              <div className="srsv2-eyebrow">FINALIZING</div>
-              <h1 className="srsv2-title srsv2-title-xl">Confirming your payment<span className="srsv2-period">…</span></h1>
-              <div className="srsv2-sub">Stripe is sending us the receipt now. This usually takes a few seconds.</div>
-            </>
-          )}
-
-          {status === 'paid' && (
-            <>
-              <div className="srsv2-eyebrow">YOU'RE IN</div>
-              <h1 className="srsv2-title srsv2-title-xl">Welcome to the room, {firstName}<span className="srsv2-period">.</span></h1>
-              <div className="srsv2-sub">
-                Payment confirmed. {company?.paid_seats ? `${company.paid_seats} ${company.paid_seats === 1 ? 'seat' : 'seats'} on your account.` : ''}
-                {company?.paid_receipt_url && (
-                  <> Your receipt is <a href={company.paid_receipt_url} target="_blank" rel="noopener noreferrer">here</a>.</>
-                )}
-              </div>
-              <div className="srsv2-cta-row">
-                <Link to={company?.slug ? `/spaceos/${company.slug}` : '/spaceos'} className="srsv2-cta srsv2-cta-solid">
-                  Go to your profile
-                </Link>
-                <Link to="/spaceos" className="srsv2-cta srsv2-cta-line">
-                  Browse the directory
-                </Link>
-              </div>
-            </>
-          )}
-
-          {status === 'timeout' && (
-            <>
-              <div className="srsv2-eyebrow">ALMOST THERE</div>
-              <h1 className="srsv2-title srsv2-title-xl">Your payment is processing<span className="srsv2-period">.</span></h1>
-              <div className="srsv2-sub">
-                Stripe is taking a bit longer than usual. Your account is created — we'll email you when the receipt clears, usually within a minute or two. You can refresh this page or head to the directory.
-              </div>
-              <div className="srsv2-cta-row">
-                <button onClick={() => window.location.reload()} className="srsv2-cta srsv2-cta-solid">Refresh</button>
-                <Link to="/spaceos" className="srsv2-cta srsv2-cta-line">Browse the directory</Link>
-              </div>
-            </>
-          )}
-
-          {status === 'guest' && (
-            <>
-              <div className="srsv2-eyebrow">SIGNED OUT</div>
-              <h1 className="srsv2-title srsv2-title-xl">Sign back in to see your account<span className="srsv2-period">.</span></h1>
-              <div className="srsv2-sub">You're not signed in on this device. If you completed payment, check the email we sent for next steps.</div>
-              <div className="srsv2-cta-row">
-                <Link to="/spaceos" className="srsv2-cta srsv2-cta-solid">Back to the directory</Link>
-              </div>
-            </>
-          )}
+      <div className="osv3-main-container">
+        <div className="osv3-topbar">
+          <div className="osv3-search-container"></div>
+        </div>
+        <div className="osv3-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
+          {cardContent}
         </div>
       </div>
     </div>
