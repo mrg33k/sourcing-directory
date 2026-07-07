@@ -6,7 +6,7 @@ export const OSEcosystemHub = () => (
     title="Ecosystem"
     intro="Explore the space ecosystem. Discover companies, organizations, and professionals shaping the industry."
     sections={[
-      { label: 'Companies', href: '/directory', count: '500+' },
+      { label: 'Companies', href: '/directory' },
       { label: 'Organizations', future: true },
       { label: 'People', future: true },
     ]}
@@ -18,11 +18,10 @@ export const OSIntelligenceHub = () => (
     title="Intelligence"
     intro="Stay informed. Access research, news, reports, articles, and industry insights."
     sections={[
-      { label: 'Research (Papers)', future: true },
+      { label: 'Reports', href: '/reports' },
+      { label: 'Articles', href: '/articles' },
+      { label: 'Discovery', href: '/discovery' },
       { label: 'News', future: true },
-      { label: 'Reports', href: '/reports', count: '100+' },
-      { label: 'Articles', href: '/articles', count: '50+' },
-      { label: 'Blueprints', future: true },
       { label: 'Podcasts', future: true },
       { label: 'Videos', future: true },
     ]}
@@ -35,8 +34,8 @@ export const OSOpportunitiesHub = () => (
     intro="Find funding, grants, and business opportunities in the space sector."
     sections={[
       { label: 'RFPs', future: true },
-      { label: 'Grants', href: '/grants', count: '25+' },
-      { label: 'Dealbank', href: '/deal-bank', count: '100+' },
+      { label: 'Grants', href: '/grants' },
+      { label: 'Dealbank', href: '/deal-bank' },
     ]}
   />
 )

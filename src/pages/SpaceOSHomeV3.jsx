@@ -84,8 +84,17 @@ const SpaceOSHomeV3 = () => {
     loadData()
   }, [tenant])
 
-  const featuredReport = reports.find(r => r.title?.includes('Blueprint') || r.category === 'Blueprint') || reports[0]
-  const latestReports = reports.slice(1, 5)
+  // Featured = the 2026 Arizona Space Blueprint. It is a PAID product: the cover is
+  // public marketing, but the high-res PDF sits behind the paywall — "View Report"
+  // sends non-members to membership, never the file. (Tim, 2026-07-07.)
+  const featuredReport = {
+    title: '2026 Arizona Space Blueprint',
+    eyebrow: 'Space Rising / Flagship Report',
+    description: 'The strategic plan for Arizona\'s space economy — market trends, investment insight, and the opportunities shaping the future of space. Members only.',
+    cover: '/v2-assets/blueprint-cover.png',
+    membersOnly: true,
+  }
+  const latestReports = reports.slice(0, 4)
   const userName = user?.user_metadata?.full_name?.split(' ')[0] || 'there'
 
   const missions = [
@@ -95,11 +104,10 @@ const SpaceOSHomeV3 = () => {
       { label: 'People', href: '#', real: false },
     ]},
     { title: 'Intelligence', color: '#3B82F6', exploreHref: '/intelligence', links: [
-      { label: 'Research (Papers)', href: '#', real: false },
-      { label: 'News', href: '#', real: false },
       { label: 'Reports', href: '/reports', real: true },
       { label: 'Articles', href: '/articles', real: true },
-      { label: 'Blueprints', href: '#', real: false },
+      { label: 'Discovery', href: '/discovery', real: true },
+      { label: 'News', href: '#', real: false },
       { label: 'Podcasts', href: '#', real: false },
       { label: 'Videos', href: '#', real: false },
     ]},
@@ -214,19 +222,37 @@ const SpaceOSHomeV3 = () => {
           <section className="osv3-featured-section">
             <h2 className="osv3-section-heading">Featured Report</h2>
             <div className="osv3-featured-report-card">
-              <div className="osv3-featured-report-image"></div>
+              <div
+                className="osv3-featured-report-image"
+                style={featuredReport.cover ? {
+                  backgroundImage: `url(${featuredReport.cover})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                } : undefined}
+              ></div>
               <div className="osv3-featured-report-content">
-                <div className="osv3-featured-report-eyebrow">{featuredReport.category}</div>
+                <div className="osv3-featured-report-eyebrow">{featuredReport.eyebrow || featuredReport.category}</div>
                 <h3 className="osv3-featured-report-title">{featuredReport.title}</h3>
                 <p className="osv3-featured-report-desc">
                   {featuredReport.description || 'Insights and research on Arizona\'s space economy.'}
                 </p>
-                <button className="osv3-featured-report-btn" onClick={() => {
-                  if (featuredReport.file_url) {
-                    window.open(featuredReport.file_url, '_blank')
-                  }
-                }}>
-                  View Report
+                <button
+                  className="osv3-featured-report-btn"
+                  onClick={() => {
+                    // Paid product: send everyone to the paywall. Member-only PDF
+                    // delivery is wired separately once the file lives in a private bucket.
+                    if (featuredReport.membersOnly) { navigate('/membership'); return }
+                    if (featuredReport.file_url) { window.open(featuredReport.file_url, '_blank') }
+                  }}
+                >
+                  {featuredReport.membersOnly ? (
+                    <>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8, verticalAlign: '-2px' }}>
+                        <rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                      </svg>
+                      Unlock with Membership
+                    </>
+                  ) : 'View Report'}
                 </button>
               </div>
             </div>
