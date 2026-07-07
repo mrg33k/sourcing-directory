@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import V2ChipNav from './V2ChipNav.jsx';
-import '../space-rising-theme-v2.css';
+import './osv3-detail.css';
 
 // Detail page for a single directory_listings row (a job, event, or marketplace
 // item). One component, three entry routes — the `kind` prop only drives labels
 // and which facts are shown. Built 2026-06-05 so listing cards open a real page
 // instead of bouncing to the directory (no matching detail route existed before).
+// Reskinned 2026-07-06 into v3 shell as light article-style detail view.
 
 const KIND_META = {
-  job:         { eyebrow: 'JOB',         backLabel: 'jobs',        backPath: '/spaceos/jobs',        hero: '/v2-assets/rocket-orbital.png' },
-  event:       { eyebrow: 'EVENT',       backLabel: 'events',      backPath: '/spaceos/events',      hero: '/v2-assets/rocket-orbital.png' },
-  marketplace: { eyebrow: 'MARKETPLACE', backLabel: 'marketplace', backPath: '/spaceos/marketplace', hero: '/v2-assets/asteroid-close.png' },
+  job:         { backLabel: 'Careers',     backPath: '/jobs',        tabLabel: 'Open Positions' },
+  event:       { backLabel: 'Community',   backPath: '/events',      tabLabel: 'Events' },
+  marketplace: { backLabel: 'Marketplace', backPath: '/marketplace', tabLabel: 'Browse' },
 };
 
 function fmtDate(v) {
@@ -82,26 +82,25 @@ export default function SourcingListingV2({ kind = 'job' }) {
 
   useEffect(() => {
     if (!listing) return;
-    document.title = `${listing.title || meta.eyebrow} | Space Rising`;
+    document.title = `${listing.title || 'Listing'} | Space Rising`;
     return () => { document.title = 'Space Rising'; };
-  }, [listing, meta.eyebrow]);
+  }, [listing]);
 
   if (loading) {
     return (
-      <div className="srcv2-shell" data-tenant="space-rising-v2">
-        <div className="srcv2-loading"><div className="srsv2-eyebrow">LOADING</div></div>
+      <div className="osv3-detail-page">
+        <div className="osv3-detail-loading">Loading...</div>
       </div>
     );
   }
 
   if (notFound || !listing) {
     return (
-      <div className="srcv2-shell" data-tenant="space-rising-v2">
-        <div className="srcv2-notfound">
-          <div className="srsv2-eyebrow">NOT FOUND</div>
-          <h1 className="srsv2-title">This listing isn't available<span className="srsv2-period">.</span></h1>
-          <div className="srsv2-sub">It may have been filled, expired, or removed.</div>
-          <Link to={meta.backPath} className="srsv2-cta srsv2-cta-solid">Back to {meta.backLabel}</Link>
+      <div className="osv3-detail-page">
+        <div className="osv3-detail-notfound">
+          <h2 className="osv3-detail-notfound-title">This listing isn't available</h2>
+          <p className="osv3-detail-notfound-text">It may have been filled, expired, or removed.</p>
+          <Link to={meta.backPath} className="osv3-detail-back-btn">← Back to {meta.backLabel}</Link>
         </div>
       </div>
     );
@@ -113,114 +112,79 @@ export default function SourcingListingV2({ kind = 'job' }) {
   const posted = fmtDate(listing.created_at);
   const eventDate = fmtDate(listing.event_date);
   const salary = salaryText(listing);
-  // For events, the company is the platform (Space Rising), not the event host — omit it from the eyebrow
-  const eyebrowBits = [meta.eyebrow, kind !== 'event' && company?.name, loc].filter(Boolean).join(' · ');
   const ctaUrl = externalHref(listing.virtual_url);
   const companyWebsite = externalHref(company?.website);
 
+  // Determine primary CTA text
+  let ctaText = 'View';
+  if (kind === 'event') ctaText = 'Register';
+  else if (kind === 'marketplace') ctaText = 'Contact';
+  else ctaText = 'Apply';
+
   return (
-    <div className="srcv2-shell" data-tenant="space-rising-v2">
-      <div className="srcv2-topbar">
-        <div className="browse-hero-toprow">
-          <Link to={meta.backPath} className="browse-back" style={{ textDecoration: 'none' }}>
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
-            Back to {meta.backLabel}
+    <div className="osv3-detail-page">
+      <div className="osv3-detail-header">
+        {/* Back link */}
+        <Link to={meta.backPath} className="osv3-detail-back-btn">← Back to {meta.backLabel}</Link>
+
+        {/* Title */}
+        <h2 className="osv3-detail-title">{listing.title || 'Untitled'}</h2>
+
+        {/* Company chip for non-events */}
+        {kind !== 'event' && company?.slug && (
+          <Link to={`/company/${company.slug}`} className="osv3-detail-company-chip">
+            {company.logo_url && <img src={company.logo_url} alt={company.name} className="osv3-detail-company-logo" />}
+            <span className="osv3-detail-company-name">{company.name}</span>
           </Link>
-          <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
+        )}
+
+        {/* Meta pills */}
+        <div className="osv3-detail-meta">
+          {kind === 'job' && (
+            <>
+              {loc && <span className="osv3-detail-meta-pill">{loc}</span>}
+              {salary && <span className="osv3-detail-meta-pill">{salary}</span>}
+              {listing.job_type && <span className="osv3-detail-meta-pill">{String(listing.job_type).replace('-', ' ')}</span>}
+              {listing.remote && <span className="osv3-detail-meta-pill">Remote</span>}
+            </>
+          )}
+          {kind === 'event' && (
+            <>
+              {eventDate && <span className="osv3-detail-meta-pill">{eventDate}</span>}
+              {loc && <span className="osv3-detail-meta-pill">{loc}</span>}
+              {listing.organizer && <span className="osv3-detail-meta-pill">{listing.organizer}</span>}
+            </>
+          )}
+          {kind === 'marketplace' && (
+            <>
+              {listing.price && <span className="osv3-detail-meta-pill">{listing.price}</span>}
+              {listing.condition && <span className="osv3-detail-meta-pill">{listing.condition}</span>}
+            </>
+          )}
+          {posted && <span className="osv3-detail-meta-pill">{posted}</span>}
         </div>
       </div>
 
-      <header className="srcv2-hero" style={{ '--profile-hero-bg': `url('${meta.hero}')` }}>
-        <div className="srcv2-hero-overlay" />
-        <div className="srcv2-hero-inner">
-          <div className="srsv2-eyebrow">{eyebrowBits.toUpperCase()}</div>
-          <h1 className="srcv2-name">{listing.title || 'Untitled'}<span className="srsv2-period">.</span></h1>
-          <div className="srcv2-hero-actions">
-            {ctaUrl && (
-              <a href={ctaUrl} target="_blank" rel="noopener noreferrer" className="srsv2-cta srsv2-cta-solid">
-                {kind === 'event' ? 'Event details' : kind === 'marketplace' ? 'View listing' : 'Apply / Learn more'}
-              </a>
-            )}
-            {!ctaUrl && company?.email && (
-              <a href={`mailto:${company.email}`} className="srsv2-cta srsv2-cta-solid">
-                {kind === 'marketplace' ? 'Contact seller' : kind === 'event' ? 'Contact organizer' : 'Apply / Contact'}
-              </a>
-            )}
-            {/* Don't show "View Space Rising" on events — the company is the platform, not the event host */}
-            {kind !== 'event' && company?.slug && (
-              <Link to={`/spaceos/${company.slug}`} className="srsv2-cta srsv2-cta-line">
-                View {company.name}
-              </Link>
-            )}
-          </div>
+      {/* Description */}
+      <div className="osv3-detail-body">
+        {listing.description && (
+          <p className="osv3-detail-description">{listing.description}</p>
+        )}
+
+        {/* Primary CTA */}
+        <div className="osv3-detail-actions">
+          {ctaUrl && (
+            <a href={ctaUrl} target="_blank" rel="noopener noreferrer" className="osv3-detail-cta-primary">
+              {ctaText}
+            </a>
+          )}
+          {!ctaUrl && company?.email && (
+            <a href={`mailto:${company.email}`} className="osv3-detail-cta-primary">
+              {ctaText}
+            </a>
+          )}
         </div>
-      </header>
-
-      <div className="srcv2-body">
-        <main className="srcv2-main">
-          {listing.description && (
-            <Section eyebrow="DETAILS" title="About this listing">
-              <p className="srcv2-paragraph" style={{ whiteSpace: 'pre-wrap' }}>{listing.description}</p>
-            </Section>
-          )}
-
-          <Section eyebrow="AT A GLANCE" title="Key facts">
-            <dl className="srcv2-facts">
-              {/* For events the company is the platform (Space Rising) — suppress "Posted by" */}
-              {kind !== 'event' && company?.name && <Fact label="Posted by" value={company.slug
-                ? <Link to={`/spaceos/${company.slug}`} style={{ color: 'inherit' }}>{company.name}</Link>
-                : company.name} />}
-              {loc && <Fact label="Location" value={loc} />}
-              {kind === 'job' && listing.job_type && <Fact label="Type" value={String(listing.job_type).replace('-', ' ')} />}
-              {kind === 'job' && salary && <Fact label="Compensation" value={salary} />}
-              {kind === 'job' && listing.remote && <Fact label="Remote" value="Yes" />}
-              {kind === 'event' && eventDate && <Fact label="Date" value={eventDate} />}
-              {kind === 'event' && listing.event_type && <Fact label="Format" value={listing.event_type} />}
-              {kind === 'event' && listing.organizer && <Fact label="Organizer" value={listing.organizer} />}
-              {kind === 'marketplace' && listing.price && <Fact label="Price" value={listing.price} />}
-              {kind === 'marketplace' && listing.condition && <Fact label="Condition" value={listing.condition} />}
-              {posted && <Fact label="Posted" value={posted} />}
-            </dl>
-          </Section>
-
-          {/* For events, the company is the platform (Space Rising) — suppress company contact block */}
-          {kind !== 'event' && (companyWebsite || company?.email) && (
-            <Section eyebrow="CONTACT" title={company?.name || 'Get in touch'}>
-              <div className="srcv2-hero-actions" style={{ marginTop: 0 }}>
-                {companyWebsite && (
-                  <a href={companyWebsite} target="_blank" rel="noopener noreferrer" className="srsv2-cta srsv2-cta-line">Visit website</a>
-                )}
-                {company?.email && (
-                  <a href={`mailto:${company.email}`} className="srsv2-cta srsv2-cta-line">Email {String(company.name || '').split(' ')[0] || 'them'}</a>
-                )}
-              </div>
-            </Section>
-          )}
-        </main>
       </div>
-
-      <V2ChipNav />
-    </div>
-  );
-}
-
-function Section({ eyebrow, title, children }) {
-  return (
-    <section className="srcv2-section">
-      <header className="srcv2-section-head">
-        <div className="srsv2-eyebrow">{eyebrow}</div>
-        <h2 className="srcv2-section-title">{title}<span className="srsv2-period">.</span></h2>
-      </header>
-      <div className="srcv2-section-body">{children}</div>
-    </section>
-  );
-}
-
-function Fact({ label, value }) {
-  return (
-    <div className="srcv2-fact">
-      <dt>{label}</dt>
-      <dd>{value}</dd>
     </div>
   );
 }
