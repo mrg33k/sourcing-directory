@@ -1,0 +1,127 @@
+/* Space OS v3 Hub Placeholder */
+
+.osv3-hub-placeholder {
+  background-color: var(--v3-content-bg);
+  color: var(--v3-ink-primary);
+  font-family: var(--v3-font-family-base);
+}
+
+.osv3-hub-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.osv3-hub-header {
+  margin-bottom: 48px;
+}
+
+.osv3-hub-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--v3-ink-primary);
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+.osv3-hub-intro {
+  font-size: 16px;
+  color: var(--v3-muted);
+  line-height: 1.5;
+  max-width: 600px;
+}
+
+.osv3-hub-sections {
+  margin-bottom: 48px;
+}
+
+.osv3-hub-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v3-muted);
+  margin-bottom: 24px;
+}
+
+.osv3-hub-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.osv3-hub-card {
+  background-color: white;
+  border: 1px solid var(--v3-border);
+  border-radius: 8px;
+  padding: 24px;
+  transition: all var(--v3-transition-fast);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.osv3-hub-card:hover {
+  border-color: var(--v3-accent);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.osv3-hub-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.osv3-hub-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--v3-ink-primary);
+  margin: 0;
+}
+
+.osv3-hub-card-badge {
+  display: inline-block;
+  background-color: var(--v3-panel-bg);
+  color: var(--v3-ink-primary);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 100px;
+  margin-left: auto;
+}
+
+.osv3-hub-card-link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--v3-link);
+  text-decoration: none;
+  transition: color var(--v3-transition-fast);
+  align-self: flex-start;
+}
+
+.osv3-hub-card-link:hover {
+  color: #1d4ed8;
+}
+
+.osv3-hub-card-link-muted {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--v3-muted);
+  font-style: italic;
+}
+
+@media (max-width: 1200px) {
+  .osv3-hub-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .osv3-hub-title {
+    font-size: 24px;
+  }
+
+  .osv3-hub-grid {
+    grid-template-columns: 1fr;
+  }
+}

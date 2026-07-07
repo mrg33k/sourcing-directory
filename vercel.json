@@ -1,14 +1,15 @@
 {
   "redirects": [
-    { "source": "/space-rising-v2", "destination": "/spaceos", "permanent": true },
-    { "source": "/space-rising-v2/:path*", "destination": "/spaceos/:path*", "permanent": true },
-    { "source": "/space-rising", "destination": "/spaceos", "permanent": true },
-    { "source": "/space-rising/:path*", "destination": "/spaceos/:path*", "permanent": true },
-    { "source": "/srw-v2", "destination": "/", "permanent": true }
+    { "source": "/space-rising-v2", "destination": "/", "permanent": true },
+    { "source": "/space-rising-v2/:path*", "destination": "/:path*", "permanent": true },
+    { "source": "/space-rising", "destination": "/", "permanent": true },
+    { "source": "/space-rising/:path*", "destination": "/:path*", "permanent": true },
+    { "source": "/spaceos", "destination": "/directory", "permanent": true },
+    { "source": "/spaceos/:path*", "destination": "/:path*", "permanent": true },
+    { "source": "/srw-v2", "destination": "/srw-v2", "permanent": false }
   ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/signup", "destination": "/index.html" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

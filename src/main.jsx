@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom'
 import './v10.css'
+import './osv3-tokens.css'
 
 // Fade wrapper -- fades in on every route change
 function PageTransition({ children }) {
@@ -39,6 +40,14 @@ function ToSpaceOS() {
   const rest = useParams()['*'] || ''
   const { search, hash } = useLocation()
   return <Navigate to={'/spaceos' + (rest ? '/' + rest : '') + search + hash} replace />
+}
+
+// Redirect /spaceos/* to clean OS routes (e.g., /spaceos/directory → /directory)
+function ToCleanOSRoute() {
+  const rest = useParams()['*'] || ''
+  const { search, hash } = useLocation()
+  // Map /spaceos/X to /X
+  return <Navigate to={'/' + (rest || '') + search + hash} replace />
 }
 
 // Lazy-load all pages
@@ -121,6 +130,15 @@ const SourcingPortalV2 = lazy(() => import('./pages/SourcingPortalV2.jsx'))
 const SourcingListingV2 = lazy(() => import('./pages/SourcingListingV2.jsx'))
 const SourcingReportDetailV2 = lazy(() => import('./pages/SourcingReportDetailV2.jsx'))
 
+// Space OS v3 — new shell + home + hub pages (foundation build)
+const OSLayoutV3 = lazy(() => import('./pages/OSLayoutV3.jsx'))
+const SpaceOSHomeV3 = lazy(() => import('./pages/SpaceOSHomeV3.jsx'))
+const OSEcosystemHub = lazy(() => import('./pages/OSHubPages.jsx').then(m => ({ default: m.OSEcosystemHub })))
+const OSIntelligenceHub = lazy(() => import('./pages/OSHubPages.jsx').then(m => ({ default: m.OSIntelligenceHub })))
+const OSOpportunitiesHub = lazy(() => import('./pages/OSHubPages.jsx').then(m => ({ default: m.OSOpportunitiesHub })))
+const OSLearningHub = lazy(() => import('./pages/OSHubPages.jsx').then(m => ({ default: m.OSLearningHub })))
+const OSLibraryHub = lazy(() => import('./pages/OSHubPages.jsx').then(m => ({ default: m.OSLibraryHub })))
+
 const Loading = () => (
   <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
 )
@@ -131,92 +149,87 @@ createRoot(document.getElementById('root')).render(
       <Suspense fallback={<Loading />}>
         <PageTransition>
         <Routes>
-          {/* Global */}
-          {/* Home is the root URL (clean-urls, 2026-06-18). The marketing home
-              renders directly at "/", no /srw-v2 hop. The bare /srw-v2 route below
-              redirects back to "/" so the old marketing URL never rots. V1 routes
-              (/srw, /space-rising) stay as redirects for legacy deep-link compat. */}
-          <Route path="/" element={<SRWHomeV2 />} />
-          {/* Legacy V1 utility pages retired (2026-06-05) → Space OS. No V1 surface. */}
-          <Route path="/signup" element={<Navigate to="/spaceos/signup" replace />} />
-          <Route path="/about" element={<Navigate to="/srw-v2/about" replace />} />
-          <Route path="/create" element={<Navigate to="/spaceos" replace />} />
-          {/* Admin stays — internal tooling, not a public surface. */}
-          <Route path="/admin" element={<SourcingAdmin />} />
-          <Route path="/admin/new" element={<SourcingAdmin />} />
-          <Route path="/admin/settings/:tenantSlug" element={<SourcingAdmin />} />
-          {/* Space Rising Website (SRW) V1 → V2 redirects. V2 is production. */}
-          <Route path="/srw" element={<Navigate to="/" replace />} />
+          {/* ===== SPACE OS V3 SHELL (foundation) ===== */}
+          {/* The v3 layout wraps all OS pages. "/" is the OS home. */}
+          <Route element={<Suspense fallback={<Loading />}><OSLayoutV3 /></Suspense>}>
+            <Route path="/" element={<SpaceOSHomeV3 />} />
+            <Route path="/directory" element={<SourcingDirectoryV2 />} />
+            <Route path="/ecosystem" element={<OSEcosystemHub />} />
+            <Route path="/intelligence" element={<OSIntelligenceHub />} />
+            <Route path="/opportunities" element={<OSOpportunitiesHub />} />
+            <Route path="/careers" element={<SourcingJobsV2 />} />
+            <Route path="/jobs" element={<SourcingJobsV2 />} />
+            <Route path="/marketplace" element={<SourcingMarketplaceV2 />} />
+            <Route path="/community" element={<SourcingEventsV2 />} />
+            <Route path="/events" element={<SourcingEventsV2 />} />
+            <Route path="/reports" element={<SourcingReportsV2 />} />
+            <Route path="/articles" element={<SourcingArticlesV2 />} />
+            <Route path="/grants" element={<SourcingGrantsV2 />} />
+            <Route path="/deal-bank" element={<SourcingDealBankV2 />} />
+            <Route path="/deal-bank/investments/add" element={<SourcingDealBankAddListing />} />
+            <Route path="/deal-bank/investments/:slug" element={<SourcingDealBankInvestmentProfile />} />
+            <Route path="/deal-bank/investors/signup" element={<SourcingDealBankInvestorSignup />} />
+            <Route path="/deal-bank/investors/:slug" element={<SourcingDealBankInvestorProfile />} />
+            <Route path="/learning" element={<OSLearningHub />} />
+            <Route path="/library" element={<OSLibraryHub />} />
+            <Route path="/membership" element={<SourcingMembershipV2 />} />
+            <Route path="/login" element={<SourcingLoginV2 />} />
+            <Route path="/signup" element={<SourcingSignupV2 />} />
+            <Route path="/signup/complete" element={<SourcingSignupComplete />} />
+            <Route path="/portal" element={<SourcingPortalV2 />} />
+            <Route path="/jobs/post" element={<SourcingJobsPostV2 />} />
+            <Route path="/events/post" element={<SourcingEventsPostV2 />} />
+            <Route path="/marketplace/post" element={<SourcingMarketplacePostV2 />} />
+            <Route path="/articles/post" element={<SourcingArticlesPostV2 />} />
+            <Route path="/discovery" element={<SourcingDiscoveryV2 />} />
+            <Route path="/discovery/post" element={<SourcingDiscoveryPostV2 />} />
+            <Route path="/jobs/:id" element={<SourcingListingV2 kind="job" />} />
+            <Route path="/events/:id" element={<SourcingListingV2 kind="event" />} />
+            <Route path="/marketplace/:id" element={<SourcingListingV2 kind="marketplace" />} />
+            <Route path="/reports/:id" element={<SourcingReportDetailV2 />} />
+            <Route path="/company/:slug" element={<SourcingCompanyV2 />} />
+            <Route path="/:slug" element={<SourcingCompanyV2 />} />
+          </Route>
+
+          {/* ===== MARKETING PAGES (outside v3 shell) ===== */}
+          <Route path="/srw" element={<Navigate to="/srw-v2" replace />} />
           <Route path="/srw/spaceos" element={<Navigate to="/srw-v2/spaceos" replace />} />
           <Route path="/srw/space-congress" element={<Navigate to="/srw-v2/space-congress" replace />} />
           <Route path="/srw/arizona" element={<Navigate to="/srw-v2/arizona" replace />} />
           <Route path="/srw/about" element={<Navigate to="/srw-v2/about" replace />} />
-          <Route path="/srw/partnerships" element={<Navigate to="/" replace />} />
+          <Route path="/srw/partnerships" element={<Navigate to="/srw-v2" replace />} />
           <Route path="/srw/events" element={<Navigate to="/srw-v2/events" replace />} />
           <Route path="/srw/media" element={<Navigate to="/srw-v2/media" replace />} />
           <Route path="/srw/sign-up" element={<Navigate to="/srw-v2/sign-up" replace />} />
-          {/* Nat Geo Uplift V2 clones — placed before tenant catch-all.
-              Bare /srw-v2 redirects to the root home; its subpages stay live. */}
-          <Route path="/srw-v2" element={<Navigate to="/" replace />} />
-          {/* R6 — SRW marketing sub-pages */}
+          <Route path="/srw-v2" element={<SRWHomeV2 />} />
           <Route path="/srw-v2/about" element={<SRWAboutV2 />} />
           <Route path="/srw-v2/spaceos" element={<SRWSpaceOSV2 />} />
           <Route path="/srw-v2/arizona" element={<SRWArizonaV2 />} />
           <Route path="/srw-v2/space-congress" element={<SRWSpaceCongressV2 />} />
-          {/* Partnerships hidden 2026-06-21 (Taryn): no official partners yet. Redirect home. */}
-          <Route path="/srw-v2/partnerships" element={<Navigate to="/" replace />} />
+          <Route path="/srw-v2/partnerships" element={<Navigate to="/srw-v2" replace />} />
           <Route path="/srw-v2/events" element={<SRWEventsV2 />} />
           <Route path="/srw-v2/media" element={<SRWMediaV2 />} />
           <Route path="/srw-v2/sign-up" element={<SRWSignUpV2 />} />
           <Route path="/srw-v2/blueprint" element={<SRWBlueprintV2 />} />
-          {/* Short alias: /blueprint */}
           <Route path="/blueprint" element={<Navigate to="/srw-v2/blueprint" replace />} />
-          {/* SpaceOS canonical surface — the ONE public prefix now. Internal nav
-              links all point here (canonical-link flip done 2026-06-18); the legacy
-              /space-rising-v2/* and /space-rising/* paths below 301-redirect in.
-              :slug stays LAST so static segments win. */}
-          <Route path="/spaceos" element={<SourcingDirectoryV2 />} />
-          <Route path="/spaceos/jobs" element={<SourcingJobsV2 />} />
-          <Route path="/spaceos/events" element={<SourcingEventsV2 />} />
-          <Route path="/spaceos/reports" element={<SourcingReportsV2 />} />
-          <Route path="/spaceos/marketplace" element={<SourcingMarketplaceV2 />} />
-          <Route path="/spaceos/deal-bank" element={<SourcingDealBankV2 />} />
-          <Route path="/spaceos/deal-bank/investments/add" element={<SourcingDealBankAddListing />} />
-          <Route path="/spaceos/deal-bank/investments/:slug" element={<SourcingDealBankInvestmentProfile />} />
-          <Route path="/spaceos/deal-bank/investors/signup" element={<SourcingDealBankInvestorSignup />} />
-          <Route path="/spaceos/deal-bank/investors/:slug" element={<SourcingDealBankInvestorProfile />} />
-          <Route path="/spaceos/membership" element={<SourcingMembershipV2 />} />
-          <Route path="/spaceos/signup" element={<SourcingSignupV2 />} />
-          <Route path="/spaceos/signup/complete" element={<SourcingSignupComplete />} />
-          <Route path="/spaceos/articles" element={<SourcingArticlesV2 />} />
-          <Route path="/spaceos/discovery" element={<SourcingDiscoveryV2 />} />
-          <Route path="/spaceos/grants" element={<SourcingGrantsV2 />} />
-          <Route path="/spaceos/login" element={<SourcingLoginV2 />} />
-          <Route path="/spaceos/portal" element={<SourcingPortalV2 />} />
-          <Route path="/spaceos/jobs/post" element={<SourcingJobsPostV2 />} />
-          <Route path="/spaceos/events/post" element={<SourcingEventsPostV2 />} />
-          <Route path="/spaceos/marketplace/post" element={<SourcingMarketplacePostV2 />} />
-          <Route path="/spaceos/articles/post" element={<SourcingArticlesPostV2 />} />
-          <Route path="/spaceos/discovery/post" element={<SourcingDiscoveryPostV2 />} />
-          <Route path="/spaceos/jobs/:id" element={<SourcingListingV2 kind="job" />} />
-          <Route path="/spaceos/events/:id" element={<SourcingListingV2 kind="event" />} />
-          <Route path="/spaceos/marketplace/:id" element={<SourcingListingV2 kind="marketplace" />} />
-          <Route path="/spaceos/reports/:id" element={<SourcingReportDetailV2 />} />
-          <Route path="/spaceos/:slug" element={<SourcingCompanyV2 />} />
 
-          {/* Legacy URL cleanup (2026-06-18): /space-rising-v2/* 301-redirects to
-              the clean /spaceos/* surface above. Same render components live under
-              /spaceos, so nothing is lost; old shared links + bookmarks forward
-              automatically. The splat preserves the rest of the path + query + hash.
-              Server-side 301s are also set in vercel.json for direct hits + SEO. */}
-          <Route path="/space-rising-v2/*" element={<ToSpaceOS />} />
-          {/* Legacy /space-rising/* (V1) → clean /spaceos/*. One splat covers the
-              bare path, every sub-page, and company /:slug profiles. */}
+          {/* ===== ADMIN (outside v3 shell) ===== */}
+          <Route path="/admin" element={<SourcingAdmin />} />
+          <Route path="/admin/new" element={<SourcingAdmin />} />
+          <Route path="/admin/settings/:tenantSlug" element={<SourcingAdmin />} />
+
+          {/* ===== LEGACY REDIRECTS ===== */}
+          {/* /spaceos/* → clean OS routes (e.g., /spaceos/directory → /directory) */}
+          <Route path="/spaceos" element={<Navigate to="/directory" replace />} />
+          <Route path="/spaceos/*" element={<ToCleanOSRoute />} />
+          {/* /space-rising/* (V1) → clean routes via /spaceos redirect */}
           <Route path="/space-rising/*" element={<ToSpaceOS />} />
-          {/* Catch-all → Space OS directory. Every unmatched path (unknown/typo slug,
-              retired V1 tenant directories) lands on /spaceos — no V1, no 404.
-              Tenant company DATA stays in the DB; only old browse surfaces are gone. */}
-          <Route path="*" element={<Navigate to="/spaceos" replace />} />
+          {/* /space-rising-v2/* → /spaceos/* → clean routes */}
+          <Route path="/space-rising-v2/*" element={<ToSpaceOS />} />
+
+          {/* ===== CATCH-ALL ===== */}
+          {/* Unmatched paths → OS home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         </PageTransition>
       </Suspense>
