@@ -46,9 +46,10 @@ function calcReadTime(text) {
   return `${minutes} min read`;
 }
 
-// Get author initials for avatar
+// Get author initials for avatar. Reports are Space-Rising-published; when no
+// byline author exists, attribute to Space Rising (never a bare "?").
 function getInitials(author) {
-  if (!author) return '?';
+  if (!author) return 'SR';
   return author
     .split(' ')
     .slice(0, 2)
@@ -164,8 +165,8 @@ export default function SourcingReportDetailV2() {
         <div className="osv3-mag-byline">
           <div className="osv3-mag-avatar">{authorInitials}</div>
           <div className="osv3-mag-byline-text">
-            {report.author && <span className="osv3-mag-byline-author">{report.author}</span>}
-            {report.author && <span className="osv3-mag-byline-dot">·</span>}
+            <span className="osv3-mag-byline-author">{report.author || 'Space Rising'}</span>
+            <span className="osv3-mag-byline-dot">·</span>
             {pubDate && <span>{pubDate}</span>}
             {readTime && <span className="osv3-mag-byline-dot">·</span>}
             {readTime && <span>{readTime}</span>}
