@@ -209,86 +209,72 @@ function SourcingMembershipV2Inner() {
   }));
 
   return (
-    <div className="osv3 osv3-shell">
-      <div className="osv3-sidebar">
-        <div className="osv3-sidebar-logo">Space OS</div>
-        <div className="osv3-sidebar-divider" />
+    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '48px' }}>
+        <h1 style={{ fontSize: 'var(--v3-h1-font-size)', fontWeight: 'var(--v3-h1-font-weight)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>
+          Organization Membership
+        </h1>
+        <p style={{ fontSize: 'var(--v3-body-font-size)', color: 'var(--v3-muted)', margin: '0', lineHeight: 'var(--v3-body-line-height)', maxWidth: '50ch' }}>
+          Choose how you want to engage with Space OS.
+        </p>
       </div>
-      <div className="osv3-main-container">
-        <div className="osv3-topbar">
-          <div className="osv3-search-container"></div>
-          <div className="osv3-topbar-actions"></div>
-        </div>
-        <div className="osv3-content">
-          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-            <div style={{ marginBottom: '48px' }}>
-              <h1 style={{ fontSize: 'var(--v3-h1-font-size)', fontWeight: 'var(--v3-h1-font-weight)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>
-                Organization Membership
-              </h1>
-              <p style={{ fontSize: 'var(--v3-body-font-size)', color: 'var(--v3-muted)', margin: '0', lineHeight: 'var(--v3-body-line-height)', maxWidth: '50ch' }}>
-                Choose how you want to engage with Space OS.
-              </p>
-            </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '64px' }}>
-              <TierCard
-                kind="free"
-                title="Free"
-                lede="Explore at your pace. Read and connect."
-                benefits={FREE_BENEFITS}
-                footnote="No card required"
-                cta="Start Exploring"
-                ctaHref="/signup?tier=free"
-              />
-              <TierCard
-                kind="premium"
-                title="Premium"
-                lede="Full access to post, lead, and access exclusive features."
-                benefits={PREMIUM_BENEFITS}
-                footnote={premiumFootnote}
-                cta="Become a Member"
-                ctaHref={premiumCtaHref}
-                billingChips={BILLING_CHIPS}
-                activeBilling={billing}
-                onBillingChange={setBilling}
-                empChips={EMP_CHIPS}
-                activeEmp={empTier}
-                onEmpChange={setEmpTier}
-              />
-            </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '64px' }}>
+        <TierCard
+          kind="free"
+          title="Free"
+          lede="Explore at your pace. Read and connect."
+          benefits={FREE_BENEFITS}
+          footnote="No card required"
+          cta="Start Exploring"
+          ctaHref="/signup?tier=free"
+        />
+        <TierCard
+          kind="premium"
+          title="Premium"
+          lede="Full access to post, lead, and access exclusive features."
+          benefits={PREMIUM_BENEFITS}
+          footnote={premiumFootnote}
+          cta="Become a Member"
+          ctaHref={premiumCtaHref}
+          billingChips={BILLING_CHIPS}
+          activeBilling={billing}
+          onBillingChange={setBilling}
+          empChips={EMP_CHIPS}
+          activeEmp={empTier}
+          onEmpChange={setEmpTier}
+        />
+      </div>
 
-            <div style={{ marginBottom: '64px' }}>
-              <h2 style={{ fontSize: 'var(--v3-eyebrow-font-size)', fontWeight: 'var(--v3-eyebrow-font-weight)', color: 'var(--v3-muted)', letterSpacing: 'var(--v3-eyebrow-letter-spacing)', textTransform: 'uppercase', marginBottom: '16px' }}>
-                Pricing by company size
-              </h2>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
-                {EMP_TIERS.map((t) => (
-                  <div
-                    key={t.key}
-                    style={{
-                      padding: '16px',
-                      border: `1px solid ${empTier === t.key ? 'var(--v3-accent)' : 'var(--v3-border)'}`,
-                      borderRadius: '8px',
-                      background: empTier === t.key ? 'var(--v3-panel-bg)' : 'white',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease',
-                    }}
-                    onClick={() => setEmpTier(t.key)}
-                  >
-                    <div style={{ fontSize: 'var(--v3-label-font-size)', fontWeight: 'var(--v3-font-weight-medium)', color: 'var(--v3-muted)', marginBottom: '8px' }}>
-                      {t.label}
-                    </div>
-                    <div style={{ fontSize: 'var(--v3-font-size-2xl)', fontWeight: 'var(--v3-font-weight-bold)', color: empTier === t.key ? 'var(--v3-accent)' : 'var(--v3-ink-primary)', marginBottom: '4px' }}>
-                      {t.annual}
-                    </div>
-                    <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)' }}>
-                      or {t.monthly} monthly
-                    </div>
-                  </div>
-                ))}
+      <div style={{ marginBottom: '64px' }}>
+        <h2 style={{ fontSize: 'var(--v3-eyebrow-font-size)', fontWeight: 'var(--v3-eyebrow-font-weight)', color: 'var(--v3-muted)', letterSpacing: 'var(--v3-eyebrow-letter-spacing)', textTransform: 'uppercase', marginBottom: '16px' }}>
+          Pricing by company size
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+          {EMP_TIERS.map((t) => (
+            <div
+              key={t.key}
+              style={{
+                padding: '16px',
+                border: `1px solid ${empTier === t.key ? 'var(--v3-accent)' : 'var(--v3-border)'}`,
+                borderRadius: '8px',
+                background: empTier === t.key ? 'var(--v3-panel-bg)' : 'white',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+              }}
+              onClick={() => setEmpTier(t.key)}
+            >
+              <div style={{ fontSize: 'var(--v3-label-font-size)', fontWeight: 'var(--v3-font-weight-medium)', color: 'var(--v3-muted)', marginBottom: '8px' }}>
+                {t.label}
+              </div>
+              <div style={{ fontSize: 'var(--v3-font-size-2xl)', fontWeight: 'var(--v3-font-weight-bold)', color: empTier === t.key ? 'var(--v3-accent)' : 'var(--v3-ink-primary)', marginBottom: '4px' }}>
+                {t.annual}
+              </div>
+              <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)' }}>
+                or {t.monthly} monthly
               </div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
     </div>
