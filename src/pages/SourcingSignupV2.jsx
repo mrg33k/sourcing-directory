@@ -2,7 +2,8 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import { useTenant } from './SourcingTheme.jsx';
-import '../space-rising-theme-v2.css';
+import '../osv3-tokens.css';
+import '../pages/OSLayoutV3.css';
 
 const SPACE_CERTS = ['AS9100D', 'AS9110', 'AS9120B', 'ITAR Registered', 'ISO 9001', 'MIL-STD-810', 'NADCAP', 'FAA FAR Part 145', 'DoD Secret Cleared', 'DFAR Compliant'];
 const EMP_RANGES = ['1–10', '11–50', '51–200', '200–500', '500–2000', '2000+', '10,000+'];
@@ -28,15 +29,11 @@ export default function SourcingSignupV2() {
   const navigate = useNavigate();
   const { tenant, tenantSlug } = useTenant();
   const tierParam = useQueryParam('tier');
-  const planParam = useQueryParam('plan'); // e.g. 'small-annual', 'mid-monthly', 'large-annual'
+  const planParam = useQueryParam('plan');
 
-  // The account type can arrive two ways:
-  //   1. a ?tier= param — the membership-page doors deep-link straight in, or
-  //   2. unset — the visitor came from the sign-in / content gate, so we ask
-  //      them to pick a door FIRST instead of silently defaulting to paid signup.
   const paramTier = tierParam === 'free' ? 'free' : (tierParam ? 'paid' : null);
   const [chosenTier, setChosenTier] = useState(null);
-  const tier = chosenTier || paramTier;   // null until a door is picked
+  const tier = chosenTier || paramTier;
   const needsChoice = !tier;
 
   const validPlanTypes = Object.keys(PLAN_PRICING);
@@ -61,28 +58,28 @@ export default function SourcingSignupV2() {
     full_name: '', auth_email: '', auth_password: '',
   });
 
-  // After the auth-step signup POST succeeds, we stash company_id + slug here so
-  // the payment step can create a checkout session against the live row.
   const [createdCompany, setCreatedCompany] = useState(null);
-  // When the Stripe checkout endpoint returns 503 (env vars not set), or paid
-  // signup completes without payment wiring, we surface this and fall back to
-  // "we'll email you a link" copy on the welcome screen.
   const [paymentFallback, setPaymentFallback] = useState(false);
 
   const set = (key, val) => { setForm(p => ({ ...p, [key]: val })); setError(''); };
   const next = () => { setError(''); setStep(s => Math.min(s + 1, totalSteps)); };
   const back = () => { setError(''); setStep(s => Math.max(s - 1, 0)); };
 
-  // Self-service disabled
   if (tenant && tenant.self_service === false) {
     return (
-      <div className="srsv2-shell" data-tenant="space-rising-v2">
-        <div className="srsv2-veil" />
-        <div className="srsv2-card">
-          <div className="srsv2-eyebrow">SIGNUP CLOSED</div>
-          <div className="srsv2-title">This directory isn't open.<span className="srsv2-period">.</span></div>
-          <div className="srsv2-sub">Contact the administrator for access.</div>
-          <Link to={basePath} className="srsv2-cta srsv2-cta-line">Back to directory</Link>
+      <div className="osv3 osv3-shell">
+        <div className="osv3-sidebar">
+          <div className="osv3-sidebar-logo">Space OS</div>
+        </div>
+        <div className="osv3-main-container">
+          <div className="osv3-topbar"><div className="osv3-search-container"></div></div>
+          <div className="osv3-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ maxWidth: '420px', textAlign: 'center', background: 'white', border: '1px solid var(--v3-border)', borderRadius: '8px', padding: '40px 32px' }}>
+              <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: 0 }}>Signup closed</h2>
+              <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginTop: '8px' }}>Contact the administrator for access.</p>
+              <Link to={basePath} style={{ display: 'inline-block', marginTop: '20px', padding: '10px 20px', background: 'var(--v3-accent)', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>Back</Link>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -103,9 +100,6 @@ export default function SourcingSignupV2() {
     }
   };
 
-  // Step 1 of the paid flow (and the only submit for free flow): create the
-  // company row, send the welcome email, sign the user in. After this fires
-  // successfully on the paid path we hold the company_id and advance to payment.
   const handleAccountCreate = async () => {
     if (!form.full_name.trim()) { setError('Your name is required.'); return false; }
     if (!form.auth_email.trim()) { setError('Email is required.'); return false; }
@@ -168,10 +162,6 @@ export default function SourcingSignupV2() {
     }
   };
 
-  // Step 2 of the paid flow: take the just-created company → POST to the
-  // Stripe checkout-session endpoint → redirect to the hosted checkout URL.
-  // If the endpoint reports 503 (env vars not set yet), fall back to the
-  // welcome screen with "we'll email a link" copy so the UX still completes.
   const handleCheckoutRedirect = async (company) => {
     setLoading(true);
     setError('');
@@ -187,7 +177,6 @@ export default function SourcingSignupV2() {
         }),
       });
       if (res.status === 503) {
-        // Press-go state: env vars not set yet. Land on welcome with fallback copy.
         setPaymentFallback(true);
         setSubmitted(true);
         return;
@@ -198,461 +187,167 @@ export default function SourcingSignupV2() {
       }
       window.location.href = data.checkout_url;
     } catch (err) {
-      setError(err.message || 'Checkout failed — try again or contact us.');
-    } finally {
+      setError(err.message || 'Checkout failed. Please try again.');
       setLoading(false);
     }
   };
 
-  const handleContinue = async () => {
-    if (!stepValid()) return;
-    // Free tier: auth step submits AND finalizes — welcome screen renders next.
-    if (stepName === 'auth' && tier === 'free') {
-      const company = await handleAccountCreate();
-      if (company) setSubmitted(true);
-      return;
-    }
-    // Paid tier: auth step creates the account then advances to payment.
-    if (stepName === 'auth' && tier === 'paid') {
-      const company = await handleAccountCreate();
-      if (company) next();
-      return;
-    }
-    // Paid tier payment step: redirect into Stripe (or fall back to welcome).
-    if (stepName === 'payment') {
-      return handleCheckoutRedirect(createdCompany);
-    }
-    next();
-  };
-
-  return (
-    <div className="srsv2-shell" data-tenant="space-rising-v2">
-      <div className="srsv2-veil" />
-
-      {/* Top bar */}
-      <div className="srsv2-topbar">
-        <Link to={basePath} className="srsv2-wordmark">SPACE RISING</Link>
-        <div className="srsv2-progress">
-          {!submitted && !needsChoice && (
-            <span>
-              {String(step + 1).padStart(2, '0')} <span className="srsv2-progress-sep">/</span> {String(totalSteps).padStart(2, '0')}
-            </span>
-          )}
+  if (submitted) {
+    return (
+      <div className="osv3 osv3-shell">
+        <div className="osv3-sidebar">
+          <div className="osv3-sidebar-logo">Space OS</div>
         </div>
-        <Link to={basePath} className="srsv2-close" aria-label="Close">
-          <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-        </Link>
-      </div>
-
-      {/* Progress rail */}
-      {!submitted && !needsChoice && (
-        <div className="srsv2-rail">
-          <div className="srsv2-rail-fill" style={{ width: `${((step + 1) / totalSteps) * 100}%` }} />
-        </div>
-      )}
-
-      {/* Body */}
-      <div className="srsv2-body">
-        {needsChoice ? (
-          <ChooseAccountType basePath={basePath} onPick={setChosenTier} />
-        ) : submitted ? (
-          <div className="srsv2-step srsv2-step-success">
-            <div className="srsv2-eyebrow">YOU'RE IN</div>
-            <div className="srsv2-title srsv2-title-xl">
-              Welcome to the room, {form.full_name.trim().split(/\s+/)[0] || 'friend'}<span className="srsv2-period">.</span>
-            </div>
-            <div className="srsv2-sub">
-              {tier === 'paid'
-                ? (paymentFallback
-                    ? `Your account is in. We'll email ${form.auth_email} a payment link to complete your membership — secure checkout is being switched on.`
-                    : `Your account is in. We'll email ${form.auth_email} the receipt once Stripe confirms the payment.`)
-                : `Your company listing is live. We sent a welcome to ${form.auth_email}.`}
-            </div>
-            <div className="srsv2-cta-row">
-              <Link to={basePath} className="srsv2-cta srsv2-cta-solid">Enter the directory</Link>
+        <div className="osv3-main-container">
+          <div className="osv3-topbar"><div className="osv3-search-container"></div></div>
+          <div className="osv3-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ maxWidth: '420px', textAlign: 'center', background: 'white', border: '1px solid var(--v3-border)', borderRadius: '8px', padding: '40px 32px' }}>
+              <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: 0 }}>Welcome</h2>
+              <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginTop: '12px', marginBottom: '24px' }}>
+                {paymentFallback ? 'Your account is set up. We'll send you a payment link via email.' : 'Account created. Check your email to continue.'}
+              </p>
+              <Link to={basePath} style={{ display: 'inline-block', padding: '10px 20px', background: 'var(--v3-accent)', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>Explore</Link>
             </div>
           </div>
-        ) : (
-          <StepView
-            stepName={stepName}
-            stepIndex={step}
-            tier={tier}
-            planType={planType}
-            isAnnual={isAnnual}
-            form={form}
-            set={set}
-            error={error}
-            loading={loading}
-            onContinue={handleContinue}
-            onBack={back}
-            onReChoose={!paramTier ? () => setChosenTier(null) : null}
-            canContinue={stepValid()}
-          />
-        )}
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
-// ────────────────────────────────────────────────────────────────────────────────
-// Account-type chooser — shown first when no ?tier was supplied (i.e. the visitor
-// arrived from the sign-in / content gate). Two doors, mirroring the membership
-// page so the language is consistent: Free (watch from the floor) vs Members
-// (join the room). Picking one drops them into that flow.
-// ────────────────────────────────────────────────────────────────────────────────
-function ChooseAccountType({ basePath, onPick }) {
-  const OPTIONS = [
-    {
-      key: 'free',
-      tag: 'Free',
-      title: 'Watch from the floor',
-      sub: 'Get on the map and read the room. Directory listing, intelligence reports, jobs, events, and deals, all readable. No card required.',
-      cta: 'Continue free',
-      solid: false,
-    },
-    {
-      key: 'paid',
-      tag: 'Members',
-      title: 'Join the room',
-      sub: 'Everything in Free, plus full posting privileges, monthly research, member events, logo placement, and Congress discounts.',
-      cta: 'Become a member',
-      solid: true,
-    },
-  ];
-
-  return (
-    <div className="srsv2-step">
-      <div className="srsv2-eyebrow">CHOOSE YOUR ACCOUNT</div>
-      <h1 className="srsv2-title">Pick how you walk in<span className="srsv2-period">.</span></h1>
-      <div className="srsv2-sub">Two doors, same room. You can upgrade any time.</div>
-
-      <div style={{ display: 'grid', gap: 16, marginTop: 28 }}>
-        {OPTIONS.map((o) => (
-          <button
-            key={o.key}
-            type="button"
-            onClick={() => onPick(o.key)}
-            style={{
-              textAlign: 'left',
-              background: o.solid ? 'rgba(232,162,58,0.07)' : 'rgba(255,255,255,0.03)',
-              border: `1px solid ${o.solid ? 'rgba(232,162,58,0.45)' : 'rgba(232,228,218,0.14)'}`,
-              borderRadius: 12,
-              padding: '22px 24px',
-              cursor: 'pointer',
-              color: '#E8E4DA',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 8,
-              transition: 'all 0.14s ease',
-            }}
-          >
-            <span style={{
-              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-              fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase',
-              color: o.solid ? '#E8A23A' : 'rgba(232,228,218,0.55)',
-            }}>
-              {o.tag}
-            </span>
-            <span style={{
-              fontFamily: '"Space Grotesk", sans-serif',
-              fontSize: 22, fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.01em',
-            }}>
-              {o.title}<span style={{ color: '#E8A23A' }}>.</span>
-            </span>
-            <span style={{ fontSize: 14, lineHeight: 1.5, color: 'rgba(232,228,218,0.7)' }}>
-              {o.sub}
-            </span>
-            <span style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 6,
-              fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, fontSize: 14,
-              color: o.solid ? '#E8A23A' : '#E8E4DA',
-            }}>
-              {o.cta}
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
-            </span>
-          </button>
-        ))}
-      </div>
-
-      <div style={{
-        marginTop: 28, textAlign: 'center',
-        fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-        fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase',
-        color: 'rgba(232,228,218,0.45)',
-      }}>
-        Already have an account?{' '}
-        <Link to={`${basePath}/login`} style={{ color: '#E8A23A', textDecoration: 'none' }}>
-          Sign in
-        </Link>
-      </div>
-    </div>
-  );
-}
-
-// ────────────────────────────────────────────────────────────────────────────────
-// Step views
-// ────────────────────────────────────────────────────────────────────────────────
-
-function StepView({ stepName, stepIndex, tier, planType, isAnnual, form, set, error, loading, onContinue, onBack, onReChoose, canContinue }) {
-  const inputRef = useRef(null);
-  useEffect(() => {
-    const t = setTimeout(() => inputRef.current?.focus?.(), 380);
-    return () => clearTimeout(t);
-  }, [stepName]);
-
-  const eyebrowFor = (name) => {
-    switch (name) {
-      case 'company':     return 'YOUR COMPANY';
-      case 'description': return 'WHAT YOU DO';
-      case 'location':    return 'WHERE YOU OPERATE';
-      case 'certs':       return 'CERTIFICATIONS';
-      case 'seats':       return 'YOUR TEAM'; // kept for safety; step removed from PAID_STEPS
-      case 'fullname':    return 'WHO YOU ARE';
-      case 'auth':        return 'YOUR ACCOUNT';
-      case 'payment':     return 'PAYMENT';
-      default:            return '';
-    }
-  };
-
-  return (
-    <div key={stepName} className="srsv2-step">
-      <div className="srsv2-eyebrow">{eyebrowFor(stepName)}</div>
-
-      {stepName === 'company' && (
-        <>
-          <h1 className="srsv2-title">What's the company called<span className="srsv2-period">?</span></h1>
-          <div className="srsv2-sub">This is how you'll appear in the directory.</div>
-          <input
-            ref={inputRef}
-            className="srsv2-input"
-            placeholder="Acme Aerospace"
-            value={form.name}
-            onChange={e => set('name', e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && canContinue && onContinue()}
-          />
-        </>
-      )}
-
-      {stepName === 'description' && (
-        <>
-          <h1 className="srsv2-title">Tell us what you do<span className="srsv2-period">.</span></h1>
-          <div className="srsv2-sub">A short description — capabilities, focus, what makes you specific.</div>
-          <textarea
-            ref={inputRef}
-            className="srsv2-input srsv2-textarea"
-            placeholder="We design and build…"
-            value={form.description}
-            onChange={e => set('description', e.target.value)}
-            rows={4}
-          />
-        </>
-      )}
-
-      {stepName === 'location' && (
-        <>
-          <h1 className="srsv2-title">Where do you operate<span className="srsv2-period">?</span></h1>
-          <div className="srsv2-sub">Help procurement teams find local suppliers.</div>
-          <div className="srsv2-field-grid">
-            <label className="srsv2-field srsv2-field-wide">
-              <span className="srsv2-label">City</span>
-              <input
-                ref={inputRef}
-                className="srsv2-input"
-                placeholder="Phoenix"
-                value={form.city}
-                onChange={e => set('city', e.target.value)}
-              />
-            </label>
-            <label className="srsv2-field srsv2-field-narrow">
-              <span className="srsv2-label">State</span>
-              <input
-                className="srsv2-input"
-                placeholder="AZ"
-                value={form.state}
-                onChange={e => set('state', e.target.value.toUpperCase().slice(0, 2))}
-                maxLength={2}
-              />
-            </label>
-            <label className="srsv2-field srsv2-field-wide">
-              <span className="srsv2-label">Website <em className="srsv2-optional">optional</em></span>
-              <input
-                className="srsv2-input"
-                placeholder="https://"
-                type="url"
-                value={form.website}
-                onChange={e => set('website', e.target.value)}
-              />
-            </label>
-            <label className="srsv2-field srsv2-field-narrow">
-              <span className="srsv2-label">Founded <em className="srsv2-optional">optional</em></span>
-              <input
-                className="srsv2-input"
-                placeholder="2018"
-                type="number"
-                min="1900"
-                max={new Date().getFullYear()}
-                value={form.year_founded}
-                onChange={e => set('year_founded', e.target.value)}
-              />
-            </label>
-            <label className="srsv2-field srsv2-field-full">
-              <span className="srsv2-label">Team size <em className="srsv2-optional">optional</em></span>
-              <select
-                className="srsv2-input srsv2-select"
-                value={form.employee_count}
-                onChange={e => set('employee_count', e.target.value)}
-              >
-                <option value="">Select range</option>
-                {EMP_RANGES.map(r => <option key={r} value={r}>{r}</option>)}
-              </select>
-            </label>
-          </div>
-        </>
-      )}
-
-      {stepName === 'certs' && (
-        <>
-          <h1 className="srsv2-title">What certifications do you hold<span className="srsv2-period">?</span></h1>
-          <div className="srsv2-sub">Tap all that apply. You can edit these any time.</div>
-          <div className="srsv2-certs">
-            {SPACE_CERTS.map(cert => {
-              const on = form.selectedCerts.includes(cert);
-              return (
-                <button
-                  key={cert}
-                  type="button"
-                  className={`srsv2-cert ${on ? 'on' : ''}`}
-                  onClick={() => set('selectedCerts', on ? form.selectedCerts.filter(c => c !== cert) : [...form.selectedCerts, cert])}
-                >
-                  {cert}
+  if (needsChoice) {
+    return (
+      <div className="osv3 osv3-shell">
+        <div className="osv3-sidebar">
+          <div className="osv3-sidebar-logo">Space OS</div>
+        </div>
+        <div className="osv3-main-container">
+          <div className="osv3-topbar"><div className="osv3-search-container"></div></div>
+          <div className="osv3-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ maxWidth: '500px', width: '100%' }}>
+              <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px', textAlign: 'center' }}>Choose your path</h2>
+              <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', textAlign: 'center', marginBottom: '32px' }}>Select how you'd like to get started.</p>
+              <div style={{ display: 'grid', gap: '16px' }}>
+                <button onClick={() => setChosenTier('free')} style={{ padding: '20px', border: '1px solid var(--v3-border)', borderRadius: '8px', background: 'white', cursor: 'pointer', textAlign: 'left', transition: 'all var(--v3-transition-fast)' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--v3-accent)'} onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--v3-border)'}>
+                  <div style={{ fontSize: 'var(--v3-body-font-size)', fontWeight: 'var(--v3-font-weight-semibold)', color: 'var(--v3-ink-primary)' }}>Free Exploration</div>
+                  <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginTop: '4px' }}>Read and explore the directory</div>
                 </button>
-              );
-            })}
-          </div>
-        </>
-      )}
-
-      {stepName === 'seats' && (
-        <>
-          <h1 className="srsv2-title">How many seats do you need<span className="srsv2-period">?</span></h1>
-          <div className="srsv2-sub">Slide to size your team. Pricing tiers down as you grow.</div>
-          <div className="srsv2-seats">
-            <div className="srsv2-seats-readout">
-              <div className="srsv2-seats-count">{form.seats}</div>
-              <div className="srsv2-seats-unit">{form.seats === 1 ? 'seat' : 'seats'}</div>
+                <button onClick={() => setChosenTier('paid')} style={{ padding: '20px', border: '1px solid var(--v3-accent)', borderRadius: '8px', background: 'var(--v3-panel-bg)', cursor: 'pointer', textAlign: 'left', transition: 'all var(--v3-transition-fast)' }}>
+                  <div style={{ fontSize: 'var(--v3-body-font-size)', fontWeight: 'var(--v3-font-weight-semibold)', color: 'var(--v3-ink-primary)' }}>Premium Membership</div>
+                  <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginTop: '4px' }}>Post, lead, and access exclusive features</div>
+                </button>
+              </div>
             </div>
-            <input
-              type="range"
-              min="1"
-              max="50"
-              value={form.seats}
-              onChange={e => set('seats', Number(e.target.value))}
-              className="srsv2-range"
-            />
-            <div className="srsv2-seats-price">
-              {ppm ? (
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="osv3 osv3-shell">
+      <div className="osv3-sidebar">
+        <div className="osv3-sidebar-logo">Space OS</div>
+      </div>
+      <div className="osv3-main-container">
+        <div className="osv3-topbar"><div className="osv3-search-container"></div></div>
+        <div className="osv3-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
+          <div style={{ maxWidth: '500px', width: '100%' }}>
+            <div style={{ marginBottom: '20px', display: 'flex', gap: '4px', justifyContent: 'center' }}>
+              {steps.map((s, i) => (
+                <div key={s} style={{ width: '8px', height: '8px', borderRadius: '50%', background: i <= step ? 'var(--v3-accent)' : 'var(--v3-border)', transition: 'all var(--v3-transition-fast)' }} />
+              ))}
+            </div>
+
+            <div style={{ background: 'white', border: '1px solid var(--v3-border)', borderRadius: '8px', padding: '40px 32px' }}>
+              {stepName === 'company' && (
                 <>
-                  <span className="srsv2-seats-price-big">${ppm.toLocaleString()}</span>
-                  <span className="srsv2-seats-price-unit">/ seat / year</span>
+                  <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Company name</h2>
+                  <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>What's your organization called?</p>
+                  <input placeholder="Company Name" value={form.name} onChange={(e) => set('name', e.target.value)} autoFocus style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '20px' }} />
                 </>
-              ) : (
-                <span className="srsv2-seats-price-big">Custom pricing</span>
               )}
-              {totalMo && (
-                <div className="srsv2-seats-monthly">≈ ${totalMo.toLocaleString()} / month, billed annually</div>
+
+              {stepName === 'description' && (
+                <>
+                  <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>About your company</h2>
+                  <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>Brief overview of what you do</p>
+                  <textarea placeholder="What does your company do?" value={form.description} onChange={(e) => set('description', e.target.value)} autoFocus style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', minHeight: '100px', marginBottom: '20px', fontFamily: 'var(--v3-font-family-base)' }} />
+                </>
               )}
+
+              {stepName === 'location' && (
+                <>
+                  <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Location</h2>
+                  <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>Where are you based?</p>
+                  <input placeholder="City" value={form.city} onChange={(e) => set('city', e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '12px' }} />
+                  <select value={form.state} onChange={(e) => set('state', e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '20px' }}>
+                    <option value="AZ">Arizona</option>
+                    <option value="CA">California</option>
+                    <option value="TX">Texas</option>
+                    <option value="FL">Florida</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </>
+              )}
+
+              {stepName === 'certs' && (
+                <>
+                  <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Certifications (optional)</h2>
+                  <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>Which apply to your company?</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
+                    {SPACE_CERTS.map((cert) => (
+                      <button
+                        key={cert}
+                        type="button"
+                        onClick={() => set('selectedCerts', form.selectedCerts.includes(cert) ? form.selectedCerts.filter(c => c !== cert) : [...form.selectedCerts, cert])}
+                        style={{ padding: '6px 12px', border: form.selectedCerts.includes(cert) ? '1px solid var(--v3-accent)' : '1px solid var(--v3-border)', background: form.selectedCerts.includes(cert) ? 'var(--v3-panel-bg)' : 'white', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', cursor: 'pointer', transition: 'all var(--v3-transition-fast)' }}
+                      >
+                        {cert}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {stepName === 'fullname' && (
+                <>
+                  <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Your name</h2>
+                  <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>How should we address you?</p>
+                  <input placeholder="Full Name" value={form.full_name} onChange={(e) => set('full_name', e.target.value)} autoFocus style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '20px' }} />
+                </>
+              )}
+
+              {stepName === 'auth' && (
+                <>
+                  <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Account details</h2>
+                  <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>Create your login</p>
+                  <input type="email" placeholder="Email" value={form.auth_email} onChange={(e) => set('auth_email', e.target.value)} autoFocus style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '12px' }} />
+                  <input type="password" placeholder="Password (6+ characters)" value={form.auth_password} onChange={(e) => set('auth_password', e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '20px' }} />
+                </>
+              )}
+
+              {stepName === 'payment' && (
+                <>
+                  <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Review and pay</h2>
+                  <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>{PLAN_PRICING[planType]?.label} — {PLAN_PRICING[planType]?.amount}</p>
+                </>
+              )}
+
+              {error && <div style={{ padding: '12px', background: '#FEE2E2', border: '1px solid #FCA5A5', borderRadius: '6px', color: '#DC2626', fontSize: 'var(--v3-body-sm-font-size)', marginBottom: '20px' }}>{error}</div>}
+
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'space-between' }}>
+                {step > 0 && <button onClick={back} style={{ padding: '10px 20px', background: 'white', border: '1px solid var(--v3-border)', borderRadius: '6px', cursor: 'pointer', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>Back</button>}
+                {step < totalSteps - 1 ? (
+                  <button onClick={next} disabled={!stepValid()} style={{ marginLeft: 'auto', padding: '10px 20px', background: stepValid() ? 'var(--v3-accent)' : '#D3D3D3', color: 'white', border: 'none', borderRadius: '6px', cursor: stepValid() ? 'pointer' : 'not-allowed', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>Continue</button>
+                ) : stepName === 'payment' ? (
+                  <button onClick={() => handleCheckoutRedirect(createdCompany)} disabled={loading} style={{ marginLeft: 'auto', padding: '10px 20px', background: loading ? '#D3D3D3' : 'var(--v3-accent)', color: 'white', border: 'none', borderRadius: '6px', cursor: loading ? 'not-allowed' : 'pointer', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>{loading ? 'Processing...' : 'Pay with Stripe'}</button>
+                ) : (
+                  <button onClick={async () => { const result = await handleAccountCreate(); if (result) { if (tier === 'paid') next(); else setSubmitted(true); } }} disabled={!stepValid() || loading} style={{ marginLeft: 'auto', padding: '10px 20px', background: stepValid() && !loading ? 'var(--v3-accent)' : '#D3D3D3', color: 'white', border: 'none', borderRadius: '6px', cursor: stepValid() && !loading ? 'pointer' : 'not-allowed', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>{loading ? 'Creating...' : 'Create Account'}</button>
+                )}
+              </div>
             </div>
           </div>
-        </>
-      )}
-
-      {stepName === 'fullname' && (
-        <>
-          <h1 className="srsv2-title">And your name<span className="srsv2-period">?</span></h1>
-          <div className="srsv2-sub">For your profile and our emails.</div>
-          <input
-            ref={inputRef}
-            className="srsv2-input"
-            placeholder="Jane Smith"
-            value={form.full_name}
-            onChange={e => set('full_name', e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && canContinue && onContinue()}
-          />
-        </>
-      )}
-
-      {stepName === 'auth' && (
-        <>
-          <h1 className="srsv2-title">Lock it in<span className="srsv2-period">.</span></h1>
-          <div className="srsv2-sub">You'll use this to sign in and manage your listing.</div>
-          <label className="srsv2-field">
-            <span className="srsv2-label">Work email</span>
-            <input
-              ref={inputRef}
-              className="srsv2-input"
-              placeholder="you@company.com"
-              type="email"
-              value={form.auth_email}
-              onChange={e => set('auth_email', e.target.value)}
-            />
-          </label>
-          <label className="srsv2-field">
-            <span className="srsv2-label">Password <em className="srsv2-optional">min 6 characters</em></span>
-            <input
-              className="srsv2-input"
-              placeholder="••••••••"
-              type="password"
-              value={form.auth_password}
-              onChange={e => set('auth_password', e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && canContinue && onContinue()}
-            />
-          </label>
-        </>
-      )}
-
-      {stepName === 'payment' && (() => {
-        const pp = PLAN_PRICING[planType] || PLAN_PRICING['small-annual'];
-        return (
-          <>
-            <h1 className="srsv2-title">Pay securely<span className="srsv2-period">.</span></h1>
-            <div className="srsv2-sub">
-              One step. You'll be taken to a hosted Stripe checkout to confirm card details — we never see your card. Your account is already created at <strong>{form.auth_email || 'your email'}</strong>; the upgrade flips the moment payment clears.
-            </div>
-            <div className="srsv2-payment-summary">
-              <div className="srsv2-payment-row"><span>Company size</span><span>{pp.label}</span></div>
-              <div className="srsv2-payment-row"><span>Billing</span><span>{pp.billing}</span></div>
-              <div className="srsv2-payment-row srsv2-payment-row-strong"><span>Amount</span><span>{pp.amount}</span></div>
-            </div>
-          </>
-        );
-      })()}
-
-      {error && <div className="srsv2-error">{error}</div>}
-
-      <div className="srsv2-actions">
-        {stepIndex > 0 ? (
-          <button type="button" className="srsv2-cta srsv2-cta-line" onClick={onBack}>
-            Back
-          </button>
-        ) : onReChoose ? (
-          <button type="button" className="srsv2-cta srsv2-cta-line" onClick={onReChoose}>
-            Back
-          </button>
-        ) : null}
-        <button
-          type="button"
-          className="srsv2-cta srsv2-cta-solid"
-          onClick={onContinue}
-          disabled={!canContinue || loading}
-        >
-          {loading
-            ? 'Working…'
-            : stepName === 'auth'
-              ? (tier === 'paid' ? 'Continue to payment' : 'Create account')
-              : stepName === 'payment'
-                ? ((PLAN_PRICING[planType] || PLAN_PRICING['small-annual']).btnLabel)
-                : 'Continue'}
-        </button>
+        </div>
       </div>
     </div>
   );
