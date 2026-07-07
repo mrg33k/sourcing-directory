@@ -204,7 +204,7 @@ export default function SourcingSignupV2() {
             <div style={{ maxWidth: '420px', textAlign: 'center', background: 'white', border: '1px solid var(--v3-border)', borderRadius: '8px', padding: '40px 32px' }}>
               <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: 0 }}>Welcome</h2>
               <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginTop: '12px', marginBottom: '24px' }}>
-                {paymentFallback ? 'Your account is set up. We'll send you a payment link via email.' : 'Account created. Check your email to continue.'}
+                {paymentFallback ? "Your account is set up. We'll send you a payment link via email." : 'Account created. Check your email to continue.'}
               </p>
               <Link to={basePath} style={{ display: 'inline-block', padding: '10px 20px', background: 'var(--v3-accent)', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>Explore</Link>
             </div>
