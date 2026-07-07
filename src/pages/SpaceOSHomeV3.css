@@ -221,10 +221,11 @@
 }
 
 .osv3-featured-cover {
-  width: 132px;
+  width: 150px;
   flex-shrink: 0;
-  background-size: cover;
-  background-position: top center;
+  background-color: #000000;
+  background-size: contain;
+  background-position: center;
   background-repeat: no-repeat;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
