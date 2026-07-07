@@ -1,14 +1,27 @@
-// SourcingJobsV2.jsx (v3 reskin)
-// Space OS v3 Jobs/Careers page — renders inside OSLayoutV3 shell
-// Replaces old dark hero + V2ChipNav with clean v3 header + list-item cards
+// SourcingJobsV2.jsx
+// Space OS v3 — Jobs/Careers page (magazine pattern with feature hero + editorial grid)
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import useSRWTitle from './srw/useSRWTitle.js';
+import './osv3-jobs.css';
 
-// Space Rising tenant for filtering
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
+
+// Asset rotation array (deterministic per job ID)
+const ASSET_POOL = [
+  'blueprint-hero.png',
+  'earth.png',
+  'rocket-orbital.png',
+  'bg-opp-orbital-construction.png',
+  'bg-opp-lunar.png',
+  'bg-opp-energy.png',
+  'asteroid-close.png',
+  'bg-opp-stations.png',
+  'planet-red.png',
+  'rocket-ascent.png',
+];
 
 function formatSalary(min, max, jobType) {
   if (!min && !max) return null;
@@ -30,18 +43,24 @@ function postedAgo(created_at) {
   return `${Math.floor(days / 30)}mo`;
 }
 
-function SourcingJobsV2Inner() {
+function getImageForJob(job, index) {
+  // Deterministic + diverse: hash the full id string (+ index)
+  const s = (job.id ? String(job.id) : '') + ':' + index;
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return `/v2-assets/${ASSET_POOL[h % ASSET_POOL.length]}`;
+}
+
+export default function SourcingJobsV2() {
   useSRWTitle('Careers | Space OS');
-  const navigate = useNavigate();
 
   const [tenant, setTenant] = useState(null);
-  const [listings, setListings] = useState([]);
+  const [jobs, setJobs] = useState([]);
   const [companies, setCompanies] = useState({});
   const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState('');
-  const [bookmarks, setBookmarks] = useState(new Set());
 
-  // Load SR tenant row once (for tenant_id filter and hero subtitle)
+  // Load SR tenant row once
   useEffect(() => {
     if (!supabase) return;
     (async () => {
@@ -74,7 +93,7 @@ function SourcingJobsV2Inner() {
         const { data, error } = await qb.limit(100);
         if (error) throw error;
         if (cancelled) return;
-        setListings(data || []);
+        setJobs(data || []);
 
         if (data && data.length > 0) {
           const companyIds = [...new Set(data.map((l) => l.company_id).filter(Boolean))];
@@ -103,11 +122,11 @@ function SourcingJobsV2Inner() {
     };
   }, [tenant]);
 
-  // R4l-style live fuzzy filter — instant as you type, AND-semantics on words
-  const filteredListings = useMemo(() => {
-    if (!searchInput.trim()) return listings;
+  // Fuzzy filter — instant as you type, AND-semantics on words
+  const filtered = useMemo(() => {
+    if (!searchInput.trim()) return jobs;
     const terms = searchInput.toLowerCase().split(/\s+/).filter(Boolean);
-    return listings.filter((l) => {
+    return jobs.filter((l) => {
       const company = companies[l.company_id];
       const haystack = [
         l.title,
@@ -124,294 +143,166 @@ function SourcingJobsV2Inner() {
         .toLowerCase();
       return terms.every((t) => haystack.includes(t));
     });
-  }, [listings, companies, searchInput]);
+  }, [jobs, companies, searchInput]);
+
+  // Split jobs: feature (first) + grid (rest)
+  const featureJob = filtered.length > 0 ? filtered[0] : null;
+  const gridJobs = filtered.length > 1 ? filtered.slice(1) : [];
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-        {/* Page Header */}
-        <div style={{ marginBottom: '32px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-          <div>
-            <h2 style={{
-              fontSize: 'var(--v3-h2-font-size)',
-              fontWeight: 'var(--v3-h2-font-weight)',
-              color: 'var(--v3-ink-primary)',
-              marginBottom: '8px',
-              lineHeight: 'var(--v3-h2-line-height)',
-            }}>
-              Careers
-            </h2>
-            <p style={{
-              fontSize: 'var(--v3-body-sm-font-size)',
-              color: 'var(--v3-muted)',
-              lineHeight: 'var(--v3-body-sm-line-height)',
-              maxWidth: '600px',
-            }}>
-              Discover opportunities across Arizona's space ecosystem. Explore roles at launch suppliers, defense contractors, and R&D firms.
-            </p>
-          </div>
-          <Link
-            to="/jobs/post"
-            style={{
-              padding: '10px 16px',
-              backgroundColor: 'var(--v3-accent)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: 'var(--v3-body-sm-font-size)',
-              fontWeight: 'var(--v3-font-weight-semibold)',
-              cursor: 'pointer',
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '6px',
-              transition: 'background-color var(--v3-transition-fast)',
-              whiteSpace: 'nowrap',
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#b83916'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'var(--v3-accent)'}
-          >
-            <span style={{ fontSize: '16px' }}>+</span> Post a Job
-          </Link>
+    <div className="osv3-jobs-page">
+      {/* Page Header: "Careers" + Subtitle */}
+      <div className="osv3-jobs-header">
+        <div>
+          <h1 className="osv3-jobs-page-title">Careers</h1>
+          <p className="osv3-jobs-page-subtitle">Explore roles across Arizona's space ecosystem. Join launch suppliers, defense contractors, and R&D innovators.</p>
         </div>
+        <Link
+          to="/jobs/post"
+          className="osv3-jobs-post-button"
+        >
+          + Post a Job
+        </Link>
+      </div>
 
-        {/* Search & Filter */}
-        <div style={{ marginBottom: '24px' }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            position: 'relative',
-          }}>
-            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" style={{ position: 'absolute', left: '12px', color: 'var(--v3-muted)' }}>
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.35-4.35" />
-            </svg>
-            <input
-              type="text"
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search by title, company, or location..."
-              aria-label="Search jobs"
-              autoComplete="off"
-              spellCheck="false"
-              style={{
-                flex: 1,
-                maxWidth: '500px',
-                padding: '10px 16px 10px 40px',
-                border: '1px solid var(--v3-border)',
-                borderRadius: '6px',
-                fontSize: 'var(--v3-body-sm-font-size)',
-                fontFamily: 'var(--v3-font-family-base)',
-                color: 'var(--v3-ink-secondary)',
-                transition: 'border-color var(--v3-transition-fast)',
-                boxSizing: 'border-box',
-              }}
-              onFocus={(e) => e.currentTarget.style.borderColor = 'var(--v3-accent)'}
-              onBlur={(e) => e.currentTarget.style.borderColor = 'var(--v3-border)'}
-            />
-          </div>
+      {/* Search */}
+      <div className="osv3-jobs-search-row">
+        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.35-4.35" />
+        </svg>
+        <input
+          type="text"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="Search by title, company, or location..."
+          aria-label="Search jobs"
+          autoComplete="off"
+          spellCheck="false"
+          className="osv3-jobs-search-input"
+        />
+      </div>
+
+      {/* No Supabase Error */}
+      {!supabase && (
+        <div className="osv3-jobs-error">
+          Supabase not configured
         </div>
+      )}
 
-        {/* No Supabase Warning */}
-        {!supabase && (
-          <div style={{
-            padding: '16px',
-            border: '1px solid var(--v3-border)',
-            background: 'var(--v3-panel-bg)',
-            borderRadius: '8px',
-            color: 'var(--v3-muted)',
-            fontSize: 'var(--v3-body-sm-font-size)',
-            textAlign: 'center',
-            marginBottom: '24px',
-          }}>
-            Supabase not configured — copy your env keys to .env.local
+      {/* Loading State */}
+      {loading && supabase && (
+        <>
+          {/* Feature Hero Skeleton */}
+          <div className="osv3-magazine-feature-skeleton" />
+          {/* Grid Skeletons */}
+          <div className="osv3-jobs-grid">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="osv3-job-card osv3-job-card-skeleton">
+                <div className="osv3-job-card-image-skeleton" />
+                <div className="osv3-job-card-content">
+                  <div className="osv3-job-card-skeleton-line" />
+                  <div className="osv3-job-card-skeleton-line-short" />
+                </div>
+              </div>
+            ))}
           </div>
-        )}
+        </>
+      )}
 
-        {/* Job Listings */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '8px',
-        }}>
-          {loading && supabase && (
-            <>
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div
-                  key={i}
-                  style={{
-                    height: '84px',
-                    borderRadius: '6px',
-                    background: 'var(--v3-panel-bg)',
-                    border: '1px solid var(--v3-border)',
-                    animation: 'pulse 1.5s ease-in-out infinite',
+      {/* Content */}
+      {!loading && supabase && (
+        <>
+          {/* FEATURE HERO (Tier 1) */}
+          {featureJob && (
+            <Link
+              to={`/jobs/${featureJob.id}`}
+              className="osv3-magazine-feature-card"
+              style={{ textDecoration: 'none', color: 'inherit' }}
+            >
+              <img
+                src={getImageForJob(featureJob, 0)}
+                alt={featureJob.title}
+                className="osv3-magazine-feature-image"
+                loading="eager"
+              />
+              <div className="osv3-magazine-feature-overlay" />
+              <div className="osv3-magazine-feature-content">
+                <div className="osv3-magazine-feature-kicker">{featureJob.job_type ? featureJob.job_type.replace('-', ' ').toUpperCase() : 'FEATURED'}</div>
+                <h2 className="osv3-magazine-feature-headline">{featureJob.title}</h2>
+                <p className="osv3-magazine-feature-deck">
+                  {companies[featureJob.company_id]?.name || 'Company'} · {featureJob.location || 'Location'} {featureJob.salary_min || featureJob.salary_max ? `· ${formatSalary(featureJob.salary_min, featureJob.salary_max, featureJob.job_type)}` : ''}
+                </p>
+                <button
+                  className="osv3-magazine-feature-button"
+                  onClick={(e) => {
+                    e.preventDefault();
                   }}
-                />
-              ))}
+                >
+                  View Role →
+                </button>
+              </div>
+            </Link>
+          )}
+
+          {/* EDITORIAL GRID (Tier 2) */}
+          {gridJobs.length > 0 && (
+            <>
+              <div className="osv3-magazine-section-header">
+                <div className="osv3-magazine-section-eyebrow">Open Positions</div>
+              </div>
+              <div className="osv3-jobs-grid">
+                {gridJobs.map((job, idx) => {
+                  const company = companies[job.company_id];
+                  const salary = formatSalary(job.salary_min, job.salary_max, job.job_type);
+                  const ago = postedAgo(job.created_at);
+                  const loc = job.remote ? 'Remote' : job.location || [company?.city, company?.state].filter(Boolean).join(', ');
+                  return (
+                    <Link
+                      key={job.id}
+                      to={`/jobs/${job.id}`}
+                      className="osv3-job-card"
+                      style={{ textDecoration: 'none', color: 'inherit' }}
+                    >
+                      {/* Card Image (3:2) with optional logo overlay */}
+                      <div className="osv3-job-card-image-wrapper">
+                        <img
+                          src={getImageForJob(job, idx + 1)}
+                          alt={job.title}
+                          className="osv3-job-card-image"
+                          loading="lazy"
+                        />
+                        {company?.logo_url && (
+                          <div className="osv3-job-card-logo-overlay">
+                            <img src={company.logo_url} alt={company.name} className="osv3-job-card-logo" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Card Content */}
+                      <div className="osv3-job-card-content">
+                        <div className="osv3-job-card-kicker">{job.job_type ? job.job_type.replace('-', ' ').toUpperCase() : (job.remote ? 'REMOTE' : 'ON-SITE')}</div>
+                        <h3 className="osv3-job-card-headline">{job.title}</h3>
+                        <p className="osv3-job-card-deck">{company?.name || 'Company'} · {loc}</p>
+                        <div className="osv3-job-card-meta">
+                          {[salary, ago].filter(Boolean).join(' · ')}
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
             </>
           )}
 
-          {!loading && filteredListings.length > 0 && filteredListings.map((listing) => {
-            const company = companies[listing.company_id];
-            const salary = formatSalary(listing.salary_min, listing.salary_max, listing.job_type);
-            const ago = postedAgo(listing.created_at);
-            const loc = listing.remote
-              ? 'Remote'
-              : listing.location || [company?.city, company?.state].filter(Boolean).join(', ');
-            const isBookmarked = bookmarks.has(listing.id);
-
-            return (
-              <div
-                key={listing.id}
-                onClick={() => navigate(`/jobs/${listing.id}`)}
-                style={{
-                  padding: '16px',
-                  border: '1px solid var(--v3-border)',
-                  borderRadius: '6px',
-                  transition: 'all var(--v3-transition-fast)',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '8px',
-                  backgroundColor: 'white',
-                  position: 'relative',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--v3-accent)';
-                  e.currentTarget.style.backgroundColor = 'var(--v3-panel-bg)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'var(--v3-border)';
-                  e.currentTarget.style.backgroundColor = 'white';
-                }}
-              >
-                {/* Bookmark icon */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '16px',
-                    right: '16px',
-                    cursor: 'pointer',
-                    fontSize: '16px',
-                    color: isBookmarked ? 'var(--v3-accent)' : 'var(--v3-muted)',
-                    transition: 'color var(--v3-transition-fast)',
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setBookmarks(prev => {
-                      const next = new Set(prev);
-                      if (next.has(listing.id)) next.delete(listing.id);
-                      else next.add(listing.id);
-                      return next;
-                    });
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = 'var(--v3-accent)'}
-                  onMouseLeave={(e) => e.currentTarget.style.color = isBookmarked ? 'var(--v3-accent)' : 'var(--v3-muted)'}
-                >
-                  {isBookmarked ? '★' : '☆'}
-                </div>
-
-                {/* Title */}
-                <div style={{
-                  fontSize: 'var(--v3-body-font-size)',
-                  fontWeight: 'var(--v3-font-weight-bold)',
-                  color: 'var(--v3-ink-primary)',
-                  paddingRight: '40px',
-                }}>
-                  {listing.title || 'Untitled role'}
-                </div>
-
-                {/* Company + Location + Meta */}
-                <div style={{
-                  fontSize: 'var(--v3-body-sm-font-size)',
-                  fontWeight: 'var(--v3-font-weight-medium)',
-                  color: 'var(--v3-ink-secondary)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  flexWrap: 'wrap',
-                }}>
-                  {company?.name && <span>{company.name}</span>}
-                  {loc && <span style={{ color: 'var(--v3-muted)' }}>•</span>}
-                  {loc && <span style={{ color: 'var(--v3-muted)' }}>{loc}</span>}
-                  {ago && <span style={{ color: 'var(--v3-muted)' }}>•</span>}
-                  {ago && <span style={{ color: 'var(--v3-muted)' }}>{ago}</span>}
-                </div>
-
-                {/* Badges: job_type + remote + salary */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  flexWrap: 'wrap',
-                  marginTop: '4px',
-                }}>
-                  {listing.job_type && (
-                    <span style={{
-                      display: 'inline-block',
-                      fontSize: '12px',
-                      fontWeight: 'var(--v3-font-weight-medium)',
-                      backgroundColor: 'var(--v3-panel-bg)',
-                      color: 'var(--v3-ink-secondary)',
-                      padding: '4px 10px',
-                      borderRadius: '4px',
-                      textTransform: 'capitalize',
-                    }}>
-                      {listing.job_type.replace('-', ' ')}
-                    </span>
-                  )}
-                  {listing.remote && (
-                    <span style={{
-                      display: 'inline-block',
-                      fontSize: '12px',
-                      fontWeight: 'var(--v3-font-weight-medium)',
-                      backgroundColor: 'var(--v3-panel-bg)',
-                      color: 'var(--v3-ink-secondary)',
-                      padding: '4px 10px',
-                      borderRadius: '4px',
-                    }}>
-                      Remote
-                    </span>
-                  )}
-                  {salary && (
-                    <span style={{
-                      display: 'inline-block',
-                      fontSize: '12px',
-                      fontWeight: 'var(--v3-font-weight-semibold)',
-                      color: 'var(--v3-accent)',
-                    }}>
-                      {salary}
-                    </span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-
           {/* Empty State */}
-          {!loading && supabase && filteredListings.length === 0 && (
-            <div style={{
-              padding: '48px 24px',
-              textAlign: 'center',
-              color: 'var(--v3-muted)',
-              fontSize: 'var(--v3-body-font-size)',
-            }}>
+          {filtered.length === 0 && (
+            <div className="osv3-jobs-empty">
               {searchInput ? `No roles match "${searchInput}"` : 'No open positions yet. Check back soon!'}
             </div>
           )}
-        </div>
-
-        {/* Inline animation styles */}
-        <style>{`
-          @keyframes pulse {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 0.7; }
-          }
-        `}</style>
+        </>
+      )}
     </div>
   );
-}
-
-export default function SourcingJobsV2() {
-  return <SourcingJobsV2Inner />;
 }
