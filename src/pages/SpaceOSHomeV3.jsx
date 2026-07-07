@@ -45,13 +45,15 @@ const SpaceOSHomeV3 = () => {
         .order('published_at', { ascending: false })
         .limit(10)
 
-      // Events (tenant-scoped, active, soonest first)
+      // Events (tenant-scoped, active, UPCOMING only, soonest first)
+      const todayISO = new Date().toISOString().slice(0, 10)
       const { data: eventsData } = await supabase
         .from('directory_listings')
         .select('*, company:company_id(id, name, logo_url)')
         .eq('category', 'event')
         .eq('status', 'active')
         .eq('tenant_id', tenant.id)
+        .gte('event_date', todayISO)
         .order('event_date', { ascending: true })
         .limit(6)
 
