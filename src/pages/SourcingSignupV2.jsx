@@ -67,19 +67,11 @@ export default function SourcingSignupV2() {
 
   if (tenant && tenant.self_service === false) {
     return (
-      <div className="osv3 osv3-shell">
-        <div className="osv3-sidebar">
-          <div className="osv3-sidebar-logo">Space OS</div>
-        </div>
-        <div className="osv3-main-container">
-          <div className="osv3-topbar"><div className="osv3-search-container"></div></div>
-          <div className="osv3-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ maxWidth: '420px', textAlign: 'center', background: 'white', border: '1px solid var(--v3-border)', borderRadius: '8px', padding: '40px 32px' }}>
-              <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: 0 }}>Signup closed</h2>
-              <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginTop: '8px' }}>Contact the administrator for access.</p>
-              <Link to={basePath} style={{ display: 'inline-block', marginTop: '20px', padding: '10px 20px', background: 'var(--v3-accent)', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>Back</Link>
-            </div>
-          </div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ maxWidth: '420px', textAlign: 'center', background: 'white', border: '1px solid var(--v3-border)', borderRadius: '8px', padding: '40px 32px' }}>
+          <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: 0 }}>Signup closed</h2>
+          <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginTop: '8px' }}>Contact the administrator for access.</p>
+          <Link to={basePath} style={{ display: 'inline-block', marginTop: '20px', padding: '10px 20px', background: 'var(--v3-accent)', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>Back</Link>
         </div>
       </div>
     );
@@ -194,21 +186,13 @@ export default function SourcingSignupV2() {
 
   if (submitted) {
     return (
-      <div className="osv3 osv3-shell">
-        <div className="osv3-sidebar">
-          <div className="osv3-sidebar-logo">Space OS</div>
-        </div>
-        <div className="osv3-main-container">
-          <div className="osv3-topbar"><div className="osv3-search-container"></div></div>
-          <div className="osv3-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ maxWidth: '420px', textAlign: 'center', background: 'white', border: '1px solid var(--v3-border)', borderRadius: '8px', padding: '40px 32px' }}>
-              <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: 0 }}>Welcome</h2>
-              <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginTop: '12px', marginBottom: '24px' }}>
-                {paymentFallback ? "Your account is set up. We'll send you a payment link via email." : 'Account created. Check your email to continue.'}
-              </p>
-              <Link to={basePath} style={{ display: 'inline-block', padding: '10px 20px', background: 'var(--v3-accent)', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>Explore</Link>
-            </div>
-          </div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ maxWidth: '420px', textAlign: 'center', background: 'white', border: '1px solid var(--v3-border)', borderRadius: '8px', padding: '40px 32px' }}>
+          <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: 0 }}>Welcome</h2>
+          <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginTop: '12px', marginBottom: '24px' }}>
+            {paymentFallback ? "Your account is set up. We'll send you a payment link via email." : 'Account created. Check your email to continue.'}
+          </p>
+          <Link to={basePath} style={{ display: 'inline-block', padding: '10px 20px', background: 'var(--v3-accent)', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>Explore</Link>
         </div>
       </div>
     );
@@ -216,27 +200,19 @@ export default function SourcingSignupV2() {
 
   if (needsChoice) {
     return (
-      <div className="osv3 osv3-shell">
-        <div className="osv3-sidebar">
-          <div className="osv3-sidebar-logo">Space OS</div>
-        </div>
-        <div className="osv3-main-container">
-          <div className="osv3-topbar"><div className="osv3-search-container"></div></div>
-          <div className="osv3-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ maxWidth: '500px', width: '100%' }}>
-              <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px', textAlign: 'center' }}>Choose your path</h2>
-              <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', textAlign: 'center', marginBottom: '32px' }}>Select how you'd like to get started.</p>
-              <div style={{ display: 'grid', gap: '16px' }}>
-                <button onClick={() => setChosenTier('free')} style={{ padding: '20px', border: '1px solid var(--v3-border)', borderRadius: '8px', background: 'white', cursor: 'pointer', textAlign: 'left', transition: 'all var(--v3-transition-fast)' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--v3-accent)'} onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--v3-border)'}>
-                  <div style={{ fontSize: 'var(--v3-body-font-size)', fontWeight: 'var(--v3-font-weight-semibold)', color: 'var(--v3-ink-primary)' }}>Free Exploration</div>
-                  <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginTop: '4px' }}>Read and explore the directory</div>
-                </button>
-                <button onClick={() => setChosenTier('paid')} style={{ padding: '20px', border: '1px solid var(--v3-accent)', borderRadius: '8px', background: 'var(--v3-panel-bg)', cursor: 'pointer', textAlign: 'left', transition: 'all var(--v3-transition-fast)' }}>
-                  <div style={{ fontSize: 'var(--v3-body-font-size)', fontWeight: 'var(--v3-font-weight-semibold)', color: 'var(--v3-ink-primary)' }}>Premium Membership</div>
-                  <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginTop: '4px' }}>Post, lead, and access exclusive features</div>
-                </button>
-              </div>
-            </div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ maxWidth: '500px', width: '100%' }}>
+          <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px', textAlign: 'center' }}>Choose your path</h2>
+          <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', textAlign: 'center', marginBottom: '32px' }}>Select how you'd like to get started.</p>
+          <div style={{ display: 'grid', gap: '16px' }}>
+            <button onClick={() => setChosenTier('free')} style={{ padding: '20px', border: '1px solid var(--v3-border)', borderRadius: '8px', background: 'white', cursor: 'pointer', textAlign: 'left', transition: 'all var(--v3-transition-fast)' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--v3-accent)'} onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--v3-border)'}>
+              <div style={{ fontSize: 'var(--v3-body-font-size)', fontWeight: 'var(--v3-font-weight-semibold)', color: 'var(--v3-ink-primary)' }}>Free Exploration</div>
+              <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginTop: '4px' }}>Read and explore the directory</div>
+            </button>
+            <button onClick={() => setChosenTier('paid')} style={{ padding: '20px', border: '1px solid var(--v3-accent)', borderRadius: '8px', background: 'var(--v3-panel-bg)', cursor: 'pointer', textAlign: 'left', transition: 'all var(--v3-transition-fast)' }}>
+              <div style={{ fontSize: 'var(--v3-body-font-size)', fontWeight: 'var(--v3-font-weight-semibold)', color: 'var(--v3-ink-primary)' }}>Premium Membership</div>
+              <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginTop: '4px' }}>Post, lead, and access exclusive features</div>
+            </button>
           </div>
         </div>
       </div>
@@ -244,108 +220,100 @@ export default function SourcingSignupV2() {
   }
 
   return (
-    <div className="osv3 osv3-shell">
-      <div className="osv3-sidebar">
-        <div className="osv3-sidebar-logo">Space OS</div>
-      </div>
-      <div className="osv3-main-container">
-        <div className="osv3-topbar"><div className="osv3-search-container"></div></div>
-        <div className="osv3-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
-          <div style={{ maxWidth: '500px', width: '100%' }}>
-            <div style={{ marginBottom: '20px', display: 'flex', gap: '4px', justifyContent: 'center' }}>
-              {steps.map((s, i) => (
-                <div key={s} style={{ width: '8px', height: '8px', borderRadius: '50%', background: i <= step ? 'var(--v3-accent)' : 'var(--v3-border)', transition: 'all var(--v3-transition-fast)' }} />
-              ))}
-            </div>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
+      <div style={{ maxWidth: '500px', width: '100%' }}>
+        <div style={{ marginBottom: '20px', display: 'flex', gap: '4px', justifyContent: 'center' }}>
+          {steps.map((s, i) => (
+            <div key={s} style={{ width: '8px', height: '8px', borderRadius: '50%', background: i <= step ? 'var(--v3-accent)' : 'var(--v3-border)', transition: 'all var(--v3-transition-fast)' }} />
+          ))}
+        </div>
 
-            <div style={{ background: 'white', border: '1px solid var(--v3-border)', borderRadius: '8px', padding: '40px 32px' }}>
-              {stepName === 'company' && (
-                <>
-                  <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Company name</h2>
-                  <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>What's your organization called?</p>
-                  <input placeholder="Company Name" value={form.name} onChange={(e) => set('name', e.target.value)} autoFocus style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '20px' }} />
-                </>
-              )}
+        <div style={{ background: 'white', border: '1px solid var(--v3-border)', borderRadius: '8px', padding: '40px 32px' }}>
+          {stepName === 'company' && (
+            <>
+              <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Company name</h2>
+              <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>What's your organization called?</p>
+              <input placeholder="Company Name" value={form.name} onChange={(e) => set('name', e.target.value)} autoFocus style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '20px' }} />
+            </>
+          )}
 
-              {stepName === 'description' && (
-                <>
-                  <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>About your company</h2>
-                  <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>Brief overview of what you do</p>
-                  <textarea placeholder="What does your company do?" value={form.description} onChange={(e) => set('description', e.target.value)} autoFocus style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', minHeight: '100px', marginBottom: '20px', fontFamily: 'var(--v3-font-family-base)' }} />
-                </>
-              )}
+          {stepName === 'description' && (
+            <>
+              <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>About your company</h2>
+              <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>Brief overview of what you do</p>
+              <textarea placeholder="What does your company do?" value={form.description} onChange={(e) => set('description', e.target.value)} autoFocus style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', minHeight: '100px', marginBottom: '20px', fontFamily: 'var(--v3-font-family-base)' }} />
+            </>
+          )}
 
-              {stepName === 'location' && (
-                <>
-                  <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Location</h2>
-                  <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>Where are you based?</p>
-                  <input placeholder="City" value={form.city} onChange={(e) => set('city', e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '12px' }} />
-                  <select value={form.state} onChange={(e) => set('state', e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '20px' }}>
-                    <option value="AZ">Arizona</option>
-                    <option value="CA">California</option>
-                    <option value="TX">Texas</option>
-                    <option value="FL">Florida</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </>
-              )}
+          {stepName === 'location' && (
+            <>
+              <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Location</h2>
+              <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>Where are you based?</p>
+              <input placeholder="City" value={form.city} onChange={(e) => set('city', e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '12px' }} />
+              <select value={form.state} onChange={(e) => set('state', e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '20px' }}>
+                <option value="AZ">Arizona</option>
+                <option value="CA">California</option>
+                <option value="TX">Texas</option>
+                <option value="FL">Florida</option>
+                <option value="Other">Other</option>
+              </select>
+            </>
+          )}
 
-              {stepName === 'certs' && (
-                <>
-                  <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Certifications (optional)</h2>
-                  <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>Which apply to your company?</p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
-                    {SPACE_CERTS.map((cert) => (
-                      <button
-                        key={cert}
-                        type="button"
-                        onClick={() => set('selectedCerts', form.selectedCerts.includes(cert) ? form.selectedCerts.filter(c => c !== cert) : [...form.selectedCerts, cert])}
-                        style={{ padding: '6px 12px', border: form.selectedCerts.includes(cert) ? '1px solid var(--v3-accent)' : '1px solid var(--v3-border)', background: form.selectedCerts.includes(cert) ? 'var(--v3-panel-bg)' : 'white', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', cursor: 'pointer', transition: 'all var(--v3-transition-fast)' }}
-                      >
-                        {cert}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {stepName === 'fullname' && (
-                <>
-                  <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Your name</h2>
-                  <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>How should we address you?</p>
-                  <input placeholder="Full Name" value={form.full_name} onChange={(e) => set('full_name', e.target.value)} autoFocus style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '20px' }} />
-                </>
-              )}
-
-              {stepName === 'auth' && (
-                <>
-                  <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Account details</h2>
-                  <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>Create your login</p>
-                  <input type="email" placeholder="Email" value={form.auth_email} onChange={(e) => set('auth_email', e.target.value)} autoFocus style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '12px' }} />
-                  <input type="password" placeholder="Password (6+ characters)" value={form.auth_password} onChange={(e) => set('auth_password', e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '20px' }} />
-                </>
-              )}
-
-              {stepName === 'payment' && (
-                <>
-                  <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Review and pay</h2>
-                  <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>{PLAN_PRICING[planType]?.label} — {PLAN_PRICING[planType]?.amount}</p>
-                </>
-              )}
-
-              {error && <div style={{ padding: '12px', background: '#FEE2E2', border: '1px solid #FCA5A5', borderRadius: '6px', color: '#DC2626', fontSize: 'var(--v3-body-sm-font-size)', marginBottom: '20px' }}>{error}</div>}
-
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'space-between' }}>
-                {step > 0 && <button onClick={back} style={{ padding: '10px 20px', background: 'white', border: '1px solid var(--v3-border)', borderRadius: '6px', cursor: 'pointer', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>Back</button>}
-                {step < totalSteps - 1 ? (
-                  <button onClick={next} disabled={!stepValid()} style={{ marginLeft: 'auto', padding: '10px 20px', background: stepValid() ? 'var(--v3-accent)' : '#D3D3D3', color: 'white', border: 'none', borderRadius: '6px', cursor: stepValid() ? 'pointer' : 'not-allowed', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>Continue</button>
-                ) : stepName === 'payment' ? (
-                  <button onClick={() => handleCheckoutRedirect(createdCompany)} disabled={loading} style={{ marginLeft: 'auto', padding: '10px 20px', background: loading ? '#D3D3D3' : 'var(--v3-accent)', color: 'white', border: 'none', borderRadius: '6px', cursor: loading ? 'not-allowed' : 'pointer', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>{loading ? 'Processing...' : 'Pay with Stripe'}</button>
-                ) : (
-                  <button onClick={async () => { const result = await handleAccountCreate(); if (result) { if (tier === 'paid') next(); else setSubmitted(true); } }} disabled={!stepValid() || loading} style={{ marginLeft: 'auto', padding: '10px 20px', background: stepValid() && !loading ? 'var(--v3-accent)' : '#D3D3D3', color: 'white', border: 'none', borderRadius: '6px', cursor: stepValid() && !loading ? 'pointer' : 'not-allowed', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>{loading ? 'Creating...' : 'Create Account'}</button>
-                )}
+          {stepName === 'certs' && (
+            <>
+              <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Certifications (optional)</h2>
+              <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>Which apply to your company?</p>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
+                {SPACE_CERTS.map((cert) => (
+                  <button
+                    key={cert}
+                    type="button"
+                    onClick={() => set('selectedCerts', form.selectedCerts.includes(cert) ? form.selectedCerts.filter(c => c !== cert) : [...form.selectedCerts, cert])}
+                    style={{ padding: '6px 12px', border: form.selectedCerts.includes(cert) ? '1px solid var(--v3-accent)' : '1px solid var(--v3-border)', background: form.selectedCerts.includes(cert) ? 'var(--v3-panel-bg)' : 'white', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', cursor: 'pointer', transition: 'all var(--v3-transition-fast)' }}
+                  >
+                    {cert}
+                  </button>
+                ))}
               </div>
-            </div>
+            </>
+          )}
+
+          {stepName === 'fullname' && (
+            <>
+              <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Your name</h2>
+              <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>How should we address you?</p>
+              <input placeholder="Full Name" value={form.full_name} onChange={(e) => set('full_name', e.target.value)} autoFocus style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '20px' }} />
+            </>
+          )}
+
+          {stepName === 'auth' && (
+            <>
+              <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Account details</h2>
+              <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>Create your login</p>
+              <input type="email" placeholder="Email" value={form.auth_email} onChange={(e) => set('auth_email', e.target.value)} autoFocus style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '12px' }} />
+              <input type="password" placeholder="Password (6+ characters)" value={form.auth_password} onChange={(e) => set('auth_password', e.target.value)} style={{ width: '100%', padding: '10px 12px', border: '1px solid var(--v3-border)', borderRadius: '6px', fontSize: 'var(--v3-body-sm-font-size)', boxSizing: 'border-box', marginBottom: '20px' }} />
+            </>
+          )}
+
+          {stepName === 'payment' && (
+            <>
+              <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Review and pay</h2>
+              <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>{PLAN_PRICING[planType]?.label} — {PLAN_PRICING[planType]?.amount}</p>
+            </>
+          )}
+
+          {error && <div style={{ padding: '12px', background: '#FEE2E2', border: '1px solid #FCA5A5', borderRadius: '6px', color: '#DC2626', fontSize: 'var(--v3-body-sm-font-size)', marginBottom: '20px' }}>{error}</div>}
+
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'space-between' }}>
+            {step > 0 && <button onClick={back} style={{ padding: '10px 20px', background: 'white', border: '1px solid var(--v3-border)', borderRadius: '6px', cursor: 'pointer', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>Back</button>}
+            {step < totalSteps - 1 ? (
+              <button onClick={next} disabled={!stepValid()} style={{ marginLeft: 'auto', padding: '10px 20px', background: stepValid() ? 'var(--v3-accent)' : '#D3D3D3', color: 'white', border: 'none', borderRadius: '6px', cursor: stepValid() ? 'pointer' : 'not-allowed', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>Continue</button>
+            ) : stepName === 'payment' ? (
+              <button onClick={() => handleCheckoutRedirect(createdCompany)} disabled={loading} style={{ marginLeft: 'auto', padding: '10px 20px', background: loading ? '#D3D3D3' : 'var(--v3-accent)', color: 'white', border: 'none', borderRadius: '6px', cursor: loading ? 'not-allowed' : 'pointer', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>{loading ? 'Processing...' : 'Pay with Stripe'}</button>
+            ) : (
+              <button onClick={async () => { const result = await handleAccountCreate(); if (result) { if (tier === 'paid') next(); else setSubmitted(true); } }} disabled={!stepValid() || loading} style={{ marginLeft: 'auto', padding: '10px 20px', background: stepValid() && !loading ? 'var(--v3-accent)' : '#D3D3D3', color: 'white', border: 'none', borderRadius: '6px', cursor: stepValid() && !loading ? 'pointer' : 'not-allowed', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>{loading ? 'Creating...' : 'Create Account'}</button>
+            )}
           </div>
         </div>
       </div>
