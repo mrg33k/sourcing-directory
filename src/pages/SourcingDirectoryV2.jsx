@@ -1,12 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Link, useSearchParams, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import { SourcingNav } from './SourcingMarketplace.jsx';
-import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
-import { V2ChipNav } from './V2ChipNav.jsx';
 import { trackEvent } from './sourcingAnalytics.js';
-import { getVerticalImage } from './SourcingLanding.jsx';
-import '../space-rising-theme-v2.css';
+import '../osv3-tokens.css';
 
 // V2 (nat-geo-uplift) — same component, scoped to the cloned theme. URL slug
 // "space-rising-v2" drives the data-tenant attribute (so the V2 theme matches)
@@ -401,12 +397,25 @@ function SearchBar({ value, onChange, onSearch, loading, aiLoading, V }) {
 
 // ─── Inner component ──────────────────────────────────────────────────────────
 function SourcingDirectoryInner() {
-  const { dark } = useSourcingTheme();
-  const V = getTokens(dark);
-  // V2 route is static (/spaceos), so useParams() doesn't supply a
-  // tenantSlug. Hardcode it so the data-tenant attribute is set, the
-  // isSpaceRising branch fires, and the V2 theme CSS scoping matches.
-  const tenantSlug = 'space-rising-v2';
+  // V3 token object for compatibility with existing components that reference V
+  const V = {
+    card: 'white',
+    card2: 'white',
+    border: 'var(--v3-border)',
+    text: 'var(--v3-ink-primary)',
+    ink: 'var(--v3-ink-primary)',
+    dim: 'var(--v3-muted)',
+    muted: 'var(--v3-muted)',
+    accent: 'var(--v3-accent)',
+    accentDim: 'rgba(206, 68, 33, 0.08)',
+    accentBrd: 'rgba(206, 68, 33, 0.3)',
+    mono: 'var(--v3-font-family-base)',
+    space: 'var(--v3-font-family-base)',
+    syne: 'var(--v3-font-family-base)',
+    blue: '#2563EB',
+  };
+
+  const tenantSlug = 'space-rising';
 
   // Tenant state
   const [tenant, setTenant] = useState(null);
@@ -1001,39 +1010,12 @@ function SourcingDirectoryInner() {
     }
   }, [session, isAdmin]);
 
-  // V2 fix: treat the cloned slug as space-rising so the orange-accent CSS-var
-  // overrides + theme styling apply identically to V1. The data-tenant attr
-  // below still carries the raw slug so the V2 theme file matches it.
-  const isSpaceRising = tenantSlug === 'space-rising' || tenantSlug === 'space-rising-v2';
-
+  // V3: Light content rendering inside OSLayoutV3 shell
   return (
     <div
-      data-tenant={tenantSlug}
+      className="osv3"
       style={{
-        minHeight: '100dvh',
-        background: 'var(--bg)',
-        color: 'var(--tx)',
-        position: 'relative',
-        // R2 (nat-geo-uplift): Space Grotesk display+body (matches the SR
-        // wordmark), JetBrains Mono stays for chrome. Palette = locked
-        // Nat-Geo-uplift tokens.
-        fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
-        ...(isSpaceRising && {
-          // R2 palette: deep ink ground (#0B0B0D), warm bone body (#E8E4DA),
-          // single warm amber accent (#E8A23A) — replaces the V1 orange.
-          '--bg': 'transparent',
-          '--tx': '#E8E4DA',
-          '--tx2': 'rgba(232,228,218,0.60)',
-          '--tx3': 'rgba(232,228,218,0.25)',
-          '--s1': 'rgba(11,11,13,0.72)',
-          '--s2': 'rgba(11,11,13,0.82)',
-          '--s3': 'rgba(11,11,13,0.92)',
-          '--bd': 'rgba(232,228,218,0.10)',
-          '--bd2': 'rgba(232,228,218,0.16)',
-          '--cyan': '#E8A23A',
-          '--cyan-dim': 'rgba(232,162,58,0.10)',
-          '--cyan-brd': 'rgba(232,162,58,0.32)',
-        }),
+        minHeight: '100%',
       }}
     >
       <style>{`
@@ -1041,90 +1023,147 @@ function SourcingDirectoryInner() {
         @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }
       `}</style>
 
-      <SourcingNav
-        active="directory"
-        tenantSlug={tenantSlug}
-        tenantName={tenant?.nav_label || tenant?.name}
-        features={tenant?.features}
-        brandColor={tenant?.brand_color}
-      />
-
-      {/* v10 Browse Hero -- with tenant brand
-          polish-srw-cleanup (2026-05-31): back button + tenant logo now share
-          a TOP ROW above the eyebrow / title / sub. Logo is no longer
-          absolute-positioned in the corner — it sits in the toprow with the
-          back button. CSS picks up the new .browse-hero-toprow + sizes the
-          .tenant-hero-logo larger (~2× previous). */}
-      <div className="browse-hero" style={tenant ? { minHeight: 280 } : { minHeight: 200 }}>
-        <div className="browse-hero-bg" style={{ backgroundImage: `url(${tenant ? getVerticalImage(tenant.vertical) : 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=800&q=80'})` }} />
-        <div className="browse-hero-overlay" />
-        <div className="browse-hero-content" style={{ position: 'relative' }}>
-          <div className="browse-hero-toprow">
-            <Link to="/" className="browse-back" style={{ textDecoration: 'none' }}>
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
-              Back
-            </Link>
-            {tenant?.slug === 'space-rising' && (
-              <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
-            )}
-            {tenant?.slug === 's3c-semiconductor' && (
-              <img src="/images/s3c/logo.png" alt="S3C" className="tenant-hero-logo" />
-            )}
+      {/* V3 Light Header */}
+      <div style={{ marginBottom: 32 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, marginBottom: 16 }}>
+          <div>
+            <h2 style={{
+              fontSize: 'var(--v3-h2-font-size)',
+              fontWeight: 'var(--v3-h2-font-weight)',
+              color: 'var(--v3-ink-primary)',
+              marginBottom: 8,
+              fontFamily: 'var(--v3-font-family-base)',
+            }}>
+              Company Directory
+            </h2>
+            <p style={{
+              fontSize: 'var(--v3-body-sm-font-size)',
+              color: 'var(--v3-muted)',
+              fontFamily: 'var(--v3-font-family-base)',
+            }}>
+              Arizona's space and aerospace industry directory.
+            </p>
           </div>
-          <div className="browse-title" style={tenantBrand ? {
-            fontFamily: tenantBrand.headingFont,
-            textTransform: 'uppercase',
-            letterSpacing: '0.03em',
-          } : {}}>
-            {tenant?.name || 'Find Certified Suppliers'}
-          </div>
-          <div className="browse-sub">{tenant?.hero_text || "Verified companies, certifications, and capabilities in one place."}</div>
+          <Link
+            to={tenantSlug ? `/${tenantSlug}/membership` : '/membership'}
+            style={{
+              textDecoration: 'none',
+              background: 'var(--v3-accent)',
+              color: 'white',
+              padding: '10px 16px',
+              borderRadius: 'var(--v3-border-radius-md)',
+              fontSize: 'var(--v3-body-sm-font-size)',
+              fontWeight: 'var(--v3-font-weight-semibold)',
+              fontFamily: 'var(--v3-font-family-base)',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              transition: 'background var(--v3-transition-fast)',
+            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#b83916'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = 'var(--v3-accent)'; }}
+          >
+            + Add Company
+          </Link>
         </div>
       </div>
 
-      {/* v10 Search — R4l: live fuzzy filter on type; AI runs invisibly in
-          the background on Enter. No aiLoading spinner in the user-facing UX
-          per Patrik 2026-05-30: "AI stuff can be happening in the background;
-          we know they're searching, not having a conversation right now." */}
-      <div className="browse-search">
-        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input
-          type="text"
-          value={searchInput}
-          onChange={e => setSearchInput(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleSearch()}
-          placeholder='Search companies, certifications...'
-          aria-label="Search companies"
-          autoComplete="off"
-          spellCheck="false"
-        />
-        {loading && <div className="spinner" />}
+      {/* V3 Search Input */}
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ position: 'relative' }}>
+          <input
+            type="text"
+            value={searchInput}
+            onChange={e => setSearchInput(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && handleSearch()}
+            placeholder='Search companies, certifications...'
+            aria-label="Search companies"
+            autoComplete="off"
+            spellCheck="false"
+            style={{
+              width: '100%',
+              padding: '10px 40px 10px 16px',
+              border: '1px solid var(--v3-border)',
+              borderRadius: 'var(--v3-border-radius-md)',
+              fontSize: 'var(--v3-body-sm-font-size)',
+              fontFamily: 'var(--v3-font-family-base)',
+              color: 'var(--v3-ink-secondary)',
+              background: 'white',
+              boxSizing: 'border-box',
+              outline: 'none',
+              transition: 'border-color var(--v3-transition-fast)',
+            }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--v3-accent)'; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--v3-border)'; }}
+          />
+          <div style={{
+            position: 'absolute',
+            right: 12,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            color: 'var(--v3-muted)',
+            pointerEvents: 'none',
+          }}>
+            {loading ? (
+              <div style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid var(--v3-border)', borderTopColor: 'var(--v3-accent)', animation: 'spin 0.8s linear infinite' }} />
+            ) : (
+              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+              </svg>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* v10 Section Chips -- branded accent if tenant has one */}
-      <style>{tenantBrand ? `
-        .chip.on { border-color: ${tenantBrand.accent}40 !important; background: ${tenantBrand.accent}12 !important; color: ${tenantBrand.accent} !important; }
-      ` : ''}</style>
-      <V2ChipNav active="companies" />
-
-      {/* Vertical filter chips */}
-      <div className="chips">
+      {/* V3 Vertical filter chips */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
         {VERTICALS.map(v => (
-          <div
+          <button
             key={v.key}
-            className={`chip ${!showSaved && vertical === v.key ? 'on' : ''}`}
             onClick={() => { handleVerticalChange(v.key); setShowSaved(false); }}
+            style={{
+              padding: '6px 12px',
+              borderRadius: 'var(--v3-border-radius-md)',
+              border: '1px solid var(--v3-border)',
+              background: !showSaved && vertical === v.key ? 'var(--v3-active-nav)' : 'white',
+              color: !showSaved && vertical === v.key ? 'white' : 'var(--v3-ink-secondary)',
+              fontSize: 'var(--v3-body-sm-font-size)',
+              fontWeight: 'var(--v3-font-weight-medium)',
+              fontFamily: 'var(--v3-font-family-base)',
+              cursor: 'pointer',
+              transition: 'all var(--v3-transition-fast)',
+            }}
+            onMouseEnter={(e) => {
+              if (!showSaved && vertical !== v.key) {
+                e.currentTarget.style.borderColor = 'var(--v3-muted)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = 'var(--v3-border)';
+            }}
           >
             {v.label}
-          </div>
+          </button>
         ))}
-        <div
-          className={`chip ${showSaved ? 'on' : ''}`}
+        <button
           onClick={() => setShowSaved(s => !s)}
-          style={showSaved ? { borderColor: 'rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.08)', color: '#EF4444' } : {}}
+          style={{
+            padding: '6px 12px',
+            borderRadius: 'var(--v3-border-radius-md)',
+            border: '1px solid var(--v3-border)',
+            background: showSaved ? 'var(--v3-active-nav)' : 'white',
+            color: showSaved ? 'white' : 'var(--v3-ink-secondary)',
+            fontSize: 'var(--v3-body-sm-font-size)',
+            fontWeight: 'var(--v3-font-weight-medium)',
+            fontFamily: 'var(--v3-font-family-base)',
+            cursor: 'pointer',
+            transition: 'all var(--v3-transition-fast)',
+          }}
         >
           {showSaved ? '♥' : '♡'} Saved {favorites.length > 0 ? `(${favorites.length})` : ''}
-        </div>
+        </button>
       </div>
 
       {/* Cert Filters */}
