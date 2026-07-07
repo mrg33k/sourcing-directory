@@ -1,14 +1,10 @@
 // SourcingGrantsV2.jsx
-// nat-geo-uplift — Grants page in V2 list-pattern.
-// Mirrors JobsV2/EventsV2 shell. Data: directory_listings where category='grant'.
+// Space OS v3 — Grants page reskin into light shell.
+// Data: directory_listings where category='grant'.
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
 import useSRWTitle from './srw/useSRWTitle.js';
-import { V2ChipNav } from './V2ChipNav.jsx';
-import '../space-rising-theme-v2.css';
 
 const TENANT_SLUG_V2 = 'space-rising-v2';
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
@@ -41,8 +37,6 @@ function formatDeadline(dateStr) {
 }
 
 function SourcingGrantsV2Inner() {
-  const { dark } = useSourcingTheme();
-  const V = getTokens(dark);
   useSRWTitle('Space Grants | Space OS');
 
   const [tenant, setTenant] = useState(null);
@@ -102,42 +96,165 @@ function SourcingGrantsV2Inner() {
   }, [listings, searchInput]);
 
   return (
-    <div
-      data-tenant={TENANT_SLUG_V2}
-      style={{
-        minHeight: '100dvh',
-        background: 'var(--bg)',
-        color: 'var(--tx)',
-        position: 'relative',
-        fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
-        '--bg': 'transparent', '--tx': '#E8E4DA',
-        '--tx2': 'rgba(232,228,218,0.60)', '--tx3': 'rgba(232,228,218,0.25)',
-        '--s1': 'rgba(11,11,13,0.72)', '--s2': 'rgba(11,11,13,0.82)', '--s3': 'rgba(11,11,13,0.92)',
-        '--bd': 'rgba(232,228,218,0.10)', '--bd2': 'rgba(232,228,218,0.16)',
-        '--cyan': '#E8A23A', '--cyan-dim': 'rgba(232,162,58,0.10)', '--cyan-brd': 'rgba(232,162,58,0.32)',
-      }}
-    >
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } } @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }`}</style>
+    <div style={{ padding: '32px' }}>
+      <style>{`
+        .osv3-grants-header {
+          margin-bottom: 32px;
+        }
+        .osv3-grants-title {
+          font-size: 32px;
+          font-weight: 700;
+          color: var(--v3-ink-primary);
+          margin-bottom: 8px;
+        }
+        .osv3-grants-sub {
+          font-size: 16px;
+          font-weight: 400;
+          color: var(--v3-muted);
+        }
+        .osv3-grants-search {
+          margin-bottom: 24px;
+          position: relative;
+        }
+        .osv3-grants-search input {
+          width: 100%;
+          max-width: 400px;
+          padding: 10px 12px 10px 36px;
+          font-size: 14px;
+          font-weight: 400;
+          border: 1px solid var(--v3-border);
+          border-radius: 8px;
+          color: var(--v3-ink-primary);
+          background-color: white;
+          font-family: var(--v3-font-family-base);
+        }
+        .osv3-grants-search input::placeholder {
+          color: var(--v3-muted);
+        }
+        .osv3-grants-search input:focus {
+          outline: none;
+          border-color: var(--v3-accent);
+          box-shadow: 0 0 0 2px rgba(206, 68, 33, 0.1);
+        }
+        .osv3-grants-search svg {
+          position: absolute;
+          left: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 16px;
+          height: 16px;
+          color: var(--v3-muted);
+          pointer-events: none;
+        }
+        .osv3-grants-spinner {
+          position: absolute;
+          right: 12px;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 16px;
+          height: 16px;
+          border: 2px solid var(--v3-border);
+          border-top-color: var(--v3-accent);
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+          to { transform: translateY(-50%) rotate(360deg); }
+        }
+        .osv3-grants-list {
+          display: grid;
+          gap: 16px;
+        }
+        .osv3-grant-card {
+          background-color: white;
+          border: 1px solid var(--v3-border);
+          border-radius: 8px;
+          padding: 16px;
+          transition: all var(--v3-transition-base);
+          cursor: pointer;
+          text-decoration: none;
+          color: inherit;
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          gap: 12px;
+        }
+        .osv3-grant-card:hover {
+          border-color: var(--v3-accent);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        .osv3-grant-body {
+          flex: 1;
+          min-width: 0;
+        }
+        .osv3-grant-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: var(--v3-ink-primary);
+          margin-bottom: 8px;
+        }
+        .osv3-grant-meta {
+          font-size: 14px;
+          font-weight: 500;
+          color: var(--v3-muted);
+          margin-bottom: 8px;
+        }
+        .osv3-grant-description {
+          font-size: 13px;
+          font-weight: 400;
+          color: var(--v3-ink-secondary);
+          line-height: 1.5;
+          margin-bottom: 8px;
+        }
+        .osv3-grant-badges {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        .osv3-grant-badge {
+          display: inline-block;
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 500;
+          background-color: var(--v3-panel-bg);
+          color: var(--v3-ink-primary);
+        }
+        .osv3-grant-badge.deadline-soon {
+          background-color: rgba(206, 68, 33, 0.1);
+          color: var(--v3-accent);
+        }
+        .osv3-grant-arrow {
+          flex-shrink: 0;
+          width: 16px;
+          height: 16px;
+          color: var(--v3-muted);
+          margin-top: 2px;
+        }
+        .osv3-grants-empty {
+          text-align: center;
+          padding: 48px 24px;
+          color: var(--v3-muted);
+          font-size: 14px;
+          font-weight: 400;
+        }
+        .osv3-grants-error {
+          padding: 16px;
+          border: 1px solid var(--v3-border);
+          border-radius: 8px;
+          background-color: var(--v3-panel-bg);
+          color: var(--v3-muted);
+          font-size: 13px;
+          text-align: center;
+        }
+      `}</style>
 
-      <div className="browse-hero" style={{ '--page-hero-bg': "url('/v2-assets/earth.png')" }}>
-        <div className="browse-hero-bg" />
-        <div className="browse-hero-overlay" />
-        <div className="browse-hero-content" style={{ position: 'relative' }}>
-          <div className="browse-hero-toprow">
-            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
-              Back
-            </Link>
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
-          </div>
-          <div className="browse-title">Grants.</div>
-          <div className="browse-sub">
-            Federal, state, and private funding for the space ecosystem.
-          </div>
-        </div>
+      <div className="osv3-grants-header">
+        <h2 className="osv3-grants-title">Grants</h2>
+        <p className="osv3-grants-sub">Funding opportunities for the space economy.</p>
       </div>
 
-      <div className="browse-search">
+      <div className="osv3-grants-search">
         <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
         <input
           type="text"
@@ -148,40 +265,28 @@ function SourcingGrantsV2Inner() {
           autoComplete="off"
           spellCheck="false"
         />
-        {loading && <div className="spinner" />}
+        {loading && <div className="osv3-grants-spinner" />}
       </div>
 
-      <V2ChipNav active="grants" />
-
-      <div className="sec-hdr">
-        <div className="sec-title">
-          {loading ? 'Loading...' : `${filteredListings.length} Grant${filteredListings.length === 1 ? '' : 's'}.`}
-        </div>
-        <div className="sec-count">
-          <span style={{ color: 'var(--tx3)', fontSize: 12, fontFamily: 'JetBrains Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            Open opportunities
-          </span>
-        </div>
-      </div>
-
-      <div className="co-list">
+      <div className="osv3-grants-list">
         {!supabase && (
-          <div style={{
-            padding: '24px 20px',
-            border: '1px solid rgba(232,162,58,0.32)',
-            background: 'rgba(232,162,58,0.10)',
-            borderRadius: 10, color: '#E8A23A',
-            fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-            fontSize: 13, textAlign: 'center',
-          }}>
+          <div className="osv3-grants-error">
             Supabase not configured — copy your env keys to .env.local
           </div>
         )}
 
         {loading && supabase && (
-          <>{[1, 2, 3, 4, 5, 6].map((i) => (
-            <div key={i} style={{ height: 84, borderRadius: 10, background: 'rgba(18,20,28,0.40)', border: '1px solid rgba(232,228,218,0.05)', animation: 'pulse 1.5s ease-in-out infinite' }} />
-          ))}</>
+          <>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} style={{
+                height: 100,
+                borderRadius: '8px',
+                background: 'var(--v3-panel-bg)',
+                border: '1px solid var(--v3-border)',
+                animation: 'pulse 1.5s ease-in-out infinite',
+              }} />
+            ))}
+          </>
         )}
 
         {!loading && filteredListings.map((grant) => {
@@ -190,47 +295,48 @@ function SourcingGrantsV2Inner() {
           const description = grant.description
             ? (grant.description.length > 140 ? grant.description.slice(0, 140) + '…' : grant.description)
             : '';
+          const daysLeft = grant.deadline
+            ? Math.ceil((new Date(grant.deadline) - new Date()) / (1000 * 60 * 60 * 24))
+            : null;
+          const isDeadlineSoon = daysLeft !== null && daysLeft > 0 && daysLeft <= 30;
+
           return (
-            <div
+            <a
               key={grant.id}
-              className="co-card"
-              style={{ textDecoration: 'none', color: 'inherit' }}
+              href={grant.url || '#'}
+              target={grant.url ? '_blank' : undefined}
+              rel={grant.url ? 'noopener noreferrer' : undefined}
+              className="osv3-grant-card"
             >
-              <div className="co-body">
-                <div className="co-name">{grant.title || 'Untitled grant'}</div>
-                <div className="co-loc">
-                  {[grant.grant_type, deadline].filter(Boolean).join(' · ')}
+              <div className="osv3-grant-body">
+                <div className="osv3-grant-title">{grant.title || 'Untitled grant'}</div>
+                <div className="osv3-grant-meta">
+                  {[grant.grant_agency, deadline].filter(Boolean).join(' · ')}
                 </div>
                 {description && (
-                  <div style={{
-                    fontSize: 13,
-                    color: 'rgba(232,228,218,0.55)',
-                    marginTop: 6,
-                    fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, sans-serif',
-                    lineHeight: 1.5,
-                  }}>
-                    {description}
-                  </div>
+                  <div className="osv3-grant-description">{description}</div>
                 )}
-                <div className="co-badges">
-                  {grant.grant_type && <span className="co-badge cert">{grant.grant_type}</span>}
-                  {amount && <span className="co-badge feat">{amount}</span>}
+                <div className="osv3-grant-badges">
+                  {grant.grant_type && (
+                    <span className="osv3-grant-badge">{grant.grant_type}</span>
+                  )}
+                  {amount && (
+                    <span className="osv3-grant-badge">{amount}</span>
+                  )}
+                  {isDeadlineSoon && deadline && (
+                    <span className="osv3-grant-badge deadline-soon">{deadline}</span>
+                  )}
                 </div>
               </div>
-              <div className="co-arrow">
-                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
-              </div>
-            </div>
+              <svg className="osv3-grant-arrow" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="M7 17l10-10M17 17V7h-10" />
+              </svg>
+            </a>
           );
         })}
 
         {!loading && supabase && filteredListings.length === 0 && (
-          <div style={{
-            padding: '48px 24px', textAlign: 'center',
-            fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-            color: 'rgba(232,228,218,0.55)',
-            fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase',
-          }}>
+          <div className="osv3-grants-empty">
             {searchInput ? `No grants match "${searchInput}"` : 'No grants available.'}
           </div>
         )}
@@ -240,9 +346,5 @@ function SourcingGrantsV2Inner() {
 }
 
 export default function SourcingGrantsV2() {
-  return (
-    <SourcingThemeProvider>
-      <SourcingGrantsV2Inner />
-    </SourcingThemeProvider>
-  );
+  return <SourcingGrantsV2Inner />;
 }
