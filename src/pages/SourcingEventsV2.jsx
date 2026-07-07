@@ -70,6 +70,7 @@ function SourcingEventsV2Inner() {
   const [listings, setListings] = useState([]);
   const [companies, setCompanies] = useState({});
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     if (!supabase) return;
@@ -123,6 +124,37 @@ function SourcingEventsV2Inner() {
     return () => { cancelled = true; };
   }, [tenant]);
 
+  // Filter events by search query (match title, location, organizer)
+  const filteredListings = listings.filter((listing) => {
+    const query = searchQuery.toLowerCase();
+    if (!query) return true;
+    const words = query.split(/\s+/);
+    return words.every((word) => {
+      const title = listing.title?.toLowerCase() || '';
+      const location = listing.event_location?.toLowerCase() || '';
+      const organizer = listing.organizer?.toLowerCase() || '';
+      return title.includes(word) || location.includes(word) || organizer.includes(word);
+    });
+  });
+
+  // Split filtered events into upcoming and past
+  const today = new Date('2026-07-06');
+  today.setHours(0, 0, 0, 0);
+  const upcomingEvents = filteredListings.filter((listing) => {
+    const eventDate = parseDate(listing.event_date);
+    if (!eventDate) return true;
+    const eventDateNorm = new Date(eventDate);
+    eventDateNorm.setHours(0, 0, 0, 0);
+    return eventDateNorm >= today;
+  });
+  const pastEvents = filteredListings.filter((listing) => {
+    const eventDate = parseDate(listing.event_date);
+    if (!eventDate) return false;
+    const eventDateNorm = new Date(eventDate);
+    eventDateNorm.setHours(0, 0, 0, 0);
+    return eventDateNorm < today;
+  });
+
   return (
     <div className="osv3-page osv3-events-page">
       {/* Page Header */}
@@ -135,6 +167,19 @@ function SourcingEventsV2Inner() {
           Post an Event
         </Link>
       </div>
+
+      {/* Search Input */}
+      {!loading && supabase && listings.length > 0 && (
+        <div className="osv3-events-search-container">
+          <input
+            className="osv3-events-search-input"
+            type="text"
+            placeholder="Search by title, location, or organizer…"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+      )}
 
       {/* Events List */}
       <div className="osv3-events-list">
@@ -151,9 +196,33 @@ function SourcingEventsV2Inner() {
         )}
 
         {!loading && listings.length > 0 && (
-          listings.map((listing) => (
-            <EventCard key={listing.id} listing={listing} companies={companies} />
-          ))
+          <>
+            {/* Upcoming Events */}
+            {upcomingEvents.length > 0 && (
+              <div className="osv3-events-section">
+                {upcomingEvents.map((listing) => (
+                  <EventCard key={listing.id} listing={listing} companies={companies} />
+                ))}
+              </div>
+            )}
+
+            {/* No Upcoming Events Message */}
+            {upcomingEvents.length === 0 && filteredListings.length > 0 && (
+              <div className="osv3-empty-state">No upcoming events found.</div>
+            )}
+
+            {/* Past Events */}
+            {pastEvents.length > 0 && (
+              <div className="osv3-events-section">
+                <div className="osv3-events-section-header">Past events</div>
+                <div className="osv3-events-list-past">
+                  {pastEvents.map((listing) => (
+                    <EventCard key={listing.id} listing={listing} companies={companies} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
