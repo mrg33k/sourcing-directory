@@ -29,9 +29,12 @@ function selectHeroImage(reportId) {
     'planet-blue.png',
     'earth.png',
   ];
-  // Stable hash: use id as seed to pick an asset deterministically
-  const idNum = parseInt(reportId || '0', 10);
-  const index = Math.abs(idNum) % heroAssets.length;
+  // Stable hash over the full id string (ids are UUIDs — parseInt would NaN on
+  // any id starting with a hex letter and break the image). Sum char codes.
+  const s = String(reportId || '0');
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  const index = h % heroAssets.length;
   return `/v2-assets/${heroAssets[index]}`;
 }
 

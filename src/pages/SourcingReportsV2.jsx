@@ -31,9 +31,12 @@ function formatPubDate(dateStr) {
 }
 
 function getImageForReport(report, index) {
-  // Deterministic mapping: use report ID hash or fallback to index
-  const hashCode = report.id ? report.id.toString().charCodeAt(0) : index;
-  return `/v2-assets/${ASSET_POOL[hashCode % ASSET_POOL.length]}`;
+  // Deterministic + diverse: hash the full id string (+ index) so cards don't
+  // repeat the same photo. charCodeAt(0) alone collided across most reports.
+  const s = (report.id ? String(report.id) : '') + ':' + index;
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return `/v2-assets/${ASSET_POOL[h % ASSET_POOL.length]}`;
 }
 
 export default function SourcingReportsV2() {
