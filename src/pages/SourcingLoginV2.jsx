@@ -195,170 +195,73 @@ function SourcingLoginV2Inner() {
   // PASSWORD_RECOVERY view (v3 light card)
   if (showNewPw) {
     return (
-      <div className="osv3 osv3-shell">
-        <div className="osv3-sidebar">
-          <div className="osv3-sidebar-logo">Space OS</div>
-          <div className="osv3-sidebar-divider" />
-        </div>
-        <div className="osv3-main-container">
-          <div className="osv3-topbar">
-            <div className="osv3-search-container"></div>
-            <div className="osv3-topbar-actions"></div>
-          </div>
-          <div className="osv3-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
-            <div style={{ width: '100%', maxWidth: '420px' }}>
-              {newPwDone ? (
-                <div style={{
-                  background: 'white',
-                  border: '1px solid var(--v3-border)',
-                  borderRadius: '8px',
-                  padding: '40px 32px',
-                  textAlign: 'center',
-                }}>
-                  <div style={{ fontSize: 'var(--v3-eyebrow-font-size)', fontWeight: 'var(--v3-eyebrow-font-weight)', color: 'var(--v3-muted)', letterSpacing: 'var(--v3-eyebrow-letter-spacing)', textTransform: 'uppercase', marginBottom: '16px' }}>
-                    Updated
-                  </div>
-                  <h1 style={{ fontSize: 'var(--v3-h2-font-size)', fontWeight: 'var(--v3-h2-font-weight)', color: 'var(--v3-ink-primary)', margin: '0 0 12px', lineHeight: 'var(--v3-h2-line-height)' }}>
-                    Password set.
-                  </h1>
-                  <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginBottom: '32px', lineHeight: 'var(--v3-body-sm-line-height)' }}>
-                    You can now sign in with your new password.
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => { setShowNewPw(false); setNewPwDone(false); }}
-                    style={{
-                      display: 'inline-block',
-                      width: '100%',
-                      padding: '10px 16px',
-                      background: 'var(--v3-accent)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: 'var(--v3-body-sm-font-size)',
-                      fontWeight: 'var(--v3-font-weight-semibold)',
-                      cursor: 'pointer',
-                      transition: 'background var(--v3-transition-fast)',
-                    }}
-                    onMouseEnter={(e) => e.target.style.background = '#B33A1A'}
-                    onMouseLeave={(e) => e.target.style.background = 'var(--v3-accent)'}
-                  >
-                    Sign In
-                  </button>
-                </div>
-              ) : (
-                <div style={{
-                  background: 'white',
-                  border: '1px solid var(--v3-border)',
-                  borderRadius: '8px',
-                  padding: '40px 32px',
-                }}>
-                  <div style={{ fontSize: 'var(--v3-eyebrow-font-size)', fontWeight: 'var(--v3-eyebrow-font-weight)', color: 'var(--v3-muted)', letterSpacing: 'var(--v3-eyebrow-letter-spacing)', textTransform: 'uppercase', marginBottom: '16px' }}>
-                    Reset password
-                  </div>
-                  <h1 style={{ fontSize: 'var(--v3-h2-font-size)', fontWeight: 'var(--v3-h2-font-weight)', color: 'var(--v3-ink-primary)', margin: '0 0 8px', lineHeight: 'var(--v3-h2-line-height)' }}>
-                    Choose a new password.
-                  </h1>
-                  <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginBottom: '28px', lineHeight: 'var(--v3-body-sm-line-height)' }}>
-                    Minimum 6 characters.
-                  </div>
-                  <form onSubmit={handleSetNewPassword}>
-                    <label style={{ display: 'block', marginBottom: '20px' }}>
-                      <div style={{ fontSize: 'var(--v3-label-font-size)', fontWeight: 'var(--v3-font-weight-medium)', color: 'var(--v3-ink-secondary)', marginBottom: '8px' }}>
-                        New Password
-                      </div>
-                      <input
-                        type="password"
-                        placeholder="••••••••"
-                        value={newPw}
-                        onChange={(e) => setNewPw(e.target.value)}
-                        autoFocus
-                        style={{
-                          width: '100%',
-                          padding: '10px 12px',
-                          border: '1px solid var(--v3-border)',
-                          borderRadius: '6px',
-                          fontSize: 'var(--v3-body-sm-font-size)',
-                          fontFamily: 'var(--v3-font-family-base)',
-                          color: 'var(--v3-ink-secondary)',
-                          boxSizing: 'border-box',
-                          transition: 'border-color var(--v3-transition-fast)',
-                        }}
-                        onFocus={(e) => e.target.style.borderColor = 'var(--v3-accent)'}
-                        onBlur={(e) => e.target.style.borderColor = 'var(--v3-border)'}
-                      />
-                    </label>
-                    {newPwError && (
-                      <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: '#DC2626', marginBottom: '16px' }}>
-                        {newPwError}
-                      </div>
-                    )}
-                    <button
-                      type="submit"
-                      disabled={newPwLoading}
-                      style={{
-                        display: 'block',
-                        width: '100%',
-                        padding: '10px 16px',
-                        background: newPwLoading ? '#D3D3D3' : 'var(--v3-accent)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: 'var(--v3-body-sm-font-size)',
-                        fontWeight: 'var(--v3-font-weight-semibold)',
-                        cursor: newPwLoading ? 'not-allowed' : 'pointer',
-                        transition: 'background var(--v3-transition-fast)',
-                      }}
-                    >
-                      {newPwLoading ? 'Saving…' : 'Save Password'}
-                    </button>
-                  </form>
-                </div>
-              )}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
+        <div style={{ width: '100%', maxWidth: '420px' }}>
+          {newPwDone ? (
+            <div style={{
+              background: 'white',
+              border: '1px solid var(--v3-border)',
+              borderRadius: '8px',
+              padding: '40px 32px',
+              textAlign: 'center',
+            }}>
+              <div style={{ fontSize: 'var(--v3-eyebrow-font-size)', fontWeight: 'var(--v3-eyebrow-font-weight)', color: 'var(--v3-muted)', letterSpacing: 'var(--v3-eyebrow-letter-spacing)', textTransform: 'uppercase', marginBottom: '16px' }}>
+                Updated
+              </div>
+              <h1 style={{ fontSize: 'var(--v3-h2-font-size)', fontWeight: 'var(--v3-h2-font-weight)', color: 'var(--v3-ink-primary)', margin: '0 0 12px', lineHeight: 'var(--v3-h2-line-height)' }}>
+                Password set.
+              </h1>
+              <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginBottom: '32px', lineHeight: 'var(--v3-body-sm-line-height)' }}>
+                You can now sign in with your new password.
+              </div>
+              <button
+                type="button"
+                onClick={() => { setShowNewPw(false); setNewPwDone(false); }}
+                style={{
+                  display: 'inline-block',
+                  width: '100%',
+                  padding: '10px 16px',
+                  background: 'var(--v3-accent)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: 'var(--v3-body-sm-font-size)',
+                  fontWeight: 'var(--v3-font-weight-semibold)',
+                  cursor: 'pointer',
+                  transition: 'background var(--v3-transition-fast)',
+                }}
+                onMouseEnter={(e) => e.target.style.background = '#B33A1A'}
+                onMouseLeave={(e) => e.target.style.background = 'var(--v3-accent)'}
+              >
+                Sign In
+              </button>
             </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Main login form (v3 light card inside shell)
-  return (
-    <div className="osv3 osv3-shell">
-      <div className="osv3-sidebar">
-        <div className="osv3-sidebar-logo">Space OS</div>
-        <div className="osv3-sidebar-divider" />
-      </div>
-      <div className="osv3-main-container">
-        <div className="osv3-topbar">
-          <div className="osv3-search-container"></div>
-          <div className="osv3-topbar-actions"></div>
-        </div>
-        <div className="osv3-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
-          <div style={{ width: '100%', maxWidth: '420px' }}>
+          ) : (
             <div style={{
               background: 'white',
               border: '1px solid var(--v3-border)',
               borderRadius: '8px',
               padding: '40px 32px',
             }}>
-              <h2 style={{ fontSize: 'var(--v3-h2-font-size)', fontWeight: 'var(--v3-h2-font-weight)', color: 'var(--v3-ink-primary)', margin: '0 0 8px', lineHeight: 'var(--v3-h2-line-height)' }}>
-                Sign in to Space OS
-              </h2>
-              <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginBottom: '28px', lineHeight: 'var(--v3-body-sm-line-height)' }}>
-                Access your directory profile and membership features.
+              <div style={{ fontSize: 'var(--v3-eyebrow-font-size)', fontWeight: 'var(--v3-eyebrow-font-weight)', color: 'var(--v3-muted)', letterSpacing: 'var(--v3-eyebrow-letter-spacing)', textTransform: 'uppercase', marginBottom: '16px' }}>
+                Reset password
               </div>
-
-              <form onSubmit={handleLogin}>
+              <h1 style={{ fontSize: 'var(--v3-h2-font-size)', fontWeight: 'var(--v3-h2-font-weight)', color: 'var(--v3-ink-primary)', margin: '0 0 8px', lineHeight: 'var(--v3-h2-line-height)' }}>
+                Choose a new password.
+              </h1>
+              <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginBottom: '28px', lineHeight: 'var(--v3-body-sm-line-height)' }}>
+                Minimum 6 characters.
+              </div>
+              <form onSubmit={handleSetNewPassword}>
                 <label style={{ display: 'block', marginBottom: '20px' }}>
                   <div style={{ fontSize: 'var(--v3-label-font-size)', fontWeight: 'var(--v3-font-weight-medium)', color: 'var(--v3-ink-secondary)', marginBottom: '8px' }}>
-                    Email address
+                    New Password
                   </div>
                   <input
-                    type="email"
-                    placeholder="you@company.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    type="password"
+                    placeholder="••••••••"
+                    value={newPw}
+                    onChange={(e) => setNewPw(e.target.value)}
                     autoFocus
                     style={{
                       width: '100%',
@@ -375,183 +278,256 @@ function SourcingLoginV2Inner() {
                     onBlur={(e) => e.target.style.borderColor = 'var(--v3-border)'}
                   />
                 </label>
-
-                <label style={{ display: 'block', marginBottom: '8px' }}>
-                  <div style={{ fontSize: 'var(--v3-label-font-size)', fontWeight: 'var(--v3-font-weight-medium)', color: 'var(--v3-ink-secondary)', marginBottom: '8px' }}>
-                    Password
-                  </div>
-                  <input
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '10px 12px',
-                      border: '1px solid var(--v3-border)',
-                      borderRadius: '6px',
-                      fontSize: 'var(--v3-body-sm-font-size)',
-                      fontFamily: 'var(--v3-font-family-base)',
-                      color: 'var(--v3-ink-secondary)',
-                      boxSizing: 'border-box',
-                      transition: 'border-color var(--v3-transition-fast)',
-                    }}
-                    onFocus={(e) => e.target.style.borderColor = 'var(--v3-accent)'}
-                    onBlur={(e) => e.target.style.borderColor = 'var(--v3-border)'}
-                  />
-                </label>
-
-                <div style={{ marginTop: 16, marginBottom: 24, textAlign: 'right' }}>
-                  <button
-                    type="button"
-                    onClick={() => { setShowReset(!showReset); setResetEmail(email); setResetMessage(''); }}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'var(--v3-link)',
-                      fontSize: 'var(--v3-body-sm-font-size)',
-                      fontWeight: 'var(--v3-font-weight-medium)',
-                      cursor: 'pointer',
-                      padding: 0,
-                      textDecoration: 'none',
-                      transition: 'color var(--v3-transition-fast)',
-                    }}
-                    onMouseEnter={(e) => e.target.style.color = '#1D4ED8'}
-                    onMouseLeave={(e) => e.target.style.color = 'var(--v3-link)'}
-                  >
-                    Forgot your password?
-                  </button>
-                </div>
-
-                {showReset && (
-                  <div style={{
-                    marginBottom: 20,
-                    padding: '16px 12px',
-                    border: '1px solid var(--v3-border)',
-                    borderRadius: '8px',
-                    background: 'var(--v3-panel-bg)',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 12,
-                  }}>
-                    <div style={{
-                      fontSize: 'var(--v3-label-font-size)',
-                      fontWeight: 'var(--v3-font-weight-medium)',
-                      color: 'var(--v3-muted)',
-                    }}>
-                      Reset password
-                    </div>
-                    <input
-                      type="email"
-                      value={resetEmail}
-                      onChange={(e) => setResetEmail(e.target.value)}
-                      placeholder="you@company.com"
-                      style={{
-                        padding: '10px 12px',
-                        border: '1px solid var(--v3-border)',
-                        borderRadius: '6px',
-                        fontSize: 'var(--v3-body-sm-font-size)',
-                        fontFamily: 'var(--v3-font-family-base)',
-                        color: 'var(--v3-ink-secondary)',
-                        boxSizing: 'border-box',
-                      }}
-                    />
-                    {resetMessage && (
-                      <div style={{
-                        fontSize: 'var(--v3-body-sm-font-size)',
-                        color: resetMessage.includes('sent') ? '#16A34A' : '#DC2626',
-                      }}>
-                        {resetMessage}
-                      </div>
-                    )}
-                    <button
-                      type="button"
-                      onClick={handlePasswordReset}
-                      disabled={resetLoading}
-                      style={{
-                        padding: '8px 12px',
-                        background: 'white',
-                        border: '1px solid var(--v3-border)',
-                        borderRadius: '6px',
-                        color: 'var(--v3-accent)',
-                        fontSize: 'var(--v3-body-sm-font-size)',
-                        fontWeight: 'var(--v3-font-weight-medium)',
-                        cursor: resetLoading ? 'not-allowed' : 'pointer',
-                        opacity: resetLoading ? 0.6 : 1,
-                        transition: 'all var(--v3-transition-fast)',
-                        alignSelf: 'flex-start',
-                      }}
-                    >
-                      {resetLoading ? 'Sending…' : 'Send Reset Link'}
-                    </button>
+                {newPwError && (
+                  <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: '#DC2626', marginBottom: '16px' }}>
+                    {newPwError}
                   </div>
                 )}
-
-                {error && (
-                  <div style={{
-                    fontSize: 'var(--v3-body-sm-font-size)',
-                    color: '#DC2626',
-                    marginBottom: '16px',
-                    padding: '12px 12px',
-                    background: '#FEE2E2',
-                    borderRadius: '6px',
-                  }}>
-                    {error}
-                  </div>
-                )}
-                {statusMessage && (
-                  <div style={{
-                    marginBottom: '16px',
-                    padding: '12px 12px',
-                    borderRadius: '6px',
-                    background: '#FEF3C7',
-                    border: '1px solid #FCD34D',
-                    color: '#92400E',
-                    fontSize: 'var(--v3-body-sm-font-size)',
-                    lineHeight: 'var(--v3-body-sm-line-height)',
-                  }}>
-                    {statusMessage}
-                  </div>
-                )}
-
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={newPwLoading}
                   style={{
                     display: 'block',
                     width: '100%',
                     padding: '10px 16px',
-                    background: loading ? '#D3D3D3' : 'var(--v3-accent)',
+                    background: newPwLoading ? '#D3D3D3' : 'var(--v3-accent)',
                     color: 'white',
                     border: 'none',
                     borderRadius: '6px',
                     fontSize: 'var(--v3-body-sm-font-size)',
                     fontWeight: 'var(--v3-font-weight-semibold)',
-                    cursor: loading ? 'not-allowed' : 'pointer',
+                    cursor: newPwLoading ? 'not-allowed' : 'pointer',
                     transition: 'background var(--v3-transition-fast)',
                   }}
-                  onMouseEnter={(e) => !loading && (e.target.style.background = '#B33A1A')}
-                  onMouseLeave={(e) => !loading && (e.target.style.background = 'var(--v3-accent)')}
                 >
-                  {loading ? 'Signing in…' : 'Sign In'}
+                  {newPwLoading ? 'Saving…' : 'Save Password'}
                 </button>
               </form>
-
-              <div style={{
-                marginTop: 24,
-                textAlign: 'center',
-                fontSize: 'var(--v3-body-sm-font-size)',
-                color: 'var(--v3-muted)',
-              }}>
-                New here?{' '}
-                <Link
-                  to="/signup"
-                  style={{ color: 'var(--v3-link)', textDecoration: 'none', fontWeight: 'var(--v3-font-weight-medium)' }}
-                >
-                  Create an account
-                </Link>
-              </div>
             </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // Main login form (v3 light card)
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100%' }}>
+      <div style={{ width: '100%', maxWidth: '420px' }}>
+        <div style={{
+          background: 'white',
+          border: '1px solid var(--v3-border)',
+          borderRadius: '8px',
+          padding: '40px 32px',
+        }}>
+          <h2 style={{ fontSize: 'var(--v3-h2-font-size)', fontWeight: 'var(--v3-h2-font-weight)', color: 'var(--v3-ink-primary)', margin: '0 0 8px', lineHeight: 'var(--v3-h2-line-height)' }}>
+            Sign in to Space OS
+          </h2>
+          <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginBottom: '28px', lineHeight: 'var(--v3-body-sm-line-height)' }}>
+            Access your directory profile and membership features.
+          </div>
+
+          <form onSubmit={handleLogin}>
+            <label style={{ display: 'block', marginBottom: '20px' }}>
+              <div style={{ fontSize: 'var(--v3-label-font-size)', fontWeight: 'var(--v3-font-weight-medium)', color: 'var(--v3-ink-secondary)', marginBottom: '8px' }}>
+                Email address
+              </div>
+              <input
+                type="email"
+                placeholder="you@company.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoFocus
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid var(--v3-border)',
+                  borderRadius: '6px',
+                  fontSize: 'var(--v3-body-sm-font-size)',
+                  fontFamily: 'var(--v3-font-family-base)',
+                  color: 'var(--v3-ink-secondary)',
+                  boxSizing: 'border-box',
+                  transition: 'border-color var(--v3-transition-fast)',
+                }}
+                onFocus={(e) => e.target.style.borderColor = 'var(--v3-accent)'}
+                onBlur={(e) => e.target.style.borderColor = 'var(--v3-border)'}
+              />
+            </label>
+
+            <label style={{ display: 'block', marginBottom: '8px' }}>
+              <div style={{ fontSize: 'var(--v3-label-font-size)', fontWeight: 'var(--v3-font-weight-medium)', color: 'var(--v3-ink-secondary)', marginBottom: '8px' }}>
+                Password
+              </div>
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  border: '1px solid var(--v3-border)',
+                  borderRadius: '6px',
+                  fontSize: 'var(--v3-body-sm-font-size)',
+                  fontFamily: 'var(--v3-font-family-base)',
+                  color: 'var(--v3-ink-secondary)',
+                  boxSizing: 'border-box',
+                  transition: 'border-color var(--v3-transition-fast)',
+                }}
+                onFocus={(e) => e.target.style.borderColor = 'var(--v3-accent)'}
+                onBlur={(e) => e.target.style.borderColor = 'var(--v3-border)'}
+              />
+            </label>
+
+            <div style={{ marginTop: 16, marginBottom: 24, textAlign: 'right' }}>
+              <button
+                type="button"
+                onClick={() => { setShowReset(!showReset); setResetEmail(email); setResetMessage(''); }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--v3-link)',
+                  fontSize: 'var(--v3-body-sm-font-size)',
+                  fontWeight: 'var(--v3-font-weight-medium)',
+                  cursor: 'pointer',
+                  padding: 0,
+                  textDecoration: 'none',
+                  transition: 'color var(--v3-transition-fast)',
+                }}
+                onMouseEnter={(e) => e.target.style.color = '#1D4ED8'}
+                onMouseLeave={(e) => e.target.style.color = 'var(--v3-link)'}
+              >
+                Forgot your password?
+              </button>
+            </div>
+
+            {showReset && (
+              <div style={{
+                marginBottom: 20,
+                padding: '16px 12px',
+                border: '1px solid var(--v3-border)',
+                borderRadius: '8px',
+                background: 'var(--v3-panel-bg)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 12,
+              }}>
+                <div style={{
+                  fontSize: 'var(--v3-label-font-size)',
+                  fontWeight: 'var(--v3-font-weight-medium)',
+                  color: 'var(--v3-muted)',
+                }}>
+                  Reset password
+                </div>
+                <input
+                  type="email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  placeholder="you@company.com"
+                  style={{
+                    padding: '10px 12px',
+                    border: '1px solid var(--v3-border)',
+                    borderRadius: '6px',
+                    fontSize: 'var(--v3-body-sm-font-size)',
+                    fontFamily: 'var(--v3-font-family-base)',
+                    color: 'var(--v3-ink-secondary)',
+                    boxSizing: 'border-box',
+                  }}
+                />
+                {resetMessage && (
+                  <div style={{
+                    fontSize: 'var(--v3-body-sm-font-size)',
+                    color: resetMessage.includes('sent') ? '#16A34A' : '#DC2626',
+                  }}>
+                    {resetMessage}
+                  </div>
+                )}
+                <button
+                  type="button"
+                  onClick={handlePasswordReset}
+                  disabled={resetLoading}
+                  style={{
+                    padding: '8px 12px',
+                    background: 'white',
+                    border: '1px solid var(--v3-border)',
+                    borderRadius: '6px',
+                    color: 'var(--v3-accent)',
+                    fontSize: 'var(--v3-body-sm-font-size)',
+                    fontWeight: 'var(--v3-font-weight-medium)',
+                    cursor: resetLoading ? 'not-allowed' : 'pointer',
+                    opacity: resetLoading ? 0.6 : 1,
+                    transition: 'all var(--v3-transition-fast)',
+                    alignSelf: 'flex-start',
+                  }}
+                >
+                  {resetLoading ? 'Sending…' : 'Send Reset Link'}
+                </button>
+              </div>
+            )}
+
+            {error && (
+              <div style={{
+                fontSize: 'var(--v3-body-sm-font-size)',
+                color: '#DC2626',
+                marginBottom: '16px',
+                padding: '12px 12px',
+                background: '#FEE2E2',
+                borderRadius: '6px',
+              }}>
+                {error}
+              </div>
+            )}
+            {statusMessage && (
+              <div style={{
+                marginBottom: '16px',
+                padding: '12px 12px',
+                borderRadius: '6px',
+                background: '#FEF3C7',
+                border: '1px solid #FCD34D',
+                color: '#92400E',
+                fontSize: 'var(--v3-body-sm-font-size)',
+                lineHeight: 'var(--v3-body-sm-line-height)',
+              }}>
+                {statusMessage}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                display: 'block',
+                width: '100%',
+                padding: '10px 16px',
+                background: loading ? '#D3D3D3' : 'var(--v3-accent)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: 'var(--v3-body-sm-font-size)',
+                fontWeight: 'var(--v3-font-weight-semibold)',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                transition: 'background var(--v3-transition-fast)',
+              }}
+              onMouseEnter={(e) => !loading && (e.target.style.background = '#B33A1A')}
+              onMouseLeave={(e) => !loading && (e.target.style.background = 'var(--v3-accent)')}
+            >
+              {loading ? 'Signing in…' : 'Sign In'}
+            </button>
+          </form>
+
+          <div style={{
+            marginTop: 24,
+            textAlign: 'center',
+            fontSize: 'var(--v3-body-sm-font-size)',
+            color: 'var(--v3-muted)',
+          }}>
+            New here?{' '}
+            <Link
+              to="/signup"
+              style={{ color: 'var(--v3-link)', textDecoration: 'none', fontWeight: 'var(--v3-font-weight-medium)' }}
+            >
+              Create an account
+            </Link>
           </div>
         </div>
       </div>
