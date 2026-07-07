@@ -1,26 +1,15 @@
 // SourcingDiscoveryV2.jsx
-// Discovery — community whitepaper library for Space OS.
-// Modeled on SourcingArticlesV2.jsx (same list shell as Jobs/Events/Articles).
-// Data: directory_listings where category='whitepaper'.
-//
-// Field mapping onto the shared polymorphic directory_listings table
-// (no schema change — same field-reuse pattern Articles already uses):
-//   title           -> whitepaper title
-//   excerpt / description -> abstract
-//   organizer       -> author / publishing org (e.g. "NASA", "ESA")
-//   apply_url       -> direct link to the PDF / source document
-//   cover_image_url -> optional thumbnail
-//   tags            -> topics
-//   created_at      -> publication date (byline year)
+// Space OS v3 — Discovery page (whitepapers & research)
+// Data: directory_listings where category='whitepaper'
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
-import { V2ChipNav } from './V2ChipNav.jsx';
-import '../space-rising-theme-v2.css';
+import useSRWTitle from './srw/useSRWTitle.js';
+import '../osv3-tokens.css';
+import '../pages/OSLayoutV3.css';
+import './osv3-discovery.css';
 
-const TENANT_SLUG_V2 = 'space-rising-v2';
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
 function formatDate(dateStr) {
@@ -31,8 +20,7 @@ function formatDate(dateStr) {
 }
 
 function SourcingDiscoveryV2Inner() {
-  const { dark } = useSourcingTheme();
-  const V = getTokens(dark);
+  useSRWTitle('Discovery | Space OS');
 
   const [tenant, setTenant] = useState(null);
   const [listings, setListings] = useState([]);
@@ -95,80 +83,40 @@ function SourcingDiscoveryV2Inner() {
   }, [listings, searchInput]);
 
   return (
-    <div
-      data-tenant={TENANT_SLUG_V2}
-      style={{
-        minHeight: '100dvh',
-        background: 'var(--bg)',
-        color: 'var(--tx)',
-        position: 'relative',
-        fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
-        '--bg': 'transparent', '--tx': '#E8E4DA',
-        '--tx2': 'rgba(232,228,218,0.60)', '--tx3': 'rgba(232,228,218,0.25)',
-        '--s1': 'rgba(11,11,13,0.72)', '--s2': 'rgba(11,11,13,0.82)', '--s3': 'rgba(11,11,13,0.92)',
-        '--bd': 'rgba(232,228,218,0.10)', '--bd2': 'rgba(232,228,218,0.16)',
-        '--cyan': '#E8A23A', '--cyan-dim': 'rgba(232,162,58,0.10)', '--cyan-brd': 'rgba(232,162,58,0.32)',
-      }}
-    >
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }
-        [data-tenant="space-rising-v2"] .wp-list { display: flex; flex-direction: column; gap: 12px; width: 100%; grid-column: 1 / -1; }
-        [data-tenant="space-rising-v2"] .wp-card {
-          display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
-          padding: 20px 22px; border: 1px solid rgba(232,228,218,0.10); border-radius: 12px;
-          background: rgba(18,20,28,0.40); text-decoration: none; color: inherit;
-          transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
-        }
-        [data-tenant="space-rising-v2"] .wp-card:hover {
-          border-color: rgba(232,162,58,0.45); background: rgba(232,162,58,0.06); transform: translateY(-1px);
-        }
-        [data-tenant="space-rising-v2"] .wp-card:hover .wp-arrow { color: #E8A23A; transform: translate(2px,-2px); }
-        [data-tenant="space-rising-v2"] .wp-card:hover .wp-title { color: #F3C57E; }
-        [data-tenant="space-rising-v2"] .wp-card:hover .wp-open { color: #E8A23A; }
-        [data-tenant="space-rising-v2"] .wp-title { font-size: 16px; font-weight: 700; color: #F1ECE0; line-height: 1.3; transition: color 0.16s ease; }
-        [data-tenant="space-rising-v2"] .wp-meta { font-size: 12px; color: rgba(232,228,218,0.55); margin-top: 5px; letter-spacing: 0.01em; }
-        [data-tenant="space-rising-v2"] .wp-abstract {
-          font-size: 13px; color: rgba(232,228,218,0.66); margin-top: 9px; line-height: 1.55;
-          display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-        }
-        [data-tenant="space-rising-v2"] .wp-open {
-          display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; margin-top: 2px;
-          font-size: 12px; font-weight: 600; color: rgba(232,228,218,0.45);
-          transition: color 0.16s ease; white-space: nowrap;
-        }
-        [data-tenant="space-rising-v2"] .wp-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 12px; }
-        [data-tenant="space-rising-v2"] .wp-badge {
-          font-size: 11px; font-weight: 600; letter-spacing: 0.02em; padding: 3px 9px; border-radius: 100px;
-          border: 1px solid rgba(232,228,218,0.16); color: rgba(232,228,218,0.70); white-space: nowrap;
-        }
-        [data-tenant="space-rising-v2"] .wp-badge.pdf {
-          color: #E8A23A; border-color: rgba(232,162,58,0.40); background: rgba(232,162,58,0.10);
-          display: inline-flex; align-items: center; gap: 4px;
-        }
-        [data-tenant="space-rising-v2"] .wp-arrow { color: inherit; flex-shrink: 0; transition: transform 0.16s ease; }
-      `}</style>
+    <div className="osv3 osv3-discovery-container">
+      {!supabase && (
+        <div style={{
+          padding: '24px 20px',
+          border: '1px solid rgba(206, 68, 33, 0.32)',
+          background: 'rgba(206, 68, 33, 0.10)',
+          borderRadius: 8,
+          color: 'var(--v3-accent)',
+          fontFamily: 'monospace',
+          fontSize: 13,
+          textAlign: 'center',
+          marginBottom: 24,
+        }}>
+          Supabase not configured — copy your env keys to .env.local
+        </div>
+      )}
 
-      <div className="browse-hero" style={{ '--page-hero-bg': "url('/v2-assets/earth.png')" }}>
-        <div className="browse-hero-bg" />
-        <div className="browse-hero-overlay" />
-        <div className="browse-hero-content" style={{ position: 'relative' }}>
-          <div className="browse-hero-toprow">
-            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
-              Back
-            </Link>
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
-          </div>
-          <div className="browse-title">Discovery.</div>
-          <div className="browse-sub">
-            Whitepapers, research, and industry reports from across space.
-          </div>
+      <div className="osv3-discovery-header">
+        <div className="osv3-discovery-header-content">
+          <h2>Discovery</h2>
+          <p>Research and white papers from across the space industry.</p>
+        </div>
+        <div className="osv3-discovery-header-action">
+          <Link to="/discovery/post" className="osv3-discovery-cta">
+            + Post a Whitepaper
+          </Link>
         </div>
       </div>
 
-      <div className="browse-search">
-        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+      <div className="osv3-discovery-search-bar">
+        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.35-4.35" />
+        </svg>
         <input
           type="text"
           value={searchInput}
@@ -178,113 +126,94 @@ function SourcingDiscoveryV2Inner() {
           autoComplete="off"
           spellCheck="false"
         />
-        {loading && <div className="spinner" />}
       </div>
 
-      <V2ChipNav active="discovery" />
-
-      <div className="sec-hdr">
-        <div className="sec-title">
-          {loading ? 'Loading...' : `${filteredListings.length} Whitepaper${filteredListings.length === 1 ? '' : 's'}.`}
+      {loading && supabase && (
+        <div className="osv3-discovery-list">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="osv3-discovery-loading-skeleton" />
+          ))}
         </div>
-        <div className="sec-count">
-          <Link
-            to="/spaceos/discovery/post"
-            style={{ textDecoration: 'none', color: 'var(--cyan)', fontSize: 12, fontWeight: 600 }}
-          >
-            + Submit a Whitepaper
-          </Link>
-        </div>
-      </div>
+      )}
 
-      <div className="co-list">
-        <div className="wp-list">
-          {!supabase && (
-            <div style={{
-              padding: '24px 20px',
-              border: '1px solid rgba(232,162,58,0.32)',
-              background: 'rgba(232,162,58,0.10)',
-              borderRadius: 10, color: '#E8A23A',
-              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-              fontSize: 13, textAlign: 'center',
-            }}>
-              Supabase not configured — copy your env keys to .env.local
-            </div>
-          )}
-
-          {loading && supabase && (
-            <>{[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} style={{ height: 96, borderRadius: 12, background: 'rgba(18,20,28,0.40)', border: '1px solid rgba(232,228,218,0.05)', animation: 'pulse 1.5s ease-in-out infinite' }} />
-            ))}</>
-          )}
-
-          {!loading && filteredListings.map((listing) => {
+      {!loading && filteredListings.length > 0 && (
+        <div className="osv3-discovery-list">
+          {filteredListings.map((listing) => {
             const tags = Array.isArray(listing.tags) ? listing.tags : [];
-            const year = listing.created_at ? new Date(listing.created_at).getFullYear() : null;
-            const meta = [listing.organizer, Number.isFinite(year) ? year : null].filter(Boolean).join(' · ');
+            const published = formatDate(listing.created_at);
+            const metaParts = [
+              listing.organizer,
+              published,
+            ].filter(Boolean);
             const href = listing.apply_url || null;
             const abstract = listing.excerpt || listing.description || '';
             const CardTag = href ? 'a' : 'div';
             const cardProps = href ? { href, target: '_blank', rel: 'noreferrer noopener' } : {};
+
             return (
-              <CardTag key={listing.id} className="wp-card" {...cardProps}>
-                <div style={{ minWidth: 0, flex: 1, display: 'flex', alignItems: 'flex-start', gap: 16 }}>
-                  {listing.cover_image_url ? (
+              <CardTag
+                key={listing.id}
+                className="osv3-discovery-card"
+                style={{ textDecoration: 'none', color: 'inherit' }}
+                {...cardProps}
+              >
+                <div className="osv3-discovery-card-main">
+                  {listing.cover_image_url && (
                     <img
                       src={listing.cover_image_url}
                       alt=""
                       aria-hidden="true"
-                      style={{ width: 56, height: 72, borderRadius: 6, objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(232,228,218,0.10)' }}
+                      className="osv3-discovery-card-cover"
                       onError={(e) => { e.currentTarget.style.display = 'none'; }}
                     />
-                  ) : null}
-                  <div style={{ minWidth: 0 }}>
-                    <div className="wp-title">{listing.title || 'Untitled whitepaper'}</div>
-                    {meta && <div className="wp-meta">{meta}</div>}
-                    {abstract && <div className="wp-abstract">{abstract}</div>}
-                    <div className="wp-badges">
+                  )}
+                  <div className="osv3-discovery-card-content">
+                    <h3 className="osv3-discovery-card-title">
+                      {listing.title || 'Untitled whitepaper'}
+                    </h3>
+                    {metaParts.length > 0 && (
+                      <div className="osv3-discovery-card-meta">
+                        {metaParts.join(' · ')}
+                      </div>
+                    )}
+                    {abstract && (
+                      <div className="osv3-discovery-card-abstract">
+                        {abstract}
+                      </div>
+                    )}
+                    <div className="osv3-discovery-card-pills">
                       {href && (
-                        <span className="wp-badge pdf">
-                          <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+                        <span className="osv3-discovery-card-pill osv3-pill-pdf">
+                          <svg width="11" height="11" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <path d="M14 2v6h6" />
+                          </svg>
                           PDF
                         </span>
                       )}
-                      {tags.slice(0, 4).map((t) => (
-                        <span key={t} className="wp-badge">{t}</span>
+                      {tags.slice(0, 3).map((t) => (
+                        <span key={t} className="osv3-discovery-card-pill osv3-pill-tag">
+                          {t}
+                        </span>
                       ))}
                     </div>
                   </div>
                 </div>
-                {href && (
-                  <div className="wp-open" aria-hidden="true">
-                    Open
-                    <svg className="wp-arrow" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M7 17L17 7M17 7H8M17 7v9" /></svg>
-                  </div>
-                )}
               </CardTag>
             );
           })}
-
-          {!loading && supabase && filteredListings.length === 0 && (
-            <div style={{
-              padding: '48px 24px', textAlign: 'center',
-              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-              color: 'rgba(232,228,218,0.55)',
-              fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase',
-            }}>
-              {searchInput ? `No whitepapers match "${searchInput}"` : 'No whitepapers posted yet.'}
-            </div>
-          )}
         </div>
-      </div>
+      )}
+
+      {!loading && supabase && filteredListings.length === 0 && (
+        <div className="osv3-discovery-empty">
+          {searchInput ? `No whitepapers match "${searchInput}"` : 'No whitepapers posted yet.'}
+        </div>
+      )}
     </div>
   );
 }
 
 export default function SourcingDiscoveryV2() {
-  return (
-    <SourcingThemeProvider>
-      <SourcingDiscoveryV2Inner />
-    </SourcingThemeProvider>
-  );
+  return <SourcingDiscoveryV2Inner />;
 }
