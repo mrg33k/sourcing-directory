@@ -67,20 +67,26 @@ const SpaceOSHomeV3 = () => {
         .order('created_at', { ascending: false })
         .limit(6)
 
-      // Funding (from AOM external API)
-      try {
-        const res = await fetch('https://www.aheadofmarket.com/api/deal-bank/completed')
-        const fundingData = await res.json()
-        setFunding(fundingData.rounds?.slice(0, 6) || [])
-      } catch (err) {
-        console.error('Funding fetch failed:', err)
-        setFunding([])
-      }
-
+      // Essential data is in — render immediately. The dashboard must never block
+      // on a slow/dead external call.
       setReports(reportsData || [])
       setEvents(eventsData || [])
       setJobs(jobsData || [])
       setLoading(false)
+
+      // Funding (external AOM API) — non-blocking, with a hard timeout. If it is
+      // slow or down, the column simply stays empty (real-data-or-hidden).
+      try {
+        const ctrl = new AbortController()
+        const timer = setTimeout(() => ctrl.abort(), 6000)
+        const res = await fetch('https://www.aheadofmarket.com/api/deal-bank/completed', { signal: ctrl.signal })
+        clearTimeout(timer)
+        const fundingData = await res.json()
+        setFunding(fundingData.rounds?.slice(0, 6) || [])
+      } catch (err) {
+        console.error('Funding fetch failed (non-blocking):', err)
+        setFunding([])
+      }
     }
 
     loadData()
