@@ -1,15 +1,13 @@
 // SourcingReportsV2.jsx
-// nat-geo-uplift R5c — Reports page in the V2 list-pattern.
+// Space OS v3 — Reports page (light design with designed navy covers)
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
 import useSRWTitle from './srw/useSRWTitle.js';
-import { V2ChipNav } from './V2ChipNav.jsx';
-import '../space-rising-theme-v2.css';
+import './osv3-reports.css';
 
-const TENANT_SLUG_V2 = 'space-rising-v2';
+const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
 function formatPubDate(dateStr) {
   if (!dateStr) return '';
@@ -18,9 +16,7 @@ function formatPubDate(dateStr) {
   return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-function SourcingReportsV2Inner() {
-  const { dark } = useSourcingTheme();
-  const V = getTokens(dark);
+export default function SourcingReportsV2() {
   useSRWTitle('Space Industry Reports | Space OS');
 
   const [reports, setReports] = useState([]);
@@ -63,52 +59,20 @@ function SourcingReportsV2Inner() {
   }, [reports, searchInput]);
 
   return (
-    <div
-      data-tenant={TENANT_SLUG_V2}
-      style={{
-        minHeight: '100dvh',
-        background: 'var(--bg)',
-        color: 'var(--tx)',
-        position: 'relative',
-        fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
-        '--bg': 'transparent',
-        '--tx': '#E8E4DA',
-        '--tx2': 'rgba(232,228,218,0.60)',
-        '--tx3': 'rgba(232,228,218,0.25)',
-        '--s1': 'rgba(11,11,13,0.72)',
-        '--s2': 'rgba(11,11,13,0.82)',
-        '--s3': 'rgba(11,11,13,0.92)',
-        '--bd': 'rgba(232,228,218,0.10)',
-        '--bd2': 'rgba(232,228,218,0.16)',
-        '--cyan': '#E8A23A',
-        '--cyan-dim': 'rgba(232,162,58,0.10)',
-        '--cyan-brd': 'rgba(232,162,58,0.32)',
-      }}
-    >
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } } @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }`}</style>
-
-      <div className="browse-hero" style={{ '--page-hero-bg': "url('/v2-assets/sun.png')" }}>
-        <div className="browse-hero-bg" />
-        <div className="browse-hero-overlay" />
-        <div className="browse-hero-content" style={{ position: 'relative' }}>
-          <div className="browse-hero-toprow">
-            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
-              Back
-            </Link>
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
-          </div>
-          <div className="browse-title">Industry Reports.</div>
-          <div className="browse-sub">
-            Market analysis, funding round summaries, and Space Rising research briefings.
-          </div>
+    <div className="osv3-reports-page">
+      {/* Page Header */}
+      <div className="osv3-reports-header">
+        <div>
+          <h2 className="osv3-reports-title">Reports</h2>
+          <p className="osv3-reports-subtitle">Intelligence reports for the space economy.</p>
         </div>
       </div>
 
-      <div className="browse-search">
-        <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+      {/* Search Input */}
+      <div className="osv3-reports-search-container">
         <input
           type="text"
+          className="osv3-reports-search"
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           placeholder="Search reports, categories, authors..."
@@ -116,77 +80,79 @@ function SourcingReportsV2Inner() {
           autoComplete="off"
           spellCheck="false"
         />
-        {loading && <div className="spinner" />}
       </div>
 
-      <V2ChipNav active="reports" />
-
-      <div className="sec-hdr">
-        <div className="sec-title">
-          {loading ? 'Loading...' : `${filtered.length} Report${filtered.length === 1 ? '' : 's'}.`}
+      {/* No Supabase Error */}
+      {!supabase && (
+        <div className="osv3-reports-error">
+          Supabase not configured
         </div>
-        <div className="sec-count">
-          <span style={{ color: 'var(--tx3)', fontSize: 12, fontFamily: 'JetBrains Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-            Updated weekly
-          </span>
+      )}
+
+      {/* Loading Skeletons */}
+      {loading && supabase && (
+        <div className="osv3-reports-grid">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="osv3-report-card osv3-report-card-skeleton">
+              <div className="osv3-report-card-cover-skeleton" />
+              <div className="osv3-report-card-content">
+                <div className="osv3-report-card-skeleton-line" />
+                <div className="osv3-report-card-skeleton-line-short" />
+              </div>
+            </div>
+          ))}
         </div>
-      </div>
+      )}
 
-      <div className="co-list">
-        {!supabase && (
-          <div style={{ padding: '24px 20px', border: '1px solid rgba(232,162,58,0.32)', background: 'rgba(232,162,58,0.10)', borderRadius: 10, color: '#E8A23A', fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 13, textAlign: 'center' }}>
-            Supabase not configured
+      {/* Reports Grid */}
+      {!loading && (
+        <>
+          <div className="osv3-reports-grid">
+            {filtered.map((report) => {
+              const date = formatPubDate(report.published_at);
+              const isFree = report.access === 'free' || !report.access;
+              return (
+                <Link
+                  key={report.id}
+                  to={`/reports/${report.id}`}
+                  className="osv3-report-card"
+                  style={{ textDecoration: 'none', color: 'inherit' }}
+                >
+                  {/* Navy Mini-Cover */}
+                  <div className="osv3-report-card-cover">
+                    <div className="osv3-report-card-cover-eyebrow">
+                      SPACE RISING / REPORT
+                    </div>
+                    <div className="osv3-report-card-cover-title">
+                      {report.title}
+                    </div>
+                  </div>
+
+                  {/* Card Content */}
+                  <div className="osv3-report-card-content">
+                    <h3 className="osv3-report-card-title">{report.title}</h3>
+                    <div className="osv3-report-card-meta">
+                      {[report.category, report.author, date].filter(Boolean).join(' · ')}
+                    </div>
+                    <div className="osv3-report-card-pills">
+                      {isFree && <span className="osv3-report-card-pill osv3-pill-free">Free</span>}
+                      {!isFree && <span className="osv3-report-card-pill osv3-pill-members">Members Only</span>}
+                      {report.file_url && <span className="osv3-report-card-pill osv3-pill-pdf">PDF</span>}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
-        )}
 
-        {loading && supabase && (
-          <>{[1, 2, 3, 4].map((i) => (
-            <div key={i} style={{ height: 84, borderRadius: 10, background: 'rgba(18,20,28,0.40)', border: '1px solid rgba(232,228,218,0.05)', animation: 'pulse 1.5s ease-in-out infinite' }} />
-          ))}</>
-        )}
-
-        {!loading && filtered.map((report) => {
-          const date = formatPubDate(report.published_at);
-          const isFree = report.access === 'free' || !report.access;
-          return (
-            <Link
-              key={report.id}
-              to={`/spaceos/reports/${report.id}`}
-              className="co-card"
-              style={{ textDecoration: 'none', color: 'inherit' }}
-            >
-              <div className="co-body">
-                <div className="co-name">{report.title}</div>
-                <div className="co-loc">
-                  {[report.category, report.author, date].filter(Boolean).join(' · ')}
-                </div>
-                <div className="co-badges">
-                  {isFree && <span className="co-badge cert">Free</span>}
-                  {!isFree && <span className="co-badge feat">Members Only</span>}
-                  {report.file_url && <span className="co-badge cert">PDF</span>}
-                </div>
-              </div>
-              <div className="co-arrow">
-                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
-              </div>
-            </Link>
-          );
-        })}
-
-        {!loading && supabase && filtered.length === 0 && (
-          <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            {searchInput ? `No reports match "${searchInput}"` : 'No reports published yet.'}
-          </div>
-        )}
-      </div>
+          {/* Empty State */}
+          {supabase && filtered.length === 0 && (
+            <div className="osv3-reports-empty">
+              {searchInput ? `No reports match "${searchInput}"` : 'No reports published yet.'}
+            </div>
+          )}
+        </>
+      )}
     </div>
-  );
-}
-
-export default function SourcingReportsV2() {
-  return (
-    <SourcingThemeProvider>
-      <SourcingReportsV2Inner />
-    </SourcingThemeProvider>
   );
 }

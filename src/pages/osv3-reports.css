@@ -1,0 +1,283 @@
+/* Space OS v3 — Reports Page Styling */
+
+.osv3-reports-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v3-spacing-lg);
+}
+
+/* Page Header */
+.osv3-reports-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--v3-spacing-lg);
+}
+
+.osv3-reports-title {
+  font-size: var(--v3-h2-font-size);
+  font-weight: var(--v3-h2-font-weight);
+  line-height: var(--v3-h2-line-height);
+  color: var(--v3-ink-primary);
+  margin: 0;
+  margin-bottom: 8px;
+}
+
+.osv3-reports-subtitle {
+  font-size: var(--v3-body-sm-font-size);
+  font-weight: var(--v3-body-sm-font-weight);
+  line-height: var(--v3-body-sm-line-height);
+  color: var(--v3-muted);
+  margin: 0;
+}
+
+/* Search Container */
+.osv3-reports-search-container {
+  display: flex;
+  gap: var(--v3-spacing-md);
+}
+
+.osv3-reports-search {
+  flex: 1;
+  max-width: 400px;
+  padding: 10px 16px;
+  border: 1px solid var(--v3-border);
+  border-radius: var(--v3-border-radius-md);
+  font-size: var(--v3-body-sm-font-size);
+  font-family: var(--v3-font-family-base);
+  color: var(--v3-ink-secondary);
+  background-color: white;
+  transition: border-color var(--v3-transition-fast);
+}
+
+.osv3-reports-search::placeholder {
+  color: var(--v3-muted);
+}
+
+.osv3-reports-search:focus {
+  outline: none;
+  border-color: var(--v3-accent);
+  box-shadow: 0 0 0 3px rgba(206, 68, 33, 0.1);
+}
+
+/* Error State */
+.osv3-reports-error {
+  padding: var(--v3-spacing-lg) var(--v3-spacing-md);
+  border: 1px solid var(--v3-border);
+  background-color: var(--v3-panel-bg);
+  border-radius: var(--v3-border-radius-md);
+  font-size: var(--v3-body-sm-font-size);
+  color: var(--v3-muted);
+  text-align: center;
+}
+
+/* Reports Grid */
+.osv3-reports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--v3-spacing-lg);
+}
+
+/* Report Card */
+.osv3-report-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--v3-border-radius-md);
+  overflow: hidden;
+  background-color: white;
+  border: 1px solid var(--v3-border);
+  transition: all var(--v3-transition-base);
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.osv3-report-card:hover {
+  border-color: var(--v3-accent);
+  box-shadow: var(--v3-shadow-md);
+}
+
+/* Card Cover (Navy Mini-Cover with Designed Look) */
+.osv3-report-card-cover {
+  position: relative;
+  background-color: #000C20;
+  padding: var(--v3-spacing-lg);
+  aspect-ratio: auto / 1;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border-top: 3px solid var(--v3-accent);
+  color: white;
+}
+
+.osv3-report-card-cover-eyebrow {
+  font-size: 11px;
+  font-weight: var(--v3-font-weight-semibold);
+  line-height: 1.4;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 12px;
+}
+
+.osv3-report-card-cover-title {
+  font-size: 16px;
+  font-weight: var(--v3-font-weight-semibold);
+  line-height: 1.35;
+  color: white;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+/* Card Content Section (Below Cover) */
+.osv3-report-card-content {
+  padding: var(--v3-spacing-md) var(--v3-spacing-md) var(--v3-spacing-lg) var(--v3-spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.osv3-report-card-title {
+  font-size: 15px;
+  font-weight: var(--v3-font-weight-semibold);
+  line-height: 1.4;
+  color: var(--v3-ink-primary);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.osv3-report-card-meta {
+  font-size: 13px;
+  font-weight: var(--v3-body-sm-font-weight);
+  line-height: 1.4;
+  color: var(--v3-muted);
+}
+
+.osv3-report-card-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.osv3-report-card-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--v3-border-radius-full);
+  font-size: 11px;
+  font-weight: var(--v3-font-weight-semibold);
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.osv3-pill-free {
+  background-color: rgba(37, 99, 235, 0.1);
+  color: #2563EB;
+}
+
+.osv3-pill-members {
+  background-color: rgba(139, 92, 246, 0.1);
+  color: #8B5CF6;
+}
+
+.osv3-pill-pdf {
+  background-color: rgba(206, 68, 33, 0.1);
+  color: #CE4421;
+}
+
+/* Loading Skeleton */
+.osv3-report-card-skeleton {
+  border: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+.osv3-report-card-skeleton:hover {
+  border-color: var(--v3-border);
+  box-shadow: none;
+}
+
+.osv3-report-card-cover-skeleton {
+  height: 180px;
+  background-color: #E5E7EB;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.osv3-report-card-skeleton-line {
+  height: 12px;
+  background-color: #E5E7EB;
+  border-radius: 4px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.osv3-report-card-skeleton-line-short {
+  height: 12px;
+  width: 60%;
+  background-color: #E5E7EB;
+  border-radius: 4px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Empty State */
+.osv3-reports-empty {
+  padding: 48px 24px;
+  text-align: center;
+  font-size: var(--v3-body-sm-font-size);
+  color: var(--v3-muted);
+  background-color: var(--v3-panel-bg);
+  border-radius: var(--v3-border-radius-md);
+  border: 1px solid var(--v3-border);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .osv3-reports-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--v3-spacing-md);
+  }
+
+  .osv3-reports-search {
+    max-width: 100%;
+  }
+
+  .osv3-report-card-cover {
+    min-height: 160px;
+  }
+
+  .osv3-report-card-title {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .osv3-reports-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .osv3-reports-header {
+    gap: var(--v3-spacing-md);
+  }
+
+  .osv3-reports-title {
+    font-size: 28px;
+  }
+}
