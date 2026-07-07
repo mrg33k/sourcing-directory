@@ -23,6 +23,8 @@ const OSLayoutV3 = () => {
         .map(word => word[0].toUpperCase())
         .join('')
       setUserInitials(initials || '?')
+    } else {
+      setUserInitials('guest')
     }
   }, [user])
 
@@ -45,6 +47,19 @@ const OSLayoutV3 = () => {
     await supabase.auth.signOut()
     setShowUserMenu(false)
     navigate('/')
+  }
+
+  const renderAvatar = () => {
+    if (user) {
+      return userInitials
+    }
+    return (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ color: '#6B7280' }}>
+        <circle cx="12" cy="8" r="3.5" fill="currentColor" />
+        <path d="M4 20c0-3.314 2.686-6 6-6s6 2.686 6 6v0" fill="currentColor" fillOpacity="0.6" />
+        <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="1" />
+      </svg>
+    )
   }
 
   return (
@@ -172,7 +187,9 @@ const OSLayoutV3 = () => {
 
         {/* User Chip */}
         <div className="osv3-user-chip" onClick={() => setShowUserMenu(!showUserMenu)}>
-          <div className="osv3-avatar">{userInitials}</div>
+          <div className={`osv3-avatar ${!user ? 'osv3-avatar-guest' : ''}`}>
+            {renderAvatar()}
+          </div>
           <div className="osv3-user-name">{user ? userName : 'Sign in'}</div>
           <div className="osv3-chevron">⌄</div>
 
@@ -214,7 +231,9 @@ const OSLayoutV3 = () => {
               <div className="osv3-notification-badge"></div>
             </div>
             <div className="osv3-icon-btn">💬</div>
-            <div className="osv3-topbar-avatar">{userInitials}</div>
+            <div className={`osv3-topbar-avatar ${!user ? 'osv3-avatar-guest' : ''}`}>
+              {renderAvatar()}
+            </div>
           </div>
         </header>
 
