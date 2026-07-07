@@ -1,0 +1,217 @@
+/* Space OS v3 — Community/Events Page */
+
+.osv3-page {
+  padding: var(--v3-spacing-xl);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ===== PAGE HEADER ===== */
+
+.osv3-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--v3-spacing-2xl);
+  gap: var(--v3-spacing-xl);
+}
+
+.osv3-page-header__content {
+  flex: 1;
+}
+
+.osv3-page-header__title {
+  font-size: var(--v3-h2-font-size);
+  font-weight: var(--v3-h2-font-weight);
+  color: var(--v3-ink-primary);
+  margin-bottom: 8px;
+  line-height: var(--v3-h2-line-height);
+}
+
+.osv3-page-header__sub {
+  font-size: 14px;
+  color: var(--v3-muted);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+/* ===== BUTTON ===== */
+
+.osv3-btn {
+  padding: 11px 16px;
+  border-radius: var(--v3-border-radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all var(--v3-transition-fast);
+  white-space: nowrap;
+  height: 44px;
+}
+
+.osv3-btn--primary {
+  background-color: var(--v3-accent);
+  color: white;
+}
+
+.osv3-btn--primary:hover {
+  background-color: #B83410;
+  box-shadow: var(--v3-shadow-md);
+}
+
+/* ===== EVENTS LIST ===== */
+
+.osv3-events-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--v3-spacing-md);
+}
+
+/* ===== EVENT CARD ===== */
+
+.osv3-event-card {
+  display: flex;
+  align-items: center;
+  gap: var(--v3-spacing-lg);
+  background-color: #FFFFFF;
+  border: var(--v3-border-width) solid var(--v3-border);
+  border-radius: var(--v3-border-radius-md);
+  padding: var(--v3-spacing-lg);
+  text-decoration: none;
+  color: inherit;
+  transition: all var(--v3-transition-fast);
+}
+
+.osv3-event-card:hover {
+  border-color: var(--v3-accent);
+  box-shadow: var(--v3-shadow-md);
+}
+
+/* Date Chip */
+
+.osv3-event-card__date-chip {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 56px;
+  background-color: var(--v3-panel-bg);
+  border-radius: var(--v3-border-radius-sm);
+  gap: 2px;
+}
+
+.osv3-event-card__month {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--v3-ink-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.osv3-event-card__day {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--v3-ink-primary);
+  line-height: 1;
+}
+
+/* Body */
+
+.osv3-event-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.osv3-event-card__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--v3-ink-primary);
+  margin-bottom: 6px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.osv3-event-card__meta {
+  font-size: 13px;
+  color: var(--v3-muted);
+  display: flex;
+  align-items: center;
+  gap: var(--v3-spacing-sm);
+  flex-wrap: wrap;
+}
+
+.osv3-event-card__pill {
+  display: inline-block;
+  background-color: var(--v3-panel-bg);
+  color: var(--v3-ink-primary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Arrow */
+
+.osv3-event-card__arrow {
+  flex-shrink: 0;
+  color: var(--v3-muted);
+  transition: color var(--v3-transition-fast);
+}
+
+.osv3-event-card:hover .osv3-event-card__arrow {
+  color: var(--v3-accent);
+}
+
+/* ===== EMPTY STATE / LOADING ===== */
+
+.osv3-empty-state {
+  text-align: center;
+  padding: var(--v3-spacing-2xl);
+  color: var(--v3-muted);
+  font-size: 14px;
+  font-style: italic;
+}
+
+.osv3-loading {
+  text-align: center;
+  padding: var(--v3-spacing-2xl);
+  color: var(--v3-muted);
+  font-size: 14px;
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 768px) {
+  .osv3-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .osv3-page {
+    padding: var(--v3-spacing-lg);
+  }
+
+  .osv3-event-card {
+    gap: var(--v3-spacing-md);
+    padding: var(--v3-spacing-md);
+  }
+
+  .osv3-event-card__date-chip {
+    width: 42px;
+    height: 52px;
+  }
+
+  .osv3-event-card__day {
+    font-size: 18px;
+  }
+
+  .osv3-event-card__title {
+    font-size: 15px;
+  }
+}
