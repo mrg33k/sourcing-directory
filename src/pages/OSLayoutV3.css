@@ -33,13 +33,13 @@
 }
 
 .osv3-sidebar-logo {
-  margin-bottom: 32px;
-  padding: 0 4px;
+  margin-bottom: 28px;
+  padding: 4px 6px 0;
 }
 
 .osv3-sidebar-logo-img {
-  width: 152px;
-  max-width: 86%;
+  width: 158px;
+  max-width: 84%;
   height: auto;
   display: block;
 }
