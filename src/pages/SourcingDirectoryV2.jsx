@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import { getCategoryForCompany, CATEGORIES, getCategoryCount, getCompaniesByCategory } from '../lib/directoryCategories.js';
 import useSRWTitle from './srw/useSRWTitle.js';
-import './osv3-directory.css';
+import '../styles/osv3-directory.css';
 
 const ASSET_POOL = [
   'earth.png',
