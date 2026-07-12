@@ -171,7 +171,7 @@ export default function SourcingDirectoryV2() {
 
     try {
       const { error } = await supabase
-        .from('newsletter_subscribers')
+        .from('srw_subscribers')
         .insert([{ email: newsletterEmail, source: 'directory' }]);
 
       if (error) throw error;
