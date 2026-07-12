@@ -1,15 +1,13 @@
 // SourcingDirectoryV2.jsx
-// Space OS v3 — Directory page (magazine pattern with feature hero + editorial grid)
+// Space OS v3 — New Directory landing page (7 sections: hero, search, carousel, categories, regions, companies, newsletter)
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
+import { getCategoryForCompany, CATEGORIES, getCategoryCount, getCompaniesByCategory } from '../lib/directoryCategories.js';
 import useSRWTitle from './srw/useSRWTitle.js';
 import './osv3-directory.css';
 
-const TENANT_DB_LOOKUP_SLUG = 'space-rising';
-
-// Asset rotation array (deterministic per company ID)
 const ASSET_POOL = [
   'earth.png',
   'rocket-orbital.png',
@@ -23,34 +21,37 @@ const ASSET_POOL = [
   'blueprint-hero.png',
 ];
 
-// Vertical config (same as Reports)
-const VERTICALS = [
-  { key: 'all', label: 'All Industries', value: null },
-  { key: 'space', label: 'Space & Aerospace', value: 'space' },
-  { key: 'semiconductor', label: 'Semiconductor', value: 'semiconductor' },
-];
-
+// Deterministic image selection per company
 function getImageForCompany(company, index) {
-  // Deterministic + diverse: hash the full id string (+ index) so cards don't
-  // repeat the same photo. charCodeAt(0) alone collided across most companies.
   const s = (company.id ? String(company.id) : '') + ':' + index;
   let h = 0;
   for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
   return `/v2-assets/${ASSET_POOL[h % ASSET_POOL.length]}`;
 }
 
-function getCompanyLocation(company) {
-  const parts = [company.city, company.state].filter(Boolean);
-  return parts.join(', ');
+// US Census regions with states
+const US_REGIONS = {
+  'West': { states: ['AK', 'AZ', 'CA', 'CO', 'HI', 'ID', 'MT', 'NV', 'NM', 'OR', 'UT', 'WA', 'WY'], color: '#CE4421' },
+  'Midwest': { states: ['IL', 'IN', 'IA', 'KS', 'MI', 'MN', 'MO', 'NE', 'ND', 'OH', 'SD', 'WI'], color: '#10B981' },
+  'South': { states: ['AL', 'AR', 'DE', 'FL', 'GA', 'KY', 'LA', 'MD', 'MS', 'NC', 'OK', 'SC', 'TN', 'TX', 'VA', 'WV'], color: '#FBBF24' },
+  'Northeast': { states: ['CT', 'MA', 'ME', 'NH', 'NJ', 'NY', 'PA', 'RI', 'VT'], color: '#3B82F6' },
+};
+
+function getRegionForState(state) {
+  for (const [region, data] of Object.entries(US_REGIONS)) {
+    if (data.states.includes(state)) return region;
+  }
+  return null;
 }
 
-function getCertificationCount(company) {
-  if (!company.certifications) return 0;
-  if (Array.isArray(company.certifications)) return company.certifications.length;
-  if (typeof company.certifications === 'string') {
-    return company.certifications.split(',').filter(c => c.trim()).length;
-  }
-  return 0;
+function computeRegionCounts(companies) {
+  const counts = {};
+  Object.keys(US_REGIONS).forEach(region => counts[region] = 0);
+  companies.forEach(c => {
+    const region = getRegionForState(c.state);
+    if (region) counts[region]++;
+  });
+  return counts;
 }
 
 function MembershipModal({ isOpen, onClose }) {
@@ -85,44 +86,15 @@ function MembershipModal({ isOpen, onClose }) {
           boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
         }}
       >
-        <style>{`
-          @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        `}</style>
+        <style>{`@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
         <div style={{ padding: 32 }}>
-          <div
-            style={{
-              fontSize: 12,
-              fontWeight: 700,
-              fontFamily: 'var(--v3-font-family-base)',
-              letterSpacing: '0.08em',
-              color: '#6B7280',
-              textTransform: 'uppercase',
-              marginBottom: 16,
-            }}
-          >
+          <div style={{ fontSize: 12, fontWeight: 700, fontFamily: 'var(--v3-font-family-base)', letterSpacing: '0.08em', color: '#6B7280', textTransform: 'uppercase', marginBottom: 16 }}>
             Membership
           </div>
-          <h3
-            style={{
-              fontSize: 28,
-              fontWeight: 700,
-              fontFamily: 'var(--v3-font-family-base)',
-              color: '#010B13',
-              lineHeight: 1.2,
-              marginBottom: 12,
-            }}
-          >
+          <h3 style={{ fontSize: 28, fontWeight: 700, fontFamily: 'var(--v3-font-family-base)', color: '#010B13', lineHeight: 1.2, marginBottom: 12 }}>
             Claim your company
           </h3>
-          <p
-            style={{
-              fontSize: 15,
-              fontFamily: 'var(--v3-font-family-base)',
-              color: '#6B7280',
-              lineHeight: 1.6,
-              marginBottom: 28,
-            }}
-          >
+          <p style={{ fontSize: 15, fontFamily: 'var(--v3-font-family-base)', color: '#6B7280', lineHeight: 1.6, marginBottom: 28 }}>
             Add your company to the directory and get found by procurement teams and contractors.
           </p>
           <Link
@@ -144,12 +116,8 @@ function MembershipModal({ isOpen, onClose }) {
               cursor: 'pointer',
               transition: 'background 150ms ease-out',
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#b83916';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#CE4421';
-            }}
+            onMouseEnter={(e) => { e.currentTarget.style.background = '#b83916'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.background = '#CE4421'; }}
           >
             Join Now
           </Link>
@@ -167,12 +135,8 @@ function MembershipModal({ isOpen, onClose }) {
               padding: '12px 0',
               transition: 'color 150ms ease-out',
             }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = '#010B13';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = '#6B7280';
-            }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#010B13'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#6B7280'; }}
           >
             Maybe later
           </button>
@@ -188,8 +152,11 @@ export default function SourcingDirectoryV2() {
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState('');
-  const [selectedVertical, setSelectedVertical] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedRegion, setSelectedRegion] = useState(null);
   const [showMembership, setShowMembership] = useState(false);
+  const [companiesPage, setCompaniesPage] = useState(1);
+  const COMPANIES_PER_PAGE = 10;
 
   useEffect(() => {
     if (!supabase) {
@@ -206,9 +173,8 @@ export default function SourcingDirectoryV2() {
           .from('directory_companies')
           .select('*')
           .eq('status', 'active')
-          .order('featured', { ascending: false })
           .order('created_at', { ascending: false })
-          .limit(100);
+          .limit(200);
 
         if (error) throw error;
         if (!cancelled) setCompanies(data || []);
@@ -219,25 +185,28 @@ export default function SourcingDirectoryV2() {
       }
     })();
 
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
-  // Filter by search + vertical
+  // Recently added: newest 5 companies
+  const recentlyAdded = useMemo(() => companies.slice(0, 5), [companies]);
+
+  // Filter by search + category + region
   const filtered = useMemo(() => {
     let result = companies;
 
-    // Filter by vertical
-    if (selectedVertical !== 'all') {
-      result = result.filter(c => c.vertical === selectedVertical);
+    if (selectedCategory) {
+      result = result.filter(c => getCategoryForCompany(c.name) === selectedCategory);
     }
 
-    // Filter by search
+    if (selectedRegion) {
+      result = result.filter(c => getRegionForState(c.state) === selectedRegion);
+    }
+
     if (searchInput.trim()) {
       const terms = searchInput.toLowerCase().split(/\s+/).filter(Boolean);
       result = result.filter(c => {
-        const haystack = [c.name, c.description, c.vertical, c.city, c.state]
+        const haystack = [c.name, c.description, c.city, c.state]
           .filter(Boolean)
           .join(' ')
           .toLowerCase();
@@ -246,180 +215,262 @@ export default function SourcingDirectoryV2() {
     }
 
     return result;
-  }, [companies, searchInput, selectedVertical]);
+  }, [companies, searchInput, selectedCategory, selectedRegion]);
 
-  // Split companies: feature (featured or first) + grid (rest)
-  const featuredCompany = filtered.find(c => c.featured) || (filtered.length > 0 ? filtered[0] : null);
-  const gridCompanies = featuredCompany
-    ? filtered.filter(c => c.id !== featuredCompany.id)
-    : filtered.length > 1
-    ? filtered.slice(1)
-    : [];
+  // Paginate companies
+  const paginatedCompanies = useMemo(() => {
+    const start = (companiesPage - 1) * COMPANIES_PER_PAGE;
+    return filtered.slice(start, start + COMPANIES_PER_PAGE);
+  }, [filtered, companiesPage]);
+
+  const totalPages = Math.ceil(filtered.length / COMPANIES_PER_PAGE);
+
+  // Compute region counts
+  const regionCounts = useMemo(() => computeRegionCounts(companies), [companies]);
 
   return (
-    <div className="osv3-directory-page">
-      {/* Page Header: "Ecosystem" + Subtitle */}
-      <div className="osv3-directory-header">
-        <div>
-          <h1 className="osv3-directory-page-title">Ecosystem</h1>
-          <p className="osv3-directory-page-subtitle">
-            Discover companies, organizations, and resources building the space industry.
-          </p>
-        </div>
-      </div>
-
-      {/* No Supabase Error */}
-      {!supabase && <div className="osv3-directory-error">Supabase not configured</div>}
-
-      {/* Loading State */}
-      {loading && supabase && (
-        <>
-          {/* Feature Hero Skeleton */}
-          <div className="osv3-directory-feature-skeleton" />
-          {/* Grid Skeletons */}
-          <div className="osv3-directory-grid">
-            {[1, 2, 3, 4, 5, 6].map(i => (
-              <div key={i} className="osv3-company-card osv3-company-card-skeleton">
-                <div className="osv3-company-card-image-skeleton" />
-                <div className="osv3-company-card-content">
-                  <div className="osv3-company-card-skeleton-line" />
-                  <div className="osv3-company-card-skeleton-line-short" />
-                </div>
-              </div>
-            ))}
+    <div className="osv3-directory-page-v3">
+      {/* SECTION 1: HERO */}
+      <section className="v3-hero-section">
+        <div className="v3-hero-bg" />
+        <div className="v3-hero-content">
+          <div className="v3-hero-left">
+            <div className="v3-hero-eyebrow">space_OS // Directory</div>
+            <h1 className="v3-hero-title">Directory</h1>
+            <p className="v3-hero-description">
+              Discover companies, organizations, and resources building the space industry across infrastructure, mobility, intelligence, life sciences, industrial services, and defense.
+            </p>
           </div>
-        </>
-      )}
-
-      {/* Content */}
-      {!loading && supabase && (
-        <>
-          {/* Search & Filter Row */}
-          <div className="osv3-directory-search-row">
-            <input
-              type="text"
-              className="osv3-directory-search-input"
-              placeholder="Search by company name, location..."
-              value={searchInput}
-              onChange={e => setSearchInput(e.target.value)}
-            />
-            <div className="osv3-directory-filter-chips">
-              {VERTICALS.map(v => (
-                <button
-                  key={v.key}
-                  className={`osv3-directory-chip ${selectedVertical === v.key ? 'active' : ''}`}
-                  onClick={() => setSelectedVertical(v.key)}
-                >
-                  {v.label}
-                </button>
-              ))}
+          <div className="v3-hero-right">
+            <div className="v3-hero-cta-block">
+              <h3 className="v3-hero-cta-title">Add your company</h3>
+              <p className="v3-hero-cta-subtitle">Let your organization get discovered by the Space OS ecosystem.</p>
+              <button
+                onClick={() => setShowMembership(true)}
+                className="v3-hero-cta-button"
+              >
+                ADD YOUR COMPANY →
+              </button>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* FEATURE HERO (Tier 1) */}
-          {featuredCompany && (
-            <Link
-              to={`/${featuredCompany.slug}`}
-              className="osv3-directory-feature-card"
-              style={{ textDecoration: 'none', color: 'inherit' }}
-            >
-              <img
-                src={getImageForCompany(featuredCompany, 0)}
-                alt={featuredCompany.name}
-                className="osv3-directory-feature-image"
-                loading="eager"
+      {!supabase && <div className="v3-error">Supabase not configured</div>}
+
+      {loading && supabase && (
+        <div style={{ padding: '40px', textAlign: 'center', color: '#9AA6B2' }}>
+          Loading directory...
+        </div>
+      )}
+
+      {!loading && supabase && (
+        <>
+          {/* SECTION 2: SEARCH BAR */}
+          <section className="v3-search-section">
+            <div className="v3-search-wrapper">
+              <input
+                type="text"
+                className="v3-search-input"
+                placeholder="Search the ecosystem, companies, people, reports…"
+                value={searchInput}
+                onChange={e => {
+                  setSearchInput(e.target.value);
+                  setCompaniesPage(1);
+                }}
               />
-              <div className="osv3-directory-feature-overlay" />
-              <div className="osv3-directory-feature-content">
-                <div className="osv3-directory-feature-kicker">
-                  {featuredCompany.vertical || 'Featured'}
-                </div>
-                <h2 className="osv3-directory-feature-headline">{featuredCompany.name}</h2>
-                <p className="osv3-directory-feature-deck">
-                  {getCompanyLocation(featuredCompany)}
-                  {getCertificationCount(featuredCompany) > 0 &&
-                    ` • ${getCertificationCount(featuredCompany)} cert${getCertificationCount(featuredCompany) > 1 ? 's' : ''}`}
-                </p>
-                <button
-                  className="osv3-directory-feature-button"
-                  onClick={e => {
-                    e.preventDefault();
-                  }}
-                >
-                  View Company →
-                </button>
-              </div>
-            </Link>
-          )}
+              <button className="v3-search-button">SEARCH →</button>
+            </div>
+          </section>
 
-          {/* EDITORIAL GRID (Tier 2) */}
-          {gridCompanies.length > 0 && (
-            <>
-              <div className="osv3-directory-section-header">
-                <div className="osv3-directory-section-eyebrow">Companies</div>
+          {/* SECTION 3: RECENTLY ADDED CAROUSEL */}
+          {recentlyAdded.length > 0 && (
+            <section className="v3-carousel-section">
+              <div className="v3-carousel-header">
+                <h2 className="v3-carousel-title">RECENTLY ADDED →</h2>
               </div>
-              <div className="osv3-directory-grid">
-                {gridCompanies.map((company, idx) => (
+              <div className="v3-carousel-scroll">
+                {recentlyAdded.map((company, idx) => (
                   <Link
                     key={company.id}
                     to={`/${company.slug}`}
-                    className="osv3-company-card"
-                    style={{ textDecoration: 'none', color: 'inherit' }}
+                    className="v3-carousel-card"
                   >
-                    {/* Card Image (3:2) with Logo Overlay */}
-                    <div className="osv3-company-card-image-wrapper">
-                      <img
-                        src={getImageForCompany(company, idx + 1)}
-                        alt={company.name}
-                        className="osv3-company-card-image"
-                        loading="lazy"
-                      />
-
-                      {/* Logo Overlay */}
-                      {company.logo_url && (
-                        <div className="osv3-company-card-logo">
-                          <img
-                            src={company.logo_url}
-                            alt={`${company.name} logo`}
-                            style={{ maxWidth: '100%', maxHeight: '100%' }}
-                          />
-                        </div>
-                      )}
-
-                      {company.featured && (
-                        <div className="osv3-company-card-featured-badge">Featured</div>
-                      )}
-                    </div>
-
-                    {/* Card Content */}
-                    <div className="osv3-company-card-content">
-                      <div className="osv3-company-card-kicker">
-                        {company.vertical || 'Company'}
+                    <img
+                      src={getImageForCompany(company, idx)}
+                      alt={company.name}
+                      className="v3-carousel-card-image"
+                    />
+                    <div className="v3-carousel-card-content">
+                      <div className="v3-carousel-card-category">
+                        {getCategoryForCompany(company.name) || 'Featured'}
                       </div>
-                      <h3 className="osv3-company-card-headline">{company.name}</h3>
-                      <p className="osv3-company-card-deck">{getCompanyLocation(company)}</p>
-                      <div className="osv3-company-card-meta">
-                        {getCertificationCount(company) > 0 && `${getCertificationCount(company)} cert${getCertificationCount(company) > 1 ? 's' : ''}`}
-                      </div>
+                      <h3 className="v3-carousel-card-name">{company.name}</h3>
+                      <p className="v3-carousel-card-location">
+                        {[company.city, company.state].filter(Boolean).join(', ')}
+                      </p>
                     </div>
                   </Link>
                 ))}
               </div>
-            </>
+            </section>
           )}
 
-          {/* Empty State */}
-          {filtered.length === 0 && (
-            <div className="osv3-directory-empty">
-              {searchInput || selectedVertical !== 'all'
-                ? `No companies match your search`
-                : 'No companies in the directory yet.'}
+          {/* SECTION 4: CATEGORIES */}
+          <section className="v3-categories-section">
+            <div className="v3-categories-header">
+              <h2 className="v3-categories-title">CATEGORIES →</h2>
             </div>
-          )}
+            <div className="v3-categories-grid">
+              {CATEGORIES.map(cat => (
+                <button
+                  key={cat.key}
+                  className={`v3-category-tile ${selectedCategory === cat.key ? 'active' : ''}`}
+                  onClick={() => {
+                    setSelectedCategory(selectedCategory === cat.key ? null : cat.key);
+                    setSelectedRegion(null);
+                    setCompaniesPage(1);
+                  }}
+                  style={{
+                    '--category-color': cat.color
+                  }}
+                >
+                  <div className="v3-category-id">{cat.id}</div>
+                  <div className="v3-category-label">{cat.label}</div>
+                  <div className="v3-category-subtitle">{cat.subtitle}</div>
+                  <div className="v3-category-count">{getCategoryCount(cat.key)} Companies</div>
+                </button>
+              ))}
+            </div>
+          </section>
+
+          {/* SECTION 5: BY REGION */}
+          <section className="v3-region-section">
+            <div className="v3-region-header">
+              <h2 className="v3-region-title">BY REGION →</h2>
+            </div>
+            <div className="v3-region-content">
+              <div className="v3-region-map">
+                {/* Simplified region visualization */}
+                <svg className="v3-region-map-svg" viewBox="0 0 960 600" preserveAspectRatio="xMidYMid meet">
+                  <rect x="0" y="0" width="960" height="600" fill="#010B13" />
+                  <text x="480" y="300" textAnchor="middle" fill="#6B7280" fontSize="16" fontFamily="Roboto" fontWeight="300">
+                    US Region Map Coming Soon
+                  </text>
+                </svg>
+              </div>
+              <div className="v3-region-list">
+                {Object.entries(US_REGIONS).map(([region, data]) => (
+                  <button
+                    key={region}
+                    className={`v3-region-item ${selectedRegion === region ? 'active' : ''}`}
+                    onClick={() => {
+                      setSelectedRegion(selectedRegion === region ? null : region);
+                      setSelectedCategory(null);
+                      setCompaniesPage(1);
+                    }}
+                    style={{ borderLeft: `4px solid ${data.color}` }}
+                  >
+                    <div className="v3-region-name">{region.toUpperCase()}</div>
+                    <div className="v3-region-states">{data.states.join(', ')}</div>
+                    <div className="v3-region-count" style={{ color: data.color }}>
+                      {regionCounts[region]} Companies
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* SECTION 6: COMPANIES DIRECTORY */}
+          <section className="v3-companies-section">
+            <div className="v3-companies-header">
+              <h2 className="v3-companies-title">COMPANIES DIRECTORY →</h2>
+            </div>
+            {paginatedCompanies.length > 0 ? (
+              <>
+                <div className="v3-companies-list">
+                  {paginatedCompanies.map((company, idx) => (
+                    <div key={company.id} className="v3-company-row">
+                      <div className="v3-company-row-logo">
+                        {company.logo_url ? (
+                          <img src={company.logo_url} alt={company.name} className="v3-company-row-logo-img" />
+                        ) : (
+                          <div className="v3-company-row-logo-fallback">
+                            {company.name.slice(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <div className="v3-company-row-content">
+                        <h3 className="v3-company-row-name">{company.name}</h3>
+                        <p className="v3-company-row-description">{company.description || ''}</p>
+                        <div className="v3-company-row-meta">
+                          {[company.city, company.state].filter(Boolean).join(', ')}
+                          {company.phone && ` • ${company.phone}`}
+                        </div>
+                      </div>
+                      <div className="v3-company-row-action">
+                        <Link to={`/${company.slug}`} className="v3-company-row-link">
+                          VIEW PROFILE →
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {totalPages > 1 && (
+                  <div className="v3-pagination">
+                    {companiesPage > 1 && (
+                      <button onClick={() => setCompaniesPage(companiesPage - 1)} className="v3-pagination-button">
+                        ← Previous
+                      </button>
+                    )}
+                    <span className="v3-pagination-info">
+                      Page {companiesPage} of {totalPages}
+                    </span>
+                    {companiesPage < totalPages && (
+                      <button onClick={() => setCompaniesPage(companiesPage + 1)} className="v3-pagination-button">
+                        Next →
+                      </button>
+                    )}
+                  </div>
+                )}
+                {companiesPage === totalPages && (
+                  <div className="v3-load-more">
+                    <button className="v3-load-more-button" disabled>
+                      No more companies to load
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="v3-empty-state">
+                {searchInput || selectedCategory || selectedRegion
+                  ? 'No companies match your search'
+                  : 'No companies in the directory yet.'}
+              </div>
+            )}
+          </section>
+
+          {/* SECTION 7: STAY CONNECTED */}
+          <section className="v3-newsletter-section">
+            <div className="v3-newsletter-content">
+              <h2 className="v3-newsletter-title">Stay Connected</h2>
+              <p className="v3-newsletter-description">
+                Get the latest company updates, opportunities, and ecosystem insights.
+              </p>
+              <div className="v3-newsletter-form">
+                <input
+                  type="email"
+                  className="v3-newsletter-input"
+                  placeholder="Enter your email"
+                />
+                <button className="v3-newsletter-button">SUBSCRIBE →</button>
+              </div>
+            </div>
+          </section>
         </>
       )}
 
-      {/* Membership join modal */}
       <MembershipModal isOpen={showMembership} onClose={() => setShowMembership(false)} />
     </div>
   );
