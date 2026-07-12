@@ -454,19 +454,6 @@ function SourcingDirectoryInner() {
   });
   const [availableSubsectors, setAvailableSubsectors] = useState([]);
 
-  // Welcome modal -- shows once per session after 3.5s
-  const [showWelcome, setShowWelcome] = useState(false);
-  useEffect(() => {
-    if (!tenantSlug) return;
-    const key = `sourcing_welcomed_${tenantSlug}`;
-    if (sessionStorage.getItem(key)) return;
-    const timer = setTimeout(() => {
-      setShowWelcome(true);
-      sessionStorage.setItem(key, '1');
-    }, 3500);
-    return () => clearTimeout(timer);
-  }, [tenantSlug]);
-
   // Reviews map: company slug -> { avg, count }
   const [reviewStats, setReviewStats] = useState({});
 
@@ -1594,116 +1581,6 @@ function SourcingDirectoryInner() {
         Made by <a href="https://www.aom-inhouse.com" target="_blank" rel="noopener noreferrer" style={{ color: '#f44611', textDecoration: 'underline', textUnderlineOffset: '2px', fontWeight: 700 }}>AOM</a>
       </p>
 
-      {/* Welcome modal */}
-      {showWelcome && (
-        <>
-          <div
-            onClick={() => setShowWelcome(false)}
-            style={{
-              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)',
-              zIndex: 300, animation: 'fadeIn 0.2s',
-            }}
-          />
-          <div style={{
-            position: 'fixed', bottom: 'var(--nav-h, 72px)', left: '50%',
-            width: '100%', maxWidth: 480, zIndex: 301,
-            background: '#0E0E14', borderTop: '1px solid var(--bd2)',
-            borderRadius: '20px 20px 0 0', overflow: 'hidden',
-            transform: 'translate(-50%, 0)',
-            animation: 'slideUpCenter 0.35s cubic-bezier(0.16,1,0.3,1) both',
-            willChange: 'transform',
-            boxShadow: '0 -12px 32px rgba(0,0,0,0.45)',
-          }}>
-            <style>{`
-              @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-              @keyframes slideUpCenter {
-                from { transform: translate(-50%, 100%); }
-                to   { transform: translate(-50%, 0); }
-              }
-            `}</style>
-            {/* polish-directory-2-join-cta — quieter editorial redesign.
-                Was: full-bleed bg image + glassy "Free and paid listings"
-                pill badge + 22px/900 "Join {tenant}" title + heavy orange
-                "Sign Up Free" button + dim "Maybe later" link. Heavy +
-                forced-upgrade feel.
-                Now: deep cool-ink ground with subtle bottom amber accent,
-                mono-caps "MEMBERSHIP" eyebrow + amber-period title in
-                Space Grotesk 300, line-style copy, line-style amber
-                Sign-up CTA, mono-caps "Maybe later" with chevron right. */}
-            {/* Editorial header strip — quieter than the previous bg image */}
-            <div style={{
-              height: 64, position: 'relative',
-              borderBottom: '1px solid rgba(232,228,218,0.08)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <div style={{
-                fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                fontSize: 11, fontWeight: 600, letterSpacing: '0.22em',
-                color: '#EE7C25', textTransform: 'uppercase',
-              }}>
-                Membership
-              </div>
-            </div>
-            {/* Content */}
-            <div style={{ padding: '28px 28px max(env(safe-area-inset-bottom),28px)', textAlign: 'left' }}>
-              <div style={{
-                fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif",
-                fontSize: 28, fontWeight: 300, color: '#E8E4DA',
-                letterSpacing: '-0.01em', lineHeight: 1.12, marginBottom: 12,
-              }}>
-                Join {tenant?.nav_label || tenant?.name || 'the directory'}<span style={{ color: '#EE7C25' }}>.</span>
-              </div>
-              <div style={{
-                fontFamily: "'Space Grotesk', 'Hanken Grotesk', sans-serif",
-                fontSize: 14, fontWeight: 300, lineHeight: 1.55,
-                color: 'rgba(232,228,218,0.62)', marginBottom: 28,
-              }}>
-                Get found by procurement teams, contractors, and partners in {tenant?.name || 'the directory'}.
-              </div>
-              <Link
-                to={tenantSlug ? `/${tenantSlug}/membership` : '/membership'}
-                onClick={() => setShowWelcome(false)}
-                style={{
-                  display: 'block', textDecoration: 'none', textAlign: 'center',
-                  padding: '14px 24px', marginBottom: 14,
-                  background: 'transparent', color: '#EE7C25',
-                  border: '1px solid #EE7C25',
-                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: 12, fontWeight: 600, letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  transition: 'background 0.2s, color 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#EE7C25';
-                  e.currentTarget.style.color = '#0B0B0D';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.color = '#EE7C25';
-                }}
-              >
-                Sign up free →
-              </Link>
-              <button
-                onClick={() => setShowWelcome(false)}
-                style={{
-                  background: 'none', border: 'none',
-                  color: 'rgba(232,228,218,0.45)',
-                  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
-                  fontSize: 11, fontWeight: 600, letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  cursor: 'pointer', padding: '10px 0', width: '100%',
-                  transition: 'color 0.2s',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = 'rgba(232,228,218,0.85)'; }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(232,228,218,0.45)'; }}
-              >
-                Maybe later
-              </button>
-            </div>
-          </div>
-        </>
-      )}
     </div>
   );
 }
