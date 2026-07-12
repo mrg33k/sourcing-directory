@@ -29,12 +29,13 @@ function getImageForCompany(company, index) {
   return `/v2-assets/${ASSET_POOL[h % ASSET_POOL.length]}`;
 }
 
-// US Census regions with states
+// US regions (5 total: West, Midwest, Southwest, Northeast, Southeast)
 const US_REGIONS = {
-  'West': { states: ['AK', 'AZ', 'CA', 'CO', 'HI', 'ID', 'MT', 'NV', 'NM', 'OR', 'UT', 'WA', 'WY'], color: '#CE4421' },
+  'West': { states: ['AK', 'CA', 'CO', 'HI', 'ID', 'MT', 'OR', 'UT', 'WA', 'WY'], color: '#CE4421' },
   'Midwest': { states: ['IL', 'IN', 'IA', 'KS', 'MI', 'MN', 'MO', 'NE', 'ND', 'OH', 'SD', 'WI'], color: '#10B981' },
-  'South': { states: ['AL', 'AR', 'DE', 'FL', 'GA', 'KY', 'LA', 'MD', 'MS', 'NC', 'OK', 'SC', 'TN', 'TX', 'VA', 'WV'], color: '#FBBF24' },
+  'Southwest': { states: ['AZ', 'NM', 'NV', 'OK', 'TX'], color: '#FBBF24' },
   'Northeast': { states: ['CT', 'MA', 'ME', 'NH', 'NJ', 'NY', 'PA', 'RI', 'VT'], color: '#3B82F6' },
+  'Southeast': { states: ['AL', 'AR', 'DE', 'FL', 'GA', 'KY', 'LA', 'MD', 'MS', 'NC', 'SC', 'TN', 'VA', 'WV'], color: '#06B6D4' },
 };
 
 function getRegionForState(state) {
@@ -156,7 +157,35 @@ export default function SourcingDirectoryV2() {
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [showMembership, setShowMembership] = useState(false);
   const [companiesPage, setCompaniesPage] = useState(1);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterSubmitting, setNewsletterSubmitting] = useState(false);
+  const [newsletterMessage, setNewsletterMessage] = useState('');
   const COMPANIES_PER_PAGE = 10;
+
+  const handleNewsletterSubmit = async (e) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) return;
+
+    setNewsletterSubmitting(true);
+    setNewsletterMessage('');
+
+    try {
+      const { error } = await supabase
+        .from('newsletter_subscribers')
+        .insert([{ email: newsletterEmail, source: 'directory' }]);
+
+      if (error) throw error;
+
+      setNewsletterMessage('Thanks for subscribing!');
+      setNewsletterEmail('');
+      setTimeout(() => setNewsletterMessage(''), 3000);
+    } catch (err) {
+      console.error('Newsletter subscribe error:', err);
+      setNewsletterMessage('Error subscribing. Please try again.');
+    } finally {
+      setNewsletterSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     if (!supabase) {
@@ -351,12 +380,49 @@ export default function SourcingDirectoryV2() {
             </div>
             <div className="v3-region-content">
               <div className="v3-region-map">
-                {/* Simplified region visualization */}
+                {/* Interactive US regions map */}
                 <svg className="v3-region-map-svg" viewBox="0 0 960 600" preserveAspectRatio="xMidYMid meet">
+                  <defs>
+                    <style>{`
+                      .region-group { cursor: pointer; }
+                      .region-group:hover rect { opacity: 0.8; }
+                      .region-group text { pointer-events: none; font-size: 11px; font-weight: 600; fill: white; text-anchor: middle; }
+                    `}</style>
+                  </defs>
                   <rect x="0" y="0" width="960" height="600" fill="#010B13" />
-                  <text x="480" y="300" textAnchor="middle" fill="#6B7280" fontSize="16" fontFamily="Roboto" fontWeight="300">
-                    US Region Map Coming Soon
-                  </text>
+
+                  {/* West region */}
+                  <g className="region-group" onClick={() => { setSelectedRegion(selectedRegion === 'West' ? null : 'West'); setSelectedCategory(null); setCompaniesPage(1); }} style={{ cursor: 'pointer' }}>
+                    <rect x="50" y="80" width="200" height="280" fill="#CE4421" opacity="0.7" />
+                    <text x="150" y="230">West</text>
+                  </g>
+
+                  {/* Midwest region */}
+                  <g className="region-group" onClick={() => { setSelectedRegion(selectedRegion === 'Midwest' ? null : 'Midwest'); setSelectedCategory(null); setCompaniesPage(1); }} style={{ cursor: 'pointer' }}>
+                    <rect x="300" y="80" width="180" height="280" fill="#10B981" opacity="0.7" />
+                    <text x="390" y="230">Midwest</text>
+                  </g>
+
+                  {/* Southwest region */}
+                  <g className="region-group" onClick={() => { setSelectedRegion(selectedRegion === 'Southwest' ? null : 'Southwest'); setSelectedCategory(null); setCompaniesPage(1); }} style={{ cursor: 'pointer' }}>
+                    <rect x="50" y="380" width="200" height="150" fill="#FBBF24" opacity="0.7" />
+                    <text x="150" y="460">Southwest</text>
+                  </g>
+
+                  {/* Northeast region */}
+                  <g className="region-group" onClick={() => { setSelectedRegion(selectedRegion === 'Northeast' ? null : 'Northeast'); setSelectedCategory(null); setCompaniesPage(1); }} style={{ cursor: 'pointer' }}>
+                    <rect x="550" y="80" width="140" height="180" fill="#3B82F6" opacity="0.7" />
+                    <text x="620" y="175">Northeast</text>
+                  </g>
+
+                  {/* Southeast region */}
+                  <g className="region-group" onClick={() => { setSelectedRegion(selectedRegion === 'Southeast' ? null : 'Southeast'); setSelectedCategory(null); setCompaniesPage(1); }} style={{ cursor: 'pointer' }}>
+                    <rect x="550" y="280" width="140" height="250" fill="#06B6D4" opacity="0.7" />
+                    <text x="620" y="405">Southeast</text>
+                  </g>
+
+                  {/* Region labels */}
+                  <text x="50" y="25" fill="#9AA6B2" fontSize="12" fontWeight="600" textAnchor="start">Click a region to filter</text>
                 </svg>
               </div>
               <div className="v3-region-list">
@@ -458,14 +524,34 @@ export default function SourcingDirectoryV2() {
               <p className="v3-newsletter-description">
                 Get the latest company updates, opportunities, and ecosystem insights.
               </p>
-              <div className="v3-newsletter-form">
+              <form className="v3-newsletter-form" onSubmit={handleNewsletterSubmit}>
                 <input
                   type="email"
                   className="v3-newsletter-input"
                   placeholder="Enter your email"
+                  value={newsletterEmail}
+                  onChange={(e) => setNewsletterEmail(e.target.value)}
+                  required
+                  disabled={newsletterSubmitting}
                 />
-                <button className="v3-newsletter-button">SUBSCRIBE →</button>
-              </div>
+                <button
+                  type="submit"
+                  className="v3-newsletter-button"
+                  disabled={newsletterSubmitting || !newsletterEmail.trim()}
+                >
+                  {newsletterSubmitting ? 'Subscribing...' : 'SUBSCRIBE →'}
+                </button>
+              </form>
+              {newsletterMessage && (
+                <div style={{
+                  marginTop: '12px',
+                  fontSize: '13px',
+                  color: newsletterMessage.includes('Error') ? '#CE4421' : '#10B981',
+                  textAlign: 'center'
+                }}>
+                  {newsletterMessage}
+                </div>
+              )}
             </div>
           </section>
         </>
