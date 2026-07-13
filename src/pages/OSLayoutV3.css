@@ -373,6 +373,14 @@
   padding: 32px;
 }
 
+/* Directory is a full-bleed unique layout (edge-to-edge hero, each section
+   carries its own inner padding), so it must break out of the shell's 32px
+   frame — otherwise a white border wraps the whole page. Scoped to Directory
+   only; Home/magazine pages keep their padding. */
+.osv3-content:has(> .osv3-directory-page-v3) {
+  padding: 0;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (max-width: 900px) {
   /* Sidebar becomes a slide-in drawer. Explicit width — the --v3-sidebar-width
@@ -439,5 +447,8 @@
 
   .osv3-content {
     padding: 16px;
+  }
+  .osv3-content:has(> .osv3-directory-page-v3) {
+    padding: 0;
   }
 }
