@@ -359,7 +359,7 @@
 
 .osv3-pill-pdf {
   background-color: rgba(206, 68, 33, 0.1);
-  color: #CE4421;
+  color: var(--v3-accent, #CE4421);
 }
 
 /* ===== ERROR STATE ===== */

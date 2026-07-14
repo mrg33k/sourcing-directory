@@ -69,7 +69,7 @@
 .osv3-events-search-input {
   width: 100%;
   padding: 12px 14px;
-  border: 1px solid #D7DEE2;
+  border: 1px solid var(--v3-border, #D7DEE2);
   border-radius: 8px;
   font-size: 14px;
   font-family: 'Roboto', sans-serif;

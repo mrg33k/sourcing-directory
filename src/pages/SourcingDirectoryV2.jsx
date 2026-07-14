@@ -99,14 +99,14 @@ function MembershipModal({ isOpen, onClose }) {
   return (
     <>
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 300, animation: 'fadeIn 200ms ease-out' }} />
-      <div style={{ position: 'fixed', top: '50%', left: '50%', width: '100%', maxWidth: 420, zIndex: 301, background: 'white', border: '1px solid #D7DEE2', borderRadius: 12, overflow: 'hidden', transform: 'translate(-50%, -50%)', animation: 'fadeIn 200ms ease-out', boxShadow: '0 10px 40px rgba(0,0,0,0.1)' }}>
+      <div style={{ position: 'fixed', top: '50%', left: '50%', width: '100%', maxWidth: 420, zIndex: 301, background: 'white', border: '1px solid var(--v3-border, #D7DEE2)', borderRadius: 12, overflow: 'hidden', transform: 'translate(-50%, -50%)', animation: 'fadeIn 200ms ease-out', boxShadow: '0 10px 40px rgba(0,0,0,0.1)' }}>
         <style>{`@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }`}</style>
         <div style={{ padding: 32 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, fontFamily: 'var(--v3-font-family-base)', letterSpacing: '0.08em', color: '#6B7280', textTransform: 'uppercase', marginBottom: 16 }}>Membership</div>
-          <h3 style={{ fontSize: 28, fontWeight: 700, fontFamily: 'var(--v3-font-family-base)', color: '#010B13', lineHeight: 1.2, marginBottom: 12 }}>Claim your company</h3>
-          <p style={{ fontSize: 15, fontFamily: 'var(--v3-font-family-base)', color: '#6B7280', lineHeight: 1.6, marginBottom: 28 }}>Add your company to the directory and get found by procurement teams and contractors.</p>
-          <Link to="/membership" onClick={onClose} style={{ display: 'block', textDecoration: 'none', textAlign: 'center', padding: '12px 20px', marginBottom: 12, background: '#CE4421', color: 'white', border: 'none', borderRadius: 8, fontFamily: 'var(--v3-font-family-base)', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Join Now</Link>
-          <button onClick={onClose} style={{ width: '100%', background: 'none', border: 'none', color: '#6B7280', fontFamily: 'var(--v3-font-family-base)', fontSize: 14, fontWeight: 500, cursor: 'pointer', padding: '12px 0' }}>Maybe later</button>
+          <div style={{ fontSize: 12, fontWeight: 700, fontFamily: 'var(--v3-font-family-base)', letterSpacing: '0.08em', color: 'var(--v3-muted, #6B7280)', textTransform: 'uppercase', marginBottom: 16 }}>Membership</div>
+          <h3 style={{ fontSize: 28, fontWeight: 700, fontFamily: 'var(--v3-font-family-base)', color: 'var(--v3-ink-primary, #010B13)', lineHeight: 1.2, marginBottom: 12 }}>Claim your company</h3>
+          <p style={{ fontSize: 15, fontFamily: 'var(--v3-font-family-base)', color: 'var(--v3-muted, #6B7280)', lineHeight: 1.6, marginBottom: 28 }}>Add your company to the directory and get found by procurement teams and contractors.</p>
+          <Link to="/membership" onClick={onClose} style={{ display: 'block', textDecoration: 'none', textAlign: 'center', padding: '12px 20px', marginBottom: 12, background: 'var(--v3-accent, #CE4421)', color: 'white', border: 'none', borderRadius: 8, fontFamily: 'var(--v3-font-family-base)', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>Join Now</Link>
+          <button onClick={onClose} style={{ width: '100%', background: 'none', border: 'none', color: 'var(--v3-muted, #6B7280)', fontFamily: 'var(--v3-font-family-base)', fontSize: 14, fontWeight: 500, cursor: 'pointer', padding: '12px 0' }}>Maybe later</button>
         </div>
       </div>
     </>
