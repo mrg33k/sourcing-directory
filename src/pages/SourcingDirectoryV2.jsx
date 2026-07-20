@@ -36,7 +36,7 @@ function getImageForCompany(company, index) {
 function companyDomain(company) {
   const raw = (company.website || '').trim();
   if (!raw) return null;
-  const m = raw.replace(/\\/g, '/').match(/^(?:https?:\/*)?(?:www\.)?([^/\s:?#]+)/i);
+  const m = raw.replace(/\\/g, '/').match(/^(?:https?:?\/+)?(?:www\.)?([^/\s:?#]+)/i);
   const host = m ? m[1].toLowerCase() : null;
   return host && host.includes('.') ? host : null;
 }
