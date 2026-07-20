@@ -92,15 +92,18 @@ const SpaceOSHomeV3 = () => {
     loadData()
   }, [tenant])
 
-  // Featured = the 2026 Arizona Space Blueprint. It is a PAID product: the cover is
-  // public marketing, but the high-res PDF sits behind the paywall — "View Report"
-  // sends non-members to membership, never the file. (Tim, 2026-07-07.)
+  // Featured = the 2026 Arizona Space Blueprint. FREE to read — the goal right now is
+  // capturing users, not charging (Tim redline 2026-07-14; Patrik unpaywalled the
+  // Blueprint 2026-07-09). CTA reads "Read the Blueprint" and opens the real report.
+  const blueprintRow = reports.find(r => /blueprint/i.test(r.title || '')) || null
   const featuredReport = {
     title: '2026 Arizona Space Blueprint',
     eyebrow: 'Space Rising / Flagship Report',
-    description: 'The strategic plan for Arizona\'s space economy — market trends, investment insight, and the opportunities shaping the future of space. Members only.',
+    description: 'The strategic plan for Arizona\'s space economy — market trends, investment insight, and the opportunities shaping the future of space. Free to read.',
     cover: '/v2-assets/blueprint-cover.png',
-    membersOnly: true,
+    membersOnly: false,
+    reportId: blueprintRow?.id || null,
+    file_url: blueprintRow?.file_url || null,
   }
   const latestReports = reports.slice(0, 4)
   const userName = user?.user_metadata?.full_name?.split(' ')[0] || 'there'
@@ -230,7 +233,9 @@ const SpaceOSHomeV3 = () => {
                   className="osv3-featured-report-card"
                   onClick={() => {
                     if (featuredReport.membersOnly) { navigate('/membership'); return }
-                    if (featuredReport.file_url) { window.open(featuredReport.file_url, '_blank') }
+                    if (featuredReport.reportId) { navigate(`/reports/${featuredReport.reportId}`); return }
+                    if (featuredReport.file_url) { window.open(featuredReport.file_url, '_blank'); return }
+                    navigate('/reports')
                   }}
                 >
                   {featuredReport.cover && (
@@ -253,7 +258,14 @@ const SpaceOSHomeV3 = () => {
                           </svg>
                           Unlock with Membership
                         </>
-                      ) : 'View Report'}
+                      ) : (
+                        <>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginRight: 8, verticalAlign: '-2px' }}>
+                            <path d="M2 5.5A2.5 2.5 0 0 1 4.5 3H9a3 3 0 0 1 3 3v14a3 3 0 0 0-3-3H2z"/><path d="M22 5.5A2.5 2.5 0 0 0 19.5 3H15a3 3 0 0 0-3 3v14a3 3 0 0 1 3-3h7z"/>
+                          </svg>
+                          Read the Blueprint
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>

@@ -109,7 +109,10 @@ const OSLayoutV3 = () => {
       {/* SIDEBAR */}
       <aside className={`osv3-sidebar ${navOpen ? 'osv3-sidebar-open' : ''}`}>
         <div className="osv3-sidebar-logo">
-          <img src="/v2-assets/logos/space-rising-logo-white.png" alt="Space Rising" className="osv3-sidebar-logo-img" />
+          {/* Logo exits the OS to the Space Rising marketing home (Tim redline 2026-07-14) */}
+          <a href="https://spacerising.org/" aria-label="Space Rising home" style={{ display: 'inline-flex' }}>
+            <img src="/v2-assets/logos/space-rising-logo-white.png" alt="Space Rising" className="osv3-sidebar-logo-img" />
+          </a>
         </div>
 
         {/* Primary Nav */}

@@ -31,6 +31,51 @@ function getImageForCompany(company, index) {
   return `/v2-assets/${ASSET_POOL[h % ASSET_POOL.length]}`;
 }
 
+// Company visual identity: real logo > site favicon > initials (Tim redline 2026-07-14).
+// website values in the DB are messy (backslashes, missing protocol) — parse defensively.
+function companyDomain(company) {
+  const raw = (company.website || '').trim();
+  if (!raw) return null;
+  const m = raw.replace(/\\/g, '/').match(/^(?:https?:\/*)?(?:www\.)?([^/\s:?#]+)/i);
+  const host = m ? m[1].toLowerCase() : null;
+  return host && host.includes('.') ? host : null;
+}
+
+function faviconUrl(domain) {
+  return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`;
+}
+
+// Carousel card mark: favicon chip when the company has a site, ghost initials otherwise.
+function CardMark({ company }) {
+  const [failed, setFailed] = useState(false);
+  const domain = companyDomain(company);
+  if (!domain || failed) {
+    return <div className="v3-card-monogram">{company.name.slice(0, 2).toUpperCase()}</div>;
+  }
+  return (
+    <div className="v3-card-favicon">
+      <img src={faviconUrl(domain)} alt="" loading="lazy" onError={() => setFailed(true)} />
+    </div>
+  );
+}
+
+// Company-row tile: uploaded logo > favicon > category-colored initials.
+function RowLogo({ company, catColor }) {
+  const [failed, setFailed] = useState(false);
+  const domain = companyDomain(company);
+  if (company.logo_url) {
+    return <img src={company.logo_url} alt={company.name} className="v3-company-row-logo-img" />;
+  }
+  if (domain && !failed) {
+    return <img src={faviconUrl(domain)} alt={company.name} className="v3-company-row-logo-favicon" loading="lazy" onError={() => setFailed(true)} />;
+  }
+  return (
+    <div className="v3-company-row-logo-fallback" style={{ '--cat-color': catColor }}>
+      {company.name.slice(0, 2).toUpperCase()}
+    </div>
+  );
+}
+
 // US regions (5 total). order = display order in the right-hand list.
 const US_REGIONS = {
   'West': { states: ['AK', 'CA', 'CO', 'HI', 'ID', 'MT', 'OR', 'UT', 'WA', 'WY'], color: '#CE4421' },
@@ -264,7 +309,7 @@ export default function SourcingDirectoryV2() {
                       <Link key={company.id} to={`/${company.slug}`} className="v3-card">
                         <img src={getImageForCompany(company, idx)} alt="" className="v3-card-img" loading="lazy" />
                         <div className="v3-card-overlay" />
-                        <div className="v3-card-monogram">{company.name.slice(0, 2).toUpperCase()}</div>
+                        <CardMark company={company} />
                         <div className="v3-card-body">
                           {cat && <div className="v3-card-kicker">{cat}</div>}
                           <h3 className="v3-card-name">{company.name}</h3>
@@ -295,7 +340,13 @@ export default function SourcingDirectoryV2() {
                 <button
                   key={cat.key}
                   className={`v3-category-tile ${selectedCategory === cat.key ? 'active' : ''}`}
-                  onClick={() => { setSelectedCategory(selectedCategory === cat.key ? null : cat.key); setSelectedRegion(null); }}
+                  onClick={() => {
+                    const selecting = selectedCategory !== cat.key;
+                    setSelectedCategory(selecting ? cat.key : null);
+                    setSelectedRegion(null);
+                    // The filtered list lives below the fold — without this scroll the tile looks dead (Tim redline 2026-07-14)
+                    if (selecting) requestAnimationFrame(() => document.getElementById('v3-companies-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+                  }}
                   style={{ '--category-color': cat.color }}
                 >
                   <div className="v3-category-id">{cat.id}</div>
@@ -368,13 +419,7 @@ export default function SourcingDirectoryV2() {
                       {visibleCompanies.map((company) => (
                         <div key={company.id} className="v3-company-row">
                           <div className="v3-company-row-logo">
-                            {company.logo_url ? (
-                              <img src={company.logo_url} alt={company.name} className="v3-company-row-logo-img" />
-                            ) : (
-                              <div className="v3-company-row-logo-fallback" style={{ '--cat-color': (CATEGORIES.find(c => c.key === getCategoryForCompany(company.name))?.color) || '#6366F1' }}>
-                                {company.name.slice(0, 2).toUpperCase()}
-                              </div>
-                            )}
+                            <RowLogo company={company} catColor={(CATEGORIES.find(c => c.key === getCategoryForCompany(company.name))?.color) || '#6366F1'} />
                           </div>
                           <div className="v3-company-row-content">
                             <h3 className="v3-company-row-name">{company.name}</h3>
