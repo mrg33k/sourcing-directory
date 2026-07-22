@@ -341,6 +341,56 @@
   border-color: var(--v3-muted);
 }
 
+/* ===== TIM ICONOGRAPHY ===== */
+
+/* Sidebar nav: Tim PNGs are solid white; opacity handles inactive/active states */
+.osv3-nav-tim-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  opacity: 0.75;
+  flex-shrink: 0;
+  display: block;
+}
+.osv3-nav-item-active .osv3-nav-tim-icon,
+.osv3-nav-item:hover .osv3-nav-tim-icon {
+  opacity: 1;
+}
+
+/* Topbar: Tim PNGs (white) inverted to dark via brightness(0) for the light bg */
+.osv3-topbar-tim-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  filter: brightness(0) opacity(0.6);
+  display: block;
+}
+.osv3-icon-btn:hover .osv3-topbar-tim-icon {
+  filter: brightness(0) opacity(0.9);
+}
+
+/* Search: Tim search.png as prefix icon positioned inside the search field */
+.osv3-search-container {
+  position: relative;
+}
+.osv3-search-tim-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  filter: brightness(0) opacity(0.3);
+  pointer-events: none;
+  display: block;
+}
+.osv3-search-container .osv3-search-input {
+  padding-left: 38px; /* clear the 16px search icon + 12px left + spacing */
+}
+
+/* ===== END TIM ICONOGRAPHY ===== */
+
 .osv3-notification-badge {
   position: absolute;
   top: -4px;

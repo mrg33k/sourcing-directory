@@ -149,24 +149,24 @@ const SpaceOSHomeV3 = () => {
     ]},
   ]
 
-  // Mission icons = Tim's actual Space Rising iconography (tinted white on the
-  // colored tile). My Library has no matching glyph in Tim's set → filled bookmark.
+  // Mission icons = Tim's 23 delivered icons. All 8 cards now in one family.
+  // Mapping mirrors the sidebar TIM_NAV in OSLayoutV3: same section = same Tim icon.
   const TIM_ICON = {
-    'Ecosystem': 'outreach',
+    'Ecosystem':  'outreach',
     'Intelligence': 'intelligence',
     'Opportunities': 'economic-dev',
-    'Careers': 'workforce-dev',
+    'Careers':    'workforce-dev',
     'Marketplace': 'commercial',
-    'Community': 'partnership',
-    'Learning': 'academia',
+    'Community':  'partnership',
+    'Learning':   'academia',
+    'My Library': 'reports',  // saved documents/report library → reports
   }
   const renderMissionIcon = (title) => {
     const file = TIM_ICON[title]
     if (file) {
       return <img src={`/v2-assets/tim-icons/${file}.png`} alt="" className="osv3-mission-tim-icon" />
     }
-    // My Library — filled bookmark, matches the filled weight of Tim's glyphs
-    return <svg width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/></svg>
+    return null
   }
 
   if (loading) {

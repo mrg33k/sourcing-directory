@@ -4,19 +4,24 @@ import { useAuth } from '../hooks/useAuth'
 import { supabase } from '../lib/supabase'
 import './OSLayoutV3.css'
 
-// Clean line icons (white stroke) — no emoji in the shell.
+// Tim's 23 delivered icons — one consistent family across the entire shell.
+// Sidebar: white PNGs, opacity-treated (0.75 inactive, 1 active).
+// Topbar: same white PNGs, filter: brightness(0) inverts to dark for the light topbar.
+const TIM_NAV = {
+  home:          'base',          // headquarters / home base
+  directory:     'industry',      // sector/industry listings
+  ecosystem:     'outreach',      // ecosystem connections
+  intelligence:  'intelligence',  // exact match
+  opportunities: 'economic-dev',  // exact match
+  careers:       'workforce-dev', // exact match
+  marketplace:   'commercial',    // exact match
+  community:     'partnership',   // exact match
+  learning:      'academia',      // exact match
+  library:       'reports',       // saved documents / report library
+}
+// Admin nav only — hidden in production (isAdmin always false); line SVGs are fine here
 const S = { width: 20, height: 20, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round', strokeLinejoin: 'round' }
-const NAV_ICON = {
-  home: <svg {...S}><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>,
-  directory: <svg {...S}><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>,
-  ecosystem: <svg {...S}><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.5 2.5 15 0 18M12 3c-2.5 2.5-2.5 15 0 18"/></svg>,
-  intelligence: <svg {...S}><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.3 1 2.5h6c0-1.2.3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg>,
-  opportunities: <svg {...S}><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg>,
-  careers: <svg {...S}><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18"/></svg>,
-  marketplace: <svg {...S}><path d="M5 8h14l-1 12H6L5 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>,
-  community: <svg {...S}><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5.5a3 3 0 0 1 0 5.8M21 20c0-2.4-1.4-4.5-3.5-5.5"/></svg>,
-  learning: <svg {...S}><path d="M3 9l9-4 9 4-9 4-9-4z"/><path d="M7 11v5c0 1 2.2 2.5 5 2.5s5-1.5 5-2.5v-5"/></svg>,
-  library: <svg {...S}><path d="M6 4h12a1 1 0 0 1 1 1v15l-7-4-7 4V5a1 1 0 0 1 1-1z"/></svg>,
+const ADMIN_ICON = {
   requests: <svg {...S}><path d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path d="M14 3v5h5"/></svg>,
   uploads: <svg {...S}><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/></svg>,
   settings: <svg {...S}><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.4 1a7 7 0 0 0-1.7-1L16.5 3h-4l-.4 2.5a7 7 0 0 0-1.7 1l-2.4-1-2 3.5L5.6 11a7 7 0 0 0 0 2l-2 1.5 2 3.5 2.4-1a7 7 0 0 0 1.7 1l.4 2.5h4l.4-2.5a7 7 0 0 0 1.7-1l2.4 1 2-3.5-2-1.5c.1-.3.1-.7.1-1z"/></svg>,
@@ -125,7 +130,7 @@ const OSLayoutV3 = () => {
               onClick={() => setNavOpen(false)}
               className={({ isActive }) => `osv3-nav-item ${isActive ? 'osv3-nav-item-active' : ''}`}
             >
-              <span className="osv3-nav-icon">{NAV_ICON[item.key]}</span>
+              <img src={`/v2-assets/tim-icons/${TIM_NAV[item.key]}.png`} alt="" className="osv3-nav-tim-icon" />
               {item.label}
             </NavLink>
           ))}
@@ -145,7 +150,7 @@ const OSLayoutV3 = () => {
                   onClick={() => setNavOpen(false)}
                   className={({ isActive }) => `osv3-nav-item ${isActive ? 'osv3-nav-item-active' : ''}`}
                 >
-                  <span className="osv3-nav-icon">{NAV_ICON[item.key]}</span>
+                  <span className="osv3-nav-icon">{ADMIN_ICON[item.key]}</span>
                   {item.label}
                 </NavLink>
               ))}
@@ -204,6 +209,7 @@ const OSLayoutV3 = () => {
           </button>
 
           <form onSubmit={handleSearch} className="osv3-search-container">
+            <img src="/v2-assets/tim-icons/search.png" alt="" className="osv3-search-tim-icon" />
             <input
               className="osv3-search-input"
               type="text"
@@ -215,11 +221,12 @@ const OSLayoutV3 = () => {
 
           <div className="osv3-topbar-actions">
             <div className="osv3-icon-btn" aria-label="Notifications">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+              {/* outreach = proactive one-way notification; flag for Patrik: same glyph as Ecosystem sidebar */}
+              <img src="/v2-assets/tim-icons/outreach.png" alt="" className="osv3-topbar-tim-icon" />
               <div className="osv3-notification-badge"></div>
             </div>
             <div className="osv3-icon-btn" aria-label="Messages">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <img src="/v2-assets/tim-icons/communication.png" alt="" className="osv3-topbar-tim-icon" />
             </div>
             <div className={`osv3-topbar-avatar ${!user ? 'osv3-avatar-guest' : ''}`}>
               {renderAvatar()}
