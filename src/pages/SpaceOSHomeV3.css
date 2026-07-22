@@ -100,12 +100,11 @@
   font-weight: 600;
 }
 
-/* Tim's iconography, tinted white on the colored tile */
+/* Tim's iconography — pre-whitened PNGs (exterior bg transparent, icon solid white) */
 .osv3-mission-tim-icon {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   object-fit: contain;
-  filter: brightness(0) invert(1);
 }
 
 .osv3-mission-card-title {

@@ -90,7 +90,7 @@ const OSLayoutV3 = () => {
       return userInitials
     }
     return (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ color: '#6B7280' }}>
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ color: 'white' }}>
         <circle cx="12" cy="8" r="3.5" fill="currentColor" />
         <path d="M4 20c0-3.314 2.686-6 6-6s6 2.686 6 6v0" fill="currentColor" fillOpacity="0.6" />
         <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="1" />

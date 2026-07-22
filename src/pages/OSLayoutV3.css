@@ -177,14 +177,14 @@
   flex-shrink: 0;
 }
 
-/* Guest avatar — neutral, legible (was rust bg + gray icon = no contrast) */
+/* Guest avatar — brand rust orange with white icon */
 .osv3-avatar.osv3-avatar-guest,
 .osv3-topbar-avatar.osv3-avatar-guest {
-  background: #E7EAEE;
-  color: #64748B;
+  background: #CE4421;
+  color: white;
 }
 .osv3-avatar-guest svg {
-  color: #64748B;
+  color: white;
   width: 60%;
   height: 60%;
 }
