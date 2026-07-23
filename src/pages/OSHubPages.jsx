@@ -18,9 +18,9 @@ export const OSEcosystemHub = () => (
       {
         label: 'Organizations',
         description: 'Nonprofits, government agencies, universities, and industry bodies shaping the space economy.',
-        href: null,
+        href: '/organizations',
         icon: 'org',
-        comingSoon: true,
+        comingSoon: false,
       },
       {
         label: 'People',
@@ -83,9 +83,9 @@ export const OSIntelligenceHub = () => (
       {
         label: 'Videos',
         description: 'Arizona Space Congress sessions, panel discussions, and event recordings.',
-        href: null,
+        href: '/videos',
         icon: 'video',
-        comingSoon: true,
+        comingSoon: false,
       },
     ]}
   />

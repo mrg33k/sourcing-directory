@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AdminSection, ListingRow } from './AdminUI.jsx';
 
-const CATEGORIES = ['equipment', 'services', 'products', 'job', 'event', 'article', 'podcast', 'whitepaper'];
+const CATEGORIES = ['equipment', 'services', 'products', 'job', 'event', 'article', 'podcast', 'video', 'whitepaper'];
 
 const EMPTY = {
   category: 'event', company_id: '', title: '', description: '', status: 'active',
@@ -49,7 +49,7 @@ function ListingForm({ initial, companies, tenantId, adminSupabase, onClose, fet
         price: ['equipment', 'services', 'products'].includes(f.category) ? num(f.price) : null,
         condition: ['equipment', 'services', 'products'].includes(f.category) ? (f.condition || null) : null,
         job_type: f.category === 'job' ? (f.job_type || null) : null,
-        location: (f.category === 'job' || f.category === 'podcast') ? (f.location || null) : null,
+        location: (f.category === 'job' || f.category === 'podcast' || f.category === 'video') ? (f.location || null) : null,
         remote: f.category === 'job' ? !!f.remote : null,
         salary_min: f.category === 'job' ? num(f.salary_min) : null,
         salary_max: f.category === 'job' ? num(f.salary_max) : null,
@@ -59,9 +59,9 @@ function ListingForm({ initial, companies, tenantId, adminSupabase, onClose, fet
         event_location: f.category === 'event' ? (f.event_location || null) : null,
         event_type: f.category === 'event' ? (f.event_type || null) : null,
         organizer: f.category === 'event' ? (f.organizer || null) : null,
-        virtual_url: (f.category === 'event' || f.category === 'podcast') ? (f.virtual_url || null) : null,
-        author_name: (f.category === 'podcast' || f.category === 'article' || f.category === 'whitepaper') ? (f.author_name || null) : null,
-        cover_image_url: (f.category === 'article' || f.category === 'whitepaper') ? (f.cover_image_url || null) : null,
+        virtual_url: (f.category === 'event' || f.category === 'podcast' || f.category === 'video') ? (f.virtual_url || null) : null,
+        author_name: (f.category === 'podcast' || f.category === 'video' || f.category === 'article' || f.category === 'whitepaper') ? (f.author_name || null) : null,
+        cover_image_url: (f.category === 'article' || f.category === 'whitepaper' || f.category === 'video') ? (f.cover_image_url || null) : null,
       };
       let resp;
       if (isEdit) {
@@ -133,6 +133,12 @@ function ListingForm({ initial, companies, tenantId, adminSupabase, onClose, fet
           <Field label="Host / Guest"><input style={inp} value={f.author_name} onChange={up('author_name')} placeholder="e.g. David Ariosto" /></Field>
           <Field label="Audio / Video URL"><input style={inp} value={f.virtual_url} onChange={up('virtual_url')} placeholder="https://…" /></Field>
           <Field label="Duration"><input style={inp} value={f.location} onChange={up('location')} placeholder="e.g. 48 min" /></Field>
+        </>}
+        {f.category === 'video' && <>
+          <Field label="Source / Outlet"><input style={inp} value={f.author_name} onChange={up('author_name')} placeholder="e.g. FOX 10 Phoenix, YouTube, PBS" /></Field>
+          <Field label="Video URL"><input style={inp} value={f.virtual_url} onChange={up('virtual_url')} placeholder="https://youtube.com/watch?v=… or direct video link" /></Field>
+          <Field label="Thumbnail URL"><input style={inp} value={f.cover_image_url} onChange={up('cover_image_url')} placeholder="https://… (optional)" /></Field>
+          <Field label="Duration"><input style={inp} value={f.location} onChange={up('location')} placeholder="e.g. 4 min, 45 min" /></Field>
         </>}
         {f.category === 'whitepaper' && <>
           <Field label="Document URL"><input style={inp} value={f.apply_url} onChange={up('apply_url')} placeholder="https://…" /></Field>

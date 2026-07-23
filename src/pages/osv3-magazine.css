@@ -2012,3 +2012,513 @@
     flex-shrink: 0;
   }
 }
+
+/* ================================================================== */
+/* OSVideosPage — Video media slot + video card grid                   */
+/* Prefix: .osv3-vid-                                                   */
+/* ================================================================== */
+
+/* --- Hero media slot --- */
+.osv3-vid-media {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  background: radial-gradient(ellipse at 50% 60%, #0b1a35 0%, #000C20 70%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.osv3-vid-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0,0,0,0.12) 3px,
+    rgba(0,0,0,0.12) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+.osv3-vid-orbit {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+
+.osv3-vid-orbit-two {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  border: 1px solid rgba(206,68,33,0.2);
+}
+
+.osv3-vid-play-ring {
+  position: relative;
+  z-index: 2;
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: rgba(206,68,33,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.18s ease, background 0.18s ease;
+  box-shadow: 0 0 28px rgba(206,68,33,0.45);
+}
+
+.osv3-vid-media:hover .osv3-vid-play-ring {
+  transform: scale(1.08);
+  background: #CE4421;
+}
+
+.osv3-vid-play-tri {
+  display: block;
+  width: 0; height: 0;
+  margin-left: 5px;
+  border-top: 13px solid transparent;
+  border-bottom: 13px solid transparent;
+  border-left: 22px solid #fff;
+}
+
+.osv3-vid-badge {
+  position: absolute;
+  top: 14px; right: 14px;
+  z-index: 3;
+  background: #CE4421;
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+
+.osv3-vid-filmstrip {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px;
+  background: rgba(0,0,0,0.35);
+  z-index: 2;
+}
+
+.osv3-vid-frame {
+  display: block;
+  width: 18px; height: 14px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* --- Video card grid --- */
+.osv3-vid-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.osv3-vid-card:hover {
+  border-color: rgba(206,68,33,0.4);
+  transform: translateY(-2px);
+}
+
+.osv3-vid-thumb {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.osv3-vid-thumb-img {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.osv3-vid-thumb::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(0,12,32,0.7) 100%);
+  z-index: 1;
+}
+
+.osv3-vid-ring {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.osv3-vid-init {
+  position: relative;
+  z-index: 2;
+  font-family: 'Roboto', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.18);
+  letter-spacing: 0.04em;
+}
+
+.osv3-vid-cat {
+  position: absolute;
+  top: 10px; left: 10px;
+  z-index: 3;
+  background: rgba(0,12,32,0.75);
+  color: #FEFDFD;
+  font-family: 'Roboto', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 100px;
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.osv3-vid-dur {
+  position: absolute;
+  bottom: 8px; left: 10px;
+  z-index: 3;
+  color: rgba(255,255,255,0.75);
+  font-family: 'Roboto', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.osv3-vid-play-btn {
+  position: absolute;
+  z-index: 3;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: rgba(206,68,33,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.osv3-vid-card:hover .osv3-vid-play-btn {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.osv3-vid-tri {
+  display: block;
+  width: 0; height: 0;
+  margin-left: 3px;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-left: 12px solid #fff;
+}
+
+.osv3-vid-body {
+  padding: 14px 16px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.osv3-vid-title {
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #FEFDFD;
+  margin: 0;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.osv3-vid-source {
+  font-family: 'Roboto', sans-serif;
+  font-size: 11px;
+  color: rgba(254,253,253,0.45);
+  letter-spacing: 0.02em;
+}
+
+.osv3-vid-foot {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.osv3-vid-date {
+  font-family: 'Roboto', sans-serif;
+  font-size: 10px;
+  color: rgba(254,253,253,0.35);
+}
+
+.osv3-vid-watch {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #CE4421;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.osv3-vid-watch-tri {
+  display: block;
+  width: 0; height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 7px solid #CE4421;
+}
+
+/* ================================================================== */
+/* OSOrganizationsPage — Org media slot + org card grid               */
+/* Prefix: .osv3-org-                                                   */
+/* ================================================================== */
+
+/* --- Hero media slot --- */
+.osv3-org-media {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 300px;
+  background: radial-gradient(ellipse at 40% 55%, #0d1e3a 0%, #000C20 70%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.osv3-org-orbit {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 240px; height: 240px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.osv3-org-orbit-two {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 170px; height: 170px;
+  border-radius: 50%;
+  border: 1px solid rgba(206,68,33,0.15);
+}
+
+.osv3-org-media-center {
+  position: relative;
+  z-index: 2;
+  width: 96px; height: 96px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.osv3-org-media-logo {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  padding: 8px;
+}
+
+.osv3-org-media-init {
+  font-family: 'Roboto', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: rgba(254,253,253,0.35);
+}
+
+.osv3-org-badge {
+  position: absolute;
+  top: 14px; right: 14px;
+  z-index: 3;
+  background: rgba(206,68,33,0.85);
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+
+/* --- Org card grid --- */
+.osv3-org-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+}
+
+.osv3-org-card[role='button'] {
+  cursor: pointer;
+}
+
+.osv3-org-card[role='button']:hover {
+  border-color: rgba(206,68,33,0.4);
+  transform: translateY(-2px);
+}
+
+.osv3-org-cover {
+  position: relative;
+  width: 100%;
+  height: 130px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.osv3-org-cover-img {
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: rgba(255,255,255,0.04);
+}
+
+.osv3-org-cover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(0,12,32,0.6) 100%);
+  z-index: 1;
+}
+
+.osv3-org-cover-ring {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 70px; height: 70px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.osv3-org-cover-init {
+  position: relative;
+  z-index: 2;
+  font-family: 'Roboto', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.18);
+}
+
+.osv3-org-sector {
+  position: absolute;
+  bottom: 8px; right: 10px;
+  z-index: 3;
+  background: rgba(0,12,32,0.7);
+  color: rgba(254,253,253,0.7);
+  font-family: 'Roboto', sans-serif;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 100px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.osv3-org-body {
+  padding: 14px 16px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.osv3-org-name {
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #FEFDFD;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.osv3-org-desc {
+  font-family: 'Roboto', sans-serif;
+  font-size: 11px;
+  color: rgba(254,253,253,0.5);
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.osv3-org-foot {
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+.osv3-org-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: 'Roboto', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  color: #CE4421;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.osv3-org-arrow {
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* --- Mobile tweaks for new card types --- */
+@media (max-width: 640px) {
+  .osv3-vid-media,
+  .osv3-org-media {
+    min-height: 220px;
+    border-radius: 10px 10px 0 0;
+  }
+  .osv3-vid-thumb {
+    height: 140px;
+  }
+  .osv3-org-cover {
+    height: 110px;
+  }
+}

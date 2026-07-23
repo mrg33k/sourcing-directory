@@ -140,6 +140,8 @@ const OSOpportunitiesHub = lazy(() => import('./pages/OSHubPages.jsx').then(m =>
 const OSLearningHub = lazy(() => import('./pages/OSHubPages.jsx').then(m => ({ default: m.OSLearningHub })))
 const OSLibraryHub = lazy(() => import('./pages/OSHubPages.jsx').then(m => ({ default: m.OSLibraryHub })))
 const OSPodcastsPage = lazy(() => import('./pages/OSPodcastsPage.jsx'))
+const OSVideosPage = lazy(() => import('./pages/OSVideosPage.jsx'))
+const OSOrganizationsPage = lazy(() => import('./pages/OSOrganizationsPage.jsx'))
 const OSEventsPage = lazy(() => import('./pages/OSEventsPage.jsx'))
 const OSJobsPage = lazy(() => import('./pages/OSJobsPage.jsx'))
 const OSArticlesPage = lazy(() => import('./pages/OSArticlesPage.jsx'))
@@ -178,6 +180,8 @@ createRoot(document.getElementById('root')).render(
             <Route path="/deal-bank/investors/signup" element={<SourcingDealBankInvestorSignup />} />
             <Route path="/deal-bank/investors/:slug" element={<SourcingDealBankInvestorProfile />} />
             <Route path="/podcasts" element={<OSPodcastsPage />} />
+            <Route path="/videos" element={<OSVideosPage />} />
+            <Route path="/organizations" element={<OSOrganizationsPage />} />
             <Route path="/learning" element={<OSLearningHub />} />
             <Route path="/library" element={<OSLibraryHub />} />
             <Route path="/membership" element={<SourcingMembershipV2 />} />
