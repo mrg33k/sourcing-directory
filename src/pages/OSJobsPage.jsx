@@ -27,9 +27,12 @@ function fmtSalary(lo, hi) {
 }
 
 function initials(title = '') {
-  const parts = title.trim().split(/\s+/);
+  /* filter out non-letter-starting tokens ("(Arizona)", "—", etc.) */
+  const parts = title.trim().split(/\s+/).filter(w => /^[A-Za-z]/.test(w));
+  if (parts.length === 0) return 'JO';
   if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  /* take first word + second word (not last) to avoid cross-word II patterns */
+  return (parts[0][0] + parts[1][0]).toUpperCase();
 }
 
 function fmtDate(iso) {
@@ -55,7 +58,12 @@ function JobMediaSlot({ featured }) {
   const company = featured?._company;
   const logoSrc = company?.logo_url || null;
   const companyName = company?.name || featured?.author_name || '';
-  const jobInits = initials(featured?.title || 'JO');
+  /* Use company name for monogram: company initials are more diverse than
+     job title initials and won't produce "II"-style vertical-bar ambiguity.
+     Fall back to first two chars of first word when no company name. */
+  const jobInits = companyName
+    ? initials(companyName)
+    : (featured?.title || 'JO').trim().split(/\s+/).filter(w => /^[A-Za-z]/.test(w))[0]?.slice(0, 2).toUpperCase() || 'JO';
 
   return (
     <div className="osv3-job-media">
