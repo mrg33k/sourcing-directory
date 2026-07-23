@@ -47,20 +47,38 @@ const PILLS = [
 
 /* ------------------------------------------------------------------ */
 /* VideoMediaSlot — hero LEFT panel (cinematic starfield + play) */
-function VideoMediaSlot({ onPlay, url }) {
+/* When coverImage is set (YouTube thumbnail), renders the still as    */
+/* background with a dark overlay; orbital rings suppressed for clean  */
+/* look. Falls back to navy starfield when no thumbnail available.     */
+function VideoMediaSlot({ onPlay, url, coverImage }) {
   const handleClick = () => {
     if (url) window.open(url, '_blank', 'noopener,noreferrer');
     else if (onPlay) onPlay();
   };
   return (
     <div className="osv3-vid-media" onClick={handleClick} role="button" tabIndex={0}
-      onKeyDown={e => e.key === 'Enter' && handleClick()}>
+      onKeyDown={e => e.key === 'Enter' && handleClick()}
+      style={coverImage ? {
+        backgroundImage: `url(${coverImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      } : undefined}>
+
+      {/* dark overlay when real thumbnail is present — sits below scanlines */}
+      {coverImage && (
+        <div aria-hidden="true" style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(180deg, rgba(0,12,32,0.30) 0%, rgba(0,12,32,0.60) 100%)',
+          zIndex: 0,
+        }} />
+      )}
+
       {/* scan lines for cinematic feel */}
       <div className="osv3-vid-scanlines" aria-hidden="true" />
 
-      {/* orbital rings */}
-      <div className="osv3-vid-orbit" />
-      <div className="osv3-vid-orbit-two" />
+      {/* orbital rings — only shown for the gradient fallback */}
+      {!coverImage && <div className="osv3-vid-orbit" />}
+      {!coverImage && <div className="osv3-vid-orbit-two" />}
 
       {/* center play button */}
       <div className="osv3-vid-play-ring">
@@ -201,7 +219,7 @@ function OSVideosPage() {
       featuredItem={featured}
       mediaSlot={
         featured
-          ? <VideoMediaSlot url={featLink} />
+          ? <VideoMediaSlot url={featLink} coverImage={featured?.cover_image_url} />
           : null
       }
       featureEyebrow="FEATURED VIDEO"
