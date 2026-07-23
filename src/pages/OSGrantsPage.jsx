@@ -95,15 +95,35 @@ function GrantMediaSlot({ agency, deadline, grantType, amountMin, amountMax }) {
         </svg>
       </div>
 
-      {/* agency label */}
-      {agency && (
-        <div className="osv3-rfp-agency-label">{agency}</div>
-      )}
-
-      {/* amount chip */}
-      {amount && (
-        <div className="osv3-rfp-agency-label" style={{ fontSize: 11, opacity: 0.7, marginTop: 4 }}>{amount}</div>
-      )}
+      {/* agency + amount stacked top-left */}
+      <div style={{
+        position: 'absolute',
+        top: 14,
+        left: 14,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 3,
+        zIndex: 3,
+      }}>
+        {agency && (
+          <div style={{
+            fontFamily: "'Roboto', sans-serif",
+            fontSize: 11,
+            fontWeight: 600,
+            color: 'rgba(254,253,253,0.5)',
+            letterSpacing: '0.04em',
+          }}>{agency}</div>
+        )}
+        {amount && (
+          <div style={{
+            fontFamily: "'Roboto', sans-serif",
+            fontSize: 12,
+            fontWeight: 700,
+            color: 'rgba(254,253,253,0.75)',
+            letterSpacing: '-0.01em',
+          }}>{amount}</div>
+        )}
+      </div>
 
       {/* deadline chip */}
       {deadline && (
