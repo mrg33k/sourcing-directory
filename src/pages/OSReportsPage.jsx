@@ -34,6 +34,19 @@ function catLabel(cat) {
   return MAP[cat] || (cat ? cat.charAt(0).toUpperCase() + cat.slice(1) : 'Report');
 }
 
+/**
+ * Resolve the effective cover URL for a report row.
+ * directory_reports has no cover_image_url column in the DB yet, so we fall
+ * back to the known local asset for the Blueprint.  When cover_image_url is
+ * added to the DB in the future, the DB value takes priority automatically.
+ */
+function effectiveCoverUrl(item) {
+  if (!item) return null;
+  if (item.cover_image_url) return item.cover_image_url;
+  if (/blueprint/i.test(item.title || '')) return '/v2-assets/blueprint-cover.png';
+  return null;
+}
+
 const PILLS = [
   { label: 'All', value: 'all' },
   { label: 'Market Intelligence', value: 'economic' },
@@ -48,14 +61,15 @@ const PILLS = [
 /* Without cover: publication-cover fallback (navy, rust top border,   */
 /*   category eyebrow, title-as-art). Never an empty rectangle.        */
 function ReportMediaSlot({ featured }) {
-  const hasCover = !!(featured?.cover_image_url);
+  const coverUrl = effectiveCoverUrl(featured);
+  const hasCover = !!coverUrl;
   const catStr = catLabel(featured?.category);
 
   if (hasCover) {
     return (
       <div className="osv3-rep-media">
         <img
-          src={featured.cover_image_url}
+          src={coverUrl}
           alt=""
           className="osv3-rep-media-img"
           aria-hidden="true"
@@ -84,7 +98,8 @@ function ReportMediaSlot({ featured }) {
 /* ------------------------------------------------------------------ */
 /* ReportCard — grid card renderer; links to /reports/:id              */
 function ReportCard({ item, onOpen }) {
-  const hasCover = !!(item.cover_image_url);
+  const coverUrl = effectiveCoverUrl(item);
+  const hasCover = !!coverUrl;
   const dateStr = fmtDate(item.published_at || item.created_at);
   const catStr = catLabel(item.category);
   const isMembersOnly = item.access && item.access !== 'free' && item.access !== 'public';
@@ -100,7 +115,7 @@ function ReportCard({ item, onOpen }) {
       <div className="osv3-rep-card-cover">
         {hasCover ? (
           <img
-            src={item.cover_image_url}
+            src={coverUrl}
             alt=""
             className="osv3-rep-card-cover-img"
           />
