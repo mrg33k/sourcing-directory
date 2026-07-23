@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
-import { Link, useNavigate, useLocation, useParams } from 'react-router-dom';
+import { Link, Navigate, useNavigate, useLocation, useParams } from 'react-router-dom';
 const SourcingCreate = lazy(() => import('./SourcingCreate.jsx'));
 const SourcingSettings = lazy(() => import('./SourcingSettings.jsx'));
 import { createClient } from '@supabase/supabase-js';
@@ -26,6 +26,8 @@ import ActionsSection from './admin/ActionsSection.jsx';
 import DealBankSection from './admin/DealBankSection.jsx';
 import TicketsSection from './admin/TicketsSection.jsx';
 import TagsSection from './admin/TagsSection.jsx';
+import AdminShellV3 from './admin/AdminShellV3.jsx';
+import AddContentModal from './admin/AddContentModal.jsx';
 
 // Auth is handled via Supabase Auth (email + password)
 
@@ -47,34 +49,33 @@ const adminSupabase = (_sbUrl && _adminKey)
 // ─── Inner Component ──────────────────────────────────────────────────────────
 function SourcingAdminInner() {
   useSourcingTheme(); // keep theme context mounted; admin uses the V2 token set below
-  // V2 design system — matches the Space OS V2 front end (dark + amber + Space Grotesk).
-  // Scoped to the admin: deliberately overrides the shared getTokens (cyan/Inter) so the
-  // whole panel — login screen, chrome, every tab — reads as V2.
+  // V3 design system — navy sidebar, white content, single rust accent, ink text, Roboto.
+  // Tokens mirror osv3-tokens.css; this V object threads through all 16 section components.
   const V = {
-    bg:        '#06060A',
-    card:      '#0D0D12',
-    card2:     '#111118',
-    cardHov:   '#17171F',
-    accent:    '#E8A23A',
-    accentHov: '#C68A2E',
-    accentDim: 'rgba(232,162,58,0.08)',
-    accentBrd: 'rgba(232,162,58,0.25)',
-    blue:      '#3B82F6',
-    text:      '#E8E4DA',
-    heading:   '#E8E4DA',
-    muted:     'rgba(232,228,218,0.55)',
-    dim:       'rgba(232,228,218,0.35)',
-    border:    'rgba(255,255,255,0.08)',
-    borderHov: 'rgba(232,162,58,0.25)',
-    green:     '#86EFAC',
-    violet:    '#A78BFA',
-    amber:     '#E8A23A',
-    rose:      '#FB7185',
-    navBg:     'rgba(6,6,10,0.94)',
-    font:      "'Space Grotesk', system-ui, sans-serif",
-    syne:      "'Space Grotesk', system-ui, sans-serif",
-    space:     "'Space Grotesk', system-ui, sans-serif",
-    mono:      "'JetBrains Mono', ui-monospace, monospace",
+    bg:        '#FEFDFD',
+    card:      '#FFFFFF',
+    card2:     '#F8FAFB',
+    cardHov:   '#F1F5F9',
+    accent:    '#CE4421',
+    accentHov: '#B33A1A',
+    accentDim: 'rgba(206,68,33,0.08)',
+    accentBrd: 'rgba(206,68,33,0.25)',
+    blue:      '#1B3A8F',
+    text:      '#010B13',
+    heading:   '#010B13',
+    muted:     '#6B7280',
+    dim:       '#9CA3AF',
+    border:    '#D7DEE2',
+    borderHov: 'rgba(206,68,33,0.25)',
+    green:     '#15803D',
+    violet:    '#7C3AED',
+    amber:     '#B45309',
+    rose:      '#DC2626',
+    navBg:     '#FEFDFD',
+    font:      "'Roboto', system-ui, sans-serif",
+    syne:      "'Roboto', system-ui, sans-serif",
+    space:     "'Roboto', system-ui, sans-serif",
+    mono:      'var(--v3-font-family-base)',
   };
   const navigate = useNavigate();
   const location = useLocation();
@@ -87,19 +88,8 @@ function SourcingAdminInner() {
   const [authed, setAuthed] = useState(false);
   const [currentUserEmail, setCurrentUserEmail] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [emailInput, setEmailInput] = useState('');
-  const [pwInput, setPwInput] = useState('');
-  const [pwError, setPwError] = useState('');
-  const [showForgotPw, setShowForgotPw] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotStatus, setForgotStatus] = useState(''); // '' | 'sent' | 'error:msg'
-  const [forgotLoading, setForgotLoading] = useState(false);
-  const [showNewPw, setShowNewPw] = useState(false);
-  const [newPwInput, setNewPwInput] = useState('');
-  const [newPwError, setNewPwError] = useState('');
-  const [newPwLoading, setNewPwLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('stats');
-  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
+  const [showAddContent, setShowAddContent] = useState(false);
 
   // Tenant switcher state
   const [tenants, setTenants] = useState([]);
@@ -141,78 +131,15 @@ function SourcingAdminInner() {
       setAuthLoading(false);
     });
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (_event === 'PASSWORD_RECOVERY') {
-        setShowNewPw(true);
-      } else {
-        setAuthed(!!session);
-        setCurrentUserEmail(session?.user?.email || null);
-      }
+      setAuthed(!!session);
+      setCurrentUserEmail(session?.user?.email || null);
     });
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setPwError('');
-    setAuthLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithPassword({ email: emailInput.trim(), password: pwInput });
-      if (error) {
-        setPwError(error.message || 'Login failed.');
-      } else {
-        setAuthed(true);
-      }
-    } catch (err) {
-      setPwError(err.message || 'Connection error. Please try again.');
-    } finally {
-      setAuthLoading(false);
-    }
-  };
-
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setAuthed(false);
-  };
-
-  const handleForgotPassword = async (e) => {
-    e.preventDefault();
-    setForgotLoading(true);
-    setForgotStatus('');
-    try {
-      const resp = await fetch('/api/sourcing/reset-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: forgotEmail,
-          org_name: selectedTenant?.name || 'AOM Sourcing Directory',
-          redirect_to: window.location.origin + '/admin',
-        }),
-      });
-      const data = await resp.json();
-      if (!resp.ok) {
-        setForgotStatus('error:' + (data.error || 'Failed to send reset email.'));
-      } else {
-        setForgotStatus('sent');
-      }
-    } catch (err) {
-      setForgotStatus('error:' + (err.message || 'Failed to send reset email.'));
-    }
-    setForgotLoading(false);
-  };
-
-  const handleSetNewPassword = async (e) => {
-    e.preventDefault();
-    setNewPwError('');
-    if (!newPwInput) { setNewPwError('Please enter a new password.'); return; }
-    setNewPwLoading(true);
-    const { error } = await supabase.auth.updateUser({ password: newPwInput });
-    setNewPwLoading(false);
-    if (error) {
-      setNewPwError(error.message || 'Failed to update password.');
-    } else {
-      setShowNewPw(false);
-      setNewPwInput('');
-    }
   };
 
   // Fetch tenants list, scoped to the current user's admin memberships if not global admin
@@ -726,221 +653,12 @@ function SourcingAdminInner() {
 
   const pendingCompanies = companies.filter(c => c.status === 'pending');
 
-  // ─── Password reset callback (user landed from reset email) ─────────────
-  if (showNewPw) {
-    return (
-      <div className="srsv2-shell" data-tenant="space-rising-v2">
-        <div className="srsv2-veil" />
-        <div className="srsv2-topbar">
-          <Link to="/srw-v2" className="srsv2-wordmark">SPACE RISING</Link>
-          <div className="srsv2-progress" />
-          <Link to="/srw-v2" className="srsv2-close" aria-label="Close">
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </Link>
-        </div>
-        <div className="srsv2-body">
-          <div className="srsv2-step">
-            <div className="srsv2-eyebrow">RESET PASSWORD</div>
-            <h1 className="srsv2-title">Choose a new password<span className="srsv2-period">.</span></h1>
-            <div className="srsv2-sub">Minimum 6 characters.</div>
-            <form onSubmit={handleSetNewPassword}>
-              <label className="srsv2-field">
-                <span className="srsv2-label">New Password</span>
-                <input
-                  className="srsv2-input"
-                  type="password"
-                  placeholder="••••••••"
-                  value={newPwInput}
-                  onChange={e => setNewPwInput(e.target.value)}
-                  autoFocus
-                  required
-                />
-              </label>
-              {newPwError && <div className="srsv2-error">{newPwError}</div>}
-              <div className="srsv2-actions">
-                <button
-                  type="submit"
-                  className="srsv2-cta srsv2-cta-solid"
-                  disabled={newPwLoading}
-                >
-                  {newPwLoading ? 'Saving…' : 'Save Password'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    );
+  // ─── Auth guard — login + reset now handled by /login route ─────────────
+  if (authLoading) {
+    return <div style={{ minHeight: '100dvh', background: '#000C20' }} />;
   }
-
-  // ─── Login gate ───────────────────────────────────────────────────────────
   if (!authed) {
-    if (authLoading) {
-      return <div style={{ minHeight: '100dvh', background: '#0B0B0D' }} />;
-    }
-    return (
-      <div className="srsv2-shell" data-tenant="space-rising-v2">
-        <div className="srsv2-veil" />
-        <div className="srsv2-topbar">
-          <Link to="/srw-v2" className="srsv2-wordmark">SPACE RISING</Link>
-          <div className="srsv2-progress" />
-          <Link to="/srw-v2" className="srsv2-close" aria-label="Close">
-            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </Link>
-        </div>
-        <div className="srsv2-body">
-          {showForgotPw ? (
-            forgotStatus === 'sent' ? (
-              <div className="srsv2-step srsv2-step-success">
-                <div className="srsv2-eyebrow">SENT</div>
-                <h1 className="srsv2-title">Check your inbox<span className="srsv2-period">.</span></h1>
-                <div className="srsv2-sub">We sent a reset link to {forgotEmail || 'your email'}.</div>
-                <div className="srsv2-cta-row">
-                  <button
-                    type="button"
-                    className="srsv2-cta srsv2-cta-solid"
-                    onClick={() => { setShowForgotPw(false); setForgotStatus(''); setForgotEmail(''); }}
-                  >
-                    Back to Sign In
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="srsv2-step">
-                <div className="srsv2-eyebrow">RESET PASSWORD</div>
-                <h1 className="srsv2-title">Reset your password<span className="srsv2-period">.</span></h1>
-                <div className="srsv2-sub">We'll send a reset link to your email.</div>
-                <form onSubmit={handleForgotPassword}>
-                  <label className="srsv2-field">
-                    <span className="srsv2-label">Email</span>
-                    <input
-                      className="srsv2-input"
-                      type="email"
-                      placeholder="admin@example.com"
-                      value={forgotEmail}
-                      onChange={e => setForgotEmail(e.target.value)}
-                      autoFocus
-                      required
-                    />
-                  </label>
-                  {forgotStatus.startsWith('error:') && (
-                    <div className="srsv2-error">{forgotStatus.slice(6)}</div>
-                  )}
-                  <div className="srsv2-actions">
-                    <button
-                      type="submit"
-                      className="srsv2-cta srsv2-cta-solid"
-                      disabled={forgotLoading}
-                    >
-                      {forgotLoading ? 'Sending…' : 'Send Reset Link'}
-                    </button>
-                  </div>
-                  <div style={{ marginTop: 16, textAlign: 'center' }}>
-                    <button
-                      type="button"
-                      onClick={() => { setShowForgotPw(false); setForgotStatus(''); }}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'rgba(232,228,218,0.55)',
-                        fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-                        fontSize: 11,
-                        letterSpacing: '0.12em',
-                        textTransform: 'uppercase',
-                        cursor: 'pointer',
-                        padding: 0,
-                      }}
-                    >
-                      Back to Sign In
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )
-          ) : (
-            <div className="srsv2-step">
-              <div className="srsv2-eyebrow">ADMIN</div>
-              <h1 className="srsv2-title">Admin access<span className="srsv2-period">.</span></h1>
-              <div className="srsv2-sub">Sign in to manage the directory.</div>
-              <form onSubmit={handleLogin}>
-                <label className="srsv2-field">
-                  <span className="srsv2-label">Email</span>
-                  <input
-                    className="srsv2-input"
-                    type="email"
-                    placeholder="admin@example.com"
-                    value={emailInput}
-                    onChange={e => setEmailInput(e.target.value)}
-                    autoFocus
-                    required
-                  />
-                </label>
-                <label className="srsv2-field">
-                  <span className="srsv2-label">Password</span>
-                  <input
-                    className="srsv2-input"
-                    type="password"
-                    placeholder="••••••••"
-                    value={pwInput}
-                    onChange={e => setPwInput(e.target.value)}
-                    required
-                  />
-                </label>
-
-                <div style={{ marginTop: 16, textAlign: 'right' }}>
-                  <button
-                    type="button"
-                    onClick={() => { setShowForgotPw(true); setPwError(''); setForgotEmail(emailInput); }}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: 'rgba(232,228,218,0.55)',
-                      fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-                      fontSize: 11,
-                      letterSpacing: '0.12em',
-                      textTransform: 'uppercase',
-                      cursor: 'pointer',
-                      padding: 0,
-                    }}
-                  >
-                    Forgot your password?
-                  </button>
-                </div>
-
-                {pwError && <div className="srsv2-error">{pwError}</div>}
-
-                <div className="srsv2-actions">
-                  <button
-                    type="submit"
-                    className="srsv2-cta srsv2-cta-solid"
-                    disabled={authLoading}
-                  >
-                    {authLoading ? 'Signing in…' : 'Sign In'}
-                  </button>
-                </div>
-              </form>
-
-              <div style={{
-                marginTop: 32,
-                textAlign: 'center',
-                fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-                fontSize: 11,
-                letterSpacing: '0.12em',
-                textTransform: 'uppercase',
-                color: 'rgba(232,228,218,0.45)',
-              }}>
-                <Link
-                  to="/srw-v2"
-                  style={{ color: '#E8A23A', textDecoration: 'none' }}
-                >
-                  ← Back to Directory
-                </Link>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    );
+    return <Navigate to="/login" replace />;
   }
 
   // ─── Admin Sub-routes (behind the gate) ──────────────────────────────────
@@ -982,115 +700,24 @@ function SourcingAdminInner() {
   ];
 
   return (
-    <div style={{ minHeight: '100dvh', background: 'var(--bg)', color: 'var(--tx)' }}>
+    <>
       <style>{`* { box-sizing: border-box; } a { color: inherit; }`}</style>
-
-      {/* Top bar */}
-      <div style={{
-        borderBottom: `1px solid ${V.border}`, background: V.navBg,
-        padding: '8px 12px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8,
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <Link to="/srw-v2" style={{ textDecoration: 'none' }}>
-            <span style={{ fontSize: 13, fontWeight: 700, fontFamily: 'Space Grotesk, sans-serif', color: '#E8A23A', letterSpacing: '0.16em', textTransform: 'uppercase' }}>SPACE RISING</span>
-          </Link>
-          <span style={{ color: V.dim, fontSize: 13 }}>/</span>
-          <span style={{ fontSize: 13, color: V.text, fontFamily: V.space, fontWeight: 600 }}>Admin</span>
-        </div>
-        <div style={{ flex: 1 }} />
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
-          {/* Tenant switcher: global admins see all tenants + "All Directories";
-              scoped admins only see their authorized tenants, no global option */}
-          {tenants.length > 0 && (isGlobalAdmin || tenants.length > 1) && (
-            <select
-              value={selectedTenantId || ''}
-              onChange={e => setSelectedTenantId(e.target.value || null)}
-              style={{
-                background: V.card2, border: `1px solid ${selectedTenantId ? V.accentBrd : V.border}`,
-                color: selectedTenantId ? V.accent : V.muted,
-                borderRadius: 6, padding: '5px 8px', fontSize: 11,
-                fontFamily: V.space, cursor: 'pointer', outline: 'none',
-                maxWidth: 160,
-              }}
-            >
-              {isGlobalAdmin && <option value="">All Directories</option>}
-              {tenants.map(t => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </select>
-          )}
-          {/* My Portal link -- per selected directory */}
-          {selectedTenant && (
-            <Link
-              to={`/${selectedTenant.slug}/portal`}
-              style={{
-                background: V.accentDim, border: `1px solid ${V.accentBrd}`,
-                color: V.accent, borderRadius: 6, padding: '4px 10px',
-                fontSize: 11, fontWeight: 600, fontFamily: V.space, textDecoration: 'none',
-                display: 'flex', alignItems: 'center', gap: 4,
-              }}
-            >
-              My Portal
-            </Link>
-          )}
-          <button
-            onClick={handleLogout}
-            style={{
-              background: 'transparent', border: `1px solid ${V.border}`,
-              color: V.muted, borderRadius: 6, padding: '4px 10px',
-              fontSize: 11, fontFamily: V.space, cursor: 'pointer',
-            }}
-          >
-            Sign Out
-          </button>
-        </div>
-      </div>
-
-      {/* Tab bar -- dropdown like SourcingNav */}
-      <div style={{ borderBottom: `1px solid ${V.border}`, background: V.navBg, position: 'relative' }}>
-        <div
-          style={{ padding: '0 12px', height: 40, display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-          onClick={() => setAdminMenuOpen && setAdminMenuOpen(!adminMenuOpen)}
-        >
-          <span style={{ fontSize: 13, fontWeight: 700, fontFamily: V.space, color: V.accent }}>
-            {TABS.find(t => t.key === activeTab)?.label || 'Menu'}
-          </span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={V.muted} strokeWidth="2.5" style={{ marginLeft: 6, transform: adminMenuOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
-            <path d="M6 9l6 6 6-6"/>
-          </svg>
-        </div>
-        {adminMenuOpen && (
-          <div style={{
-            position: 'absolute', top: '100%', left: 0, right: 0,
-            background: V.navBg, border: `1px solid ${V.border}`,
-            borderTop: 'none', zIndex: 1000,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-          }}>
-            {TABS.map(tab => {
-              const isActive = tab.key === activeTab;
-              const isPending = (tab.key === 'companies' && pendingCompanies.length > 0) || (tab.key === 'members' && pendingMembers.length > 0) || (tab.key === 'articles' && pendingContent.length > 0) || (tab.key === 'deal-bank');
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => { setActiveTab(tab.key); setAdminMenuOpen(false); }}
-                  style={{
-                    display: 'block', width: '100%', textAlign: 'left',
-                    background: isActive ? `${V.accent}10` : 'transparent',
-                    border: 'none', borderLeft: isActive ? `3px solid ${V.accent}` : '3px solid transparent',
-                    padding: '12px 16px', fontSize: 14,
-                    fontWeight: isActive ? 700 : 400,
-                    fontFamily: V.space,
-                    color: isActive ? V.accent : isPending ? '#FDBA74' : V.text,
-                    cursor: 'pointer',
-                  }}
-                >{tab.label}</button>
-              );
-            })}
-          </div>
-        )}
-      </div>
-
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px 60px' }}>
+      <AdminShellV3
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        handleLogout={handleLogout}
+        tenants={tenants}
+        selectedTenantId={selectedTenantId}
+        setSelectedTenantId={setSelectedTenantId}
+        isGlobalAdmin={isGlobalAdmin}
+        selectedTenant={selectedTenant}
+        currentUserEmail={currentUserEmail}
+        pendingCompanyCount={pendingCompanies.length}
+        pendingMemberCount={pendingMembers.length}
+        pendingContentCount={pendingContent.length}
+        newMessageCount={newContactCount}
+        onAddContent={() => setShowAddContent(true)}
+      >
         {loading && (
           <div style={{ textAlign: 'center', padding: '40px 0', color: V.muted, fontFamily: V.space }}>Loading...</div>
         )}
@@ -1285,10 +912,15 @@ function SourcingAdminInner() {
             V={V}
           />
         )}
-      </div>
-
-      <ScoutPanel V={V} tenantId={selectedTenantId} />
-    </div>
+        <ScoutPanel V={V} tenantId={selectedTenantId} />
+      </AdminShellV3>
+      {showAddContent && (
+        <AddContentModal
+          setActiveTab={(tab) => { setActiveTab(tab); setShowAddContent(false); }}
+          onClose={() => setShowAddContent(false)}
+        />
+      )}
+    </>
   );
 }
 

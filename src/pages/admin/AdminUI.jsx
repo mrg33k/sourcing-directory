@@ -37,17 +37,17 @@ export function AdminSection({ title, children, action, V }) {
 // ─── Status pill ──────────────────────────────────────────────────────────────
 export function StatusPill({ status }) {
   const colors = {
-    active:  { bg: 'rgba(34,197,94,0.1)',   border: 'rgba(34,197,94,0.4)',   text: '#86EFAC' },
-    pending: { bg: 'rgba(234,179,8,0.1)',   border: 'rgba(234,179,8,0.4)',   text: '#FDE68A' },
-    expired: { bg: 'rgba(138,132,124,0.1)', border: 'rgba(138,132,124,0.4)', text: '#8A847C' },
-    inactive:{ bg: 'rgba(239,68,68,0.1)',   border: 'rgba(239,68,68,0.4)',   text: '#FCA5A5' },
-    sold:    { bg: 'rgba(138,132,124,0.1)', border: 'rgba(138,132,124,0.4)', text: '#8A847C' },
+    active:  { bg: 'rgba(22,163,74,0.10)',  border: 'rgba(22,163,74,0.30)',  text: '#15803D' },
+    pending: { bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.35)', text: '#B45309' },
+    expired: { bg: '#F3F4F6',               border: '#D7DEE2',               text: '#6B7280' },
+    inactive:{ bg: 'rgba(220,38,38,0.08)',  border: 'rgba(220,38,38,0.30)',  text: '#DC2626' },
+    sold:    { bg: '#F3F4F6',               border: '#D7DEE2',               text: '#6B7280' },
   };
   const c = colors[status] || colors.inactive;
   return (
     <span style={{
       background: c.bg, border: `1px solid ${c.border}`, color: c.text,
-      fontSize: 10, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace",
+      fontSize: 11, fontWeight: 700, fontFamily: 'var(--v3-font-family-base)',
       padding: '2px 7px', borderRadius: 3,
       textTransform: 'uppercase', letterSpacing: '0.08em',
     }}>
@@ -322,8 +322,8 @@ export function CompanyRow({ company, onAction, refreshing, V, selectable = fals
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
         {company.status === 'pending' && (
           <button onClick={() => onAction(company.id, 'approve')} style={{
-            background: 'rgba(34,197,94,0.15)', border: '1px solid rgba(34,197,94,0.4)',
-            color: '#86EFAC', borderRadius: 5, padding: '4px 8px', fontSize: 11,
+            background: 'rgba(22,163,74,0.10)', border: '1px solid rgba(22,163,74,0.30)',
+            color: '#15803D', borderRadius: 5, padding: '4px 8px', fontSize: 12,
             fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
           }}>
             Approve
@@ -331,8 +331,8 @@ export function CompanyRow({ company, onAction, refreshing, V, selectable = fals
         )}
         {company.status === 'pending' && (
           <button onClick={() => onAction(company.id, 'reject')} style={{
-            background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
-            color: '#FCA5A5', borderRadius: 5, padding: '4px 8px', fontSize: 11,
+            background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.30)',
+            color: '#DC2626', borderRadius: 5, padding: '4px 8px', fontSize: 12,
             fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
           }}>
             Reject
@@ -340,8 +340,8 @@ export function CompanyRow({ company, onAction, refreshing, V, selectable = fals
         )}
         {company.status === 'active' && (
           <button onClick={() => onAction(company.id, 'deactivate')} style={{
-            background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
-            color: '#FCA5A5', borderRadius: 5, padding: '4px 8px', fontSize: 11,
+            background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.30)',
+            color: '#DC2626', borderRadius: 5, padding: '4px 8px', fontSize: 12,
             fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
           }}>
             Deactivate
@@ -373,8 +373,8 @@ export function CompanyRow({ company, onAction, refreshing, V, selectable = fals
           Edit
         </button>
         <button onClick={handleDelete} style={{
-          background: 'rgba(239,68,68,0.18)', border: '1px solid rgba(239,68,68,0.5)',
-          color: '#FCA5A5', borderRadius: 5, padding: '4px 8px', fontSize: 11,
+          background: 'rgba(220,38,38,0.08)', border: '1px solid rgba(220,38,38,0.30)',
+          color: '#DC2626', borderRadius: 5, padding: '4px 8px', fontSize: 12,
           fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
         }}>
           Delete
@@ -389,7 +389,7 @@ export function ListingRow({ listing, company, onToggle, onEdit, onDelete, V }) 
   const btn = (label, onClick, bg, bd, fg) => (
     <button onClick={onClick} style={{
       background: bg, border: `1px solid ${bd}`, color: fg,
-      borderRadius: 5, padding: '4px 8px', fontSize: 11,
+      borderRadius: 5, padding: '4px 8px', fontSize: 12,
       fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
     }}>{label}</button>
   );
@@ -411,10 +411,10 @@ export function ListingRow({ listing, company, onToggle, onEdit, onDelete, V }) 
       </div>
       <div style={{ display: 'flex', gap: 6, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
         {listing.status === 'active'
-          ? btn('Remove', () => onToggle(listing.id, 'deactivate'), 'rgba(239,68,68,0.1)', 'rgba(239,68,68,0.3)', '#FCA5A5')
-          : btn('Restore', () => onToggle(listing.id, 'activate'), 'rgba(34,197,94,0.1)', 'rgba(34,197,94,0.3)', '#86EFAC')}
+          ? btn('Remove', () => onToggle(listing.id, 'deactivate'), 'rgba(220,38,38,0.08)', 'rgba(220,38,38,0.30)', '#DC2626')
+          : btn('Restore', () => onToggle(listing.id, 'activate'), 'rgba(22,163,74,0.10)', 'rgba(22,163,74,0.30)', '#15803D')}
         {onEdit && btn('Edit', () => onEdit(listing), 'rgba(255,255,255,0.06)', V.border, V.text)}
-        {onDelete && btn('Delete', () => onDelete(listing), 'rgba(239,68,68,0.18)', 'rgba(239,68,68,0.5)', '#FCA5A5')}
+        {onDelete && btn('Delete', () => onDelete(listing), 'rgba(220,38,38,0.08)', 'rgba(220,38,38,0.30)', '#DC2626')}
       </div>
     </div>
   );
