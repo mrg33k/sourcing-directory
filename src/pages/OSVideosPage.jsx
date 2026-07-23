@@ -197,8 +197,8 @@ function OSVideosPage() {
         (v.vertical || '').toLowerCase().includes(activeFilter.toLowerCase())
       );
 
-  /* featured = first video */
-  const featured = videos[0] || null;
+  /* featured = prefer a video with a real thumbnail, fall back to first */
+  const featured = videos.find(v => v.cover_image_url) || videos[0] || null;
   /* grid = all filtered videos */
   const gridItems = filtered;
 
