@@ -93,9 +93,25 @@ function OSMagazinePage({
       {/* featured hero */}
       {featuredItem && (
         <div className="osv3-mag-feature">
-          {/* left: swappable media slot */}
+          {/* left: swappable media slot; falls back to orbital design when null */}
           <div className="osv3-mag-feature-media">
-            {mediaSlot}
+            {mediaSlot ?? (
+              /* Engine default — alive for any future fork (Reports, Marketplace, etc.)
+                 Orbital rings + rust satellite dot + starfield. No empty rectangles. */
+              <div className="osv3-mag-fmd">
+                <div className="osv3-mag-fmd-stars" aria-hidden="true" />
+                <div className="osv3-mag-fmd-inner">
+                  <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" width="120" height="120" aria-hidden="true">
+                    <circle cx="60" cy="60" r="58" stroke="rgba(255,255,255,0.08)" strokeWidth="1"/>
+                    <circle cx="60" cy="60" r="44" stroke="rgba(206,68,33,0.25)" strokeWidth="1"/>
+                    <circle cx="60" cy="60" r="28" stroke="rgba(255,255,255,0.07)" strokeWidth="1"/>
+                    <circle cx="60" cy="60" r="10" fill="rgba(206,68,33,0.6)"/>
+                    <circle cx="60" cy="2" r="4.5" fill="#CE4421"/>
+                  </svg>
+                  <div className="osv3-mag-fmd-label">FEATURED</div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* right: content body */}

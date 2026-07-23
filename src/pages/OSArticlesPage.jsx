@@ -38,7 +38,10 @@ const PILLS = [
 ];
 
 /* ------------------------------------------------------------------ */
-/* ArticleMediaSlot — hero LEFT panel (cover image or navy gradient)    */
+/* ArticleMediaSlot — hero LEFT panel                                    */
+/* With cover: real photo + overlay.                                     */
+/* Without cover: rich fallback — headline set large over deep gradient  */
+/* so the slot is NEVER an empty rectangle.                             */
 function ArticleMediaSlot({ featured }) {
   const hasCover = !!(featured?.cover_image_url);
   return (
@@ -54,7 +57,21 @@ function ArticleMediaSlot({ featured }) {
           <div className="osv3-art-media-overlay" />
         </>
       ) : (
-        <div className="osv3-art-media-no-img" aria-hidden="true" />
+        /* Rich no-cover fallback: headline + topic + author over deep gradient */
+        <div className="osv3-art-media-fallback">
+          <div className="osv3-art-media-fallback-stars" aria-hidden="true" />
+          <div className="osv3-art-media-fallback-inner">
+            {featured?.vertical && (
+              <div className="osv3-art-media-fallback-topic">{featured.vertical}</div>
+            )}
+            {featured?.title && (
+              <div className="osv3-art-media-fallback-headline">{featured.title}</div>
+            )}
+            {featured?.author_name && (
+              <div className="osv3-art-media-fallback-author">By {featured.author_name}</div>
+            )}
+          </div>
+        </div>
       )}
       <div className="osv3-art-media-badge">FEATURED ARTICLE</div>
     </div>

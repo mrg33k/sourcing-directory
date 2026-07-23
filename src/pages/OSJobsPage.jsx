@@ -47,33 +47,45 @@ const PILLS = [
 ];
 
 /* ------------------------------------------------------------------ */
-/* JobMediaSlot — hero LEFT panel (logo + cover image if set)           */
+/* JobMediaSlot — hero LEFT panel                                        */
+/* Design: navy gradient + starfield + rust accent stripe + monogram.   */
+/* NO gray box, NO media controls — this is a job listing, not audio.  */
 function JobMediaSlot({ featured }) {
   const hasImg = !!(featured?.image_url);
   const company = featured?._company;
   const logoSrc = company?.logo_url || null;
-  const jobInits = initials(featured?.title || 'J');
+  const companyName = company?.name || featured?.author_name || '';
+  const jobInits = initials(featured?.title || 'JO');
 
   return (
     <div className="osv3-job-media">
       {hasImg && (
         <img src={featured.image_url} alt="" className="osv3-job-media-img" aria-hidden="true" />
       )}
+      {/* starfield — the slot needs stars to feel alive */}
+      <div className="osv3-job-media-stars" aria-hidden="true" />
       <div className="osv3-job-media-overlay" />
+      {/* left rust accent stripe (no media player connotation) */}
+      <div className="osv3-job-media-stripe" aria-hidden="true" />
+
       <div className="osv3-job-media-inner">
         <div className="osv3-job-media-label">FEATURED ROLE</div>
         {logoSrc ? (
-          <img src={logoSrc} alt={company?.name || ''} className="osv3-job-media-logo" />
+          <img src={logoSrc} alt={companyName} className="osv3-job-media-logo" />
         ) : (
-          <div className="osv3-job-media-logo-placeholder">{jobInits}</div>
+          /* large ghost monogram — type-only, no box, cannot read as media control */
+          <div className="osv3-job-media-monogram" aria-hidden="true">{jobInits}</div>
         )}
         {featured?.title && (
           <div className="osv3-job-media-title">{featured.title}</div>
         )}
-        {(company?.name || featured?.author_name) && (
-          <div className="osv3-job-media-company">{company?.name || featured?.author_name}</div>
+        {companyName && (
+          <div className="osv3-job-media-company">{companyName}</div>
         )}
       </div>
+
+      {/* bottom rust rule — editorial accent, no media-player connotation */}
+      <div className="osv3-job-media-rule" aria-hidden="true" />
     </div>
   );
 }
