@@ -3080,6 +3080,14 @@
   margin: 0;
 }
 
+.osv3-rfp-amount {
+  font-family: 'Roboto', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #000C20;
+  letter-spacing: -0.01em;
+}
+
 .osv3-rfp-desc {
   font-family: 'Roboto', sans-serif;
   font-size: 12px;

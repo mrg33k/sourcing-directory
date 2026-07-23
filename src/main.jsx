@@ -150,6 +150,7 @@ const OSDiscoveryPage = lazy(() => import('./pages/OSDiscoveryPage.jsx'))
 const OSNewsPage = lazy(() => import('./pages/OSNewsPage.jsx'))
 const OSPeoplePage = lazy(() => import('./pages/OSPeoplePage.jsx'))
 const OSRFPsPage = lazy(() => import('./pages/OSRFPsPage.jsx'))
+const OSGrantsPage = lazy(() => import('./pages/OSGrantsPage.jsx'))
 
 const Loading = () => (
   <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
@@ -176,7 +177,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/events" element={<OSEventsPage />} />
             <Route path="/reports" element={<OSReportsPage />} />
             <Route path="/articles" element={<OSArticlesPage />} />
-            <Route path="/grants" element={<SourcingGrantsV2 />} />
+            <Route path="/grants" element={<OSGrantsPage />} />
             <Route path="/deal-bank" element={<SourcingDealBankV2 />} />
             <Route path="/deal-bank/investments/add" element={<SourcingDealBankAddListing />} />
             <Route path="/deal-bank/investments/:slug" element={<SourcingDealBankInvestmentProfile />} />

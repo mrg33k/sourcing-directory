@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AdminSection, ListingRow } from './AdminUI.jsx';
 
-const CATEGORIES = ['equipment', 'services', 'products', 'job', 'event', 'article', 'podcast', 'video', 'whitepaper', 'news', 'person', 'rfp'];
+const CATEGORIES = ['equipment', 'services', 'products', 'job', 'event', 'article', 'podcast', 'video', 'whitepaper', 'news', 'person', 'rfp', 'grant'];
 
 const EMPTY = {
   category: 'event', company_id: '', title: '', description: '', status: 'active',
@@ -18,6 +18,8 @@ const EMPTY = {
   cover_image_url: '',
   // rfp
   deadline: '',
+  // grant
+  grant_agency: '',
 };
 
 function toLocalInput(ts) {
@@ -53,9 +55,9 @@ function ListingForm({ initial, companies, tenantId, adminSupabase, onClose, fet
         job_type: f.category === 'job' ? (f.job_type || null) : null,
         location: (f.category === 'job' || f.category === 'podcast' || f.category === 'video') ? (f.location || null) : null,
         remote: f.category === 'job' ? !!f.remote : null,
-        salary_min: f.category === 'job' ? num(f.salary_min) : null,
-        salary_max: f.category === 'job' ? num(f.salary_max) : null,
-        apply_url: ['job', 'whitepaper', 'services', 'products', 'rfp'].includes(f.category) ? (f.apply_url || null) : null,
+        salary_min: ['job', 'grant'].includes(f.category) ? num(f.salary_min) : null,
+        salary_max: ['job', 'grant'].includes(f.category) ? num(f.salary_max) : null,
+        apply_url: ['job', 'whitepaper', 'services', 'products', 'rfp', 'grant'].includes(f.category) ? (f.apply_url || null) : null,
         event_date: f.category === 'event' && f.event_date
           ? new Date(f.event_date).toISOString()
           : (f.category === 'news' && f.event_date ? new Date(f.event_date).toISOString() : null),
@@ -66,7 +68,8 @@ function ListingForm({ initial, companies, tenantId, adminSupabase, onClose, fet
         virtual_url: (f.category === 'event' || f.category === 'podcast' || f.category === 'video' || f.category === 'news' || f.category === 'person') ? (f.virtual_url || null) : null,
         author_name: (f.category === 'podcast' || f.category === 'video' || f.category === 'article' || f.category === 'whitepaper' || f.category === 'news' || f.category === 'person' || f.category === 'rfp') ? (f.author_name || null) : null,
         cover_image_url: (f.category === 'article' || f.category === 'whitepaper' || f.category === 'video') ? (f.cover_image_url || null) : null,
-        deadline: f.category === 'rfp' && f.deadline ? new Date(f.deadline).toISOString() : null,
+        deadline: ['rfp', 'grant'].includes(f.category) && f.deadline ? new Date(f.deadline).toISOString() : null,
+        grant_agency: f.category === 'grant' ? (f.grant_agency || null) : null,
       };
       let resp;
       if (isEdit) {
@@ -166,6 +169,15 @@ function ListingForm({ initial, companies, tenantId, adminSupabase, onClose, fet
           <Field label="Solicitation URL"><input style={inp} value={f.apply_url} onChange={up('apply_url')} placeholder="https://sam.gov/…" /></Field>
           <Field label="Deadline"><input style={inp} type="date" value={f.deadline ? f.deadline.slice(0, 10) : ''} onChange={e => setF(prev => ({ ...prev, deadline: e.target.value }))} /></Field>
           <Field label="Type"><input style={inp} value={f.vertical} onChange={up('vertical')} placeholder="Federal / NASA / DoD / State" /></Field>
+        </>}
+        {f.category === 'grant' && <>
+          <Field label="Grant Agency"><input style={inp} value={f.grant_agency} onChange={up('grant_agency')} placeholder="e.g. NASA, NSF, Arizona Commerce Authority" /></Field>
+          <Field label="Grant Type"><input style={inp} value={f.vertical} onChange={up('vertical')} placeholder="SBIR / STTR / Federal / State / Foundation" /></Field>
+          <Field label="Amount Min ($)"><input style={inp} type="number" value={f.salary_min} onChange={up('salary_min')} placeholder="e.g. 50000" /></Field>
+          <Field label="Amount Max ($)"><input style={inp} type="number" value={f.salary_max} onChange={up('salary_max')} placeholder="e.g. 250000" /></Field>
+          <Field label="Deadline"><input style={inp} type="date" value={f.deadline ? f.deadline.slice(0, 10) : ''} onChange={e => setF(prev => ({ ...prev, deadline: e.target.value }))} /></Field>
+          <Field label="Application URL"><input style={inp} value={f.apply_url} onChange={up('apply_url')} placeholder="https://sbir.nasa.gov/…" /></Field>
+          <Field label="Eligibility (in Description)"><span style={{ fontSize: 10, color: V.dim, fontFamily: V.space }}>Use the Description field below for eligibility criteria.</span></Field>
         </>}
       </div>
       <div style={{ marginBottom: 12 }}>
