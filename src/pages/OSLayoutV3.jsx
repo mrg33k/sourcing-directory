@@ -52,6 +52,7 @@ const OSLayoutV3 = () => {
   const [userInitials, setUserInitials] = useState('?')
   const [searchQuery, setSearchQuery] = useState('')
   const [showUserMenu, setShowUserMenu] = useState(false)
+  const [showTopbarMenu, setShowTopbarMenu] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
 
   useEffect(() => {
@@ -92,13 +93,36 @@ const OSLayoutV3 = () => {
 
   const renderAvatar = () => {
     if (user) {
-      return userInitials
+      const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture
+      if (avatarUrl) {
+        return (
+          <img
+            src={avatarUrl}
+            alt={userName}
+            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', display: 'block' }}
+          />
+        )
+      }
+      /* Elite monogram fallback: bold initials in Roboto */
+      return (
+        <span style={{
+          fontFamily: 'Roboto, sans-serif',
+          fontSize: '13px',
+          fontWeight: 700,
+          color: '#fff',
+          letterSpacing: '0.05em',
+          lineHeight: 1,
+          userSelect: 'none',
+        }}>
+          {userInitials}
+        </span>
+      )
     }
+    /* Guest: clean person icon */
     return (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{ color: 'white' }}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style={{ color: 'rgba(255,255,255,0.85)' }}>
         <circle cx="12" cy="8" r="3.5" fill="currentColor" />
-        <path d="M4 20c0-3.314 2.686-6 6-6s6 2.686 6 6v0" fill="currentColor" fillOpacity="0.6" />
-        <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="1" />
+        <path d="M4 20c0-3.314 3.582-6 8-6s8 2.686 8 6" fill="currentColor" fillOpacity="0.55" />
       </svg>
     )
   }
@@ -220,16 +244,32 @@ const OSLayoutV3 = () => {
           </form>
 
           <div className="osv3-topbar-actions">
-            <div className="osv3-icon-btn" aria-label="Notifications">
-              {/* outreach = proactive one-way notification; flag for Patrik: same glyph as Ecosystem sidebar */}
-              <img src="/v2-assets/tim-icons/outreach.png" alt="" className="osv3-topbar-tim-icon" />
-              <div className="osv3-notification-badge"></div>
-            </div>
-            <div className="osv3-icon-btn" aria-label="Messages">
-              <img src="/v2-assets/tim-icons/communication.png" alt="" className="osv3-topbar-tim-icon" />
-            </div>
-            <div className={`osv3-topbar-avatar ${!user ? 'osv3-avatar-guest' : ''}`}>
+            {/* Dead icon buttons removed — "outreach.png" and "communication.png" had no onClick;
+                a dead button is worse than no button. Avatar sits cleanly at right. */}
+            <div
+              className={`osv3-topbar-avatar ${!user ? 'osv3-avatar-guest' : ''}`}
+              onClick={() => setShowTopbarMenu(!showTopbarMenu)}
+              onKeyDown={e => e.key === 'Enter' && setShowTopbarMenu(!showTopbarMenu)}
+              role="button"
+              tabIndex={0}
+              aria-label={user ? `Account menu for ${userName}` : 'Sign in'}
+              style={{ cursor: 'pointer', position: 'relative' }}
+            >
               {renderAvatar()}
+              {showTopbarMenu && user && (
+                <div className="osv3-user-menu" style={{ top: 'calc(100% + 10px)', right: 0, left: 'auto' }}>
+                  <button onClick={handleSignOut} className="osv3-user-menu-item">
+                    Sign Out
+                  </button>
+                </div>
+              )}
+              {showTopbarMenu && !user && (
+                <div className="osv3-user-menu" style={{ top: 'calc(100% + 10px)', right: 0, left: 'auto' }}>
+                  <button onClick={() => { setShowTopbarMenu(false); navigate('/login'); }} className="osv3-user-menu-item">
+                    Sign In
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>

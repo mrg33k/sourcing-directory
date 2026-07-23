@@ -22,7 +22,7 @@ export const OSIntelligenceHub = () => (
       { label: 'Articles', href: '/articles' },
       { label: 'Discovery', href: '/discovery' },
       { label: 'News', future: true },
-      { label: 'Podcasts', future: true },
+      { label: 'Podcasts', href: '/podcasts' },
       { label: 'Videos', future: true },
     ]}
   />

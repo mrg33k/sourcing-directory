@@ -1,0 +1,670 @@
+/* OSMagazinePage — alive page engine for Space OS v3
+   All classes prefixed .osv3-mag to avoid collision with v2 styles.
+   Podcast-specific slots prefixed .osv3-pod, episode cards .osv3-ep.
+   ---------------------------------------------------------------- */
+
+/* page wrapper */
+.osv3-mag {
+  padding: 32px;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* breadcrumb */
+.osv3-mag-crumb {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--v3-accent);
+  margin-bottom: 16px;
+  font-family: var(--v3-font-family-base);
+}
+.osv3-mag-crumb span {
+  color: var(--v3-muted);
+}
+
+/* page head */
+.osv3-mag-page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 26px;
+  flex-wrap: wrap;
+}
+.osv3-mag-page-title {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--v3-ink-primary);
+  font-family: var(--v3-font-family-base);
+  margin: 0;
+}
+.osv3-mag-page-sub {
+  font-size: 16px;
+  color: var(--v3-muted);
+  margin-top: 8px;
+  max-width: 560px;
+  line-height: 1.5;
+  font-family: var(--v3-font-family-base);
+  margin-bottom: 0;
+}
+
+/* rust Add pill (always present, anti-empty door) */
+.osv3-mag-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  background: var(--v3-accent);
+  color: #fff;
+  border: 0;
+  border-radius: 999px;
+  padding: 12px 22px;
+  font-family: var(--v3-font-family-base);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: background 0.16s, transform 0.16s;
+  white-space: nowrap;
+  text-decoration: none;
+}
+.osv3-mag-add-btn:hover {
+  background: #b83916;
+  transform: translateY(-1px);
+}
+.osv3-mag-add-plus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  font-size: 13px;
+  line-height: 1;
+}
+
+/* featured hero (cinematic navy shell) */
+.osv3-mag-feature {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--v3-sidebar-bg);
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 0;
+  margin-bottom: 44px;
+  box-shadow: 0 18px 40px rgba(1, 11, 19, 0.16);
+}
+.osv3-mag-feature-media {
+  position: relative;
+  min-height: 340px;
+  overflow: hidden;
+}
+
+/* right body panel */
+.osv3-mag-feature-body {
+  padding: 34px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  color: #fff;
+}
+.osv3-mag-f-eyebrow {
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  /* lifted rust per critic: ~#E5613E for AA on navy */
+  color: #E5613E;
+  margin-bottom: 14px;
+  font-family: var(--v3-font-family-base);
+}
+.osv3-mag-f-title {
+  /* critic should-fix: 34-36px to out-rank 32px page label */
+  font-size: 35px;
+  font-weight: 700;
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+  margin-bottom: 12px;
+  color: #fff;
+  font-family: var(--v3-font-family-base);
+  margin-top: 0;
+}
+.osv3-mag-f-host {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #cdd6e6;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--v3-font-family-base);
+}
+.osv3-mag-f-host-tag {
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 500;
+}
+.osv3-mag-f-desc {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.82);
+  max-width: 520px;
+  margin-bottom: 20px;
+  font-family: var(--v3-font-family-base);
+  margin-top: 0;
+}
+.osv3-mag-f-meta {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 12.5px;
+  color: rgba(255, 255, 255, 0.62);
+  margin-bottom: 24px;
+  font-family: var(--v3-font-family-base);
+}
+.osv3-mag-f-meta b {
+  color: #fff;
+  font-weight: 600;
+}
+.osv3-mag-f-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* play CTA */
+.osv3-mag-btn-play {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--v3-accent);
+  color: #fff;
+  border: 0;
+  text-decoration: none;
+  border-radius: 8px;
+  padding: 12px 22px;
+  font-family: var(--v3-font-family-base);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.16s;
+}
+.osv3-mag-btn-play:hover {
+  background: #b83916;
+}
+.osv3-mag-tri {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 7px 0 7px 12px;
+  border-color: transparent transparent transparent #fff;
+}
+
+/* ghost CTA */
+.osv3-mag-btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-family: var(--v3-font-family-base);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.16s, border-color 0.16s;
+}
+.osv3-mag-btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* grid header row */
+.osv3-mag-grid-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.osv3-mag-sec-eyebrow {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--v3-ink-primary);
+  font-family: var(--v3-font-family-base);
+}
+.osv3-mag-sec-eyebrow span {
+  color: var(--v3-accent);
+  margin-left: 3px;
+}
+
+/* filter pills */
+.osv3-mag-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.osv3-mag-pill {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--v3-ink-secondary);
+  background: #fff;
+  border: 1px solid var(--v3-border);
+  border-radius: 999px;
+  padding: 8px 15px;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: var(--v3-font-family-base);
+}
+.osv3-mag-pill:hover {
+  border-color: var(--v3-accent);
+  color: var(--v3-accent);
+}
+.osv3-mag-pill-active {
+  background: var(--v3-accent) !important;
+  border-color: var(--v3-accent) !important;
+  color: #fff !important;
+}
+
+/* card grid */
+.osv3-mag-card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+.osv3-mag-loading {
+  padding: 40px;
+  text-align: center;
+  color: var(--v3-muted);
+  font-family: var(--v3-font-family-base);
+}
+
+/* =====================================================================
+   PODCAST MEDIA SLOT (left side of hero, injected via mediaSlot prop)
+   ===================================================================== */
+.osv3-pod-media {
+  position: relative;
+  min-height: 340px;
+  overflow: hidden;
+  background: radial-gradient(130% 120% at 25% 20%, #20325a 0%, #0a1730 45%, #000814 100%);
+  cursor: pointer;
+}
+
+/* starfield overlay */
+.osv3-pod-media::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(1.4px 1.4px at 20% 30%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 70% 25%, #cdd6e6, transparent),
+    radial-gradient(1.6px 1.6px at 45% 65%, #fff, transparent),
+    radial-gradient(1.1px 1.1px at 82% 72%, #aab6cc, transparent),
+    radial-gradient(1.3px 1.3px at 32% 82%, #fff, transparent),
+    radial-gradient(1.2px 1.2px at 60% 48%, #e5ebf5, transparent);
+  pointer-events: none;
+}
+
+/* outer orbital ring */
+.osv3-pod-orbit {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 210px;
+  height: 210px;
+  border: 1px solid rgba(206, 68, 33, 0.35);
+  border-radius: 50%;
+}
+.osv3-pod-orbit::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--v3-accent);
+  box-shadow: 0 0 12px 2px rgba(206, 68, 33, 0.8);
+}
+
+/* inner orbital ring */
+.osv3-pod-orbit-two {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 150px;
+  height: 150px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 50%;
+}
+
+/* center play button */
+.osv3-pod-cover-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: var(--v3-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 26px rgba(206, 68, 33, 0.5);
+  transition: transform 0.18s;
+  z-index: 2;
+}
+.osv3-pod-media:hover .osv3-pod-cover-play {
+  transform: translate(-50%, -50%) scale(1.06);
+}
+.osv3-pod-tri {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 11px 0 11px 18px;
+  border-color: transparent transparent transparent #fff;
+  margin-left: 4px;
+}
+
+/* NEW badge */
+.osv3-pod-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: var(--v3-accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-family: var(--v3-font-family-base);
+  z-index: 2;
+}
+
+/* waveform at bottom of media slot */
+.osv3-pod-wave {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 56px;
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  padding: 0 18px 16px;
+  opacity: 0.9;
+  z-index: 2;
+}
+.osv3-pod-wave i {
+  flex: 1;
+  background: linear-gradient(180deg, rgba(206, 68, 33, 0.9), rgba(206, 68, 33, 0.25));
+  border-radius: 2px;
+  font-style: normal;
+}
+
+/* =====================================================================
+   PODCAST EPISODE CARDS
+   ===================================================================== */
+.osv3-ep-card {
+  background: #fff;
+  border: 1px solid var(--v3-border);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: border-color 0.16s, box-shadow 0.16s, transform 0.16s;
+  text-decoration: none;
+  color: inherit;
+}
+.osv3-ep-card:hover {
+  border-color: var(--v3-accent);
+  box-shadow: 0 10px 24px rgba(1, 11, 19, 0.12);
+  transform: translateY(-3px);
+}
+.osv3-ep-cover {
+  position: relative;
+  height: 158px;
+  border-top: 3px solid var(--v3-accent);
+  overflow: hidden;
+}
+/* starfield overlay on cards */
+.osv3-ep-cover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(1.2px 1.2px at 25% 30%, #fff, transparent),
+    radial-gradient(1px 1px at 68% 22%, #cdd6e6, transparent),
+    radial-gradient(1.3px 1.3px at 48% 70%, #fff, transparent),
+    radial-gradient(1px 1px at 80% 60%, #aab6cc, transparent);
+  pointer-events: none;
+}
+
+/* orbital ring on card cover */
+.osv3-ep-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 96px;
+  height: 96px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 50%;
+}
+
+/* cover gradient variants (4-up) */
+.osv3-cov-a { background: radial-gradient(120% 120% at 30% 20%, #22345c, #000C20 72%); }
+.osv3-cov-b { background: radial-gradient(120% 120% at 70% 25%, #3a2140, #0b0716 72%); }
+.osv3-cov-c { background: radial-gradient(120% 120% at 25% 30%, #14384a, #02121a 72%); }
+.osv3-cov-d { background: radial-gradient(120% 120% at 75% 22%, #1f2a55, #050a1c 72%); }
+
+/* initials in cover center */
+.osv3-ep-init {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  font-family: var(--v3-font-family-base);
+  z-index: 1;
+}
+
+/* hover play button on card */
+.osv3-ep-play {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--v3-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px rgba(206, 68, 33, 0.5);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.16s, transform 0.16s;
+  z-index: 2;
+}
+.osv3-ep-card:hover .osv3-ep-play {
+  opacity: 1;
+  transform: translateY(0);
+}
+.osv3-ep-tri {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 7px 0 7px 11px;
+  border-color: transparent transparent transparent #fff;
+  margin-left: 2px;
+}
+
+/* category badge */
+.osv3-ep-cat {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: rgba(0, 8, 20, 0.72);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 4px 9px;
+  border-radius: 5px;
+  backdrop-filter: blur(2px);
+  font-family: var(--v3-font-family-base);
+  z-index: 2;
+}
+
+/* duration badge */
+.osv3-ep-dur {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: rgba(0, 8, 20, 0.78);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 9px;
+  border-radius: 5px;
+  font-family: var(--v3-font-family-base);
+  z-index: 2;
+}
+
+/* card body */
+.osv3-ep-body {
+  padding: 16px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.osv3-ep-title {
+  font-size: 15.5px;
+  font-weight: 700;
+  line-height: 1.32;
+  color: var(--v3-ink-primary);
+  margin-bottom: 8px;
+  margin-top: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-family: var(--v3-font-family-base);
+}
+.osv3-ep-host {
+  font-size: 13px;
+  color: var(--v3-ink-secondary);
+  font-weight: 500;
+  margin-bottom: 14px;
+  font-family: var(--v3-font-family-base);
+}
+.osv3-ep-foot {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid var(--v3-border);
+}
+.osv3-ep-date {
+  font-size: 12px;
+  color: var(--v3-muted);
+  font-family: var(--v3-font-family-base);
+}
+.osv3-ep-listen {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--v3-accent);
+  text-decoration: none;
+  font-family: var(--v3-font-family-base);
+}
+.osv3-ep-listen-tri {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 5px 0 5px 8px;
+  border-color: transparent transparent transparent var(--v3-accent);
+}
+
+/* =====================================================================
+   RESPONSIVE
+   ===================================================================== */
+@media (max-width: 1024px) {
+  .osv3-mag-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .osv3-mag {
+    padding: 20px 16px;
+  }
+  .osv3-mag-feature {
+    grid-template-columns: 1fr;
+  }
+  .osv3-mag-feature-media {
+    min-height: 220px;
+  }
+  .osv3-pod-media {
+    min-height: 220px;
+  }
+  .osv3-mag-feature-body {
+    padding: 26px 22px;
+  }
+  .osv3-mag-f-title {
+    font-size: 24px;
+  }
+  .osv3-mag-page-title {
+    font-size: 26px;
+  }
+  .osv3-mag-page-sub {
+    font-size: 14px;
+  }
+  .osv3-mag-page-head {
+    align-items: flex-start;
+  }
+  .osv3-mag-card-grid {
+    grid-template-columns: 1fr;
+  }
+  .osv3-ep-cover {
+    height: 180px;
+  }
+  .osv3-mag-pills {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+  }
+  .osv3-mag-pill {
+    flex-shrink: 0;
+  }
+}

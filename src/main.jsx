@@ -138,6 +138,7 @@ const OSIntelligenceHub = lazy(() => import('./pages/OSHubPages.jsx').then(m => 
 const OSOpportunitiesHub = lazy(() => import('./pages/OSHubPages.jsx').then(m => ({ default: m.OSOpportunitiesHub })))
 const OSLearningHub = lazy(() => import('./pages/OSHubPages.jsx').then(m => ({ default: m.OSLearningHub })))
 const OSLibraryHub = lazy(() => import('./pages/OSHubPages.jsx').then(m => ({ default: m.OSLibraryHub })))
+const OSPodcastsPage = lazy(() => import('./pages/OSPodcastsPage.jsx'))
 
 const Loading = () => (
   <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
@@ -170,6 +171,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/deal-bank/investments/:slug" element={<SourcingDealBankInvestmentProfile />} />
             <Route path="/deal-bank/investors/signup" element={<SourcingDealBankInvestorSignup />} />
             <Route path="/deal-bank/investors/:slug" element={<SourcingDealBankInvestorProfile />} />
+            <Route path="/podcasts" element={<OSPodcastsPage />} />
             <Route path="/learning" element={<OSLearningHub />} />
             <Route path="/library" element={<OSLibraryHub />} />
             <Route path="/membership" element={<SourcingMembershipV2 />} />

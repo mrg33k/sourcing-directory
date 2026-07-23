@@ -119,7 +119,7 @@ const SpaceOSHomeV3 = () => {
       { label: 'Articles', href: '/articles', real: true },
       { label: 'Discovery', href: '/discovery', real: true },
       { label: 'News', href: '#', real: false },
-      { label: 'Podcasts', href: '#', real: false },
+      { label: 'Podcasts', href: '/podcasts', real: true },
       { label: 'Videos', href: '#', real: false },
     ]},
     { title: 'Opportunities', color: '#F97316', exploreHref: '/opportunities', links: [

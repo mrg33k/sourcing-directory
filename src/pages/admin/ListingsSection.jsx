@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AdminSection, ListingRow } from './AdminUI.jsx';
 
-const CATEGORIES = ['equipment', 'job', 'event', 'article'];
+const CATEGORIES = ['equipment', 'job', 'event', 'article', 'podcast'];
 
 const EMPTY = {
   category: 'event', company_id: '', title: '', description: '', status: 'active',
@@ -12,6 +12,8 @@ const EMPTY = {
   job_type: '', location: '', remote: false, salary_min: '', salary_max: '', apply_url: '',
   // event
   event_date: '', event_end_date: '', event_location: '', event_type: '', organizer: '', virtual_url: '',
+  // podcast
+  author_name: '',
 };
 
 function toLocalInput(ts) {
@@ -45,7 +47,7 @@ function ListingForm({ initial, companies, tenantId, adminSupabase, onClose, fet
         price: f.category === 'equipment' ? num(f.price) : null,
         condition: f.category === 'equipment' ? (f.condition || null) : null,
         job_type: f.category === 'job' ? (f.job_type || null) : null,
-        location: f.category === 'job' ? (f.location || null) : null,
+        location: (f.category === 'job' || f.category === 'podcast') ? (f.location || null) : null,
         remote: f.category === 'job' ? !!f.remote : null,
         salary_min: f.category === 'job' ? num(f.salary_min) : null,
         salary_max: f.category === 'job' ? num(f.salary_max) : null,
@@ -55,7 +57,8 @@ function ListingForm({ initial, companies, tenantId, adminSupabase, onClose, fet
         event_location: f.category === 'event' ? (f.event_location || null) : null,
         event_type: f.category === 'event' ? (f.event_type || null) : null,
         organizer: f.category === 'event' ? (f.organizer || null) : null,
-        virtual_url: f.category === 'event' ? (f.virtual_url || null) : null,
+        virtual_url: (f.category === 'event' || f.category === 'podcast') ? (f.virtual_url || null) : null,
+        author_name: f.category === 'podcast' ? (f.author_name || null) : null,
       };
       let resp;
       if (isEdit) {
@@ -110,6 +113,11 @@ function ListingForm({ initial, companies, tenantId, adminSupabase, onClose, fet
           <Field label="Event Type"><select style={inp} value={f.event_type} onChange={up('event_type')}><option value="">—</option><option>conference</option><option>meetup</option><option>webinar</option><option>workshop</option><option>expo</option></select></Field>
           <Field label="Organizer"><input style={inp} value={f.organizer} onChange={up('organizer')} /></Field>
           <Field label="Virtual URL"><input style={inp} value={f.virtual_url} onChange={up('virtual_url')} /></Field>
+        </>}
+        {f.category === 'podcast' && <>
+          <Field label="Host / Guest"><input style={inp} value={f.author_name} onChange={up('author_name')} placeholder="e.g. David Ariosto" /></Field>
+          <Field label="Audio / Video URL"><input style={inp} value={f.virtual_url} onChange={up('virtual_url')} placeholder="https://…" /></Field>
+          <Field label="Duration"><input style={inp} value={f.location} onChange={up('location')} placeholder="e.g. 48 min" /></Field>
         </>}
       </div>
       <div style={{ marginBottom: 12 }}>
