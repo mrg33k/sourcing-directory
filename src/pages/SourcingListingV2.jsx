@@ -198,7 +198,6 @@ export default function SourcingListingV2({ kind = 'job' }) {
             <>
               {listing.vertical && <span className="osv3-detail-meta-pill">{listing.vertical}</span>}
               {listing.topic && <span className="osv3-detail-meta-pill">{listing.topic}</span>}
-              {posted && <span className="osv3-detail-meta-pill">{posted}</span>}
             </>
           )}
           {kind !== 'article' && kind !== 'whitepaper' && posted && <span className="osv3-detail-meta-pill">{posted}</span>}
