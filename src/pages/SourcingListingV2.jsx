@@ -14,7 +14,7 @@ const KIND_META = {
   job:         { backLabel: 'Careers',     backPath: '/jobs',        tabLabel: 'Open Positions' },
   event:       { backLabel: 'Community',   backPath: '/events',      tabLabel: 'Events' },
   marketplace: { backLabel: 'Marketplace', backPath: '/marketplace', tabLabel: 'Browse' },
-  article:     { backLabel: 'Intelligence', backPath: '/articles',   tabLabel: 'Articles' },
+  article:     { backLabel: 'Articles',     backPath: '/articles',   tabLabel: 'Articles' },
 };
 
 function fmtDate(v) {
@@ -121,6 +121,7 @@ export default function SourcingListingV2({ kind = 'job' }) {
   let ctaText = 'View';
   if (kind === 'event') ctaText = 'Register';
   else if (kind === 'marketplace') ctaText = 'Contact';
+  else if (kind === 'article') ctaText = 'Read Source';
   else ctaText = 'Apply';
 
   return (
