@@ -266,7 +266,7 @@ function OSJobsPage() {
         <JobCard key={item.id || i} item={item} index={i} />
       )}
       isLoading={isLoading}
-      sectionLabel={`OPEN POSITIONS (${filtered.length})`}
+      sectionLabel="OPEN POSITIONS"
     />
   );
 }

@@ -191,9 +191,9 @@ function OSEventsPage() {
   const featIsUpcoming = featDp && featDp.raw >= featNow;
 
   const sectionLabel =
-    activeFilter === 'upcoming' ? `UPCOMING (${upcoming.length})`
-    : activeFilter === 'past' ? `PAST EVENTS (${past.length})`
-    : `ALL EVENTS (${events.length})`;
+    activeFilter === 'upcoming' ? 'UPCOMING'
+    : activeFilter === 'past' ? 'PAST EVENTS'
+    : 'ALL EVENTS';
 
   return (
     <OSMagazinePage

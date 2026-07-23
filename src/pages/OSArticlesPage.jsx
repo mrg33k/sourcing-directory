@@ -218,7 +218,7 @@ function OSArticlesPage() {
         />
       )}
       isLoading={isLoading}
-      sectionLabel={`ALL ARTICLES (${filtered.length})`}
+      sectionLabel="ALL ARTICLES"
     />
   );
 }
