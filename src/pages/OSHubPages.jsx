@@ -25,9 +25,9 @@ export const OSEcosystemHub = () => (
       {
         label: 'People',
         description: "Founders, researchers, and professionals building Arizona's space future.",
-        href: null,
+        href: '/people',
         icon: 'people',
-        comingSoon: true,
+        comingSoon: false,
       },
     ]}
     ctaBand={{
@@ -76,9 +76,9 @@ export const OSIntelligenceHub = () => (
       {
         label: 'News',
         description: 'Real-time coverage from KTAR, AZPBS, FOX 10, and Arizona-focused space outlets.',
-        href: null,
+        href: '/news',
         icon: 'news',
-        comingSoon: true,
+        comingSoon: false,
       },
       {
         label: 'Videos',
@@ -101,9 +101,9 @@ export const OSOpportunitiesHub = () => (
       {
         label: 'RFPs',
         description: "Open solicitations from NASA, DoD, and state agencies seeking Arizona-based vendors.",
-        href: null,
+        href: '/rfps',
         icon: 'rfp',
-        comingSoon: true,
+        comingSoon: false,
       },
       {
         label: 'Grants',

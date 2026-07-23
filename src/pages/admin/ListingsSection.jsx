@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AdminSection, ListingRow } from './AdminUI.jsx';
 
-const CATEGORIES = ['equipment', 'services', 'products', 'job', 'event', 'article', 'podcast', 'video', 'whitepaper'];
+const CATEGORIES = ['equipment', 'services', 'products', 'job', 'event', 'article', 'podcast', 'video', 'whitepaper', 'news', 'person', 'rfp'];
 
 const EMPTY = {
   category: 'event', company_id: '', title: '', description: '', status: 'active',
@@ -16,6 +16,8 @@ const EMPTY = {
   author_name: '',
   // whitepaper / article
   cover_image_url: '',
+  // rfp
+  deadline: '',
 };
 
 function toLocalInput(ts) {
@@ -53,15 +55,18 @@ function ListingForm({ initial, companies, tenantId, adminSupabase, onClose, fet
         remote: f.category === 'job' ? !!f.remote : null,
         salary_min: f.category === 'job' ? num(f.salary_min) : null,
         salary_max: f.category === 'job' ? num(f.salary_max) : null,
-        apply_url: ['job', 'whitepaper', 'services', 'products'].includes(f.category) ? (f.apply_url || null) : null,
-        event_date: f.category === 'event' && f.event_date ? new Date(f.event_date).toISOString() : null,
+        apply_url: ['job', 'whitepaper', 'services', 'products', 'rfp'].includes(f.category) ? (f.apply_url || null) : null,
+        event_date: f.category === 'event' && f.event_date
+          ? new Date(f.event_date).toISOString()
+          : (f.category === 'news' && f.event_date ? new Date(f.event_date).toISOString() : null),
         event_end_date: f.category === 'event' && f.event_end_date ? new Date(f.event_end_date).toISOString() : null,
         event_location: f.category === 'event' ? (f.event_location || null) : null,
         event_type: f.category === 'event' ? (f.event_type || null) : null,
         organizer: f.category === 'event' ? (f.organizer || null) : null,
-        virtual_url: (f.category === 'event' || f.category === 'podcast' || f.category === 'video') ? (f.virtual_url || null) : null,
-        author_name: (f.category === 'podcast' || f.category === 'video' || f.category === 'article' || f.category === 'whitepaper') ? (f.author_name || null) : null,
+        virtual_url: (f.category === 'event' || f.category === 'podcast' || f.category === 'video' || f.category === 'news' || f.category === 'person') ? (f.virtual_url || null) : null,
+        author_name: (f.category === 'podcast' || f.category === 'video' || f.category === 'article' || f.category === 'whitepaper' || f.category === 'news' || f.category === 'person' || f.category === 'rfp') ? (f.author_name || null) : null,
         cover_image_url: (f.category === 'article' || f.category === 'whitepaper' || f.category === 'video') ? (f.cover_image_url || null) : null,
+        deadline: f.category === 'rfp' && f.deadline ? new Date(f.deadline).toISOString() : null,
       };
       let resp;
       if (isEdit) {
@@ -144,6 +149,23 @@ function ListingForm({ initial, companies, tenantId, adminSupabase, onClose, fet
           <Field label="Document URL"><input style={inp} value={f.apply_url} onChange={up('apply_url')} placeholder="https://…" /></Field>
           <Field label="Cover Image URL"><input style={inp} value={f.cover_image_url} onChange={up('cover_image_url')} placeholder="https://…" /></Field>
           <Field label="Author / Publisher"><input style={inp} value={f.author_name} onChange={up('author_name')} /></Field>
+        </>}
+        {f.category === 'news' && <>
+          <Field label="Outlet / Source"><input style={inp} value={f.author_name} onChange={up('author_name')} placeholder="e.g. KTAR, AZPBS, FOX 10" /></Field>
+          <Field label="Article URL"><input style={inp} value={f.virtual_url} onChange={up('virtual_url')} placeholder="https://…" /></Field>
+          <Field label="Publication Date"><input style={inp} type="date" value={f.event_date ? f.event_date.slice(0, 10) : ''} onChange={e => setF(prev => ({ ...prev, event_date: e.target.value }))} /></Field>
+          <Field label="Topic"><input style={inp} value={f.vertical} onChange={up('vertical')} placeholder="Space Congress / Aerospace / Policy / Local" /></Field>
+        </>}
+        {f.category === 'person' && <>
+          <Field label="Role / Title"><input style={inp} value={f.author_name} onChange={up('author_name')} placeholder="e.g. Chairman, CEO, Director" /></Field>
+          <Field label="Organization"><input style={inp} value={f.vertical} onChange={up('vertical')} placeholder="e.g. Arizona Space Commission" /></Field>
+          <Field label="Profile URL"><input style={inp} value={f.virtual_url} onChange={up('virtual_url')} placeholder="https://linkedin.com/in/…" /></Field>
+        </>}
+        {f.category === 'rfp' && <>
+          <Field label="Issuing Agency"><input style={inp} value={f.author_name} onChange={up('author_name')} placeholder="e.g. NASA, DoD, Arizona Commerce Authority" /></Field>
+          <Field label="Solicitation URL"><input style={inp} value={f.apply_url} onChange={up('apply_url')} placeholder="https://sam.gov/…" /></Field>
+          <Field label="Deadline"><input style={inp} type="date" value={f.deadline ? f.deadline.slice(0, 10) : ''} onChange={e => setF(prev => ({ ...prev, deadline: e.target.value }))} /></Field>
+          <Field label="Type"><input style={inp} value={f.vertical} onChange={up('vertical')} placeholder="Federal / NASA / DoD / State" /></Field>
         </>}
       </div>
       <div style={{ marginBottom: 12 }}>
