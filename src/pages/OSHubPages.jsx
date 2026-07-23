@@ -30,6 +30,11 @@ export const OSEcosystemHub = () => (
         comingSoon: true,
       },
     ]}
+    ctaBand={{
+      text: "Know a company, organization, or professional we're missing from the directory?",
+      ctaLabel: 'Submit a listing',
+      href: '/admin/listings',
+    }}
   />
 )
 
@@ -115,6 +120,11 @@ export const OSOpportunitiesHub = () => (
         comingSoon: false,
       },
     ]}
+    ctaBand={{
+      text: "Have an RFP, grant, or investment opportunity to share with Arizona's space community?",
+      ctaLabel: 'Post an opportunity',
+      href: '/admin/listings',
+    }}
   />
 )
 
@@ -132,7 +142,47 @@ export const OSLearningHub = () => (
         icon: 'learn',
         comingSoon: true,
       },
+      {
+        label: 'Aerospace Engineering Fundamentals',
+        description: 'Propulsion, orbital mechanics, and systems design — the technical core every space professional needs.',
+        href: null,
+        icon: 'discovery',
+        comingSoon: true,
+      },
+      {
+        label: 'Space Business & Policy',
+        description: 'Frameworks, case studies, and regulatory analysis for space entrepreneurs and executives.',
+        href: null,
+        icon: 'article',
+        comingSoon: true,
+      },
+      {
+        label: 'Satellite Systems & Operations',
+        description: 'End-to-end mission design, ground systems, and data processing for Earth observation and comms.',
+        href: null,
+        icon: 'report',
+        comingSoon: true,
+      },
+      {
+        label: 'Arizona Career Accelerator',
+        description: "Connect with Arizona's space employers. Job prep, interview coaching, and direct intro to local teams.",
+        href: null,
+        icon: 'people',
+        comingSoon: true,
+      },
+      {
+        label: 'Space Law & Compliance',
+        description: 'Licensing, export controls (ITAR/EAR), and commercial space law essentials for founders and teams.',
+        href: null,
+        icon: 'rfp',
+        comingSoon: true,
+      },
     ]}
+    ctaBand={{
+      text: "Courses launching in 2025. Be first in the door for Arizona space learning.",
+      ctaLabel: 'Join the waitlist',
+      href: '/join',
+    }}
   />
 )
 
@@ -142,6 +192,13 @@ export const OSLibraryHub = () => (
     eyebrow="SPACE OS // MY LIBRARY"
     subtitle="Your personal collection. Saved resources, follows, and the content you come back to."
     accent="#6366F1"
+    emptyStateBanner={{
+      icon: 'bookmark',
+      title: 'Your library starts here',
+      subtitle: 'Save reports, articles, and listings as you explore Space OS. Follow the companies and topics that matter to your work — everything lives here.',
+      ctaLabel: 'Sign in to start collecting',
+      ctaHref: '/login',
+    }}
     sections={[
       {
         label: 'Saved Items',
@@ -158,5 +215,10 @@ export const OSLibraryHub = () => (
         comingSoon: true,
       },
     ]}
+    ctaBand={{
+      text: "Everything you save and follow across Space OS lives in your Library — sign in to start.",
+      ctaLabel: 'Sign in',
+      href: '/login',
+    }}
   />
 )

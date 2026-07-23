@@ -167,8 +167,20 @@ function SectionCard({ section, accentColor }) {
 }
 
 /* OSHubAlivePage */
-function OSHubAlivePage({ title, subtitle, eyebrow, accent = '#3B82F6', sections = [] }) {
+function OSHubAlivePage({
+  title,
+  subtitle,
+  eyebrow,
+  accent = '#3B82F6',
+  sections = [],
+  ctaBand,       // { text, ctaLabel, href } — navy bar rendered below the grid
+  emptyStateBanner, // { icon, title, subtitle, ctaLabel, ctaHref } — shown between hero + grid
+}) {
   const liveCount = sections.filter(s => !s.comingSoon).length;
+  const allComingSoon = liveCount === 0;
+  const gridLabel = allComingSoon
+    ? "WHAT'S COMING"
+    : `EXPLORE  ${liveCount} LIVE ${liveCount === 1 ? 'SECTION' : 'SECTIONS'}`;
 
   return (
     <div className="osv3-hub-alive">
@@ -188,11 +200,33 @@ function OSHubAlivePage({ title, subtitle, eyebrow, accent = '#3B82F6', sections
         <div className="osv3-hub-alive-hero-accent" style={{ background: accent }} />
       </div>
 
+      {/* empty state banner — shown between hero and grid when provided */}
+      {emptyStateBanner && (
+        <div className="osv3-hub-alive-empty-banner">
+          {emptyStateBanner.icon && ICONS[emptyStateBanner.icon] && (
+            <div className="osv3-hub-alive-empty-banner-icon" style={{ color: accent }}>
+              {ICONS[emptyStateBanner.icon]}
+            </div>
+          )}
+          <h2 className="osv3-hub-alive-empty-banner-title">{emptyStateBanner.title}</h2>
+          {emptyStateBanner.subtitle && (
+            <p className="osv3-hub-alive-empty-banner-subtitle">{emptyStateBanner.subtitle}</p>
+          )}
+          {emptyStateBanner.ctaHref && (
+            <a
+              href={emptyStateBanner.ctaHref}
+              className="osv3-hub-alive-empty-banner-cta"
+              style={{ background: accent }}
+            >
+              {emptyStateBanner.ctaLabel}
+            </a>
+          )}
+        </div>
+      )}
+
       {/* grid header */}
       <div className="osv3-hub-alive-grid-head">
-        <div className="osv3-hub-alive-grid-eyebrow">
-          EXPLORE&nbsp;&nbsp;{liveCount} LIVE {liveCount === 1 ? 'SECTION' : 'SECTIONS'}
-        </div>
+        <div className="osv3-hub-alive-grid-eyebrow">{gridLabel}</div>
       </div>
 
       {/* section portal cards */}
@@ -201,6 +235,16 @@ function OSHubAlivePage({ title, subtitle, eyebrow, accent = '#3B82F6', sections
           <SectionCard key={i} section={s} accentColor={accent} />
         ))}
       </div>
+
+      {/* CTA band — navy bar with rust CTA below the grid */}
+      {ctaBand && (
+        <div className="osv3-hub-alive-cta-band">
+          <p className="osv3-hub-alive-cta-band-text">{ctaBand.text}</p>
+          <a href={ctaBand.href} className="osv3-hub-alive-cta-band-btn">
+            {ctaBand.ctaLabel}
+          </a>
+        </div>
+      )}
     </div>
   );
 }

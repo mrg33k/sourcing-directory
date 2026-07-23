@@ -228,6 +228,107 @@
 }
 
 /* ---------------------------------------------------------------
+   Empty state banner — shown when all sections are coming soon */
+.osv3-hub-alive-empty-banner {
+  background: #F8F9FB;
+  border: 1px solid #E4E8ED;
+  border-radius: 12px;
+  padding: 52px 40px;
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.osv3-hub-alive-empty-banner-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.osv3-hub-alive-empty-banner-icon svg {
+  width: 56px;
+  height: 56px;
+}
+
+.osv3-hub-alive-empty-banner-title {
+  font-family: Roboto, sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  color: #010B13;
+  margin: 0 0 12px;
+  letter-spacing: -0.01em;
+}
+
+.osv3-hub-alive-empty-banner-subtitle {
+  font-family: Roboto, sans-serif;
+  font-size: 15px;
+  color: #596172;
+  max-width: 480px;
+  margin: 0 auto 28px;
+  line-height: 1.6;
+}
+
+.osv3-hub-alive-empty-banner-cta {
+  display: inline-block;
+  color: #FEFDFD;
+  text-decoration: none;
+  font-family: Roboto, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  padding: 13px 32px;
+  border-radius: 7px;
+  transition: opacity 0.15s;
+}
+.osv3-hub-alive-empty-banner-cta:hover {
+  opacity: 0.84;
+}
+
+/* ---------------------------------------------------------------
+   CTA band — navy bar below the grid */
+.osv3-hub-alive-cta-band {
+  margin-top: 28px;
+  padding: 28px 40px;
+  background: #000C20;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.osv3-hub-alive-cta-band-text {
+  font-family: Roboto, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  color: rgba(254,253,253,0.78);
+  margin: 0;
+  flex: 1;
+  line-height: 1.5;
+}
+
+.osv3-hub-alive-cta-band-btn {
+  display: inline-block;
+  background: #CE4421;
+  color: #FEFDFD;
+  text-decoration: none;
+  font-family: Roboto, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  padding: 11px 22px;
+  border-radius: 6px;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.osv3-hub-alive-cta-band-btn:hover {
+  opacity: 0.84;
+}
+
+/* ---------------------------------------------------------------
    RESPONSIVE */
 @media (max-width: 1024px) {
   .osv3-hub-alive-grid {
@@ -254,5 +355,14 @@
   }
   .osv3-hub-alive-grid-head {
     margin-bottom: 16px;
+  }
+  .osv3-hub-alive-cta-band {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px 20px;
+    gap: 16px;
+  }
+  .osv3-hub-alive-empty-banner {
+    padding: 36px 20px;
   }
 }
