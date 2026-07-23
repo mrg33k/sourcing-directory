@@ -142,6 +142,8 @@ const OSPodcastsPage = lazy(() => import('./pages/OSPodcastsPage.jsx'))
 const OSEventsPage = lazy(() => import('./pages/OSEventsPage.jsx'))
 const OSJobsPage = lazy(() => import('./pages/OSJobsPage.jsx'))
 const OSArticlesPage = lazy(() => import('./pages/OSArticlesPage.jsx'))
+const OSReportsPage = lazy(() => import('./pages/OSReportsPage.jsx'))
+const OSDiscoveryPage = lazy(() => import('./pages/OSDiscoveryPage.jsx'))
 
 const Loading = () => (
   <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
@@ -166,7 +168,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/marketplace" element={<SourcingMarketplaceV2 />} />
             <Route path="/community" element={<OSEventsPage />} />
             <Route path="/events" element={<OSEventsPage />} />
-            <Route path="/reports" element={<SourcingReportsV2 />} />
+            <Route path="/reports" element={<OSReportsPage />} />
             <Route path="/articles" element={<OSArticlesPage />} />
             <Route path="/grants" element={<SourcingGrantsV2 />} />
             <Route path="/deal-bank" element={<SourcingDealBankV2 />} />
@@ -186,7 +188,8 @@ createRoot(document.getElementById('root')).render(
             <Route path="/events/post" element={<SourcingEventsPostV2 />} />
             <Route path="/marketplace/post" element={<SourcingMarketplacePostV2 />} />
             <Route path="/articles/post" element={<SourcingArticlesPostV2 />} />
-            <Route path="/discovery" element={<SourcingDiscoveryV2 />} />
+            <Route path="/discovery" element={<OSDiscoveryPage />} />
+            <Route path="/discovery/:id" element={<SourcingListingV2 kind="whitepaper" />} />
             <Route path="/discovery/post" element={<SourcingDiscoveryPostV2 />} />
             <Route path="/jobs/:id" element={<SourcingListingV2 kind="job" />} />
             <Route path="/events/:id" element={<SourcingListingV2 kind="event" />} />

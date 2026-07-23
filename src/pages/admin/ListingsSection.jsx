@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AdminSection, ListingRow } from './AdminUI.jsx';
 
-const CATEGORIES = ['equipment', 'job', 'event', 'article', 'podcast'];
+const CATEGORIES = ['equipment', 'job', 'event', 'article', 'podcast', 'whitepaper'];
 
 const EMPTY = {
   category: 'event', company_id: '', title: '', description: '', status: 'active',
@@ -14,6 +14,8 @@ const EMPTY = {
   event_date: '', event_end_date: '', event_location: '', event_type: '', organizer: '', virtual_url: '',
   // podcast
   author_name: '',
+  // whitepaper / article
+  cover_image_url: '',
 };
 
 function toLocalInput(ts) {
@@ -51,14 +53,15 @@ function ListingForm({ initial, companies, tenantId, adminSupabase, onClose, fet
         remote: f.category === 'job' ? !!f.remote : null,
         salary_min: f.category === 'job' ? num(f.salary_min) : null,
         salary_max: f.category === 'job' ? num(f.salary_max) : null,
-        apply_url: f.category === 'job' ? (f.apply_url || null) : null,
+        apply_url: (f.category === 'job' || f.category === 'whitepaper') ? (f.apply_url || null) : null,
         event_date: f.category === 'event' && f.event_date ? new Date(f.event_date).toISOString() : null,
         event_end_date: f.category === 'event' && f.event_end_date ? new Date(f.event_end_date).toISOString() : null,
         event_location: f.category === 'event' ? (f.event_location || null) : null,
         event_type: f.category === 'event' ? (f.event_type || null) : null,
         organizer: f.category === 'event' ? (f.organizer || null) : null,
         virtual_url: (f.category === 'event' || f.category === 'podcast') ? (f.virtual_url || null) : null,
-        author_name: f.category === 'podcast' ? (f.author_name || null) : null,
+        author_name: (f.category === 'podcast' || f.category === 'article' || f.category === 'whitepaper') ? (f.author_name || null) : null,
+        cover_image_url: (f.category === 'article' || f.category === 'whitepaper') ? (f.cover_image_url || null) : null,
       };
       let resp;
       if (isEdit) {
@@ -118,6 +121,11 @@ function ListingForm({ initial, companies, tenantId, adminSupabase, onClose, fet
           <Field label="Host / Guest"><input style={inp} value={f.author_name} onChange={up('author_name')} placeholder="e.g. David Ariosto" /></Field>
           <Field label="Audio / Video URL"><input style={inp} value={f.virtual_url} onChange={up('virtual_url')} placeholder="https://…" /></Field>
           <Field label="Duration"><input style={inp} value={f.location} onChange={up('location')} placeholder="e.g. 48 min" /></Field>
+        </>}
+        {f.category === 'whitepaper' && <>
+          <Field label="Document URL"><input style={inp} value={f.apply_url} onChange={up('apply_url')} placeholder="https://…" /></Field>
+          <Field label="Cover Image URL"><input style={inp} value={f.cover_image_url} onChange={up('cover_image_url')} placeholder="https://…" /></Field>
+          <Field label="Author / Publisher"><input style={inp} value={f.author_name} onChange={up('author_name')} /></Field>
         </>}
       </div>
       <div style={{ marginBottom: 12 }}>

@@ -5,6 +5,7 @@ import { AdminSection } from './AdminUI.jsx';
 export default function ReportsSection({ reports, setReports, reportsLoading, V, adminSupabase, selectedTenantId, fetchReports }) {
   const [reportsSearch, setReportsSearch] = useState('');
   const [editingReport, setEditingReport] = useState(null);
+  const [creatingReport, setCreatingReport] = useState(false);
 
   const [munStats, setMunStats] = useState(null);
 
@@ -23,13 +24,14 @@ export default function ReportsSection({ reports, setReports, reportsLoading, V,
       .catch(() => setMunStats({ error: true }));
   }, []);
   const [reportForm, setReportForm] = useState({
-    title: '', category: 'government', access: 'free', description: '', published_at: '', file_url: '',
+    title: '', category: 'government', access: 'free', description: '', published_at: '', file_url: '', cover_image_url: '',
   });
   const [reportFormStatus, setReportFormStatus] = useState('');
   const [reportFileUploading, setReportFileUploading] = useState(false);
 
   const resetReportEditor = useCallback(() => {
     setEditingReport(null);
+    setCreatingReport(false);
     setReportForm({
       title: '',
       category: 'government',
@@ -37,6 +39,7 @@ export default function ReportsSection({ reports, setReports, reportsLoading, V,
       description: '',
       published_at: '',
       file_url: '',
+      cover_image_url: '',
     });
     setReportFormStatus('');
   }, []);
@@ -74,12 +77,13 @@ export default function ReportsSection({ reports, setReports, reportsLoading, V,
 
   const handleReportSubmit = async (e) => {
     e.preventDefault();
-    if (!adminSupabase || !editingReport) return;
+    if (!adminSupabase) return;
+    if (!creatingReport && !editingReport) return;
     setReportFormStatus('Saving...');
     try {
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData?.session?.access_token;
-      if (!accessToken) throw new Error('You must be signed in as an admin to update reports.');
+      if (!accessToken) throw new Error('You must be signed in as an admin to save reports.');
 
       const payload = {
         title: reportForm.title.trim(),
@@ -87,31 +91,60 @@ export default function ReportsSection({ reports, setReports, reportsLoading, V,
         category: reportForm.category || null,
         access: reportForm.access || 'free',
         file_url: reportForm.file_url.trim() || null,
+        cover_image_url: reportForm.cover_image_url.trim() || null,
         published_at: reportForm.published_at || null,
       };
 
-      const response = await fetch(`/api/sourcing/admin-reports?id=${editingReport.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(payload),
-      });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(result.error || 'Failed to update report.');
-
-      setReports(prev => prev.map(report => report.id === editingReport.id ? result : report));
-      setEditingReport(result);
-      setReportForm({
-        title: result.title || '',
-        category: result.category || 'government',
-        access: result.access || 'free',
-        description: result.description || '',
-        published_at: result.published_at ? result.published_at.slice(0, 10) : '',
-        file_url: result.file_url || '',
-      });
-      setReportFormStatus('Report updated successfully.');
+      if (creatingReport) {
+        // POST — create a new report
+        const response = await fetch('/api/sourcing/admin-reports', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || 'Failed to create report.');
+        setReports(prev => [result, ...prev]);
+        setCreatingReport(false);
+        setEditingReport(result);
+        setReportForm({
+          title: result.title || '',
+          category: result.category || 'government',
+          access: result.access || 'free',
+          description: result.description || '',
+          published_at: result.published_at ? result.published_at.slice(0, 10) : '',
+          file_url: result.file_url || '',
+          cover_image_url: result.cover_image_url || '',
+        });
+        setReportFormStatus('Report created successfully.');
+      } else {
+        // PUT — update existing report
+        const response = await fetch(`/api/sourcing/admin-reports?id=${editingReport.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(payload),
+        });
+        const result = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(result.error || 'Failed to update report.');
+        setReports(prev => prev.map(report => report.id === editingReport.id ? result : report));
+        setEditingReport(result);
+        setReportForm({
+          title: result.title || '',
+          category: result.category || 'government',
+          access: result.access || 'free',
+          description: result.description || '',
+          published_at: result.published_at ? result.published_at.slice(0, 10) : '',
+          file_url: result.file_url || '',
+          cover_image_url: result.cover_image_url || '',
+        });
+        setReportFormStatus('Report updated successfully.');
+      }
       await fetchReports();
     } catch (err) {
       setReportFormStatus('Error: ' + err.message);
@@ -119,6 +152,7 @@ export default function ReportsSection({ reports, setReports, reportsLoading, V,
   };
 
   const handleReportEdit = (report) => {
+    setCreatingReport(false);
     setEditingReport(report);
     setReportForm({
       title: report.title || '',
@@ -127,6 +161,7 @@ export default function ReportsSection({ reports, setReports, reportsLoading, V,
       description: report.description || '',
       published_at: report.published_at ? report.published_at.slice(0, 10) : '',
       file_url: report.file_url || '',
+      cover_image_url: report.cover_image_url || '',
     });
     setReportFormStatus('');
   };
@@ -215,6 +250,21 @@ export default function ReportsSection({ reports, setReports, reportsLoading, V,
             }}
           />
           <button
+            onClick={() => {
+              setCreatingReport(true);
+              setEditingReport(null);
+              setReportForm({ title: '', category: 'government', access: 'free', description: '', published_at: '', file_url: '', cover_image_url: '' });
+              setReportFormStatus('');
+            }}
+            style={{
+              background: V.accent, border: 'none',
+              color: '#fff', borderRadius: 6, padding: '5px 12px',
+              fontSize: 12, fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
+            }}
+          >
+            + New Report
+          </button>
+          <button
             onClick={resetReportEditor}
             style={{
               background: 'transparent', border: `1px solid ${V.border}`,
@@ -222,7 +272,7 @@ export default function ReportsSection({ reports, setReports, reportsLoading, V,
               fontSize: 12, fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
             }}
           >
-            Clear Selection
+            Clear
           </button>
         </div>
       }
@@ -315,35 +365,57 @@ export default function ReportsSection({ reports, setReports, reportsLoading, V,
         </div>
 
         <div style={{ background: V.card, border: `1px solid ${V.border}`, borderRadius: 10, padding: '20px 24px' }}>
-          {!editingReport ? (
+          {!editingReport && !creatingReport ? (
             <div style={{ minHeight: 280, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: 24 }}>
               <div>
                 <div style={{ fontSize: 16, fontWeight: 700, fontFamily: V.syne, color: V.heading, marginBottom: 8 }}>
                   Select a report to edit
                 </div>
-                <div style={{ fontSize: 13, fontFamily: V.space, color: V.dim, maxWidth: 420, lineHeight: 1.6 }}>
-                  Choose a report from the list to update its title, description, category, access level, published date, or replace the attached PDF.
+                <div style={{ fontSize: 13, fontFamily: V.space, color: V.dim, maxWidth: 420, lineHeight: 1.6, marginBottom: 20 }}>
+                  Choose a report from the list to update it, or create a new one.
                 </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCreatingReport(true);
+                    setEditingReport(null);
+                    setReportForm({ title: '', category: 'government', access: 'free', description: '', published_at: '', file_url: '', cover_image_url: '' });
+                    setReportFormStatus('');
+                  }}
+                  style={{
+                    background: V.accent, border: 'none', color: '#fff',
+                    borderRadius: 6, padding: '9px 18px', fontSize: 13,
+                    fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
+                  }}
+                >
+                  + New Report
+                </button>
               </div>
             </div>
           ) : (
             <form onSubmit={handleReportSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}>
               <div style={{ gridColumn: '1 / -1', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 4 }}>
                 <div>
-                  <div style={{ fontSize: 15, fontWeight: 700, fontFamily: V.syne, color: V.heading }}>Edit Report</div>
-                  <div style={{ fontSize: 11, color: V.dim, fontFamily: V.mono, marginTop: 4 }}>Report ID: {editingReport.id}</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, fontFamily: V.syne, color: V.heading }}>
+                    {creatingReport ? 'New Report' : 'Edit Report'}
+                  </div>
+                  {!creatingReport && editingReport && (
+                    <div style={{ fontSize: 11, color: V.dim, fontFamily: V.mono, marginTop: 4 }}>Report ID: {editingReport.id}</div>
+                  )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => handleReportDelete(editingReport)}
-                  style={{
-                    background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
-                    color: '#FCA5A5', borderRadius: 6, padding: '6px 10px',
-                    fontSize: 11, fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
-                  }}
-                >
-                  Delete
-                </button>
+                {!creatingReport && editingReport && (
+                  <button
+                    type="button"
+                    onClick={() => handleReportDelete(editingReport)}
+                    style={{
+                      background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)',
+                      color: '#FCA5A5', borderRadius: 6, padding: '6px 10px',
+                      fontSize: 11, fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
+                    }}
+                  >
+                    Delete
+                  </button>
+                )}
               </div>
 
               <div style={{ gridColumn: '1 / -1' }}>
@@ -410,7 +482,21 @@ export default function ReportsSection({ reports, setReports, reportsLoading, V,
               </div>
 
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Current File</div>
+                <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Cover Image URL</div>
+                <input
+                  value={reportForm.cover_image_url}
+                  onChange={e => setReportForm(p => ({ ...p, cover_image_url: e.target.value }))}
+                  placeholder="https://…"
+                  style={{
+                    width: '100%', background: V.card2, border: `1px solid ${V.border}`,
+                    borderRadius: 6, padding: '9px 10px', color: V.text,
+                    fontSize: 13, fontFamily: V.space, outline: 'none',
+                  }}
+                />
+              </div>
+
+              <div>
+                <div style={{ fontSize: 11, fontWeight: 700, fontFamily: V.mono, color: V.muted, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 6 }}>Current PDF</div>
                 <div style={{
                   minHeight: 40, background: V.card2, border: `1px solid ${V.border}`,
                   borderRadius: 6, padding: '10px', color: reportForm.file_url ? V.accent : V.dim,
@@ -462,7 +548,7 @@ export default function ReportsSection({ reports, setReports, reportsLoading, V,
                     opacity: reportFileUploading ? 0.6 : 1,
                   }}
                 >
-                  Save Changes
+                  {creatingReport ? 'Create Report' : 'Save Changes'}
                 </button>
                 <button
                   type="button"

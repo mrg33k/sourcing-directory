@@ -15,6 +15,7 @@ const KIND_META = {
   event:       { backLabel: 'Community',   backPath: '/events',      tabLabel: 'Events' },
   marketplace: { backLabel: 'Marketplace', backPath: '/marketplace', tabLabel: 'Browse' },
   article:     { backLabel: 'Articles',     backPath: '/articles',   tabLabel: 'Articles' },
+  whitepaper:  { backLabel: 'Discovery',   backPath: '/discovery',   tabLabel: 'Whitepapers' },
 };
 
 function fmtDate(v) {
@@ -114,7 +115,9 @@ export default function SourcingListingV2({ kind = 'job' }) {
   const posted = fmtDate(listing.created_at);
   const eventDate = fmtDate(listing.event_date);
   const salary = salaryText(listing);
-  const ctaUrl = externalHref(listing.virtual_url);
+  const ctaUrl = kind === 'whitepaper'
+    ? externalHref(listing.apply_url || listing.virtual_url)
+    : externalHref(listing.virtual_url);
   const companyWebsite = externalHref(company?.website);
 
   // Determine primary CTA text
@@ -122,12 +125,13 @@ export default function SourcingListingV2({ kind = 'job' }) {
   if (kind === 'event') ctaText = 'Register';
   else if (kind === 'marketplace') ctaText = 'Contact';
   else if (kind === 'article') ctaText = 'Read Source';
+  else if (kind === 'whitepaper') ctaText = 'Download';
   else ctaText = 'Apply';
 
   return (
     <div className="osv3-detail-page">
-      {/* Article cover hero — shown only for articles with a cover image */}
-      {kind === 'article' && listing.cover_image_url && (
+      {/* Article / whitepaper cover hero — shown when cover image is present */}
+      {(kind === 'article' || kind === 'whitepaper') && listing.cover_image_url && (
         <div className="osv3-detail-article-cover">
           <img
             src={listing.cover_image_url}
@@ -144,8 +148,8 @@ export default function SourcingListingV2({ kind = 'job' }) {
         {/* Title */}
         <h2 className="osv3-detail-title">{listing.title || 'Untitled'}</h2>
 
-        {/* Author byline for articles */}
-        {kind === 'article' && (listing.author_name || posted) && (
+        {/* Author byline for articles and whitepapers */}
+        {(kind === 'article' || kind === 'whitepaper') && (listing.author_name || posted) && (
           <div className="osv3-detail-article-byline">
             {listing.author_name && <span>By {listing.author_name}</span>}
             {listing.author_name && posted && <span className="osv3-detail-article-byline-sep"> · </span>}
@@ -190,7 +194,14 @@ export default function SourcingListingV2({ kind = 'job' }) {
               {listing.topic && <span className="osv3-detail-meta-pill">{listing.topic}</span>}
             </>
           )}
-          {kind !== 'article' && posted && <span className="osv3-detail-meta-pill">{posted}</span>}
+          {kind === 'whitepaper' && (
+            <>
+              {listing.vertical && <span className="osv3-detail-meta-pill">{listing.vertical}</span>}
+              {listing.topic && <span className="osv3-detail-meta-pill">{listing.topic}</span>}
+              {posted && <span className="osv3-detail-meta-pill">{posted}</span>}
+            </>
+          )}
+          {kind !== 'article' && kind !== 'whitepaper' && posted && <span className="osv3-detail-meta-pill">{posted}</span>}
         </div>
       </div>
 
