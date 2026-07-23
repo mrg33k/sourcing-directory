@@ -184,46 +184,7 @@ const SpaceOSHomeV3 = () => {
           <p className="osv3-welcome-subheader">Here's what's happening in your space ecosystem.</p>
         </section>
 
-        {/* Mission Cards */}
-        <section>
-          <div className="osv3-eyebrow-section">
-            <div className="osv3-eyebrow">Explore by Mission</div>
-            <a className="osv3-view-all-link" href="#/missions">View all missions →</a>
-          </div>
-
-          <div className="osv3-mission-grid">
-            {missions.map((mission) => (
-              <div key={mission.title} className="osv3-mission-card">
-                <div className="osv3-mission-card-icon" style={{ backgroundColor: mission.color }}>
-                  {renderMissionIcon(mission.title)}
-                </div>
-                <h3 className="osv3-mission-card-title">{mission.title}</h3>
-                <div className="osv3-mission-card-links">
-                  {mission.links.map((link) => (
-                    <div key={link.label}>
-                      {link.real ? (
-                        <a href={link.href} className="osv3-mission-card-link">
-                          {link.label}
-                          {link.future && <span className="osv3-future-tag">Future</span>}
-                        </a>
-                      ) : (
-                        <span className={`osv3-mission-card-link ${!link.real ? 'osv3-mission-card-link-muted' : ''}`}>
-                          {link.label}
-                          {link.future && <span className="osv3-future-tag">Future</span>}
-                        </span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <a href={mission.exploreHref} className="osv3-mission-card-footer-link">
-                  Explore {mission.title} →
-                </a>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Featured Report (compact, left) + Latest Reports (right) — one row, per reference */}
+        {/* Featured Report (compact, left) + Latest Reports (right) — leads directly under welcome */}
         {(featuredReport || latestReports.length > 0) && (
           <section className="osv3-reports-section">
             {featuredReport && (
@@ -302,6 +263,45 @@ const SpaceOSHomeV3 = () => {
             )}
           </section>
         )}
+
+        {/* Mission Cards */}
+        <section>
+          <div className="osv3-eyebrow-section">
+            <div className="osv3-eyebrow">Explore by Mission</div>
+            <a className="osv3-view-all-link" href="#/missions">View all missions →</a>
+          </div>
+
+          <div className="osv3-mission-grid">
+            {missions.map((mission) => (
+              <div key={mission.title} className="osv3-mission-card">
+                <div className="osv3-mission-card-icon" style={{ backgroundColor: mission.color }}>
+                  {renderMissionIcon(mission.title)}
+                </div>
+                <h3 className="osv3-mission-card-title">{mission.title}</h3>
+                <div className="osv3-mission-card-links">
+                  {mission.links.map((link) => (
+                    <div key={link.label}>
+                      {link.real ? (
+                        <a href={link.href} className="osv3-mission-card-link">
+                          {link.label}
+                          {link.future && <span className="osv3-future-tag">Future</span>}
+                        </a>
+                      ) : (
+                        <span className={`osv3-mission-card-link ${!link.real ? 'osv3-mission-card-link-muted' : ''}`}>
+                          {link.label}
+                          {link.future && <span className="osv3-future-tag">Future</span>}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                <a href={mission.exploreHref} className="osv3-mission-card-footer-link">
+                  Explore {mission.title} →
+                </a>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {/* Bottom Columns */}
         <section style={{ marginTop: '48px' }}>
