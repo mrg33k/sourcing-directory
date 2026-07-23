@@ -16,6 +16,7 @@ import { supabase } from '../lib/supabase.js';
 import OSMagazinePage from './OSMagazinePage.jsx';
 import './osv3-magazine.css';
 import { useSiteContentBySlug } from '../hooks/useSiteContent.js';
+import { getReportCoverUrl } from '../lib/reportCovers.js';
 
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
@@ -35,18 +36,8 @@ function catLabel(cat) {
   return MAP[cat] || (cat ? cat.charAt(0).toUpperCase() + cat.slice(1) : 'Report');
 }
 
-/**
- * Resolve the effective cover URL for a report row.
- * directory_reports has no cover_image_url column in the DB yet, so we fall
- * back to the known local asset for the Blueprint.  When cover_image_url is
- * added to the DB in the future, the DB value takes priority automatically.
- */
-function effectiveCoverUrl(item) {
-  if (!item) return null;
-  if (item.cover_image_url) return item.cover_image_url;
-  if (/blueprint/i.test(item.title || '')) return '/v2-assets/blueprint-cover.png';
-  return null;
-}
+/* effectiveCoverUrl is now getReportCoverUrl from ../lib/reportCovers.js */
+const effectiveCoverUrl = getReportCoverUrl;
 
 const PILLS = [
   { label: 'All', value: 'all' },
@@ -192,10 +183,10 @@ function OSReportsPage() {
     ? reports
     : reports.filter(r => r.category === activeFilter);
 
-  /* featured: Blueprint first, then first with cover, then first */
+  /* featured: Blueprint first, then first with any cover (DB or static map), then first */
   const featured =
     reports.find(r => /blueprint/i.test(r.title)) ||
-    reports.find(r => r.cover_image_url) ||
+    reports.find(r => !!getReportCoverUrl(r)) ||
     reports[0] ||
     null;
 

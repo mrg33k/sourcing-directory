@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
 import { useSiteContent } from '../hooks/useSiteContent'
+import { getReportCoverUrl } from '../lib/reportCovers.js'
 import './SpaceOSHomeV3.css'
 
 const SpaceOSHomeV3 = () => {
@@ -242,15 +243,27 @@ const SpaceOSHomeV3 = () => {
                   <a className="osv3-column-header-action" href="/reports">View all</a>
                 </div>
                 <div className="osv3-reports-scroll">
-                  {latestReports.map((report) => (
+                  {latestReports.map((report) => {
+                    const coverUrl = getReportCoverUrl(report)
+                    return (
                     <a
                       key={report.id}
                       href={report.id ? `/reports/${report.id}` : '/reports'}
                       className="osv3-report-card"
                     >
                       <div className="osv3-report-image">
-                        <div className="osv3-report-image-eyebrow">SPACE RISING / REPORT</div>
-                        <div className="osv3-report-image-title">{report.title}</div>
+                        {coverUrl ? (
+                          <img
+                            src={coverUrl}
+                            alt=""
+                            className="osv3-report-cover-img"
+                          />
+                        ) : (
+                          <>
+                            <div className="osv3-report-image-eyebrow">SPACE RISING / REPORT</div>
+                            <div className="osv3-report-image-title">{report.title}</div>
+                          </>
+                        )}
                       </div>
                       <div className="osv3-report-card-body">
                         <div className="osv3-report-card-meta">
@@ -259,7 +272,8 @@ const SpaceOSHomeV3 = () => {
                         <svg className="osv3-report-bookmark" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M6 4h12a1 1 0 0 1 1 1v15l-7-4-7 4V5a1 1 0 0 1 1-1z"/></svg>
                       </div>
                     </a>
-                  ))}
+                  )
+                  })}
                 </div>
               </div>
             )}
