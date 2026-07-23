@@ -113,19 +113,19 @@ const SpaceOSHomeV3 = () => {
   const missions = [
     { title: 'Ecosystem', color: '#8B5CF6', exploreHref: '/ecosystem', links: [
       { label: 'Companies', href: '/directory', real: true },
-      { label: 'Organizations', href: '#', real: false },
-      { label: 'People', href: '#', real: false },
+      { label: 'Organizations', href: '/organizations', real: true },
+      { label: 'People', href: '/people', real: true },
     ]},
     { title: 'Intelligence', color: '#3B82F6', exploreHref: '/intelligence', links: [
       { label: 'Reports', href: '/reports', real: true },
       { label: 'Articles', href: '/articles', real: true },
       { label: 'Discovery', href: '/discovery', real: true },
-      { label: 'News', href: '#', real: false },
+      { label: 'News', href: '/news', real: true },
       { label: 'Podcasts', href: '/podcasts', real: true },
-      { label: 'Videos', href: '#', real: false },
+      { label: 'Videos', href: '/videos', real: true },
     ]},
     { title: 'Opportunities', color: '#F97316', exploreHref: '/opportunities', links: [
-      { label: 'RFPs', href: '#', real: false, future: true },
+      { label: 'RFPs', href: '/rfps', real: true },
       { label: 'Grants', href: '/grants', real: true },
       { label: 'Dealbank', href: '/deal-bank', real: true },
     ]},
