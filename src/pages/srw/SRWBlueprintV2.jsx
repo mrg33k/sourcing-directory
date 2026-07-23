@@ -34,7 +34,7 @@ export default function SRWBlueprintV2() {
         <div className="bp-hero-inner srw-wrap">
           <div className="srw-pg-eyebrow">THE ARIZONA SPACE BLUEPRINT™</div>
           <h1 className="bp-hero-title">
-            One Subscription.<br />Unlimited Access to<br />the Space Economy<span className="srw-pg-period">.</span>
+            Unlimited Access to<br />the Space Economy<span className="srw-pg-period">.</span>
           </h1>
           <p className="bp-hero-sub">
             Join SpaceOS and gain access to the opportunities, intelligence,

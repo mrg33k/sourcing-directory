@@ -66,7 +66,7 @@ export default function SRWNavV2() {
 
           <div className="srw-nav-actions">
             <Link to="/spaceos/login" className="srw-nav-signin">SIGN IN</Link>
-            <Link to="/srw-v2/sign-up" className="srw-nav-subscribe">SUBSCRIBE</Link>
+            <Link to="/srw-v2/sign-up" className="srw-nav-subscribe">Sign Up</Link>
           </div>
 
           <button
