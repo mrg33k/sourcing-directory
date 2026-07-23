@@ -25,6 +25,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import OSMagazinePage from './OSMagazinePage.jsx';
 import './osv3-magazine.css';
+import { useSiteContentBySlug } from '../hooks/useSiteContent.js';
 
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
@@ -207,6 +208,7 @@ function GrantCard({ item }) {
 /* OSGrantsPage — top-level page component */
 function OSGrantsPage() {
   const navigate = useNavigate();
+  const { get } = useSiteContentBySlug(TENANT_DB_LOOKUP_SLUG);
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -260,8 +262,8 @@ function OSGrantsPage() {
   return (
     <OSMagazinePage
       breadcrumb="Space OS / Opportunities Hub / Grants"
-      pageTitle="Grants"
-      pageSubtitle="SBIR, STTR, Arizona Commerce Authority, and foundation funding for Arizona space companies and researchers."
+      pageTitle={get('grants', 'page_title', 'Grants')}
+      pageSubtitle={get('grants', 'page_subtitle', 'SBIR, STTR, Arizona Commerce Authority, and foundation funding for Arizona space companies and researchers.')}
       addLabel="Add Grant"
       onAdd={() => navigate('/admin/listings?category=grant')}
 

@@ -5,6 +5,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import '../osv3-tokens.css';
 import '../pages/OSLayoutV3.css';
+import { useSiteContentBySlug } from '../hooks/useSiteContent';
 
 const FREE_BENEFITS = [
   'Be findable in the directory',
@@ -24,14 +25,16 @@ function CheckGlyph() {
 }
 
 export default function SourcingMembershipV2() {
+  const { get } = useSiteContentBySlug('space-rising');
+
   return (
     <div style={{ maxWidth: '640px', margin: '0 auto' }}>
       <div style={{ marginBottom: '40px' }}>
         <h1 style={{ fontSize: 'var(--v3-h1-font-size)', fontWeight: 'var(--v3-h1-font-weight)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>
-          Join Space Rising
+          {get('membership', 'headline', 'Join Space Rising')}
         </h1>
         <p style={{ fontSize: 'var(--v3-body-font-size)', color: 'var(--v3-muted)', margin: 0, lineHeight: 'var(--v3-body-line-height)', maxWidth: '50ch' }}>
-          Membership is free. Sign up and access everything SpaceOS has to offer.
+          {get('membership', 'subcopy', 'Membership is free. Sign up and access everything SpaceOS has to offer.')}
         </p>
       </div>
 

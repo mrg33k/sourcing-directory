@@ -26,6 +26,7 @@ import ActionsSection from './admin/ActionsSection.jsx';
 import DealBankSection from './admin/DealBankSection.jsx';
 import TicketsSection from './admin/TicketsSection.jsx';
 import TagsSection from './admin/TagsSection.jsx';
+import SiteContentSection from './admin/SiteContentSection.jsx';
 import AdminShellV3 from './admin/AdminShellV3.jsx';
 import AddContentModal from './admin/AddContentModal.jsx';
 
@@ -695,6 +696,7 @@ function SourcingAdminInner() {
     { key: 'analytics',  label: 'Analytics' },
     { key: 'messages',   label: `Messages${newContactCount > 0 ? ` (${newContactCount})` : ''}` },
     { key: 'actions',    label: 'Quick Actions' },
+    { key: 'site-content', label: 'Site Content' },
     { key: 'settings',   label: 'Settings' },
     { key: 'audit',      label: 'Audit' },
   ];
@@ -907,6 +909,14 @@ function SourcingAdminInner() {
 
         {!loading && activeTab === 'audit' && (
           <AuditSection
+            adminSupabase={adminSupabase}
+            selectedTenantId={selectedTenantId}
+            V={V}
+          />
+        )}
+
+        {!loading && activeTab === 'site-content' && (
+          <SiteContentSection
             adminSupabase={adminSupabase}
             selectedTenantId={selectedTenantId}
             V={V}

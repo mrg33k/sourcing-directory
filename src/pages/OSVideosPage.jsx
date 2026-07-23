@@ -17,6 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import OSMagazinePage from './OSMagazinePage.jsx';
 import './osv3-magazine.css';
+import { useSiteContentBySlug } from '../hooks/useSiteContent.js';
 
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
@@ -154,6 +155,7 @@ function VideoCard({ item, index }) {
 /* OSVideosPage — top-level page component */
 function OSVideosPage() {
   const navigate = useNavigate();
+  const { get } = useSiteContentBySlug(TENANT_DB_LOOKUP_SLUG);
   const [videos, setVideos] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -210,8 +212,8 @@ function OSVideosPage() {
   return (
     <OSMagazinePage
       breadcrumb="Space OS / Intelligence Hub / Videos"
-      pageTitle="Videos"
-      pageSubtitle="Arizona's space story on film. Sessions, news coverage, and interviews from across the ecosystem."
+      pageTitle={get('videos', 'page_title', 'Videos')}
+      pageSubtitle={get('videos', 'page_subtitle', 'Arizona\'s space story on film. Sessions, news coverage, and interviews from across the ecosystem.')}
       addLabel="Add Video"
       onAdd={() => navigate('/admin/listings?category=video')}
 

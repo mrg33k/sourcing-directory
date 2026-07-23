@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import OSMagazinePage from './OSMagazinePage.jsx';
 import './osv3-magazine.css';
+import { useSiteContentBySlug } from '../hooks/useSiteContent.js';
 
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
@@ -137,6 +138,7 @@ function DiscoveryCard({ item, onOpen }) {
 /* OSDiscoveryPage — top-level page component                           */
 function OSDiscoveryPage() {
   const navigate = useNavigate();
+  const { get } = useSiteContentBySlug(TENANT_DB_LOOKUP_SLUG);
   const [papers, setPapers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -193,8 +195,8 @@ function OSDiscoveryPage() {
   return (
     <OSMagazinePage
       breadcrumb="Space OS / Intelligence Hub / Discovery"
-      pageTitle="Discovery"
-      pageSubtitle="Whitepapers, research, and technical documents from Arizona's space ecosystem."
+      pageTitle={get('discovery', 'page_title', 'Discovery')}
+      pageSubtitle={get('discovery', 'page_subtitle', 'Whitepapers, research, and technical documents from Arizona\'s space ecosystem.')}
       addLabel="Submit Whitepaper"
       onAdd={() => navigate('/admin/listings?category=whitepaper')}
 

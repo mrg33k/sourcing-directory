@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import OSMagazinePage from './OSMagazinePage.jsx';
 import './osv3-magazine.css';
+import { useSiteContentBySlug } from '../hooks/useSiteContent.js';
 
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
@@ -130,6 +131,7 @@ function ArticleCard({ item, onOpen }) {
 /* OSArticlesPage — top-level page component                            */
 function OSArticlesPage() {
   const navigate = useNavigate();
+  const { get } = useSiteContentBySlug(TENANT_DB_LOOKUP_SLUG);
   const [articles, setArticles] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -180,8 +182,8 @@ function OSArticlesPage() {
   return (
     <OSMagazinePage
       breadcrumb="Space OS / Intelligence Hub / Articles"
-      pageTitle="Articles"
-      pageSubtitle="Research, analysis, and commentary from Arizona's space intelligence network."
+      pageTitle={get('articles', 'page_title', 'Articles')}
+      pageSubtitle={get('articles', 'page_subtitle', 'Research, analysis, and commentary from Arizona\'s space intelligence network.')}
       addLabel="Post an Article"
       onAdd={() => navigate('/admin/listings?category=article')}
 

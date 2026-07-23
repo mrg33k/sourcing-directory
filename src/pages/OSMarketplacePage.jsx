@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import OSMagazinePage from './OSMagazinePage.jsx';
 import './osv3-magazine.css';
+import { useSiteContentBySlug } from '../hooks/useSiteContent.js';
 
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
@@ -106,6 +107,7 @@ function MarketCard({ item, onOpen }) {
    OSMarketplacePage — top-level page component */
 function OSMarketplacePage() {
   const navigate = useNavigate();
+  const { get } = useSiteContentBySlug(TENANT_DB_LOOKUP_SLUG);
   const [listings, setListings] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -148,8 +150,8 @@ function OSMarketplacePage() {
   return (
     <OSMagazinePage
       breadcrumb="Space OS / Marketplace"
-      pageTitle="Marketplace"
-      pageSubtitle="Equipment, services, and products from Arizona's space economy."
+      pageTitle={get('marketplace', 'page_title', 'Marketplace')}
+      pageSubtitle={get('marketplace', 'page_subtitle', 'Equipment, services, and products from Arizona\'s space economy.')}
       addLabel="Add Listing"
       onAdd={() => navigate('/admin/listings?category=equipment')}
 

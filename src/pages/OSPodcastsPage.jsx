@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import OSMagazinePage from './OSMagazinePage.jsx';
 import './osv3-magazine.css';
+import { useSiteContentBySlug } from '../hooks/useSiteContent.js';
 
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
@@ -126,6 +127,7 @@ function EpisodeCard({ item, index }) {
 /* OSPodcastsPage — top-level page component */
 function OSPodcastsPage() {
   const navigate = useNavigate();
+  const { get } = useSiteContentBySlug(TENANT_DB_LOOKUP_SLUG);
   const [episodes, setEpisodes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -184,8 +186,8 @@ function OSPodcastsPage() {
   return (
     <OSMagazinePage
       breadcrumb="Space OS / Intelligence Hub / Podcasts"
-      pageTitle="Podcasts"
-      pageSubtitle="Conversations, briefings, and market intelligence from Arizona's space economy. Listen in."
+      pageTitle={get('podcasts', 'page_title', 'Podcasts')}
+      pageSubtitle={get('podcasts', 'page_subtitle', 'Conversations, briefings, and market intelligence from Arizona\'s space economy. Listen in.')}
       addLabel="Add Episode"
       onAdd={() => navigate('/admin/listings?category=podcast')}
 

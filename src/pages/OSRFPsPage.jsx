@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import OSMagazinePage from './OSMagazinePage.jsx';
 import './osv3-magazine.css';
+import { useSiteContentBySlug } from '../hooks/useSiteContent.js';
 
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
@@ -152,6 +153,7 @@ function RFPCard({ item }) {
 /* OSRFPsPage — top-level page component */
 function OSRFPsPage() {
   const navigate = useNavigate();
+  const { get } = useSiteContentBySlug(TENANT_DB_LOOKUP_SLUG);
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -202,8 +204,8 @@ function OSRFPsPage() {
   return (
     <OSMagazinePage
       breadcrumb="Space OS / Opportunities Hub / RFPs"
-      pageTitle="RFPs"
-      pageSubtitle="Open solicitations from NASA, DoD, and state agencies seeking Arizona-based vendors and partners."
+      pageTitle={get('rfps', 'page_title', 'RFPs')}
+      pageSubtitle={get('rfps', 'page_subtitle', 'Open solicitations from NASA, DoD, and state agencies seeking Arizona-based vendors and partners.')}
       addLabel="Add RFP"
       onAdd={() => navigate('/admin/listings?category=rfp')}
 

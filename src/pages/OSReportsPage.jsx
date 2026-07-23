@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import OSMagazinePage from './OSMagazinePage.jsx';
 import './osv3-magazine.css';
+import { useSiteContentBySlug } from '../hooks/useSiteContent.js';
 
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
@@ -152,6 +153,7 @@ function ReportCard({ item, onOpen }) {
 /* OSReportsPage — top-level page component                            */
 function OSReportsPage() {
   const navigate = useNavigate();
+  const { get } = useSiteContentBySlug(TENANT_DB_LOOKUP_SLUG);
   const [reports, setReports] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -211,8 +213,8 @@ function OSReportsPage() {
   return (
     <OSMagazinePage
       breadcrumb="Space OS / Intelligence Hub / Reports"
-      pageTitle="Reports"
-      pageSubtitle="Intelligence reports, policy briefs, and market analysis for Arizona's space economy."
+      pageTitle={get('reports', 'page_title', 'Reports')}
+      pageSubtitle={get('reports', 'page_subtitle', 'Intelligence reports, policy briefs, and market analysis for Arizona\'s space economy.')}
       addLabel="Add Report"
       onAdd={() => navigate('/admin/reports')}
 

@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import OSMagazinePage from './OSMagazinePage.jsx';
 import './osv3-magazine.css';
+import { useSiteContentBySlug } from '../hooks/useSiteContent.js';
 
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
@@ -157,6 +158,7 @@ function JobCard({ item }) {
 /* OSJobsPage — top-level page component                                */
 function OSJobsPage() {
   const navigate = useNavigate();
+  const { get } = useSiteContentBySlug(TENANT_DB_LOOKUP_SLUG);
   const [jobs, setJobs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -225,8 +227,8 @@ function OSJobsPage() {
   return (
     <OSMagazinePage
       breadcrumb="Space OS / Careers / Open Positions"
-      pageTitle="Jobs"
-      pageSubtitle="Open positions across Arizona's space economy. From propulsion to policy."
+      pageTitle={get('jobs', 'page_title', 'Jobs')}
+      pageSubtitle={get('jobs', 'page_subtitle', 'Open positions across Arizona\'s space economy. From propulsion to policy.')}
       addLabel="Post a Job"
       onAdd={() => navigate('/admin/listings?category=job')}
 

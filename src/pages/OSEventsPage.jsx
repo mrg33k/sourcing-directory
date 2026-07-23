@@ -13,6 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import OSMagazinePage from './OSMagazinePage.jsx';
 import './osv3-magazine.css';
+import { useSiteContentBySlug } from '../hooks/useSiteContent.js';
 
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
@@ -135,6 +136,7 @@ function EventCard({ item }) {
 /* OSEventsPage — top-level page component                              */
 function OSEventsPage() {
   const navigate = useNavigate();
+  const { get } = useSiteContentBySlug(TENANT_DB_LOOKUP_SLUG);
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -198,8 +200,8 @@ function OSEventsPage() {
   return (
     <OSMagazinePage
       breadcrumb="Space OS / Community Hub / Events"
-      pageTitle="Events"
-      pageSubtitle="Space industry events, meetups, and conferences shaping Arizona's space economy."
+      pageTitle={get('events', 'page_title', 'Events')}
+      pageSubtitle={get('events', 'page_subtitle', 'Space industry events, meetups, and conferences shaping Arizona\'s space economy.')}
       addLabel="Add Event"
       onAdd={() => navigate('/admin/listings?category=event')}
 

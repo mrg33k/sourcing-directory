@@ -22,6 +22,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import OSMagazinePage from './OSMagazinePage.jsx';
 import './osv3-magazine.css';
+import { useSiteContentBySlug } from '../hooks/useSiteContent.js';
 
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
@@ -152,6 +153,7 @@ function PersonCard({ item, index }) {
 /* OSPeoplePage — top-level page component */
 function OSPeoplePage() {
   const navigate = useNavigate();
+  const { get } = useSiteContentBySlug(TENANT_DB_LOOKUP_SLUG);
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -199,8 +201,8 @@ function OSPeoplePage() {
   return (
     <OSMagazinePage
       breadcrumb="Space OS / Ecosystem Hub / People"
-      pageTitle="People"
-      pageSubtitle="Notable founders, researchers, and professionals building Arizona's space future. Curated public profiles."
+      pageTitle={get('people', 'page_title', 'People')}
+      pageSubtitle={get('people', 'page_subtitle', 'Notable founders, researchers, and professionals building Arizona\'s space future. Curated public profiles.')}
       addLabel="Add Person"
       onAdd={() => navigate('/admin/listings?category=person')}
 

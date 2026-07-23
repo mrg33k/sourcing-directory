@@ -15,6 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import OSMagazinePage from './OSMagazinePage.jsx';
 import './osv3-magazine.css';
+import { useSiteContentBySlug } from '../hooks/useSiteContent.js';
 
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
@@ -125,6 +126,7 @@ function OrgCard({ item, index }) {
 /* OSOrganizationsPage — top-level page component */
 function OSOrganizationsPage() {
   const navigate = useNavigate();
+  const { get } = useSiteContentBySlug(TENANT_DB_LOOKUP_SLUG);
   const [orgs, setOrgs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -184,8 +186,8 @@ function OSOrganizationsPage() {
   return (
     <OSMagazinePage
       breadcrumb="Space OS / Ecosystem Hub / Organizations"
-      pageTitle="Organizations"
-      pageSubtitle="Nonprofits, agencies, universities, and industry bodies shaping Arizona's space economy."
+      pageTitle={get('organizations', 'page_title', 'Organizations')}
+      pageSubtitle={get('organizations', 'page_subtitle', 'Nonprofits, agencies, universities, and industry bodies shaping Arizona\'s space economy.')}
       addLabel="Add Organization"
       onAdd={() => navigate('/admin/organizations')}
 

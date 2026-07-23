@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import OSMagazinePage from './OSMagazinePage.jsx';
 import './osv3-magazine.css';
+import { useSiteContentBySlug } from '../hooks/useSiteContent.js';
 
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
@@ -152,6 +153,7 @@ function NewsCard({ item, index }) {
 /* OSNewsPage — top-level page component */
 function OSNewsPage() {
   const navigate = useNavigate();
+  const { get } = useSiteContentBySlug(TENANT_DB_LOOKUP_SLUG);
   const [items, setItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
@@ -203,8 +205,8 @@ function OSNewsPage() {
   return (
     <OSMagazinePage
       breadcrumb="Space OS / Intelligence Hub / News"
-      pageTitle="News"
-      pageSubtitle="Real-time Arizona space coverage from KTAR, AZPBS, FOX 10, and local outlets tracking the ecosystem."
+      pageTitle={get('news', 'page_title', 'News')}
+      pageSubtitle={get('news', 'page_subtitle', 'Real-time Arizona space coverage from KTAR, AZPBS, FOX 10, and local outlets tracking the ecosystem.')}
       addLabel="Add Story"
       onAdd={() => navigate('/admin/listings?category=news')}
 

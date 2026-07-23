@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
+import { useSiteContent } from '../hooks/useSiteContent'
 import './SpaceOSHomeV3.css'
 
 const SpaceOSHomeV3 = () => {
   const navigate = useNavigate()
   const { user } = useAuth()
   const [tenant, setTenant] = useState(null)
+  const { get: getSiteContent } = useSiteContent(tenant?.id)
   const [reports, setReports] = useState([])
   const [events, setEvents] = useState([])
   const [jobs, setJobs] = useState([])
@@ -179,9 +181,9 @@ const SpaceOSHomeV3 = () => {
         {/* Welcome Section */}
         <section className="osv3-welcome-section">
           <h1 className="osv3-welcome-header">
-            {user ? `Welcome back, ${userName}` : 'Welcome to Space OS'}
+            {user ? `Welcome back, ${userName}` : getSiteContent('home', 'welcome_header', 'Welcome to Space OS')}
           </h1>
-          <p className="osv3-welcome-subheader">Here's what's happening in your space ecosystem.</p>
+          <p className="osv3-welcome-subheader">{getSiteContent('home', 'welcome_subheader', "Here's what's happening in your space ecosystem.")}</p>
         </section>
 
         {/* Featured Report (compact, left) + Latest Reports (right) — leads directly under welcome */}
