@@ -139,6 +139,9 @@ const OSOpportunitiesHub = lazy(() => import('./pages/OSHubPages.jsx').then(m =>
 const OSLearningHub = lazy(() => import('./pages/OSHubPages.jsx').then(m => ({ default: m.OSLearningHub })))
 const OSLibraryHub = lazy(() => import('./pages/OSHubPages.jsx').then(m => ({ default: m.OSLibraryHub })))
 const OSPodcastsPage = lazy(() => import('./pages/OSPodcastsPage.jsx'))
+const OSEventsPage = lazy(() => import('./pages/OSEventsPage.jsx'))
+const OSJobsPage = lazy(() => import('./pages/OSJobsPage.jsx'))
+const OSArticlesPage = lazy(() => import('./pages/OSArticlesPage.jsx'))
 
 const Loading = () => (
   <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
@@ -158,13 +161,13 @@ createRoot(document.getElementById('root')).render(
             <Route path="/ecosystem" element={<OSEcosystemHub />} />
             <Route path="/intelligence" element={<OSIntelligenceHub />} />
             <Route path="/opportunities" element={<OSOpportunitiesHub />} />
-            <Route path="/careers" element={<SourcingJobsV2 />} />
-            <Route path="/jobs" element={<SourcingJobsV2 />} />
+            <Route path="/careers" element={<OSJobsPage />} />
+            <Route path="/jobs" element={<OSJobsPage />} />
             <Route path="/marketplace" element={<SourcingMarketplaceV2 />} />
-            <Route path="/community" element={<SourcingEventsV2 />} />
-            <Route path="/events" element={<SourcingEventsV2 />} />
+            <Route path="/community" element={<OSEventsPage />} />
+            <Route path="/events" element={<OSEventsPage />} />
             <Route path="/reports" element={<SourcingReportsV2 />} />
-            <Route path="/articles" element={<SourcingArticlesV2 />} />
+            <Route path="/articles" element={<OSArticlesPage />} />
             <Route path="/grants" element={<SourcingGrantsV2 />} />
             <Route path="/deal-bank" element={<SourcingDealBankV2 />} />
             <Route path="/deal-bank/investments/add" element={<SourcingDealBankAddListing />} />

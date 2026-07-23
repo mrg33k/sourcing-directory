@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
+import snarkdown from 'snarkdown';
 import './osv3-detail.css';
 
 // Detail page for a single directory_listings row (a job, event, or marketplace
@@ -124,6 +125,17 @@ export default function SourcingListingV2({ kind = 'job' }) {
 
   return (
     <div className="osv3-detail-page">
+      {/* Article cover hero — shown only for articles with a cover image */}
+      {kind === 'article' && listing.cover_image_url && (
+        <div className="osv3-detail-article-cover">
+          <img
+            src={listing.cover_image_url}
+            alt=""
+            className="osv3-detail-article-cover-img"
+          />
+        </div>
+      )}
+
       <div className="osv3-detail-header">
         {/* Back link */}
         <Link to={meta.backPath} className="osv3-detail-back-btn">← Back to {meta.backLabel}</Link>
@@ -131,8 +143,17 @@ export default function SourcingListingV2({ kind = 'job' }) {
         {/* Title */}
         <h2 className="osv3-detail-title">{listing.title || 'Untitled'}</h2>
 
-        {/* Company chip for non-events */}
-        {kind !== 'event' && company?.slug && (
+        {/* Author byline for articles */}
+        {kind === 'article' && (listing.author_name || posted) && (
+          <div className="osv3-detail-article-byline">
+            {listing.author_name && <span>By {listing.author_name}</span>}
+            {listing.author_name && posted && <span className="osv3-detail-article-byline-sep"> · </span>}
+            {posted && <span>{posted}</span>}
+          </div>
+        )}
+
+        {/* Company chip for non-events, non-articles */}
+        {kind !== 'event' && kind !== 'article' && company?.slug && (
           <Link to={`/company/${company.slug}`} className="osv3-detail-company-chip">
             {company.logo_url && <img src={company.logo_url} alt={company.name} className="osv3-detail-company-logo" />}
             <span className="osv3-detail-company-name">{company.name}</span>
@@ -162,14 +183,29 @@ export default function SourcingListingV2({ kind = 'job' }) {
               {listing.condition && <span className="osv3-detail-meta-pill">{listing.condition}</span>}
             </>
           )}
-          {posted && <span className="osv3-detail-meta-pill">{posted}</span>}
+          {kind === 'article' && (
+            <>
+              {listing.vertical && <span className="osv3-detail-meta-pill">{listing.vertical}</span>}
+              {listing.topic && <span className="osv3-detail-meta-pill">{listing.topic}</span>}
+            </>
+          )}
+          {kind !== 'article' && posted && <span className="osv3-detail-meta-pill">{posted}</span>}
         </div>
       </div>
 
-      {/* Description */}
+      {/* Body */}
       <div className="osv3-detail-body">
-        {listing.description && (
-          <p className="osv3-detail-description">{listing.description}</p>
+        {kind === 'article' ? (
+          listing.description && (
+            <div
+              className="osv3-detail-article-body"
+              dangerouslySetInnerHTML={{ __html: snarkdown(listing.description || '') }}
+            />
+          )
+        ) : (
+          listing.description && (
+            <p className="osv3-detail-description">{listing.description}</p>
+          )
         )}
 
         {/* Primary CTA */}
