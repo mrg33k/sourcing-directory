@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AdminSection, ListingRow } from './AdminUI.jsx';
 
-const CATEGORIES = ['equipment', 'job', 'event', 'article', 'podcast', 'whitepaper'];
+const CATEGORIES = ['equipment', 'services', 'products', 'job', 'event', 'article', 'podcast', 'whitepaper'];
 
 const EMPTY = {
   category: 'event', company_id: '', title: '', description: '', status: 'active',
@@ -46,14 +46,14 @@ function ListingForm({ initial, companies, tenantId, adminSupabase, onClose, fet
         description: f.description || null, status: f.status,
         image_url: f.image_url || null, contact_email: f.contact_email || null,
         vertical: f.vertical || null,
-        price: f.category === 'equipment' ? num(f.price) : null,
-        condition: f.category === 'equipment' ? (f.condition || null) : null,
+        price: ['equipment', 'services', 'products'].includes(f.category) ? num(f.price) : null,
+        condition: ['equipment', 'services', 'products'].includes(f.category) ? (f.condition || null) : null,
         job_type: f.category === 'job' ? (f.job_type || null) : null,
         location: (f.category === 'job' || f.category === 'podcast') ? (f.location || null) : null,
         remote: f.category === 'job' ? !!f.remote : null,
         salary_min: f.category === 'job' ? num(f.salary_min) : null,
         salary_max: f.category === 'job' ? num(f.salary_max) : null,
-        apply_url: (f.category === 'job' || f.category === 'whitepaper') ? (f.apply_url || null) : null,
+        apply_url: ['job', 'whitepaper', 'services', 'products'].includes(f.category) ? (f.apply_url || null) : null,
         event_date: f.category === 'event' && f.event_date ? new Date(f.event_date).toISOString() : null,
         event_end_date: f.category === 'event' && f.event_end_date ? new Date(f.event_end_date).toISOString() : null,
         event_location: f.category === 'event' ? (f.event_location || null) : null,
@@ -100,6 +100,18 @@ function ListingForm({ initial, companies, tenantId, adminSupabase, onClose, fet
         {f.category === 'equipment' && <>
           <Field label="Price"><input style={inp} type="number" value={f.price} onChange={up('price')} /></Field>
           <Field label="Condition"><select style={inp} value={f.condition} onChange={up('condition')}><option value="">—</option><option value="new">new</option><option value="used">used</option><option value="refurbished">refurbished</option></select></Field>
+        </>}
+        {f.category === 'services' && <>
+          <Field label="Service Type"><input style={inp} value={f.vertical} onChange={up('vertical')} placeholder="e.g. Engineering, Testing, Consulting" /></Field>
+          <Field label="Rate / Price"><input style={inp} type="number" value={f.price} onChange={up('price')} placeholder="e.g. 150 (hourly or fixed)" /></Field>
+          <Field label="Pricing Model"><select style={inp} value={f.condition} onChange={up('condition')}><option value="">—</option><option value="hourly">hourly</option><option value="fixed">fixed</option><option value="custom">custom</option><option value="quote">quote only</option></select></Field>
+          <Field label="Website / Contact URL"><input style={inp} value={f.apply_url} onChange={up('apply_url')} placeholder="https://…" /></Field>
+        </>}
+        {f.category === 'products' && <>
+          <Field label="Price"><input style={inp} type="number" value={f.price} onChange={up('price')} /></Field>
+          <Field label="Condition"><select style={inp} value={f.condition} onChange={up('condition')}><option value="">—</option><option value="new">new</option><option value="like-new">like new</option><option value="used">used</option><option value="refurbished">refurbished</option></select></Field>
+          <Field label="Product Type"><input style={inp} value={f.vertical} onChange={up('vertical')} placeholder="e.g. Propulsion, Sensors, Software" /></Field>
+          <Field label="Buy / Info URL"><input style={inp} value={f.apply_url} onChange={up('apply_url')} placeholder="https://…" /></Field>
         </>}
         {f.category === 'job' && <>
           <Field label="Job Type"><select style={inp} value={f.job_type} onChange={up('job_type')}><option value="">—</option><option>full-time</option><option>part-time</option><option>contract</option><option>internship</option></select></Field>

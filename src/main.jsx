@@ -88,6 +88,7 @@ const SourcingJobsV2 = lazy(() => import('./pages/SourcingJobsV2.jsx'))
 const SourcingEventsV2 = lazy(() => import('./pages/SourcingEventsV2.jsx'))
 const SourcingReportsV2 = lazy(() => import('./pages/SourcingReportsV2.jsx'))
 const SourcingMarketplaceV2 = lazy(() => import('./pages/SourcingMarketplaceV2.jsx'))
+const OSMarketplacePage = lazy(() => import('./pages/OSMarketplacePage.jsx'))
 const SourcingDealBankV2 = lazy(() => import('./pages/SourcingDealBankV2.jsx'))
 // Deal Bank R7b/c — profile pages for the Investments + Investors lanes.
 const SourcingDealBankInvestmentProfile = lazy(() => import('./pages/SourcingDealBankInvestmentProfile.jsx'))
@@ -165,7 +166,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/opportunities" element={<OSOpportunitiesHub />} />
             <Route path="/careers" element={<OSJobsPage />} />
             <Route path="/jobs" element={<OSJobsPage />} />
-            <Route path="/marketplace" element={<SourcingMarketplaceV2 />} />
+            <Route path="/marketplace" element={<OSMarketplacePage />} />
             <Route path="/community" element={<OSEventsPage />} />
             <Route path="/events" element={<OSEventsPage />} />
             <Route path="/reports" element={<OSReportsPage />} />
