@@ -254,6 +254,9 @@ export default function SourcingDirectoryV2() {
 
   const visibleCompanies = useMemo(() => filtered.slice(0, visibleCount), [filtered, visibleCount]);
   const regionCounts = useMemo(() => computeRegionCounts(companies), [companies]);
+  const searching = Boolean(searchInput.trim());
+  const isFiltering = Boolean(selectedCategory || selectedRegion || searchInput.trim());
+  const clearAll = () => { setSelectedCategory(null); setSelectedRegion(null); setSearchInput(''); setSearchParams({}, { replace: true }); };
 
   const pickRegion = (region) => {
     setSelectedRegion(selectedRegion === region ? null : region);
@@ -315,6 +318,10 @@ export default function SourcingDirectoryV2() {
 
       {!loading && supabase && (
         <>
+          {/* Browse sections (carousel, categories, region map) collapse during an active text
+              search so the filtered results own the screen and nothing contradicts the query. */}
+          {!searching && (
+          <>
           {/* SECTION 2: RECENTLY ADDED CAROUSEL */}
           {recentlyAdded.length > 0 && (
             <section className="v3-carousel-section">
@@ -422,17 +429,26 @@ export default function SourcingDirectoryV2() {
               </div>
             </div>
           </section>
+          </>
+          )}
 
           {/* SECTION 5: COMPANIES DIRECTORY + STAY CONNECTED */}
           <section className="v3-companies-section" id="v3-companies-anchor">
             <div className="v3-companies-inner">
               <div className="v3-companies-main">
-                <h2 className="v3-companies-title">COMPANIES DIRECTORY <span>&rsaquo;</span></h2>
-                {(selectedCategory || selectedRegion || searchInput.trim()) && (
-                  <div className="v3-active-filter">
-                    Showing {filtered.length} result{filtered.length === 1 ? '' : 's'}{searchInput.trim() ? ` for “${searchInput.trim()}”` : ''}{selectedCategory ? ` in ${selectedCategory}` : ''}{selectedRegion ? ` · ${selectedRegion}` : ''}
-                    <button onClick={() => { setSelectedCategory(null); setSelectedRegion(null); setSearchInput(''); setSearchParams({}, { replace: true }); }}>Clear</button>
+                {isFiltering ? (
+                  <div className="v3-results-head">
+                    <div className="v3-results-eyebrow">COMPANIES DIRECTORY</div>
+                    <h2 className="v3-results-title">
+                      {filtered.length} result{filtered.length === 1 ? '' : 's'}
+                      {searchInput.trim() && <> for <span className="v3-results-term">“{searchInput.trim()}”</span></>}
+                      {selectedCategory && ` in ${selectedCategory}`}
+                      {selectedRegion && ` · ${selectedRegion}`}
+                      <button className="v3-results-clear" onClick={clearAll} aria-label="Clear search"><span aria-hidden="true">✕</span> Clear</button>
+                    </h2>
                   </div>
+                ) : (
+                  <h2 className="v3-companies-title">COMPANIES DIRECTORY <span>&rsaquo;</span></h2>
                 )}
                 {visibleCompanies.length > 0 ? (
                   <>

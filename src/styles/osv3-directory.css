@@ -319,6 +319,24 @@
   background: none; border: 1px solid var(--v3-light-border); border-radius: 6px;
   padding: 4px 10px; font-size: 12px; font-weight: 600; color: var(--v3-accent); cursor: pointer;
 }
+/* Active-search results header — the query state is the hero, the static label an eyebrow. */
+.v3-results-head { margin-bottom: 22px; }
+.v3-results-eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--v3-light-muted); margin-bottom: 7px;
+}
+.v3-results-title {
+  font-size: 22px; font-weight: 600; line-height: 1.3; color: var(--v3-light-text); margin: 0;
+}
+.v3-results-term { color: var(--v3-accent); font-weight: 700; }
+.v3-results-clear {
+  margin-left: 14px; vertical-align: middle;
+  background: none; border: 1px solid var(--v3-light-border); border-radius: 6px;
+  padding: 5px 12px; font-size: 12px; font-weight: 600; color: var(--v3-accent);
+  cursor: pointer; transition: background 150ms ease, border-color 150ms ease;
+}
+.v3-results-clear span { margin-right: 3px; font-size: 11px; }
+.v3-results-clear:hover { background: var(--v3-panel, #F7F8F9); border-color: var(--v3-accent); }
 .v3-companies-list { display: flex; flex-direction: column; }
 .v3-company-row {
   display: grid; grid-template-columns: 72px 1fr auto; gap: 20px; align-items: center;
@@ -338,7 +356,7 @@
   max-width: 560px;
 }
 .v3-company-row-side { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; text-align: right; white-space: nowrap; }
-.v3-company-row-meta { font-size: 12px; color: var(--v3-light-muted); line-height: 1.5; }
+.v3-company-row-meta { font-size: 12px; color: var(--v3-light-muted); line-height: 1.5; min-height: 36px; }
 .v3-company-row-link {
   font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
   color: var(--v3-accent); text-decoration: none; border: 1px solid var(--v3-light-border);
