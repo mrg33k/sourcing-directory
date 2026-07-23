@@ -171,8 +171,11 @@ function OSOrganizationsPage() {
     ? orgs
     : orgs.filter(o => (o.vertical || '') === activeFilter);
 
-  /* featured = first org (Space Rising) */
-  const featured = orgs[0] || null;
+  /* featured = Space Rising (the operator), fallback to first */
+  const featured =
+    orgs.find(o => o.name?.toLowerCase().includes('space rising')) ||
+    orgs[0] ||
+    null;
   const gridItems = filtered;
 
   /* feature computed fields */
