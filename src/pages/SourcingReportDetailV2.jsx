@@ -14,8 +14,19 @@ function fmtDate(v) {
   return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
 
+// A report's real delivered cover art (e.g. Tim's Blueprint cover) wins over the
+// stock rotation. Add a cover here (or set a cover_image_url column) and the detail
+// hero shows the actual cover instead of a random space photo.
+function reportCover(report) {
+  if (report?.cover_image_url) return report.cover_image_url;
+  if (/blueprint/i.test(report?.title || '')) return '/v2-assets/blueprint-cover.png';
+  return null;
+}
+
 // Deterministic hero image selection based on report id (hash stable across loads)
-function selectHeroImage(reportId) {
+function selectHeroImage(report) {
+  const cover = reportCover(report);
+  if (cover) return cover;
   const heroAssets = [
     'blueprint-hero.png',
     'asteroid-close.png',
@@ -31,7 +42,7 @@ function selectHeroImage(reportId) {
   ];
   // Stable hash over the full id string (ids are UUIDs — parseInt would NaN on
   // any id starting with a hex letter and break the image). Sum char codes.
-  const s = String(reportId || '0');
+  const s = String(report?.id || '0');
   let h = 0;
   for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
   const index = h % heroAssets.length;
@@ -141,7 +152,8 @@ export default function SourcingReportDetailV2() {
   const isGated = !isFree || report.is_premium === true;
   const pubDate = fmtDate(report.published_at);
   const readTime = calcReadTime(report.description);
-  const heroUrl = selectHeroImage(report.id);
+  const heroUrl = selectHeroImage(report);
+  const heroIsCover = Boolean(reportCover(report));
   const authorInitials = getInitials(report.author);
   const fileHref = report.file_url
     ? (report.file_url.startsWith('http') ? report.file_url : `https://${report.file_url}`)
@@ -154,7 +166,7 @@ export default function SourcingReportDetailV2() {
 
       {/* Hero image */}
       <div className="osv3-mag-hero">
-        <img src={heroUrl} alt={report.title || 'Report'} className="osv3-mag-hero-image" />
+        <img src={heroUrl} alt={report.title || 'Report'} className="osv3-mag-hero-image" style={heroIsCover ? { objectPosition: 'top center' } : undefined} />
         <div className="osv3-mag-hero-overlay"></div>
       </div>
 

@@ -31,6 +31,10 @@ function formatPubDate(dateStr) {
 }
 
 function getImageForReport(report, index) {
+  // The Blueprint feature tile overlays its own headline, so it wants an on-brand
+  // schematic backdrop (not a random space photo, and not the cover — the cover has
+  // its own title and lives on the detail hero instead).
+  if (/blueprint/i.test(report?.title || '')) return '/v2-assets/blueprint-hero.png';
   // Deterministic + diverse: hash the full id string (+ index) so cards don't
   // repeat the same photo. charCodeAt(0) alone collided across most reports.
   const s = (report.id ? String(report.id) : '') + ':' + index;
