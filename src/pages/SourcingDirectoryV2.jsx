@@ -3,7 +3,7 @@
 // Sections: hero (image + search + CTA), recently added, categories, by region (real US map), companies + stay-connected
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import { getCategoryForCompany, CATEGORIES, getCategoryCount } from '../lib/directoryCategories.js';
 import { STATE_PATHS } from '../lib/usStatesPaths.js';
@@ -163,9 +163,10 @@ const COMPANIES_STEP = 10;
 export default function SourcingDirectoryV2() {
   useSRWTitle('Company Directory | Space OS');
 
+  const [searchParams, setSearchParams] = useSearchParams();
   const [companies, setCompanies] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchInput, setSearchInput] = useState('');
+  const [searchInput, setSearchInput] = useState(() => searchParams.get('q') || '');
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedRegion, setSelectedRegion] = useState(null);
   const [showMembership, setShowMembership] = useState(false);
@@ -174,6 +175,21 @@ export default function SourcingDirectoryV2() {
   const [newsletterSubmitting, setNewsletterSubmitting] = useState(false);
   const [newsletterMessage, setNewsletterMessage] = useState('');
   const carouselRef = useRef(null);
+
+  // The global shell search routes here as /directory?q=… — keep the search box in sync with that param.
+  useEffect(() => {
+    setSearchInput(searchParams.get('q') || '');
+  }, [searchParams]);
+
+  // When we arrive (or re-search) with a query, reveal the filtered results once the data is in.
+  // Gated on !loading because the results section is not mounted until the fetch resolves.
+  useEffect(() => {
+    if (!loading && (searchParams.get('q') || '').trim()) {
+      requestAnimationFrame(() => {
+        document.getElementById('v3-companies-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+  }, [loading, searchParams]);
 
   const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
@@ -264,7 +280,12 @@ export default function SourcingDirectoryV2() {
             </p>
             <form
               className="v3-hero-search"
-              onSubmit={(e) => { e.preventDefault(); document.getElementById('v3-companies-anchor')?.scrollIntoView({ behavior: 'smooth' }); }}
+              onSubmit={(e) => {
+                e.preventDefault();
+                const q = searchInput.trim();
+                setSearchParams(q ? { q } : {}, { replace: true });
+                document.getElementById('v3-companies-anchor')?.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
               <input
                 type="text"
@@ -409,8 +430,8 @@ export default function SourcingDirectoryV2() {
                 <h2 className="v3-companies-title">COMPANIES DIRECTORY <span>&rsaquo;</span></h2>
                 {(selectedCategory || selectedRegion || searchInput.trim()) && (
                   <div className="v3-active-filter">
-                    Showing {filtered.length} {selectedCategory || ''} {selectedRegion ? `· ${selectedRegion}` : ''} results
-                    <button onClick={() => { setSelectedCategory(null); setSelectedRegion(null); setSearchInput(''); }}>Clear</button>
+                    Showing {filtered.length} result{filtered.length === 1 ? '' : 's'}{searchInput.trim() ? ` for “${searchInput.trim()}”` : ''}{selectedCategory ? ` in ${selectedCategory}` : ''}{selectedRegion ? ` · ${selectedRegion}` : ''}
+                    <button onClick={() => { setSelectedCategory(null); setSelectedRegion(null); setSearchInput(''); setSearchParams({}, { replace: true }); }}>Clear</button>
                   </div>
                 )}
                 {visibleCompanies.length > 0 ? (
