@@ -152,7 +152,7 @@ function SourcingReportsInner() {
     })();
   }, [tenant]);
 
-  const isPaid = memberTier !== 'free';
+  const isPaid = true; // All approved members have full access — no paid tier
   const filtered = reports.filter(r =>
     category === 'all' || r.category === category
   );

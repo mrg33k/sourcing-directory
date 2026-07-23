@@ -11,7 +11,7 @@ const formatJoinedDate = (value) => {
 
 export default function MembersSection({
   pendingMembers, memberCompanyMap, handleMemberAction,
-  handleMemberUpgrade, V, adminSupabase, fetchData, selectedTenantId, currentUserEmail,
+  V, adminSupabase, fetchData, selectedTenantId, currentUserEmail,
 }) {
   // Local state for member management
   const [memberActionStatus, setMemberActionStatus] = useState({});
@@ -171,13 +171,6 @@ export default function MembersSection({
                       </button>
                     </div>
                     <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                      <button onClick={() => handleMemberUpgrade(member)} style={{
-                        background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.35)',
-                        color: '#93C5FD', borderRadius: 5, padding: '4px 10px', fontSize: 11,
-                        fontWeight: 700, fontFamily: V.space, cursor: 'pointer',
-                      }}>
-                        Upgrade to Paid
-                      </button>
                       <button onClick={() => {
                         setMemberEmailEditing(prev => ({ ...prev, [member.id]: !prev[member.id] }));
                         setMemberEmailDraft(prev => ({ ...prev, [member.id]: prev[member.id] ?? member.email ?? '' }));

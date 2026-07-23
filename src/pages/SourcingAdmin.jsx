@@ -554,24 +554,6 @@ function SourcingAdminInner() {
     }
   };
 
-  const handleMemberUpgrade = async (member) => {
-    if (!member?.company_id) {
-      return;
-    }
-    try {
-      const resp = await fetch('/api/sourcing/upgrade-membership', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ company_id: member.company_id, tier_name: 'basic', seat_count: 1 }),
-      });
-      const data = await resp.json().catch(() => ({}));
-      if (!resp.ok) throw new Error(data.error || 'Upgrade failed.');
-      await fetchData();
-    } catch (err) {
-      console.error('Member upgrade error:', err);
-    }
-  };
-
   const handleArticleAction = async (articleId, action) => {
     if (!adminSupabase) return;
     try {
@@ -1152,7 +1134,6 @@ function SourcingAdminInner() {
             pendingMembers={pendingMembers}
             memberCompanyMap={memberCompanyMap}
             handleMemberAction={handleMemberAction}
-            handleMemberUpgrade={handleMemberUpgrade}
             V={V}
             adminSupabase={adminSupabase}
             fetchData={fetchData}

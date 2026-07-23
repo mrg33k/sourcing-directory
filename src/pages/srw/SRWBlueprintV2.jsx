@@ -41,10 +41,9 @@ export default function SRWBlueprintV2() {
             and connections shaping the future of space.
           </p>
           <div className="bp-hero-cta-row">
-            <Link to="/srw-v2/sign-up" className="srw-pg-cta solid">Join SpaceOS — $500/yr →</Link>
-            <a href="#blueprint" className="srw-pg-cta line">Get the Blueprint only — $142</a>
+            <Link to="/srw-v2/sign-up" className="srw-pg-cta solid">Join SpaceOS — Free →</Link>
           </div>
-          <p className="bp-hero-note">Arizona Space Blueprint™ included free with every membership.</p>
+          <p className="bp-hero-note">Arizona Space Blueprint™ included with membership.</p>
         </div>
       </header>
 
@@ -91,21 +90,12 @@ export default function SRWBlueprintV2() {
               </p>
               <div className="bp-callout-pricing">
                 <div className="bp-price-block">
-                  <div className="bp-price-label">WITH MEMBERSHIP</div>
+                  <div className="bp-price-label">INCLUDED WITH MEMBERSHIP</div>
                   <div className="bp-price-value">Free</div>
-                  <div className="bp-price-sub">$500/year · less than $42/month</div>
+                  <div className="bp-price-sub">No card required</div>
                   <Link to="/srw-v2/sign-up" className="srw-pg-cta solid" style={{ display: 'inline-block', marginTop: '1.25rem' }}>
                     Join SpaceOS →
                   </Link>
-                </div>
-                <div className="bp-price-divider" />
-                <div className="bp-price-block">
-                  <div className="bp-price-label">STANDALONE</div>
-                  <div className="bp-price-value">$142</div>
-                  <div className="bp-price-sub">One-time purchase</div>
-                  <a href="mailto:hello@spacerising.org?subject=Arizona Space Blueprint" className="srw-pg-cta line" style={{ display: 'inline-block', marginTop: '1.25rem' }}>
-                    Buy the Blueprint →
-                  </a>
                 </div>
               </div>
             </div>
@@ -160,8 +150,7 @@ export default function SRWBlueprintV2() {
             The work now moves into implementation through SpaceOS. Join the platform. Get the Blueprint. Help build Arizona's next chapter.
           </p>
           <div className="bp-hero-cta-row" style={{ justifyContent: 'center' }}>
-            <Link to="/srw-v2/sign-up" className="srw-pg-cta solid">Join SpaceOS — $500/yr →</Link>
-            <a href="mailto:hello@spacerising.org?subject=Arizona Space Blueprint" className="srw-pg-cta line">Get the Blueprint only</a>
+            <Link to="/srw-v2/sign-up" className="srw-pg-cta solid">Join SpaceOS — Free →</Link>
           </div>
         </div>
       </section>

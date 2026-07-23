@@ -261,10 +261,10 @@ export function MembershipGate({ children, featureName }) {
           </svg>
         </div>
         <h2 style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Syne', sans-serif", color: '#fff', margin: '0 0 10px' }}>
-          Paid membership required
+          Member access required
         </h2>
         <p style={{ fontSize: 14, color: V.muted, fontFamily: V.space, margin: '0 0 20px', lineHeight: 1.6 }}>
-          Posting {featureName || 'content'} is available to paid members. Upgrade your membership to unlock this feature.
+          Posting {featureName || 'content'} is available to members. Sign up for free to unlock this feature.
         </p>
         <Link
           to={`${base}/membership`}
@@ -274,7 +274,7 @@ export function MembershipGate({ children, featureName }) {
             fontSize: 14, fontWeight: 600, fontFamily: V.space,
           }}
         >
-          View Membership Options
+          Join Space Rising
         </Link>
       </div>
     );

@@ -8,17 +8,7 @@ import '../pages/OSLayoutV3.css';
 const SPACE_CERTS = ['AS9100D', 'AS9110', 'AS9120B', 'ITAR Registered', 'ISO 9001', 'MIL-STD-810', 'NADCAP', 'FAA FAR Part 145', 'DoD Secret Cleared', 'DFAR Compliant'];
 const EMP_RANGES = ['1–10', '11–50', '51–200', '200–500', '500–2000', '2000+', '10,000+'];
 
-const FREE_STEPS  = ['company', 'description', 'location', 'fullname', 'auth'];
-const PAID_STEPS  = ['company', 'description', 'location', 'certs', 'fullname', 'auth', 'payment'];
-
-const PLAN_PRICING = {
-  'small-annual':  { label: '<25 employees',    amount: '$500',    billing: 'billed annually',    btnLabel: 'Pay $500 with Stripe →' },
-  'small-monthly': { label: '<25 employees',    amount: '$50/mo',  billing: 'recurring monthly',  btnLabel: 'Subscribe $50/mo →' },
-  'mid-annual':    { label: '25–199 employees', amount: '$1,000',  billing: 'billed annually',    btnLabel: 'Pay $1,000 with Stripe →' },
-  'mid-monthly':   { label: '25–199 employees', amount: '$100/mo', billing: 'recurring monthly',  btnLabel: 'Subscribe $100/mo →' },
-  'large-annual':  { label: '200+ employees',   amount: '$2,700',  billing: 'billed annually',    btnLabel: 'Pay $2,700 with Stripe →' },
-  'large-monthly': { label: '200+ employees',   amount: '$250/mo', billing: 'recurring monthly',  btnLabel: 'Subscribe $250/mo →' },
-};
+const FREE_STEPS = ['company', 'description', 'location', 'fullname', 'auth'];
 
 function useQueryParam(name) {
   const { search } = useLocation();
@@ -28,22 +18,9 @@ function useQueryParam(name) {
 export default function SourcingSignupV2() {
   const navigate = useNavigate();
   const { tenant, tenantSlug } = useTenant();
-  const tierParam = useQueryParam('tier');
-  const planParam = useQueryParam('plan');
-
-  const paramTier = tierParam === 'free' ? 'free' : (tierParam ? 'paid' : null);
-  const [chosenTier, setChosenTier] = useState(null);
-  const tier = chosenTier || paramTier;
-  const needsChoice = !tier;
-
-  const validPlanTypes = Object.keys(PLAN_PRICING);
-  const planType = planParam && validPlanTypes.includes(planParam)
-    ? planParam
-    : tier === 'paid' ? 'small-annual' : null;
-  const isAnnual = planType?.endsWith('-annual');
   const basePath = tenantSlug ? `/${tenantSlug}` : '/spaceos';
 
-  const steps = tier === 'free' ? FREE_STEPS : PAID_STEPS;
+  const steps = FREE_STEPS;
   const totalSteps = steps.length;
 
   const [step, setStep] = useState(0);
@@ -118,8 +95,8 @@ export default function SourcingSignupV2() {
           year_founded: form.year_founded || null,
           tenant_id: tenant?.id || null,
           selectedCerts: form.selectedCerts,
-          membership_tier: tier,
-          plan_type: tier === 'paid' ? planType : null,
+          membership_tier: 'free',
+          plan_type: null,
         }),
       });
       const data = await res.json();
@@ -193,27 +170,6 @@ export default function SourcingSignupV2() {
             {paymentFallback ? "Your account is set up. We'll send you a payment link via email." : 'Account created. Check your email to continue.'}
           </p>
           <Link to={basePath} style={{ display: 'inline-block', padding: '10px 20px', background: 'var(--v3-accent)', color: 'white', borderRadius: '6px', textDecoration: 'none', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>Explore</Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (needsChoice) {
-    return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <div style={{ maxWidth: '500px', width: '100%' }}>
-          <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px', textAlign: 'center' }}>Choose your path</h2>
-          <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', textAlign: 'center', marginBottom: '32px' }}>Select how you'd like to get started.</p>
-          <div style={{ display: 'grid', gap: '16px' }}>
-            <button onClick={() => setChosenTier('free')} style={{ padding: '20px', border: '1px solid var(--v3-border)', borderRadius: '8px', background: 'white', cursor: 'pointer', textAlign: 'left', transition: 'all var(--v3-transition-fast)' }} onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--v3-accent)'} onMouseLeave={(e) => e.currentTarget.style.borderColor = 'var(--v3-border)'}>
-              <div style={{ fontSize: 'var(--v3-body-font-size)', fontWeight: 'var(--v3-font-weight-semibold)', color: 'var(--v3-ink-primary)' }}>Free Exploration</div>
-              <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginTop: '4px' }}>Read and explore the directory</div>
-            </button>
-            <button onClick={() => setChosenTier('paid')} style={{ padding: '20px', border: '1px solid var(--v3-accent)', borderRadius: '8px', background: 'var(--v3-panel-bg)', cursor: 'pointer', textAlign: 'left', transition: 'all var(--v3-transition-fast)' }}>
-              <div style={{ fontSize: 'var(--v3-body-font-size)', fontWeight: 'var(--v3-font-weight-semibold)', color: 'var(--v3-ink-primary)' }}>Premium Membership</div>
-              <div style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', marginTop: '4px' }}>Post, lead, and access exclusive features</div>
-            </button>
-          </div>
         </div>
       </div>
     );
@@ -296,23 +252,14 @@ export default function SourcingSignupV2() {
             </>
           )}
 
-          {stepName === 'payment' && (
-            <>
-              <h2 style={{ fontSize: 'var(--v3-h2-font-size)', color: 'var(--v3-ink-primary)', margin: '0 0 8px' }}>Review and pay</h2>
-              <p style={{ fontSize: 'var(--v3-body-sm-font-size)', color: 'var(--v3-muted)', margin: '0 0 20px' }}>{PLAN_PRICING[planType]?.label} — {PLAN_PRICING[planType]?.amount}</p>
-            </>
-          )}
-
           {error && <div style={{ padding: '12px', background: '#FEE2E2', border: '1px solid #FCA5A5', borderRadius: '6px', color: '#DC2626', fontSize: 'var(--v3-body-sm-font-size)', marginBottom: '20px' }}>{error}</div>}
 
           <div style={{ display: 'flex', gap: '12px', justifyContent: 'space-between' }}>
             {step > 0 && <button onClick={back} style={{ padding: '10px 20px', background: 'white', border: '1px solid var(--v3-border)', borderRadius: '6px', cursor: 'pointer', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>Back</button>}
             {step < totalSteps - 1 ? (
               <button onClick={next} disabled={!stepValid()} style={{ marginLeft: 'auto', padding: '10px 20px', background: stepValid() ? 'var(--v3-accent)' : '#D3D3D3', color: 'white', border: 'none', borderRadius: '6px', cursor: stepValid() ? 'pointer' : 'not-allowed', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>Continue</button>
-            ) : stepName === 'payment' ? (
-              <button onClick={() => handleCheckoutRedirect(createdCompany)} disabled={loading} style={{ marginLeft: 'auto', padding: '10px 20px', background: loading ? '#D3D3D3' : 'var(--v3-accent)', color: 'white', border: 'none', borderRadius: '6px', cursor: loading ? 'not-allowed' : 'pointer', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>{loading ? 'Processing...' : 'Pay with Stripe'}</button>
             ) : (
-              <button onClick={async () => { const result = await handleAccountCreate(); if (result) { if (tier === 'paid') next(); else setSubmitted(true); } }} disabled={!stepValid() || loading} style={{ marginLeft: 'auto', padding: '10px 20px', background: stepValid() && !loading ? 'var(--v3-accent)' : '#D3D3D3', color: 'white', border: 'none', borderRadius: '6px', cursor: stepValid() && !loading ? 'pointer' : 'not-allowed', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>{loading ? 'Creating...' : 'Create Account'}</button>
+              <button onClick={async () => { const result = await handleAccountCreate(); if (result) { setSubmitted(true); } }} disabled={!stepValid() || loading} style={{ marginLeft: 'auto', padding: '10px 20px', background: stepValid() && !loading ? 'var(--v3-accent)' : '#D3D3D3', color: 'white', border: 'none', borderRadius: '6px', cursor: stepValid() && !loading ? 'pointer' : 'not-allowed', fontSize: 'var(--v3-body-sm-font-size)', fontWeight: 'var(--v3-font-weight-semibold)' }}>{loading ? 'Creating...' : 'Create Account'}</button>
             )}
           </div>
         </div>
