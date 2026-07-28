@@ -36,6 +36,20 @@ const T = {
   font: "'Roboto', system-ui, -apple-system, sans-serif",
 }
 
+// Shared button box. Both buttons carry a 1px border (the primary's just matches
+// its own fill) so the two compute to the same height and their text baselines
+// line up — a solid button with no border sits 2px shorter than an outlined one.
+const btn = {
+  display: 'inline-block',
+  padding: '10px 18px',
+  border: '1px solid transparent',
+  borderRadius: '6px',
+  fontSize: '14px',
+  lineHeight: '20px',
+  fontWeight: 500,
+  textDecoration: 'none',
+}
+
 function Frame({ children }) {
   return (
     <div
@@ -98,36 +112,11 @@ function NotAuthorized({ signedIn }) {
         </p>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           {!signedIn && (
-            <Link
-              to="/login"
-              style={{
-                display: 'inline-block',
-                padding: '10px 18px',
-                background: T.accent,
-                color: '#FFFFFF',
-                borderRadius: '6px',
-                fontSize: '14px',
-                fontWeight: 500,
-                textDecoration: 'none',
-              }}
-            >
+            <Link to="/login" style={{ ...btn, background: T.accent, color: '#FFFFFF', borderColor: T.accent }}>
               Sign in
             </Link>
           )}
-          <Link
-            to="/"
-            style={{
-              display: 'inline-block',
-              padding: '10px 18px',
-              background: 'transparent',
-              color: T.ink,
-              border: `1px solid ${T.border}`,
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: 500,
-              textDecoration: 'none',
-            }}
-          >
+          <Link to="/" style={{ ...btn, background: 'transparent', color: T.ink, borderColor: T.border }}>
             Back to Space OS
           </Link>
         </div>
