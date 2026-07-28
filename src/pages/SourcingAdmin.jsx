@@ -2,13 +2,12 @@ import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from 
 import { Link, Navigate, useNavigate, useLocation, useParams } from 'react-router-dom';
 const SourcingCreate = lazy(() => import('./SourcingCreate.jsx'));
 const SourcingSettings = lazy(() => import('./SourcingSettings.jsx'));
-import { createClient } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase.js';
+import { createAdminApiClient } from '../lib/adminApi.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
 import '../space-rising-theme-v2.css';
 
 // Admin sub-components
-import ScoutPanel from './admin/ScoutPanel.jsx';
 import StatsSection from './admin/StatsSection.jsx';
 import CompaniesSection from './admin/CompaniesSection.jsx';
 import MembersSection from './admin/MembersSection.jsx';
@@ -32,20 +31,18 @@ import AddContentModal from './admin/AddContentModal.jsx';
 
 // Auth is handled via Supabase Auth (email + password)
 
-// Admin client — uses service role key if available (bypasses RLS), falls back to anon
-// VITE_SOURCING_ADMIN_KEY should be set to service role key in Vercel env vars
-const _adminKey = (import.meta.env.VITE_SOURCING_ADMIN_KEY || import.meta.env.VITE_SUPABASE_ANON_KEY || '').trim();
-const _sbUrl = (import.meta.env.VITE_SUPABASE_URL || '').trim();
-const adminSupabase = (_sbUrl && _adminKey)
-  ? createClient(_sbUrl, _adminKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false,
-        storageKey: 'sd-admin-noauth',
-      },
-    })
-  : supabase;
+// Admin data client.
+//
+// This used to be a second Supabase client built in the BROWSER from a VITE_-prefixed
+// env var holding the service_role key. Vite inlines VITE_* at build time, so that key
+// shipped inside the /admin chunk to every visitor who loaded it, and was then handed
+// as a prop to ~14 section components that wrote directly to tables.
+//
+// It is now a shim with the identical `.from(table)...` surface that routes every
+// call through POST /api/sourcing/admin, where the caller's own Supabase JWT is
+// verified server-side and checked against a table/operation/column allowlist. The
+// service key never leaves the serverless function. Section components are unchanged.
+const adminSupabase = createAdminApiClient();
 
 // ─── Inner Component ──────────────────────────────────────────────────────────
 function SourcingAdminInner() {
@@ -161,8 +158,8 @@ function SourcingAdminInner() {
           setTenants(allTenants);
         } else {
           // Non-global admin: show only tenants where they have an admin member record.
-          // Use adminSupabase (service role) to bypass RLS — the user ID still comes from
-          // their verified session, so scoping is correct.
+          // The server applies the same scoping again on every request, so this filter
+          // is a UI convenience, not the security boundary.
           const { data: memberRows } = await adminSupabase
             .from('directory_members')
             .select('tenant_id')
@@ -922,7 +919,6 @@ function SourcingAdminInner() {
             V={V}
           />
         )}
-        <ScoutPanel V={V} tenantId={selectedTenantId} />
       </AdminShellV3>
       {showAddContent && (
         <AddContentModal

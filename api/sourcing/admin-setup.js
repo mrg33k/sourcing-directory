@@ -1,17 +1,27 @@
 // POST /api/sourcing/admin-setup
-// Creates or promotes a user to admin role.
-// Protected by SETUP_SECRET header — only run this once to bootstrap the admin account.
 //
-// Body: { email, password, full_name? }
-// Headers: x-setup-secret: <SETUP_SECRET env var>
+// Two modes:
+//   mode: 'member'  — called from the admin dashboard's Add Company flow.
+//                     Auth: the caller's Supabase JWT (Authorization: Bearer <token>),
+//                     verified server-side by requireAdmin().
+//   default         — one-time bootstrap of the very first admin account.
+//                     Auth: x-setup-secret header (SETUP_SECRET env var).
+//
+// Body: { email, password, full_name? } / { mode:'member', email, company_id, tenant_id }
 //
 // What it does:
-//   1. Verifies the setup secret
+//   1. Verifies the caller
 //   2. Creates auth user if they don't exist (or finds existing by email)
-//   3. Sets app_metadata.role = 'admin' via service role (required for /admin portal access)
-//   4. Creates a directory_members record with role='admin', status='approved'
+//   3. Sets app_metadata.role = 'admin' via service role (bootstrap mode only)
+//   4. Creates a directory_members record
+//
+// SECURITY (2026-07-28): member mode previously authenticated with
+// `providedAdminKey === SUPABASE_SERVICE_KEY`, and the browser sent that key in an
+// 'x-admin-key' header — so the service_role key was in the client bundle. Both the
+// header and the comparison are gone.
 
 import { createClient } from '@supabase/supabase-js';
+import { requireAdmin } from './lib/adminAuth.js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://kzzvjtthknsozktmpvak.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -20,7 +30,7 @@ const SETUP_SECRET = process.env.SETUP_SECRET;
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-setup-secret, x-admin-key');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-setup-secret');
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
 
@@ -32,11 +42,21 @@ export default async function handler(req, res) {
 
   // ─── Member creation mode (called from admin dashboard Add Company flow) ───
   if (mode === 'member') {
-    const providedAdminKey = req.headers['x-admin-key'];
-    if (!providedAdminKey || providedAdminKey !== SUPABASE_SERVICE_KEY) {
-      return res.status(403).json({ error: 'Invalid or missing admin key' });
-    }
+    const auth = await requireAdmin(req);
+    if (!auth.ok) return res.status(auth.status).json({ error: auth.error });
     if (!email) return res.status(400).json({ error: 'email is required' });
+
+    // A tenant admin may only attach members to tenants they administer.
+    if (!auth.isGlobal) {
+      if (!tenant_id) {
+        if (auth.tenantIds.length !== 1) {
+          return res.status(400).json({ error: 'tenant_id is required (you administer more than one tenant)' });
+        }
+      } else if (!auth.tenantIds.includes(tenant_id)) {
+        return res.status(403).json({ error: 'tenant_id is outside your admin scope' });
+      }
+    }
+    const scopedTenantId = tenant_id || (!auth.isGlobal && auth.tenantIds.length === 1 ? auth.tenantIds[0] : null);
 
     const admin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
       auth: { autoRefreshToken: false, persistSession: false },
@@ -72,7 +92,7 @@ export default async function handler(req, res) {
       status: 'approved',
       auth_user_id: memberId,
       ...(company_id ? { company_id } : {}),
-      ...(tenant_id ? { tenant_id } : {}),
+      ...(scopedTenantId ? { tenant_id: scopedTenantId } : {}),
     };
 
     const { data: existingMember } = await admin

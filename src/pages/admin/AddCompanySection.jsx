@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AdminSection } from './AdminUI.jsx';
+import { supabase } from '../../lib/supabase.js';
 
 export default function AddCompanySection({ orgs, V, adminSupabase, selectedTenantId, fetchData }) {
   const [addCompanyForm, setAddCompanyForm] = useState({
@@ -37,12 +38,15 @@ export default function AddCompanySection({ orgs, V, adminSupabase, selectedTena
     if (error) {
       setAddCompanyStatus('Error: ' + error.message);
     } else {
-      // If owner email provided, create auth user + directory_members row
+      // If owner email provided, create auth user + directory_members row.
+      // Authenticates with the signed-in admin's own Supabase JWT — this used to send
+      // the service_role key from the browser as an 'x-admin-key' header.
       if (addCompanyForm.owner_email.trim() && insertedCompany?.id) {
-        const adminKey = (import.meta.env.VITE_SOURCING_ADMIN_KEY || '').trim();
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData?.session?.access_token || '';
         const resp = await fetch('/api/sourcing/admin-setup', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'x-admin-key': adminKey },
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
           body: JSON.stringify({
             mode: 'member',
             email: addCompanyForm.owner_email.trim(),
