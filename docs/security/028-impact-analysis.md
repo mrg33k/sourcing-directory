@@ -1,65 +1,155 @@
-# Migration 028 — impact analysis
+# Migrations 028 + 029 — impact analysis and runbook
 
-**Read this before applying `migrations/028_security_and_missing_tables.sql` to production.**
+**Read this before applying anything to production.**
 
 - Target: hosted Supabase project `kzzvjtthknsozktmpvak`
 - Live surface: `os.spacerising.org`, serving real users off this branch
-- Author: agent, authoring only. **The migration has not been run against anything.** No
-  SQL in this document or in the migration has been executed against production.
-- Apply with: `node --env-file=.env.prod.local scripts/run-migration-028.mjs --apply`
-- Pre-flight (read-only, changes nothing): `node --env-file=.env.prod.local scripts/run-migration-028.mjs --check`
-
-Everything in the migration is wrapped in `BEGIN`/`COMMIT` and is idempotent. A failure
-rolls the whole thing back and leaves production exactly as it was.
+- Author: agent, authoring only. **Neither migration has been run against anything.**
+  No SQL in this document or in either migration has been executed against production.
 
 ---
 
-## Read this first: the migration is not the fix
+## The split, in one box
 
-`VITE_SOURCING_ADMIN_KEY` in `.env.production` and `.env.prod.local` **is byte-identical
-to `SUPABASE_SERVICE_ROLE_KEY`** (verified locally by comparing values and decoding the
-JWT `role` claim: `service_role`). Any variable prefixed `VITE_` is inlined into the Vite
-bundle at build time, so that key ships to every browser that loads the site
-(`src/pages/SourcingAdmin.jsx:37`).
+`028` used to bundle two very different things: urgent security fixes with no visible
+product change, and one change that visibly alters the live site. Bundling them meant the
+urgent part could not ship until a product decision was made. It is now split **inside the
+same file**:
 
-`service_role` is a `BYPASSRLS` Postgres role. It does not consult policies at all.
+```
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ RUNNING migrations/028_security_and_missing_tables.sql TODAY EXECUTES:       │
+│                                                                              │
+│   PART 1   YES — runs by default.  Zero visible change for any visitor,      │
+│                  member or admin. This is the whole point of the split.      │
+│                                                                              │
+│   PART 2   NO  — guarded off by `run_part_2 boolean := false;`.              │
+│                  It is the only change users would notice, and it needs      │
+│                  frontend work first.                                        │
+└──────────────────────────────────────────────────────────────────────────────┘
+```
 
-The consequence, stated plainly: **while that key is in the bundle, no RLS policy on this
-database protects anything from anyone.** Migration 028 closes the holes for `anon` and
-`authenticated`, which is real and worth doing, but a person with the public JS bundle
-still has unrestricted read/write on every table. Tightening RLS without rotating the key
-is a locked door in a glass wall.
+| | Part 1 — ship today | Part 2 — deferred |
+|---|---|---|
+| **What** | `directory_members` RLS · missing `directory_reports` columns · `directory_analytics` anon-SELECT revoke · supersede migration 017 | `directory_reports` read policies: drop `service full access reports`, add `reports_member_read`, align the `access` default |
+| **Visible product change** | **None** | **Yes** — members-only and paid report cards vanish for logged-out visitors on 7 pages |
+| **Blocked on** | Nothing | Repointing 7 pages at `GET /api/sourcing/reports` |
+| **How to run** | Run the file as-is | Flip `run_part_2` to `true`, re-run the file |
 
-Ordering that actually fixes it:
-
-1. Apply 028 (this migration). It creates the tenant-admin policies the admin panel needs
-   in order to work *without* the service key — that is the prerequisite, not an extra.
-2. Hand off the frontend change: `SourcingAdmin.jsx` and `src/pages/admin/*` stop using
-   `adminSupabase` and use the session-authenticated `supabase` client, or route through
-   an authenticated server endpoint. Every write path there is already admin-gated
-   server-side in `api/sourcing/admin-reports.js`; the pattern exists.
-3. Remove `VITE_SOURCING_ADMIN_KEY` from Vercel (all environments) and redeploy.
-4. Rotate `SUPABASE_SERVICE_ROLE_KEY` in Supabase, update the Vercel server-side var,
-   redeploy. Treat the old key as public — it has been in the bundle and is referenced in
-   a committed `CONTEXT.md` table.
-
-Steps 2–4 are code and ops work outside this agent's file scope. They are listed as
-hand-off requests at the bottom.
+`029_contacts_rls.sql` is a separate file with **no deferred half**. Everything in it runs,
+and none of it changes anything a user sees. It ships with Part 1.
 
 ---
 
-## What the migration changes, at a glance
+## THE RUNBOOK
 
-| # | Table | Policy removed | Replaced by | Breaks anything live? |
-|---|---|---|---|---|
-| 1 | `directory_members` | `service role all` (FOR ALL, `USING (true)`), `signup insert members` (INSERT, `WITH CHECK (true)`) | `members_select_own`, `members_select_tenant_admin`, `members_insert_self`, `members_update_tenant_admin`, `members_delete_tenant_admin` | **No** — verified caller by caller below |
-| 2 | `directory_reports` | — (columns only) | `is_premium`, `updated_at`, `updated_by`, `created_by`, `created_at`, `cover_image_url` | **No** — it *un*-breaks a currently-500ing endpoint |
-| 3 | `directory_analytics` | `service read analytics` (SELECT, `USING (true)`) | `analytics_select_tenant_admin`; anon INSERT kept as `analytics_public_insert` | **No** — the only reader uses the service key |
-| 4 | `directory_reports` | `public read free reports` / `public read public reports`, `service full access reports` (FOR ALL, `USING (true)`) | `reports_public_read` (accepts `public`, `free`, NULL), `reports_member_read` | **YES — visible product change.** See problem 4 |
+Everything below is one transaction per file, and idempotent. A failure rolls back and
+leaves production exactly as it was.
+
+### Now — the urgent lane (no product decision required)
+
+```bash
+# 0. Read-only pre-flight. Changes nothing. Record the BEFORE output.
+node --env-file=.env.prod.local scripts/run-migration-028.mjs --check
+node --env-file=.env.prod.local scripts/run-migration-029.mjs --check
+
+# 0b. Prove the two holes are real from outside, with only the PUBLIC anon key.
+#     Do this before you fix them — it is the difference between a claim and a receipt.
+source .env.prod.local 2>/dev/null || true
+curl -si "$VITE_SUPABASE_URL/rest/v1/directory_members?select=email,full_name,role,status,auth_user_id" \
+  -H "apikey: $VITE_SUPABASE_ANON_KEY" -H "Range: 0-0" -H "Prefer: count=exact" | head -20
+#   BEFORE: HTTP/2 206, `content-range: 0-0/70`, one real member row in the body.
+curl -s "$VITE_SUPABASE_URL/rest/v1/directory_contacts?select=sender_name,sender_email,sender_phone&limit=3" \
+  -H "apikey: $VITE_SUPABASE_ANON_KEY"
+#   BEFORE: real contact submissions with email and phone.
+
+# 1. Apply 028 PART 1. Part 2 stays off — you do not need to edit anything.
+node --env-file=.env.prod.local scripts/run-migration-028.mjs --apply
+#    ⚠ EXPECT A FALSE-ALARM FAILURE HERE. See the next section before you react to it.
+
+# 2. Apply 029. It refuses to run unless 028 Part 1 landed first (it needs the helpers).
+node --env-file=.env.prod.local scripts/run-migration-029.mjs --apply
+
+# 3. Re-run both curls from step 0b. Both must now return an empty array.
+# 4. Smoke-test the live site. The checklist is in "Part 1 changes" below.
+```
+
+### Later — the deferred lane (needs a product decision, then code)
+
+```
+5. Frontend hand-off: repoint the 7 report-fetching pages at GET /api/sourcing/reports
+   and null out file_url for unentitled callers there.  (Option B, detailed below.)
+6. Deploy and verify that logged-out visitors still see the "Members Only" teaser cards
+   — now served by the endpoint rather than by RLS.
+7. Edit migrations/028_security_and_missing_tables.sql: change the single literal on the
+       run_part_2 boolean := false;
+   line to `true`.
+8. node --env-file=.env.prod.local scripts/run-migration-028.mjs --apply
+   Re-running the whole file is safe and intended — Part 1 is idempotent.
+9. Walk os.spacerising.org logged out, then as an approved member.
+```
+
+### Separate track — key rotation
+
+Not blocked on either migration, and neither migration is blocked on it. See
+`docs/security/key-rotation-runbook.md`. Current state, verified in this repo:
+
+- `grep -rn "VITE_SOURCING_ADMIN_KEY" src/` returns **one comment** in
+  `src/hooks/useAdmin.js:19` and no live reference. `SourcingAdmin.jsx:45` now builds
+  `adminSupabase` from `createAdminApiClient()` (`src/lib/adminApi.js`), which POSTs to
+  `/api/sourcing/admin`. Vite only inlines env vars that source code references, so the
+  **next** bundle will not carry the key.
+- The variable is still present in Vercel's env (it appears in the pulled
+  `.env.production` and `.env.prod.local`), and **every bundle served up to now shipped
+  it**. Treat that key as public. Remove the var and rotate `SUPABASE_SERVICE_ROLE_KEY`.
+
+This matters less than it looks for the urgent lane, and that is worth being precise
+about: **the `directory_members` hole is exploitable with the plain anon key**, which is
+public by design and can never be rotated away. Part 1 is not waiting on rotation.
 
 ---
 
-## Problem 1 — the members hole
+## ⚠ Expected false alarm on step 1
+
+`scripts/run-migration-028.mjs:161-174` post-checks that five policy names are gone,
+including `'service full access reports'` and `'public read free reports'`. Those two
+belong to **Part 2**. A correct Part-1-only apply therefore prints:
+
+```
+POST-CONDITION FAILURES:
+  - policy directory_reports."service full access reports" still present
+```
+
+and exits `1`.
+
+**The transaction has already COMMITTED at that point.** Part 1 is applied and production
+is fine. The exit code is wrong, not the database.
+
+Confirm the apply with the AFTER queries in this document, not with that exit code. That
+script is outside this change's file scope; the one-line patch is hand-off request #1.
+
+---
+
+## What changes, at a glance
+
+| Part | § | Table | Removed | Replaced by | Breaks anything live? |
+|---|---|---|---|---|---|
+| **1** | §0 | — | — | 4 `SECURITY DEFINER` predicate helpers | No |
+| **1** | §1 | `directory_reports` | — (columns only) | `is_premium`, `updated_at`, `updated_by`, `created_by`, `created_at`, `cover_image_url` | **No** — it *un*-breaks a currently-500ing endpoint |
+| **1** | §2 | `directory_members` | `service role all` (ALL, `USING (true)`), `signup insert members` (INSERT, `WITH CHECK (true)`) | `members_select_own`, `members_select_tenant_admin`, `members_insert_self`, `members_update_tenant_admin`, `members_delete_tenant_admin` | **No** — verified caller by caller |
+| **1** | §3 | `directory_analytics` | `service read analytics` (SELECT, `USING (true)`) | `analytics_select_tenant_admin`; anon INSERT kept as `analytics_public_insert` | **No** — no anon-key reader exists |
+| **1** | §4 | `directory_companies` | `admins update companies` (017 — wrong JWT claim) | `companies_update_admin` | **No** — the branch being fixed has never matched |
+| **1** | 029 | `directory_contacts` | `service read contacts` (SELECT, `USING (true)`) | `contacts_select_tenant_admin`; anon INSERT kept as `contacts_public_insert` | **No** — the only anon-key toucher is an INSERT |
+| **2** | §5 | `directory_reports` | `public read free reports` / `public read public reports`, `service full access reports` (ALL, `USING (true)`) | `reports_public_read` (accepts `public`, `free`, NULL), `reports_member_read` | **YES — visible product change.** See Part 2 |
+
+---
+
+# Part 1 changes
+
+Every item below carries the same claim: **nothing a user sees changes.** Each one states
+the evidence for that claim and gives a before/after you can run.
+
+## 1A — `directory_members`: the live hole
 
 ### What is wrong
 
@@ -72,31 +162,41 @@ CREATE POLICY "service role all" ON directory_members FOR ALL USING (true);
 The name is wrong in a way that hid this for months. A policy with no `TO` clause applies
 to `PUBLIC`, i.e. every role including `anon`. `FOR ALL USING (true)` is unrestricted
 SELECT/UPDATE/DELETE for anonymous callers, and it sits *beside* `members read own`
-(line 24) — RLS policies are OR-ed, so the permissive one wins and `members read own`
-has never had any effect.
+(line 24) — RLS policies are OR-ed, so the permissive one wins and `members read own` has
+never had any effect. `service_role` never needed this policy; it bypasses RLS regardless.
 
-`service_role` never needed this policy. It bypasses RLS regardless.
-
-**Second hole the brief did not name, and it matters:**
-`migrations/011_signup_rls_policies.sql:25`
+Second hole, and it is the one that matters most —
+`migrations/011_signup_rls_policies.sql:25`:
 
 ```sql
 CREATE POLICY "signup insert members" ON directory_members FOR INSERT WITH CHECK (true);
 ```
 
-Dropping `service role all` on its own would be cosmetic — this one leaves the write side
-wide open by itself. 028 drops both.
+Dropping `service role all` on its own would be cosmetic. Both must go together.
 
-### What is exposed today
+### What is exposed today — confirmed against production
 
-Anyone with the anon key (it is in the bundle by design) can `SELECT *` from
-`directory_members` and read every member's `email`, `full_name`, `role`, `status`,
-`company_id` and `auth_user_id` across every tenant. They can also insert a row with an
-arbitrary `company_id` and `role: 'admin'` — and an approved member row pointing at a
-company is exactly what `api/sourcing/update-company.js:63`,
-`api/sourcing/update-deal-bank-listing.js:52` and
-`api/sourcing/withdraw-deal-bank-listing.js:54` check before allowing writes. That is a
-full account-takeover path against any company profile.
+Independently reproduced against the live database using only the **public anon key**:
+`SELECT` on `directory_members` returns **all 70 rows** (HTTP 206, `content-range: 0-0/70`)
+including `email`, `full_name`, `role`, `status` and `auth_user_id`.
+
+The write side is worse than the read side. Anonymous `INSERT` is open, so anyone can
+write themselves:
+
+```json
+{ "tenant_id": "<any>", "auth_user_id": "<their own uid>", "role": "admin", "status": "approved" }
+```
+
+That is *exactly* the shape `api/sourcing/lib/adminAuth.js:84-89` accepts as proof of
+tenant admin. **So this hole defeats both guards the security round just shipped** — the
+client route guard (`src/components/RequireAdmin.jsx` / `src/hooks/useAdmin.js`) *and*
+the server-side `requireAdmin()`. An attacker does not need the service key; they mint
+their own admin row with the public key and then walk in the front door of the new admin
+API. It also grants write access to any company profile via `update-company.js:63`,
+`update-deal-bank-listing.js:52` and `withdraw-deal-bank-listing.js:54`, which all
+authorize off a member row.
+
+This is the single highest-value change in either file.
 
 ### THE TRAP: every live dependency, enumerated
 
@@ -104,13 +204,13 @@ Two clients exist in this codebase and they behave completely differently under 
 
 - `supabase` (`src/lib/supabase.js`) — **anon key**, carries the user's session JWT.
   Role is `authenticated` when signed in, `anon` when not. **RLS applies.**
-- `adminSupabase` (`src/pages/SourcingAdmin.jsx:39`) — **service_role key**.
-  **RLS does not apply.** Falls back to the anon key only if
-  `VITE_SOURCING_ADMIN_KEY` is unset (it is set in prod).
+- `adminSupabase` (`src/pages/SourcingAdmin.jsx:45`) — now `createAdminApiClient()`,
+  which POSTs to `/api/sourcing/admin`. That endpoint runs **server-side under
+  `service_role`**. **RLS does not apply.**
 
 Every read/write of `directory_members` in the repo:
 
-| File:line | Client | Operation | Survives 028? |
+| File:line | Client | Operation | Survives Part 1? |
 |---|---|---|---|
 | `src/pages/SourcingPortalV2.jsx:111` | anon+session | select own by `auth_user_id` + `tenant_id` | Yes — `members_select_own` |
 | `src/pages/SourcingPortalV2.jsx:129` | anon+session | **auto-provision insert** | Yes — `members_insert_self` |
@@ -123,15 +223,10 @@ Every read/write of `directory_members` in the repo:
 | `src/pages/SourcingSignupComplete.jsx:32` | anon+session | select own `company_id` | Yes |
 | `src/pages/SourcingMarketplace.jsx:186` | anon+session | select own `company_id` | Yes |
 | `src/pages/SourcingReports.jsx:90` | anon+session | select own `company_id` | Yes |
-| `src/pages/SourcingAdmin.jsx:167` | **service_role** | select admin memberships | Yes — bypasses RLS |
-| `src/pages/SourcingAdmin.jsx:200` | **service_role** | select pending members | Yes — bypasses RLS |
-| `src/pages/SourcingAdmin.jsx:458` | **service_role** | update status | Yes — bypasses RLS |
-| `src/pages/admin/MembersSection.jsx:28` | **service_role** | select all | Yes — bypasses RLS |
-| `src/pages/admin/MembersSection.jsx:38` | **service_role** | update role/status | Yes — bypasses RLS |
-| `src/pages/admin/MembersSection.jsx:63` | **service_role** | insert | Yes — bypasses RLS |
-| `src/pages/admin/MembersSection.jsx:80` | **service_role** | delete | Yes — bypasses RLS |
-| `src/pages/admin/AddCompanySection.jsx:40` | server endpoint | POSTs `/api/sourcing/admin-setup` | Yes — service_role server-side |
-| `api/sourcing/signup.js:175` | **service_role** | insert member on signup | Yes — bypasses RLS |
+| `src/pages/SourcingAdmin.jsx:167/200/458` | admin API → **service_role** | select / update | Yes — bypasses RLS |
+| `src/pages/admin/MembersSection.jsx:28/38/63/80` | admin API → **service_role** | select / update / insert / delete | Yes — bypasses RLS |
+| `src/pages/admin/AddCompanySection.jsx:40` | server endpoint | POSTs `/api/sourcing/admin-setup` | Yes |
+| `api/sourcing/signup.js:175` | **service_role** | insert member on signup | Yes |
 | `api/sourcing/admin-setup.js:79/85/87/164/171/180` | **service_role** | upsert admin member | Yes |
 | `api/sourcing/update-company.js:63` | **service_role** | authz lookup | Yes |
 | `api/sourcing/update-deal-bank-listing.js:52` | **service_role** | authz lookup | Yes |
@@ -139,13 +234,12 @@ Every read/write of `directory_members` in the repo:
 | `api/sourcing/upload-deal-bank-deck.js:79` | **service_role** | authz lookup | Yes |
 | `api/sourcing/withdraw-deal-bank-listing.js:54` | **service_role** | authz lookup | Yes |
 | `api/sourcing/lib/membership.js:36` | **service_role** | tier lookup | Yes |
+| `api/sourcing/lib/adminAuth.js:88` | **service_role** | admin membership lookup | Yes |
 | `scripts/provision-tenant-admins.mjs:80/88/95` | **service_role** | provisioning | Yes |
 
 **Browser-side signup does not touch `directory_members` at all.** `api/sourcing/signup.js`
-is server-side and service-role (`api/sourcing/signup.js:1-8`) — its comment says exactly
-that: *"Uses service role key to bypass RLS ... This is the correct architecture."* So
-signup is not at risk from this change. The at-risk path is **portal/login
-auto-provisioning**, which is a browser insert with the anon key, and it is preserved.
+is server-side and service-role — its own comment says so. The at-risk path is
+**portal/login auto-provisioning**, a browser insert with the anon key, and it is preserved.
 
 ### Why `members_insert_self` cannot break auto-provisioning
 
@@ -166,41 +260,59 @@ company_id, status: 'approved', role: 'member' }`.
 `company_id` the client is able to produce. `auth_user_id = auth.uid()`, `role = 'member'`
 and `status IN ('pending','approved')` are all literally what the client sends.
 
+**The non-obvious part, and the one that would have broken signup if missed.** All four
+call sites chain `.insert({...}).select().single()`. PostgREST needs **both** an INSERT
+policy and a SELECT policy to return the inserted row. With `members_insert_self` alone
+the write lands but the read-back comes back empty, `.single()` raises `PGRST116`, the
+client sets `provisionErr`, and every new user hits *"Could not set up your account.
+Please contact support."* (`SourcingPortalV2.jsx:141-145`). `members_select_own` is what
+stops that — the two policies are a pair here, not independent additions. Any future
+tightening of `members_select_own` must keep the just-inserted row readable.
+
 ### Open question A — self-approval (product decision, deliberately left as-is)
 
 `members_insert_self` still permits `status = 'approved'` on a self-insert, because all
 four call sites hard-code it. Forcing `'pending'` would strand every returning user on the
 "Your account is pending review" screen (`SourcingLoginV2.jsx:178`).
 
-If you want signup approval to actually mean something, the code change is: set
-`status: 'pending'` at those four call sites, then tighten the policy to
-`AND status = 'pending'`. That is a product call and a frontend hand-off, not a schema
-fix — so 028 preserves current behaviour and flags it rather than silently changing who
-gets into the portal.
+This is **not** the escalation path — `role` is pinned to `'member'`, so a self-inserted
+row can never satisfy `requireAdmin()`. It only means self-signup approval is not a real
+gate. If you want it to be one: set `status: 'pending'` at those four call sites, then
+tighten the policy to `AND status = 'pending'`. Product call, frontend hand-off.
 
 ### Verification
 
-**Before** (expect the two open policies to be present):
+**Before** — expect the two open policies:
 
 ```sql
 SELECT policyname, cmd, roles::text, qual, with_check
   FROM pg_policies
  WHERE schemaname = 'public' AND tablename = 'directory_members'
  ORDER BY cmd, policyname;
--- expect rows: "service role all" (ALL, {public}, qual=true)
---              "signup insert members" (INSERT, {public}, with_check=true)
---              "members read own" (SELECT, {public})
+-- expect: "service role all"      (ALL,    {public}, qual = true)
+--         "signup insert members" (INSERT, {public}, with_check = true)
+--         "members read own"      (SELECT, {public})
 ```
-
-Prove the hole is real, as an anonymous caller (run from a shell, anon key only):
 
 ```bash
-curl -s "https://kzzvjtthknsozktmpvak.supabase.co/rest/v1/directory_members?select=email,role,status&limit=5" \
-  -H "apikey: $VITE_SUPABASE_ANON_KEY"
-# BEFORE: returns real member emails.  AFTER: returns []
+curl -si "$VITE_SUPABASE_URL/rest/v1/directory_members?select=email,role,status,auth_user_id" \
+  -H "apikey: $VITE_SUPABASE_ANON_KEY" -H "Range: 0-0" -H "Prefer: count=exact"
+# BEFORE: 206, content-range: 0-0/70, a real member row.
+# AFTER:  200, [] — and content-range 0-0/0 if you keep the count header.
 ```
 
-**After** (expect exactly five scoped policies and no `true` predicates):
+Prove the write side too, before and after:
+
+```bash
+curl -s -X POST "$VITE_SUPABASE_URL/rest/v1/directory_members" \
+  -H "apikey: $VITE_SUPABASE_ANON_KEY" -H "Content-Type: application/json" \
+  -d '{"tenant_id":"<any real tenant uuid>","email":"probe@example.com","role":"admin","status":"approved"}'
+# BEFORE: 201 Created — an admin row you did not have to authenticate for.
+# AFTER:  401/403, "new row violates row-level security policy".
+# If BEFORE returns 201, DELETE that probe row with the service key before moving on.
+```
+
+**After** — expect exactly five scoped policies and no `true` predicates:
 
 ```sql
 SELECT policyname, cmd, roles::text, qual, with_check
@@ -208,29 +320,30 @@ SELECT policyname, cmd, roles::text, qual, with_check
  WHERE schemaname = 'public' AND tablename = 'directory_members'
  ORDER BY cmd, policyname;
 -- expect: members_select_own, members_select_tenant_admin (SELECT, {authenticated})
---         members_insert_self (INSERT, {authenticated})
---         members_update_tenant_admin (UPDATE), members_delete_tenant_admin (DELETE)
+--         members_insert_self          (INSERT, {authenticated})
+--         members_update_tenant_admin  (UPDATE, {authenticated})
+--         members_delete_tenant_admin  (DELETE, {authenticated})
 -- expect NO row where qual = 'true' or with_check = 'true'
 ```
 
-Smoke test after applying (this is the one that matters):
+Smoke test — this is the one that matters:
 
 1. Sign in at `os.spacerising.org` as a member whose `directory_members` row already
    exists → portal loads, company details render.
 2. Sign in as an auth user with **no** member row → auto-provision fires, portal loads,
    and a new row appears:
    `SELECT id, email, role, status, company_id FROM directory_members ORDER BY created_at DESC LIMIT 3;`
-3. Admin panel `/admin` → Members tab still lists members (service_role, unaffected).
+3. `/admin` → Members tab still lists members (server admin API, service_role, unaffected).
 
 ---
 
-## Problem 2 — the never-applied columns
+## 1B — `directory_reports`: the never-applied columns
 
 ### What is wrong
 
 `migrations/014_reports_add_is_premium.sql` and `migrations/016_reports_add_updated_fields.sql`
-exist in the repo but were never run against production.
-`api/sourcing/admin-reports.js:22-23` selects:
+exist in the repo but were never run against production. `api/sourcing/admin-reports.js:22-23`
+selects:
 
 ```
 id, tenant_id, title, description, category, access, file_url, cover_image_url,
@@ -239,26 +352,32 @@ is_premium, published_at, created_at, updated_at, created_by, updated_by
 
 PostgREST rejects the entire request if any column in the select list does not exist, and
 `admin-reports.js:249` turns that into a 500. So **every** GET/POST/PUT against
-`/api/sourcing/admin-reports` fails today — meaning the admin Reports tab cannot create or
-edit a report at all (`src/pages/admin/ReportsSection.jsx:99` POST, `:124` PUT).
+`/api/sourcing/admin-reports` fails today — the admin Reports tab cannot create or edit a
+report at all (`src/pages/admin/ReportsSection.jsx:99` POST, `:124` PUT).
 
 **Extra finding:** `created_by` is selected at line 23 *and* inserted at line 224
-(`created_by: user.id`) but has **no migration anywhere in this repo** — not in
-`migrations/`, not in `supabase/migrations/`. It was never authored, only assumed. 028
-adds it. `cover_image_url` and `created_at` are re-asserted defensively (no-ops if
-`supabase/migrations/20260723150000_directory_reports_cover_image_url.sql` and
-`migrations/012` are already live).
+(`created_by: user.id`) but has **no migration anywhere in this repo**. It was never
+authored, only assumed. §1 adds it. `cover_image_url` and `created_at` are re-asserted
+defensively (no-ops if `supabase/migrations/20260723150000_directory_reports_cover_image_url.sql`
+and `migrations/012` are already live).
 
-### What breaks
+### Why this is a no-visible-change item
 
-Nothing. `ADD COLUMN IF NOT EXISTS` on a table this size is a catalog-only operation;
-`is_premium NOT NULL DEFAULT false` uses the Postgres 11+ fast path and does not rewrite
-the table. The `UPDATE ... SET updated_at = created_at WHERE updated_at IS NULL` backfill
-touches only rows with a NULL, so re-running is a no-op.
+Adding columns cannot make anything disappear from the site. `ADD COLUMN IF NOT EXISTS`
+on a table this size is a catalog-only operation; `is_premium NOT NULL DEFAULT false`
+uses the Postgres 11+ fast path and does not rewrite the table. The
+`UPDATE ... SET updated_at = created_at WHERE updated_at IS NULL` backfill touches only
+NULLs, so re-running is a no-op. The two foreign keys to `auth.users` are guarded: if prod
+holds orphan values the constraint is skipped with a `RAISE NOTICE` instead of aborting.
 
-The two foreign keys to `auth.users` are guarded: if prod holds orphan `updated_by` /
-`created_by` values the constraint is skipped with a `RAISE NOTICE` instead of aborting
-the transaction.
+**No policy on `directory_reports` is touched in Part 1.** The
+`ALTER COLUMN access SET DEFAULT` statement that used to sit in this section moved to
+Part 2 §5a, where the rest of the access-literal question lives. It is inert either way —
+`008:7` already declares `access text NOT NULL DEFAULT 'public'`, and every writer sets
+`access` explicitly (`admin-reports.js:201` defaults to `'free'` in JS,
+`ReportsSection.jsx:92` posts `access || 'free'`, and there is no other INSERT into
+`directory_reports` anywhere in `api/` or `src/`). It moved anyway, because Part 1's
+promise of zero product change should need no argument to believe.
 
 ### Verification
 
@@ -272,7 +391,15 @@ SELECT column_name, data_type, column_default, is_nullable
 -- expect is_premium / updated_at / updated_by / created_by to be ABSENT
 ```
 
-**After** — all six present, and the endpoint stops 500ing:
+```bash
+# The 500, before. Signed in as an admin, from the browser console on /admin:
+await (await fetch('/api/sourcing/admin-reports', {
+  headers: { Authorization: 'Bearer ' + (await supabase.auth.getSession()).data.session.access_token }
+})).status
+// BEFORE: 500.  AFTER: 200.
+```
+
+**After** — all six present:
 
 ```sql
 SELECT string_agg(column_name, ', ' ORDER BY column_name)
@@ -285,15 +412,17 @@ SELECT conname FROM pg_constraint
  WHERE conrelid = 'public.directory_reports'::regclass
    AND conname LIKE '%_by_fkey';
 -- expect: directory_reports_created_by_fkey, directory_reports_updated_by_fkey
---         (absent = orphan rows; see the NOTICE in the apply log)
+--         (absent = orphan rows; look for the NOTICE in the apply log)
+
+SELECT count(*) FROM directory_reports WHERE updated_at IS NULL AND created_at IS NOT NULL;
+-- expect 0 (the backfill ran)
 ```
 
-Then, signed in as an admin, open `/admin` → Reports → edit any report → Save. It should
-return 200 instead of 500.
+Then, signed in as an admin: `/admin` → Reports → edit any report → Save. 200, not 500.
 
 ---
 
-## Problem 3 — analytics
+## 1C — `directory_analytics`: revoke anon SELECT
 
 ### What is wrong
 
@@ -306,39 +435,24 @@ CREATE POLICY "service read analytics" ON directory_analytics FOR SELECT USING (
 
 The SELECT policy lets any anonymous caller enumerate every `page_view`, `profile_view`,
 `contact_click` and — via `metadata` — every **search query typed into the site**
-(`SourcingDirectory.jsx:710` writes `{ query, vertical }`). Competitor intelligence,
-free, over HTTP.
+(`SourcingDirectory.jsx:710` writes `{ query, vertical }`). Competitor intelligence, free,
+over HTTP.
 
-### What is kept, and why
+### What is kept, and why nothing visible changes
 
 Anonymous INSERT stays. `src/pages/sourcingAnalytics.js:15` writes with the anon key,
-fire-and-forget, from logged-out visitors. Call sites:
-`SourcingDirectory.jsx:527`, `:536`, `:710`; `SourcingProfile.jsx:651`, `:914`.
-028 recreates it as `analytics_public_insert` with an explicit `TO anon, authenticated`
-so the intent is legible in `pg_policies` instead of implied.
+fire-and-forget, from logged-out visitors. Call sites: `SourcingDirectory.jsx:527`, `:536`,
+`:710`; `SourcingProfile.jsx:651`, `:914`. Part 1 recreates it as `analytics_public_insert`
+with an explicit `TO anon, authenticated` so the intent is legible in `pg_policies` instead
+of implied.
 
-### What breaks
+**There are zero anon-key READS of `directory_analytics` anywhere in `src/` or `api/`.**
+The only reader is the admin analytics panel (`SourcingAdmin.jsx:287-306`), which now goes
+through the server admin endpoint under `service_role`. So this change is invisible.
 
-**Client code currently READING `directory_analytics`:** exactly one file, and it is safe.
-
-| File:line | Client | Reads | Survives 028? |
-|---|---|---|---|
-| `src/pages/SourcingAdmin.jsx:287` | **service_role** | 7-day page-view count | Yes — bypasses RLS |
-| `src/pages/SourcingAdmin.jsx:293` | **service_role** | 30-day page-view count | Yes |
-| `src/pages/SourcingAdmin.jsx:299` | **service_role** | recent searches | Yes |
-| `src/pages/SourcingAdmin.jsx:306` | **service_role** | profile views by company | Yes |
-
-There are **no** anon-key reads of `directory_analytics` anywhere in `src/` or `api/`.
-So this change is invisible today.
-
-**The conditional break, and it is a real one:** `adminSupabase` falls back to the anon key
-when `VITE_SOURCING_ADMIN_KEY` is unset (`SourcingAdmin.jsx:37`). The moment that key is
-pulled from Vercel — which is the correct remediation, step 3 in the section at the top —
-the admin analytics panel starts reading with `authenticated`. `analytics_select_tenant_admin`
-is in this migration precisely so that keeps working, but **only for a user with an
-approved `role='admin'` member row in that tenant**, or a global admin whose JWT carries
-`app_metadata.role = 'admin'`. A global admin with no member row will see zeros. Confirm
-your admins have member rows before pulling the key:
+One thing to confirm before you ever move that panel to a session-authenticated read:
+`analytics_select_tenant_admin` only matches a user with an approved `role='admin'` member
+row in that tenant, or a global admin whose JWT carries `app_metadata.role = 'admin'`.
 
 ```sql
 SELECT m.email, m.tenant_id, m.role, m.status
@@ -350,20 +464,19 @@ SELECT m.email, m.tenant_id, m.role, m.status
 ### Accepted risk, not closed here
 
 `WITH CHECK (true)` still lets anyone forge analytics rows against any `tenant_id` and
-inflate counts. Closing that needs either a signed server-side ingest endpoint or a
-`CHECK` on `event_type`. A `CHECK` constraint is not in 028 deliberately: it would be
-validated against existing prod rows, and if any historical row carries an event type
-outside `page_view | search | profile_view | contact_click` the whole migration would
-abort. Follow-up work.
+inflate counts. Closing that needs either a signed server-side ingest endpoint or a `CHECK`
+on `event_type`. A `CHECK` constraint is deliberately **not** in 028: it would be validated
+against existing prod rows, and one historical row with an unexpected event type would
+abort the whole migration. Follow-up work.
 
 ### Verification
 
-**Before** — the leak, as an anonymous caller:
+**Before:**
 
 ```bash
-curl -s "https://kzzvjtthknsozktmpvak.supabase.co/rest/v1/directory_analytics?select=event_type,metadata,created_at&limit=5" \
+curl -s "$VITE_SUPABASE_URL/rest/v1/directory_analytics?select=event_type,metadata,created_at&limit=5" \
   -H "apikey: $VITE_SUPABASE_ANON_KEY"
-# BEFORE: returns real events including search queries.  AFTER: returns []
+# BEFORE: real events including search queries.  AFTER: []
 ```
 
 ```sql
@@ -371,7 +484,7 @@ SELECT policyname, cmd, roles::text, qual, with_check
   FROM pg_policies
  WHERE schemaname = 'public' AND tablename = 'directory_analytics';
 -- BEFORE: "public insert analytics" (INSERT, true), "service read analytics" (SELECT, true)
--- AFTER:  "analytics_public_insert" (INSERT, {anon,authenticated}, with_check=true)
+-- AFTER:  "analytics_public_insert"       (INSERT, {anon,authenticated}, with_check = true)
 --         "analytics_select_tenant_admin" (SELECT, {authenticated}, dir_is_tenant_admin(...))
 ```
 
@@ -383,32 +496,238 @@ SELECT count(*), max(created_at) FROM directory_analytics WHERE created_at > now
 -- expect a non-zero count that grows as you browse
 ```
 
-If that count stops growing after the migration, the INSERT policy did not recreate
-correctly — roll back by re-applying `migrations/007` lines 35-37.
+If that count stops growing, the INSERT policy did not recreate correctly — restore by
+re-applying `migrations/007` lines 35-37.
 
 ---
 
-## Problem 4 — reports policy, and the one visible product change
+## 1D — `directory_companies`: supersede migration 017
 
-### 4A — the access-value mismatch runs both ways
+### What is wrong
 
-The brief describes 013 as granting public read on `access='free'` while the app writes
-`'public'`. That is half the story, and the half that is missing changes the fix.
+`migrations/017_admin_update_policy.sql` lines 6 and 17 both test:
+
+```sql
+(auth.jwt() ->> 'role') = 'admin'
+```
+
+That reads the **top-level** `role` claim. In a Supabase JWT that claim carries the
+Postgres role the request will run as — `anon` or `authenticated` — and it is never
+`'admin'`. The app's actual admin flag is `app_metadata.role`:
+
+- `src/pages/SourcingAdmin.jsx:154` — `user.app_metadata.role === 'admin'`
+- `src/pages/SourcingDirectory.jsx:745` — same
+- `api/sourcing/admin-reports.js:169` — same
+- `api/sourcing/lib/adminAuth.js:79` — `user.app_metadata?.role === 'admin'`
+
+So the global-admin branch of `"admins update companies"` has **never matched, not once**.
+Approve / Reject / Unapprove only ever worked because the browser held the service key.
+Now that the key is out of the source, a global admin with no `directory_members` row
+would have had nothing left to fall back on.
+
+017 is already applied to production, so editing that file changes nothing. Part 1 §4
+supersedes it with `DROP` + `CREATE` under a new name and the correct claim path:
+
+```sql
+(auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'   -- via public.dir_is_global_admin()
+```
+
+**Second fix in the same policy.** 017's tenant-admin branch inlines
+`EXISTS (SELECT 1 FROM directory_members m WHERE ...)`. After §2, that subquery runs under
+`directory_members` RLS. It happens to still work — `members_select_own` returns exactly
+the row the subquery filters for — but relying on that is a trap for the next person. It is
+replaced with `public.dir_is_tenant_admin()`, which is `SECURITY DEFINER` and therefore
+immune to how `directory_members` RLS is configured. 017 was the **only** other policy in
+the repo referencing `directory_members`
+(`grep -rn "directory_members" migrations/ supabase/`), so after §4 there are no inline
+cross-table member lookups left in any policy.
+
+### Why nothing visible changes
+
+The branch being fixed has never fired, so nothing that works today stops working. The
+change can only *widen*: a global admin who was silently blocked now passes. The old policy
+also had no `TO` clause, so it nominally applied to `anon` — but `anon` never satisfied
+either branch (`auth.uid()` is null, and the top-level claim is `'anon'`), so scoping the
+new one `TO authenticated` loses nothing.
+
+`ALTER TABLE directory_companies ENABLE ROW LEVEL SECURITY` in §4 is a defensive no-op —
+`migrations/001_sourcing_directory.sql:90` already enabled it. **Verify that before
+believing this file.** If RLS were off on `directory_companies`, that line would take the
+entire public directory dark, because `001:96 "public read companies"` would suddenly start
+being enforced:
+
+```sql
+SELECT relrowsecurity FROM pg_class
+ WHERE relnamespace = 'public'::regnamespace AND relname = 'directory_companies';
+-- must already be `t` BEFORE you apply. It is.
+```
+
+§4 deliberately does **not** touch `directory_companies`' other policies — 011's
+`"signup insert companies"` and `"read own pending company"` are the public directory's
+read path and the signup write path. Both are wider than they should be (see hand-off #6),
+and both are visible-product-change territory.
+
+### Verification
+
+**Before:**
+
+```sql
+SELECT policyname, cmd, roles::text, qual
+  FROM pg_policies
+ WHERE schemaname = 'public' AND tablename = 'directory_companies'
+ ORDER BY policyname;
+-- expect "admins update companies" (UPDATE, {public}) whose qual contains
+--   ((auth.jwt() ->> 'role'::text) = 'admin'::text)
+```
+
+Prove the claim is the wrong one — in the browser console, signed in as a global admin:
+
+```js
+const t = (await supabase.auth.getSession()).data.session.access_token;
+const c = JSON.parse(atob(t.split('.')[1]));
+console.log({ topLevelRole: c.role, appMetadataRole: c.app_metadata?.role });
+// BEFORE and AFTER: { topLevelRole: "authenticated", appMetadataRole: "admin" }
+// That is the whole bug: 017 tested the first field, the app sets the second.
+```
+
+**After:**
+
+```sql
+SELECT policyname, cmd, roles::text, qual
+  FROM pg_policies
+ WHERE schemaname = 'public' AND tablename = 'directory_companies'
+ ORDER BY policyname;
+-- expect "companies_update_admin" (UPDATE, {authenticated}) whose qual references
+--   dir_is_tenant_admin(tenant_id) OR dir_is_global_admin()
+-- expect "admins update companies" to be GONE
+-- expect "public read companies", "signup insert companies", "read own pending company"
+--   all still present and UNCHANGED
+```
+
+Smoke test: `/admin` → Companies → Approve / Unapprove a company. Still works (it goes
+through the server admin endpoint either way — this policy is the safety net underneath).
+
+---
+
+## 1E — `directory_contacts` (migration 029)
+
+### What is wrong
+
+`migrations/007_sourcing_contacts.sql:20`
+
+```sql
+CREATE POLICY "service read contacts" ON directory_contacts FOR SELECT USING (true);
+```
+
+Same lie in the name as `"service role all"`. No `TO` clause means `PUBLIC`, and
+`service_role` never needed it. So any caller with the public anon key can read **every
+contact and RFQ submission ever sent through the site**: `sender_name`, `sender_email`,
+`sender_phone`, `message`.
+
+This is the same class of PII leak as the members one, and arguably worse: these are
+inbound leads from third parties who never had an account, typed into a form that said
+nothing about being world-readable.
+
+### Every call site (`grep -rn "directory_contacts" src/ api/ scripts/ migrations/`)
+
+| File:line | Client | Operation | Survives 029? |
+|---|---|---|---|
+| `src/pages/SourcingProfile.jsx:640` | `supabase` — **ANON KEY** | INSERT (public contact / RFQ form) | Yes — `contacts_public_insert` |
+| `src/pages/SourcingAdmin.jsx:335` | `adminSupabase` → `POST /api/sourcing/admin` | SELECT (Contacts tab) | Yes — server-side `service_role`, bypasses RLS |
+| `src/pages/SourcingAdmin.jsx:374` | `adminSupabase` → `POST /api/sourcing/admin` | UPDATE `status` | Yes — same |
+| `api/sourcing/lib/tablePolicy.js:142` | server allowlist entry (`ops: select/update/delete`, `writable: ['status']`) | — | Yes — that path is `service_role` |
+
+**Exactly one anon-key toucher, and it is a write.** No page, component or endpoint reads
+`directory_contacts` with the anon key. The contact form (`SourcingProfile.jsx` →
+`ContactForm`) inserts and never selects back — it flips local state to `'success'` on a
+clean insert, so it does not even need `RETURNING`. That is why removing anonymous SELECT
+is invisible on the live site.
+
+029 requires 028 Part 1 (it uses `dir_is_tenant_admin()` / `dir_is_global_admin()`). The
+helpers are deliberately **not** redefined in 029 — two copies of a `SECURITY DEFINER`
+authorization predicate in two files is how they drift, and a drifted predicate is a silent
+hole. 029 hard-fails with a clear message if they are missing, and
+`run-migration-029.mjs --apply` refuses to even open the transaction.
+
+### Accepted risk, not closed here
+
+`WITH CHECK (true)` on the INSERT lets anyone POST forged contact rows against any
+`tenant_id` / `company_id` — spam and lead poisoning, not disclosure. Closing it needs a
+rate-limited server-side ingest endpoint, the same follow-up the analytics INSERT needs.
+
+### Verification
+
+**Before:**
+
+```sql
+SELECT policyname, cmd, roles::text, qual, with_check
+  FROM pg_policies
+ WHERE schemaname = 'public' AND tablename = 'directory_contacts';
+-- expect "public insert contacts" (INSERT, {public}, with_check = true)
+--        "service read contacts"  (SELECT, {public}, qual = true)
+
+SELECT count(*) AS submissions, count(DISTINCT tenant_id) AS tenants,
+       min(created_at), max(created_at)
+  FROM directory_contacts;
+-- this is the size of the exposure, in rows
+```
+
+```bash
+curl -s "$VITE_SUPABASE_URL/rest/v1/directory_contacts?select=sender_name,sender_email,sender_phone,message&limit=3" \
+  -H "apikey: $VITE_SUPABASE_ANON_KEY"
+# BEFORE: real submissions with email, phone and message body.
+# AFTER:  []
+```
+
+**After:**
+
+```sql
+SELECT policyname, cmd, roles::text, qual, with_check
+  FROM pg_policies
+ WHERE schemaname = 'public' AND tablename = 'directory_contacts'
+ ORDER BY cmd, policyname;
+-- expect exactly: contacts_public_insert       (INSERT, {anon,authenticated}, with_check = true)
+--                 contacts_select_tenant_admin (SELECT, {authenticated}, dir_is_tenant_admin(...))
+-- expect NO SELECT policy with qual = 'true'
+```
+
+Then the write path, which is the thing that would actually hurt if it broke: open any
+company profile on `os.spacerising.org` **logged out**, send a test contact through the
+form, confirm the success state renders, then:
+
+```sql
+SELECT count(*) FROM directory_contacts WHERE created_at > now() - interval '5 minutes';
+-- expect 1 (or run `run-migration-029.mjs --check` and watch the submission count rise)
+```
+
+---
+
+# Part 2 — the deferred change
+
+**This is the only change that alters what a user sees. Do not run it until the frontend
+hand-off has landed.**
+
+## 2A — the access-value mismatch runs both ways
+
+Half of this was described elsewhere as "013 grants public read on `access='free'` while
+the app writes `'public'`". The missing half changes the fix:
 
 - `migrations/008_create_directory_reports.sql:18` shipped `USING (access = 'free')`
 - `migrations/013_fix_reports_rls_policy.sql:5` replaced it with `USING (access = 'public')`
 - `api/sourcing/admin-reports.js:10` accepts **all five**: `free, member, members, paid, public`
-- `api/sourcing/admin-reports.js:205` defaults a **new** report to `access = 'free'`
+- `api/sourcing/admin-reports.js:201` defaults a **new** report to `access = 'free'`
 - `src/pages/admin/ReportsSection.jsx:92` posts `access: reportForm.access || 'free'`
-- `src/pages/SourcingReportDetailV2.jsx:151` treats `'free'`, `'public'` and *null* as free
+- `src/pages/SourcingReportDetailV2.jsx:151` treats `'free'`, `'public'` and null as free
 - `src/pages/OSReportsPage.jsx:97` does the same
 
 So free-tier rows exist in prod under **both** literals, and pinning the policy to either
-one leaves the other set invisible to anonymous visitors. 028 accepts
-`access IS NULL OR lower(btrim(access)) IN ('public','free')`.
+one leaves the other set invisible to anonymous visitors. §5 accepts
+`access IS NULL OR lower(btrim(access)) IN ('public','free')`. (`access` is `NOT NULL` in
+`008:7`, so the null branch is unreachable today — it is a guard in case that is ever
+relaxed, since three pages already treat null as free.)
 
-Check what is actually in the table before you apply — this single query tells you how
-much is currently dark:
+Check what is actually in the table before you apply — this single query tells you how much
+is currently dark:
 
 ```sql
 SELECT access, count(*) AS rows, count(file_url) AS with_file_url
@@ -417,7 +736,7 @@ SELECT access, count(*) AS rows, count(file_url) AS with_file_url
  ORDER BY rows DESC;
 ```
 
-### 4B — `service full access reports`, and what disappears from the site
+## 2B — `service full access reports`, and what disappears from the site
 
 `migrations/008_create_directory_reports.sql:19`
 
@@ -425,15 +744,14 @@ SELECT access, count(*) AS rows, count(file_url) AS with_file_url
 CREATE POLICY "service full access reports" ON directory_reports FOR ALL USING (true);
 ```
 
-Same pattern as problem 1: no `TO` clause, so it applies to `anon`. This is what makes the
-013 access-value bug invisible in production — the broken policy does not matter when a
-second policy grants everything to everyone. It also means **every members-only and paid
-report, including its `file_url`, is readable by any anonymous caller right now.**
-`file_url` points at the public `sourcing-reports` storage bucket
-(`src/pages/admin/ReportsSection.jsx:68` uses `getPublicUrl`), so row access equals file
-access. The paywall is currently decorative.
+Same pattern as 1A: no `TO` clause, so it applies to `anon`. This is what makes the 013
+access-value bug invisible in production — a broken policy does not matter when a second
+policy grants everything to everyone. It also means **every members-only and paid report,
+including its `file_url`, is readable by any anonymous caller right now.** `file_url` points
+at the public `sourcing-reports` storage bucket (`ReportsSection.jsx:68` uses
+`getPublicUrl`), so row access equals file access. The paywall is currently decorative.
 
-**THIS IS THE CHANGE THAT ALTERS THE LIVE SITE. Do not apply it without deciding.**
+**THIS IS THE CHANGE THAT ALTERS THE LIVE SITE.**
 
 Seven pages fetch reports with `.select('*')` and **no access filter**. They rely on RLS to
 decide what comes back, then render a "Members Only" badge client-side:
@@ -448,57 +766,51 @@ decide what comes back, then render a "Members Only" badge client-side:
 | `src/pages/SourcingReports.jsx:147` | V1 reports page, badges at `:260`, `:396` |
 | `src/pages/srw/SRWHomeV2.jsx:133` | SRW home search results |
 
-**After 028, logged-out visitors stop seeing members-only and paid reports entirely.** The
-locked teaser cards do not render as locked — they vanish from the listings. That is the
-paywall conversion surface on a live marketing site. Signed-in approved members are
+**After Part 2, logged-out visitors stop seeing members-only and paid reports entirely.**
+The locked teaser cards do not render as locked — they vanish from the listings. That is
+the paywall conversion surface on a live marketing site. Signed-in approved members are
 unaffected (`reports_member_read`).
 
 Three options:
 
-- **Option A — accept it.** Apply as written. Most secure, zero code change. Cost: the
-  "Members Only" teasers disappear for anonymous visitors, so nobody logged-out sees that
-  premium content exists.
-- **Option B — recommended.** Apply as written, and hand off a frontend change repointing
-  those seven pages at `GET /api/sourcing/reports` (`api/sourcing/reports.js:61-95`),
-  which runs server-side with the service key and already returns the full set. Add one
-  guard in that handler: null out `file_url` for premium rows when the caller is not
-  entitled (the logic already exists in `api/sourcing/lib/reportAccess.js:47-62`). Result:
-  teasers stay, files are actually protected.
+- **Option A — accept it.** Flip the switch, run it. Most secure, zero code change. Cost:
+  the "Members Only" teasers disappear for anonymous visitors, so nobody logged-out sees
+  that premium content exists.
+- **Option B — recommended.** Repoint those seven pages at `GET /api/sourcing/reports`
+  (`api/sourcing/reports.js:61-96`), which runs server-side with the service key and
+  already returns the full set. Add one guard in that handler: null out `file_url` for
+  premium rows when the caller is not entitled (the logic already exists in
+  `api/sourcing/lib/reportAccess.js:48-62`). Ship that, verify the teasers still render,
+  *then* flip the switch. Result: teasers stay, files are actually protected.
 - **Option C — not recommended.** Keep anon row access and revoke the column privilege:
   `REVOKE SELECT (file_url) ON directory_reports FROM anon`. RLS is row-level and cannot
-  mask a column, so this is the only DB-only way — but it makes `.select('*')` fail
-  outright with "permission denied for column file_url" on all seven pages. Strictly worse
-  than B.
+  mask a column, so this is the only DB-only way — but it makes `.select('*')` fail outright
+  with "permission denied for column file_url" on all seven pages. Strictly worse than B.
 
-**Defer option:** to ship 028 without the visibility change, comment out the
-`"service full access reports"` line in the section 4A `DROP` block and the
-`reports_member_read` policy in section 4B. Every other change in the file is independent
-of that. Re-run the file (it is idempotent) once the frontend hand-off lands.
+## Known gap even after Part 2
 
-### Known gap, not closed here
+`reports_member_read` exposes `file_url` to **any** approved member of the tenant, including
+free-tier members — not only paid ones. `api/sourcing/lib/reportAccess.js` is the real paid
+gate, but because the bucket is public, row visibility is file visibility. Properly fixing
+this means moving `sourcing-reports` to a private bucket and serving signed URLs from
+`api/sourcing/download-report.js`. Out of scope for a migration; flagged as follow-up.
 
-`reports_member_read` exposes `file_url` to **any** approved member of the tenant,
-including free-tier members — not only paid ones. `api/sourcing/lib/reportAccess.js` is
-the real paid gate, but because the bucket is public, row visibility is file visibility.
-Properly fixing this means moving `sourcing-reports` to a private bucket and serving
-signed URLs from `api/sourcing/download-report.js`. Out of scope for a migration; flagged
-as follow-up.
+## Verification
 
-### Verification
-
-**Before:**
+**Before** — record these numbers. The drop in `anon-visible rows` is exactly the set of
+cards that will disappear from the seven pages, i.e. your blast radius as a number, before
+you commit to it.
 
 ```sql
 SELECT policyname, cmd, roles::text, qual
   FROM pg_policies
  WHERE schemaname = 'public' AND tablename = 'directory_reports';
--- expect "service full access reports" (ALL, {public}, qual=true)
+-- expect "service full access reports" (ALL, {public}, qual = true)
 --    and one of "public read free reports" / "public read public reports"
 ```
 
 ```bash
-# Count what an anonymous visitor can see, and how many premium files leak.
-curl -s "https://kzzvjtthknsozktmpvak.supabase.co/rest/v1/directory_reports?select=id,title,access,file_url" \
+curl -s "$VITE_SUPABASE_URL/rest/v1/directory_reports?select=id,title,access,file_url" \
   -H "apikey: $VITE_SUPABASE_ANON_KEY" | python3 -c "
 import json,sys
 rows=json.load(sys.stdin)
@@ -510,10 +822,6 @@ print('premium rows exposing file_url:', len([r for r in prem if r.get('file_url
 # AFTER:  premium rows visible = 0
 ```
 
-Record the BEFORE numbers. The drop in `anon-visible rows` is exactly the set of cards
-that will disappear from the seven pages listed above — that is your blast radius, in a
-number, before you commit to it.
-
 **After:**
 
 ```sql
@@ -524,96 +832,89 @@ SELECT policyname, cmd, roles::text, qual
 -- expect exactly: reports_member_read (SELECT, {authenticated})
 --                 reports_public_read (SELECT, {anon,authenticated})
 -- expect NO INSERT/UPDATE/DELETE policies — writes are service_role-only by design
+
+SELECT column_default FROM information_schema.columns
+ WHERE table_schema='public' AND table_name='directory_reports' AND column_name='access';
+-- expect 'public'::text
 ```
 
 Then walk the site: `os.spacerising.org` reports page logged out (free reports present,
-premium gone), then signed in as an approved member (everything present).
+premium gone or served by the endpoint if you took option B), then signed in as an approved
+member (everything present).
 
 ---
 
-## Deliberate design choices in the migration
+## Deliberate design choices
 
+- **The Part 2 switch is a guard variable, not a commented-out block.** Commenting out
+  ~40 lines of SQL means the SQL stops being syntax-checked and is easy to un-comment
+  wrong. The `DO $part2$ ... run_part_2 boolean := false; ... $part2$` block keeps the
+  statements intact, executes nothing while the flag is off, and prints a `NOTICE` saying
+  so — and re-enabling is a one-word edit plus a re-run of the same file. The DDL inside is
+  `EXECUTE`'d from dollar-quoted strings so PL/pgSQL never plans it while the flag is off.
 - **`SECURITY DEFINER` helpers.** A policy on `directory_members` that queries
-  `directory_members` raises `infinite recursion detected in policy for relation`. The
-  four `dir_*` functions run as the owner so the inner read bypasses RLS and terminates.
-  Each is `STABLE`, pins `search_path = public, pg_temp` (mandatory for `SECURITY DEFINER`
-  — otherwise a rogue schema on the caller's path can shadow the referenced tables), and
+  `directory_members` raises `infinite recursion detected in policy for relation`. The four
+  `dir_*` functions run as the owner so the inner read bypasses RLS and terminates. Each is
+  `STABLE`, pins `search_path = public, pg_temp` (mandatory for `SECURITY DEFINER` —
+  otherwise a rogue schema on the caller's path can shadow the referenced tables), and
   answers only about the *current* caller via `auth.uid()` / `auth.jwt()`. None takes a
   user id, so none can be pointed at another user.
-- **`directory_reports` has SELECT policies only.** Intentional, and it matches the code:
-  every write already goes through `service_role` (`admin-reports.js` POST/PUT,
-  `upload-report.js`, `ReportsSection.jsx:181` delete, `delete-blank-reports.js`). The
-  table is not left with RLS on and zero policies.
-- **No self-UPDATE / self-DELETE on `directory_members`.** No browser code path updates or
-  deletes a member row with the anon key — every one of them uses `adminSupabase`. Adding
-  the policies would widen the surface for nothing.
+- **The helpers live in Part 1 on purpose.** §4 and migration 029 both depend on them, so
+  everything downstream can ship without waiting on the Part 2 product call.
+- **`directory_reports` ends up with SELECT policies only** (after Part 2). Intentional, and
+  it matches the code: every write already goes through `service_role`
+  (`admin-reports.js` POST/PUT, `upload-report.js`, `ReportsSection.jsx:181` delete,
+  `delete-blank-reports.js`). The table is not left with RLS on and zero policies.
+- **No self-UPDATE / self-DELETE on `directory_members`, and none on `directory_contacts`.**
+  No browser code path updates or deletes those rows with the anon key — every one goes
+  through the server admin endpoint. Adding the policies would widen the surface for nothing.
 - **Tenant-admin policies that nothing calls today.** `members_select_tenant_admin`,
-  `members_update_tenant_admin`, `members_delete_tenant_admin` and
-  `analytics_select_tenant_admin` are unexercised while the service key is in the bundle.
-  They are the prerequisite for removing it. Applying 028 without them would make the key
-  rotation a second migration.
+  `members_update_tenant_admin`, `members_delete_tenant_admin`, `analytics_select_tenant_admin`
+  and `contacts_select_tenant_admin` are unexercised while the admin panel routes through
+  `POST /api/sourcing/admin`. They cost nothing and are the prerequisite for any future
+  session-authenticated admin read.
 
 ---
 
-## Found but NOT fixed — needs its own decision
+## Hand-off requests (files this change does not own)
 
-**`directory_contacts` has the identical hole.** `migrations/007_sourcing_contacts.sql:20`:
-
-```sql
-CREATE POLICY "service read contacts" ON directory_contacts FOR SELECT USING (true);
-```
-
-Any anonymous caller can read every RFQ and contact submission — `sender_name`,
-`sender_email`, `sender_phone`, `message`. That is arguably a worse PII exposure than the
-analytics one this migration does close.
-
-It is **not** in 028. The brief scoped four problems and this is a fifth, on a live site,
-in a shared checkout — widening scope unasked is how live systems break. The fix is small
-and mirrors section 3 exactly:
-
-- keep `public insert contacts` (`SourcingProfile.jsx:640` writes with the anon key)
-- replace `service read contacts` with a `dir_is_tenant_admin(tenant_id)` SELECT policy
-- only reader is `SourcingAdmin.jsx:338` (service_role) and `:377` (update, service_role),
-  so nothing live breaks
-
-Confirm before deciding:
-
-```sql
-SELECT count(*) AS submissions, min(created_at), max(created_at) FROM directory_contacts;
-```
-
-Recommend authoring it as `029_contacts_rls.sql` and applying both together.
-
----
-
-## Hand-off requests (files this agent does not own)
-
-1. **`migrations/017_admin_update_policy.sql:6` and `:17` are checking the wrong claim.**
-   `(auth.jwt() ->> 'role') = 'admin'` reads the *top-level* `role` claim, which in a
-   Supabase JWT is the Postgres role — `authenticated` — never `admin`. The app reads
-   `user.app_metadata.role` (`SourcingAdmin.jsx:156`, `SourcingDirectory.jsx:832`,
-   `admin-reports.js:169`). The global-admin branch of that policy has therefore never
-   matched, and companies approve/reject only because the browser uses the service key.
-   Correct form, used throughout 028: `(auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'`.
-   Needs a follow-up migration; 017 is applied so editing the file in place fixes nothing.
-2. **Remove `VITE_SOURCING_ADMIN_KEY` from the browser** — `src/pages/SourcingAdmin.jsx:37`
-   plus every `adminSupabase` caller in `src/pages/admin/*`, then the Vercel env var, then
-   rotate `SUPABASE_SERVICE_ROLE_KEY`. See the top section for ordering.
-3. **Problem 4 option B** — repoint the seven report-fetching pages at
+1. **`scripts/run-migration-028.mjs:161-174` reports a false failure on a Part-1-only
+   apply.** Its post-condition list includes `'service full access reports'` and
+   `'public read free reports'`, which are Part 2 policies. Remove those two names from the
+   `policyname IN (...)` list, or gate them on the same flag. Until then, step 1 of the
+   runbook exits `1` after a successful commit. Nothing else in the script is wrong.
+2. **Problem 4 / Part 2 option B** — repoint the seven report-fetching pages at
    `GET /api/sourcing/reports`, and null `file_url` for unentitled callers in
-   `api/sourcing/reports.js`.
-4. **`CONTEXT.md`** references the service-role key in its env table; audit it and the git
-   history for a committed key value as part of the rotation.
-5. **Optional, problem 1 open question A** — set `status: 'pending'` at the four
-   auto-provision call sites if signup approval is meant to gate access, then tighten
-   `members_insert_self`.
+   `api/sourcing/reports.js`. This is what unblocks Part 2.
+3. **Finish the key retirement.** `src/` no longer reads `VITE_SOURCING_ADMIN_KEY` (one
+   stale comment in `src/hooks/useAdmin.js:19`), but the var is still set in Vercel and
+   every bundle served so far shipped it. Remove it from all Vercel environments, redeploy,
+   then rotate `SUPABASE_SERVICE_ROLE_KEY`. Follow `docs/security/key-rotation-runbook.md`.
+4. **`CONTEXT.md:56`** documents the key as "COMPROMISED — BEING RETIRED". Update it once
+   rotation is done, and audit git history for a committed key value.
+5. **Optional, open question A** — set `status: 'pending'` at the four auto-provision call
+   sites if signup approval is meant to gate access, then tighten `members_insert_self`.
+6. **Not fixed, needs its own decision: `directory_companies` write policies.**
+   `011:8 "signup insert companies"` is `WITH CHECK (status = 'pending')` with no `TO`
+   clause — any anon caller can create company rows, which is a spam vector. And
+   `011:33 "read own pending company"` is `USING (status IN ('active','pending'))`, which
+   despite its name lets anyone read every *pending* (unapproved) company, not just their
+   own. Both are visible-product-change territory and are deliberately untouched by Part 1.
+7. **Private storage bucket for `sourcing-reports`** + signed URLs from
+   `api/sourcing/download-report.js`. This is the only real fix for paid-report files.
 
 ---
 
 ## Rollback
 
-The migration is one transaction, so a failure during apply needs no rollback. To reverse
-a *successful* apply, author `029_revert_028.sql` re-creating the original policies from
-`migrations/006:24-25`, `migrations/007:36-37`, `migrations/008:18-19` and
-`migrations/011:22-27`. Do not drop the added columns — `api/sourcing/admin-reports.js`
-needs them, and dropping them puts that endpoint back to 500.
+Each migration is a single transaction, so a failure during apply needs no rollback.
+
+To reverse a *successful* apply, author `030_revert_028_029.sql` re-creating the original
+policies from `migrations/006:24-25`, `migrations/007:19-20, 36-37`, `migrations/011:22-27`
+and `migrations/017`. Two warnings:
+
+- **Do not drop the added columns.** `api/sourcing/admin-reports.js` needs them; dropping
+  them puts that endpoint back to 500.
+- Reverting means deliberately re-opening the anonymous read on `directory_members` and
+  `directory_contacts`. If the reason for reverting is "something broke", identify which
+  policy did it first — the tables are independent and can be reverted one at a time.

@@ -22,7 +22,7 @@
 --       0-0/70). The same permissive policies allow anon INSERT, so anyone can write
 --       themselves a row with role='admin', status='approved', auth_user_id=<their
 --       own uid>. That defeats BOTH the new client guard (src/hooks/useAdmin.js) AND
---       the new server-side requireAdmin() (api/sourcing/lib/adminAuth.js:81-95,
+--       the new server-side requireAdmin() (api/sourcing/lib/adminAuth.js:84-89,
 --       which grants tenant-admin reach off exactly such a row). Highest-value change
 --       in this file.
 --   §3  directory_analytics: revoke anonymous SELECT. Anonymous INSERT is kept — the
@@ -228,7 +228,7 @@ UPDATE directory_reports SET updated_at = created_at WHERE updated_at IS NULL;
 
 -- NOTE: `ALTER COLUMN access SET DEFAULT 'public'` used to live here. It moved to Part 2
 -- (§5) where the rest of the access-literal question lives. It is inert either way —
--- every writer sets access explicitly (api/sourcing/admin-reports.js:200 defaults to
+-- every writer sets access explicitly (api/sourcing/admin-reports.js:201 defaults to
 -- 'free' in JS, src/pages/admin/ReportsSection.jsx:92 posts `access || 'free'`, and
 -- there is no other INSERT into directory_reports anywhere in api/ or src/) — but Part 1
 -- promises zero product change, and that promise should need no argument to believe.
@@ -285,7 +285,7 @@ END $$;
 -- status, auth_user_id — over plain HTTP (206, content-range 0-0/70). The write side is
 -- open too, and that is the part that matters most: anon can INSERT a row with
 -- role='admin', status='approved' and auth_user_id set to their own uid, which is
--- exactly the shape api/sourcing/lib/adminAuth.js:88-95 accepts as proof of tenant
+-- exactly the shape api/sourcing/lib/adminAuth.js:84-89 accepts as proof of tenant
 -- admin. So the hole defeats both new guards shipped in the security round — the client
 -- one (src/hooks/useAdmin.js) and the server one (requireAdmin()).
 --
@@ -328,6 +328,14 @@ DROP POLICY IF EXISTS "members_update_tenant_admin" ON directory_members;
 DROP POLICY IF EXISTS "members_delete_tenant_admin" ON directory_members;
 
 -- A signed-in user reads their own member row. Nothing else.
+--
+-- LOAD-BEARING FOR AUTO-PROVISION, NOT JUST FOR READS: all four auto-provision call
+-- sites chain `.insert({...}).select().single()` (SourcingPortalV2.jsx:127-138 and the
+-- three siblings). PostgREST needs BOTH an INSERT policy and a SELECT policy to return
+-- the inserted row. With members_insert_self alone the write would land but the read-back
+-- would come back empty, `.single()` would raise PGRST116, the client would set
+-- provisionErr and every new user would hit "Could not set up your account. Please
+-- contact support." (SourcingPortalV2.jsx:141-145). members_select_own is what stops that.
 CREATE POLICY "members_select_own"
   ON directory_members FOR SELECT
   TO authenticated
@@ -437,8 +445,8 @@ CREATE POLICY "analytics_select_tenant_admin"
 -- That reads the TOP-LEVEL `role` claim of the JWT. In Supabase that claim carries the
 -- Postgres role the request will run as — 'anon' or 'authenticated' — and it is never
 -- 'admin'. The app's actual admin flag is app_metadata.role:
---   * src/pages/SourcingAdmin.jsx:156        user.app_metadata.role === 'admin'
---   * src/pages/SourcingDirectory.jsx:832    same
+--   * src/pages/SourcingAdmin.jsx:154        user.app_metadata.role === 'admin'
+--   * src/pages/SourcingDirectory.jsx:745    same
 --   * api/sourcing/admin-reports.js:169      same
 --   * api/sourcing/lib/adminAuth.js:79       user.app_metadata?.role === 'admin'
 --
@@ -508,7 +516,7 @@ CREATE POLICY "companies_update_admin"
 --        * 008:18 shipped        USING (access = 'free')
 --        * 013 "fixed" it to     USING (access = 'public')
 --        * admin-reports.js:10   VALID_ACCESS = ['free','member','members','paid','public']
---        * admin-reports.js:200  defaults a new report to access = 'free'
+--        * admin-reports.js:201  defaults a new report to access = 'free'
 --        * ReportsSection.jsx:92 posts access: reportForm.access || 'free'
 --        * SourcingReportDetailV2.jsx:151 and OSReportsPage.jsx:97 both treat 'free' and
 --          'public' as the same free tier
@@ -536,10 +544,10 @@ CREATE POLICY "companies_update_admin"
 --      meaningful once (5b) has removed the blanket policy.
 --
 -- THE PREREQUISITE (option B in docs/security/028-impact-analysis.md): repoint those
--- seven pages at GET /api/sourcing/reports (api/sourcing/reports.js:61-95), which runs
+-- seven pages at GET /api/sourcing/reports (api/sourcing/reports.js:61-96), which runs
 -- server-side with the service key and already returns the full set, and null out
 -- file_url for unentitled callers there (the logic exists in
--- api/sourcing/lib/reportAccess.js:47-62). Then teasers stay AND files are protected.
+-- api/sourcing/lib/reportAccess.js:48-62). Then teasers stay AND files are protected.
 --
 -- KNOWN GAP even after Part 2: reports_member_read exposes file_url to ANY approved
 -- member of the tenant, including free-tier members, because RLS is row-level and
