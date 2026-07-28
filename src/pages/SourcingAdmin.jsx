@@ -94,6 +94,10 @@ function SourcingAdminInner() {
   const [selectedTenantId, setSelectedTenantId] = useState(null); // null = global mode
   const selectedTenant = tenants.find(t => t.id === selectedTenantId) || null;
   const [isGlobalAdmin, setIsGlobalAdmin] = useState(false);
+  // isGlobalAdmin starts false, so anything gated on it must know the difference
+  // between "resolved: not a global admin" and "not resolved yet" — otherwise a real
+  // global admin is briefly told they lack access.
+  const [adminScopeResolved, setAdminScopeResolved] = useState(false);
 
   const [stats, setStats] = useState(null);
   const [companies, setCompanies] = useState([]);
@@ -143,7 +147,7 @@ function SourcingAdminInner() {
   // Fetch tenants list, scoped to the current user's admin memberships if not global admin
   useEffect(() => {
     async function loadTenants() {
-      if (!adminSupabase) return;
+      if (!adminSupabase) { setAdminScopeResolved(true); return; }
       try {
         const [tenantsRes, sessionRes] = await Promise.all([
           adminSupabase.from('directory_tenants').select('*').eq('status', 'active').order('name'),
@@ -176,6 +180,7 @@ function SourcingAdminInner() {
           }
         }
       } catch { /* ignore */ }
+      finally { setAdminScopeResolved(true); }
     }
     if (authed) loadTenants();
   }, [authed]);
@@ -582,15 +587,27 @@ function SourcingAdminInner() {
     reader.onload = (ev) => {
       const parsed = parseCSV(ev.target.result);
       if (!parsed) { setImportStatus('Could not parse CSV.'); return; }
-      setImportPreview(parsed);
-      setImportStatus('');
+
+      // membership_tier is billing state and is stripped from every admin write by
+      // PROTECTED_COLUMNS. Drop it here, at the point the file is read, so the preview
+      // cannot display tier values that the import will not apply.
+      const ignoredTier = parsed.headers.includes('membership_tier');
+      const headers = parsed.headers.filter(h => h !== 'membership_tier');
+      const rows = ignoredTier
+        ? parsed.rows.map(({ membership_tier, ...rest }) => rest)
+        : parsed.rows;
+
+      setImportPreview({ headers, rows, ignoredTier });
+      setImportStatus(ignoredTier
+        ? 'Heads up: the membership_tier column will be ignored — tier is billing state, set by checkout.'
+        : '');
     };
     reader.readAsText(file);
   };
 
   const handleImportConfirm = async () => {
     if (!adminSupabase || !importPreview || !selectedTenantId) return;
-    const { rows } = importPreview;
+    const { rows, ignoredTier } = importPreview;
     let imported = 0;
     let skipped = 0;
     const skippedNames = [];
@@ -613,7 +630,6 @@ function SourcingAdminInner() {
         state: row.state || null,
         vertical: row.vertical || 'other',
         employee_count: row.employee_count || null,
-        membership_tier: row.membership_tier || 'free',
         status: 'active',
         tenant_id: selectedTenantId,
         country: 'US',
@@ -643,6 +659,9 @@ function SourcingAdminInner() {
 
     let summary = `Done. Imported ${imported} of ${rows.length} companies.`;
     if (skipped > 0) summary += ` Skipped ${skipped}: ${skippedNames.slice(0, 3).join('; ')}${skippedNames.length > 3 ? '...' : ''}`;
+    if (ignoredTier) {
+      summary += ' Note: the membership_tier column was ignored — tier is billing state, set by checkout, and every imported company starts on the free tier.';
+    }
     setImportStatus(summary);
     setImportPreview(null);
     if (importFileRef.current) importFileRef.current.value = '';
@@ -678,12 +697,28 @@ function SourcingAdminInner() {
 
   // ─── Admin Dashboard ──────────────────────────────────────────────────────
   const newContactCount = contacts.filter(c => c.status === 'new').length;
+
+  // The deal_bank_* tables are globalOnly in api/sourcing/lib/tablePolicy.js: pending
+  // deal submissions, deck URLs, revenue figures and investor contact emails are
+  // platform data, not any one directory's. A tenant admin who opens this tab gets 403
+  // on every read, and DealBankSection swallows the error into `.data || []`, so the
+  // screen shows three empty lists and buttons that do nothing. That is the exact
+  // "reports success for something that did not happen" shape, so the section is not
+  // rendered for them at all — they get a plain statement instead.
+  const canSeeDealBank = isGlobalAdmin;
+
+  // NOTE: this array is not the rendered navigation. The sidebar the admin actually
+  // clicks is ADMIN_NAV inside src/pages/admin/AdminShellV3.jsx, which has no
+  // isGlobalAdmin gate and still lists "Deal Bank" for tenant admins. Hiding the item
+  // there is a one-line filter in that file; until it lands, clicking it reaches the
+  // explanation below rather than a dead screen. TABS is kept in sync so the gate is
+  // correct wherever it gets used.
   const TABS = [
     { key: 'stats',      label: 'Stats' },
     { key: 'companies',  label: `Companies${pendingCompanies.length > 0 ? ` (${pendingCompanies.length} pending)` : ''}` },
     { key: 'members',    label: `Pending Reviews${pendingMembers.length > 0 ? ` (${pendingMembers.length})` : ''}` },
     { key: 'articles',   label: `Pending Content${pendingContent.length > 0 ? ` (${pendingContent.length})` : ''}` },
-    { key: 'deal-bank',  label: 'Deal Bank' },
+    ...(canSeeDealBank ? [{ key: 'deal-bank', label: 'Deal Bank' }] : []),
     { key: 'tickets',    label: 'Tickets' },
     { key: 'tags',       label: 'Tags' },
     { key: 'add',        label: '+ Add Company' },
@@ -778,14 +813,30 @@ function SourcingAdminInner() {
           />
         )}
 
-        {/* Deal Bank */}
-        {!loading && activeTab === 'deal-bank' && (
+        {/* Deal Bank — platform-level data, global admins only */}
+        {!loading && activeTab === 'deal-bank' && canSeeDealBank && (
           <DealBankSection
             adminSupabase={adminSupabase}
             selectedTenantId={selectedTenantId}
             currentUserEmail={currentUserEmail}
             V={V}
           />
+        )}
+        {!loading && activeTab === 'deal-bank' && !canSeeDealBank && !adminScopeResolved && (
+          <div style={{ padding: '40px 0', color: V.muted, fontFamily: V.space, fontSize: 13 }}>Loading...</div>
+        )}
+        {!loading && activeTab === 'deal-bank' && !canSeeDealBank && adminScopeResolved && (
+          <div style={{ background: V.card, border: `1px solid ${V.border}`, borderRadius: 10, padding: '28px 24px', maxWidth: 620 }}>
+            <div style={{ fontSize: 15, fontWeight: 700, fontFamily: V.syne, color: V.heading, marginBottom: 8 }}>
+              Deal Bank is managed platform-wide
+            </div>
+            <div style={{ fontSize: 13, fontFamily: V.space, color: V.muted, lineHeight: 1.6 }}>
+              Deal submissions, investor records and completed rounds belong to the platform rather than
+              to any one directory, so they are not part of a directory admin's access. Nothing here is
+              hidden by mistake and nothing you do on this screen would be saved. Contact a platform
+              administrator if you need something from the Deal Bank.
+            </div>
+          </div>
         )}
 
         {/* Tickets */}

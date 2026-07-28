@@ -2,12 +2,21 @@ import React, { useState } from 'react';
 import { AdminSection } from './AdminUI.jsx';
 import { supabase } from '../../lib/supabase.js';
 
+// membership_tier is billing state. PROTECTED_COLUMNS in api/sourcing/lib/tablePolicy.js
+// strips /^membership_/ from every payload the admin API accepts, so the tier picker
+// that used to live in this form was discarded server-side while the admin was shown
+// "Added!". The control is gone rather than disabled: a new company simply starts on
+// the column's database default, and the tier moves through checkout.
+// If tier ever needs to be admin-settable, that is a purpose-built server endpoint with
+// its own audit trail — not a hole in PROTECTED_COLUMNS.
+const BLANK_FORM = {
+  name: '', website: '', city: '', state: 'AZ', vertical: 'semiconductor',
+  description: '', employee_count: '', year_founded: '', email: '', phone: '',
+  featured: false, owner_email: '',
+};
+
 export default function AddCompanySection({ orgs, V, adminSupabase, selectedTenantId, fetchData }) {
-  const [addCompanyForm, setAddCompanyForm] = useState({
-    name: '', website: '', city: '', state: 'AZ', vertical: 'semiconductor',
-    description: '', employee_count: '', year_founded: '', email: '', phone: '',
-    membership_tier: 'free', featured: false, owner_email: '',
-  });
+  const [addCompanyForm, setAddCompanyForm] = useState({ ...BLANK_FORM });
   const [addCompanyStatus, setAddCompanyStatus] = useState('');
 
   const handleAddCompany = async (e) => {
@@ -29,7 +38,6 @@ export default function AddCompanySection({ orgs, V, adminSupabase, selectedTena
       year_founded: addCompanyForm.year_founded ? parseInt(addCompanyForm.year_founded) : null,
       email: addCompanyForm.email || null,
       phone: addCompanyForm.phone || null,
-      membership_tier: addCompanyForm.membership_tier,
       featured: addCompanyForm.featured,
       status: 'active',
       organization_id: orgId,
@@ -57,13 +65,13 @@ export default function AddCompanySection({ orgs, V, adminSupabase, selectedTena
         if (!resp || !resp.ok) {
           setAddCompanyStatus('Company added, but owner account creation failed.');
           setTimeout(() => { setAddCompanyStatus(''); }, 3000);
-          setAddCompanyForm({ name: '', website: '', city: '', state: 'AZ', vertical: 'semiconductor', description: '', employee_count: '', year_founded: '', email: '', phone: '', membership_tier: 'free', featured: false, owner_email: '' });
+          setAddCompanyForm({ ...BLANK_FORM });
           await fetchData();
           return;
         }
       }
       setAddCompanyStatus('Added!');
-      setAddCompanyForm({ name: '', website: '', city: '', state: 'AZ', vertical: 'semiconductor', description: '', employee_count: '', year_founded: '', email: '', phone: '', membership_tier: 'free', featured: false, owner_email: '' });
+      setAddCompanyForm({ ...BLANK_FORM });
       setTimeout(() => { setAddCompanyStatus(''); }, 1500);
       await fetchData();
     }
@@ -117,13 +125,12 @@ export default function AddCompanySection({ orgs, V, adminSupabase, selectedTena
             </div>
             <div>
               <label style={{ display: 'block', fontSize: 12, fontWeight: 600, fontFamily: V.space, color: V.muted, marginBottom: 5 }}>Membership Tier</label>
-              <select value={addCompanyForm.membership_tier} onChange={e => setAddCompanyForm(f => ({ ...f, membership_tier: e.target.value }))}
-                style={{ width: '100%', background: V.card2, border: `1px solid ${V.border}`, color: V.text, borderRadius: 7, padding: '9px 12px', fontSize: 13, fontFamily: V.space }}>
-                <option value="free">Free</option>
-                <option value="basic">Basic</option>
-                <option value="pro">Pro</option>
-                <option value="enterprise">Enterprise</option>
-              </select>
+              <div style={{ width: '100%', background: V.card, border: `1px solid ${V.border}`, color: V.dim, borderRadius: 7, padding: '9px 12px', fontSize: 13, fontFamily: V.space }}>
+                Set by checkout
+              </div>
+              <div style={{ fontSize: 11, fontFamily: V.space, color: V.dim, marginTop: 5, lineHeight: 1.4 }}>
+                Membership tier is billing state and is not set here. New companies start on the free tier.
+              </div>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
