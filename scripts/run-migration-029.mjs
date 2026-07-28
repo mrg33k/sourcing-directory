@@ -112,7 +112,7 @@ SELECT ord, check_name, result FROM (
   UNION ALL SELECT 4, 'directory_contacts READ policies reachable by anon (expect 0)',
     (SELECT count(*)::text FROM pg_policies WHERE schemaname='public' AND tablename='directory_contacts'
         AND cmd IN ('SELECT','ALL') AND roles::text[] && ARRAY['public','anon'])
-  UNION ALL SELECT 5, 'RLS enabled on directory_contacts (expect t)',
+  UNION ALL SELECT 5, 'RLS enabled on directory_contacts (expect true)',
     (SELECT relrowsecurity::text FROM pg_class
       WHERE relnamespace = 'public'::regnamespace AND relname = 'directory_contacts')
   UNION ALL SELECT 6, '028 §0 helpers this file depends on (expect 2)',

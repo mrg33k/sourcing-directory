@@ -194,9 +194,9 @@ SELECT ord, check_name, result FROM (
   UNION ALL SELECT 10, '§4 directory_companies companies_update_admin (expect 1)',
     (SELECT count(*)::text FROM pg_policies WHERE schemaname='public' AND tablename='directory_companies'
         AND policyname = 'companies_update_admin' AND cmd = 'UPDATE')
-  UNION ALL SELECT 11, 'RLS enabled on members/analytics/companies/reports (expect 4)',
-    (SELECT count(*)::text FROM pg_class
-      WHERE relnamespace = 'public'::regnamespace AND relrowsecurity
+  UNION ALL SELECT 11, 'RLS per table (expect every one = true)',
+    (SELECT string_agg(relname || '=' || relrowsecurity::text, ', ' ORDER BY relname) FROM pg_class
+      WHERE relnamespace = 'public'::regnamespace
         AND relname IN ('directory_members','directory_analytics','directory_companies','directory_reports'))
   UNION ALL SELECT 12, 'PART 2 marker — "service full access reports" (0 = Part 2 ran, 1 = Part 2 still deferred)',
     (SELECT count(*)::text FROM pg_policies WHERE schemaname='public' AND tablename='directory_reports'
