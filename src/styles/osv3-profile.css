@@ -22,18 +22,26 @@
    16px gutter on both axes (reference/MEASUREMENTS.md section 4).
 
    ------------------------------------------------------------------------
-   THE TYPE LADDER — 8 sizes, Roboto throughout, no ninth size anywhere.
-   ------------------------------------------------------------------------
-     32px  --t-hero     company name (the one thing that wins on that screen)
-     24px  --t-name     person name, admin page title
+   THE TYPE LADDER — 7 sizes, Roboto throughout, no eighth size anywhere.
+     40px  --t-hero     company name (the one thing that wins on that screen)
+     28px  --t-name     person name, admin page title
      20px  --t-num      KPI numbers, donut centre total
-     16px  --t-lead     card stat numbers, at-a-glance values
-     14px  --t-body     body copy, list items, buttons, table cells
+     16px  --t-lead     lead lines, card stat numbers, at-a-glance values
+     13px  --t-body     body copy, list items, buttons, table cells
      12px  --t-meta     subtitles, meta lines, secondary links, footnotes
-     11px  --t-label    ALL-CAPS section headings, tab labels, pill text
-     10px  --t-micro    stat captions, status pills, count badges
+     11px  --t-label    ALL-CAPS headings, tabs, pills, captions, badges
 
-   Hierarchy: 32 / 10 = 3.2x. The hero always dominates.
+   13px for body is measured, not chosen by feel: the reference glyph bboxes
+   for list items and body runs work out to ~12.5px once the 0.924 capture
+   zoom is removed. At 14px the same items wrap where the design keeps them
+   on one line.
+
+   Hierarchy: 40 / 11 = 3.6x. The hero always dominates.
+
+   The two name sizes are measured too. Reference glyph bboxes are 20px
+   (person, 0.924 capture zoom) and 28px (company, 0.84 zoom); dividing by
+   Roboto's 0.75 ascender ratio and removing the zoom puts them at ~29px
+   and ~44px. 28 / 40 is the nearest pair on one ladder.
 
    Verify:  python3 scripts/design_spacing_check.py \
               src/styles/osv3-profile.css --strict
@@ -50,14 +58,13 @@
   --p-12: 48px;
 
   /* type ladder */
-  --t-hero: 32px;
-  --t-name: 24px;
+  --t-hero: 40px;
+  --t-name: 28px;
   --t-num: 20px;
   --t-lead: 16px;
-  --t-body: 14px;
+  --t-body: 13px;
   --t-meta: 12px;
   --t-label: 11px;
-  --t-micro: 10px;
 
   /* screen-local semantics, all derived from the shipped tokens */
   --p-radius: 8px;
@@ -249,7 +256,7 @@
 }
 
 .osv3p-tab-count {
-  font-size: var(--t-micro);
+  font-size: var(--t-label);
   font-weight: 700;
   color: var(--v3-muted);
 }
@@ -278,7 +285,7 @@
 
 .osv3p-pill--status {
   padding: var(--p-1) var(--p-2);
-  font-size: var(--t-micro);
+  font-size: var(--t-label);
   font-weight: 600;
   letter-spacing: 0.04em;
 }
@@ -372,7 +379,7 @@
 .osv3p-avatar--sm {
   width: 32px;
   height: 32px;
-  font-size: var(--t-micro);
+  font-size: var(--t-label);
 }
 
 .osv3p-avatar-wrap {
@@ -454,7 +461,7 @@
 }
 
 .osv3p-logo--sm .osv3p-logo-fallback {
-  font-size: var(--t-micro);
+  font-size: var(--t-label);
 }
 
 /* ===========================================================================
@@ -534,8 +541,8 @@
 .osv3p-stat {
   display: flex;
   align-items: center;
-  gap: var(--p-3);
-  padding: 0 var(--p-4);
+  gap: var(--p-2);
+  padding: 0 var(--p-3);
   border-left: var(--p-hair);
   min-width: 0;
 }
@@ -550,15 +557,15 @@
 }
 
 .osv3p-stat-icon {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   color: var(--v3-ink-secondary);
   flex-shrink: 0;
 }
 
 .osv3p-stat-icon svg {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   display: block;
 }
 
@@ -568,10 +575,11 @@
 
 .osv3p-stat-label {
   font-size: var(--t-meta);
+  line-height: 1.3;
   color: var(--v3-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  /* A single long word ("Opportunities") is wider than a 5-up column. Break it
+     rather than let it run out past the hairline divider. */
+  overflow-wrap: break-word;
 }
 
 .osv3p-stat-value {
@@ -583,7 +591,7 @@
 }
 
 .osv3p-stat-note {
-  font-size: var(--t-micro);
+  font-size: var(--t-label);
   color: var(--v3-muted);
   margin-top: var(--p-1);
 }
@@ -595,7 +603,7 @@
 .osv3p-checklist {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--p-3) var(--p-4);
+  gap: var(--p-3);
 }
 
 .osv3p-checklist--single {
@@ -768,7 +776,7 @@
 }
 
 .osv3p-iconlist-time {
-  font-size: var(--t-micro);
+  font-size: var(--t-label);
   color: var(--v3-muted);
   margin-top: var(--p-1);
 }
@@ -788,7 +796,7 @@
 
 .osv3p-bullets li {
   position: relative;
-  padding-left: var(--p-3);
+  padding-left: var(--p-2);
   font-size: var(--t-body);
   line-height: 1.5;
   color: var(--v3-ink-secondary);
@@ -1187,13 +1195,19 @@
   align-items: stretch;
 }
 
-/* Column ratios transcribed from the reference PNGs. They are content-driven,
-   not equal fractions (MEASUREMENTS.md section 4). */
+/* Column ratios measured off the reference PNGs. They are content-driven, not
+   equal fractions (MEASUREMENTS.md section 4).
+
+   Person row 2 is 431/330/444, NOT the 334/427/443 of row 1 — the two rows
+   swap their first two widths. measurements-person.json records row 2 with
+   row 1's rectangles, which is wrong; re-scanning the PNG for vertical card
+   borders at y=760 gives edges 260/691 · 707/1037 · 1053/1497, both gutters
+   still exactly 16px. Built to the pixels, not to the JSON. */
 .osv3p-grid--person-a { grid-template-columns: 334fr 427fr 443fr; }
-.osv3p-grid--person-b { grid-template-columns: 334fr 427fr 443fr; }
+.osv3p-grid--person-b { grid-template-columns: 431fr 330fr 444fr; }
 .osv3p-grid--company-a { grid-template-columns: 299fr 491fr 442fr; }
 .osv3p-grid--company-b { grid-template-columns: 373fr 393fr 467fr; }
-.osv3p-grid--company-c { grid-template-columns: 559fr 688fr; }
+.osv3p-grid--company-c { grid-template-columns: 559fr 688fr; align-items: start; }
 .osv3p-grid--halves { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
 .osv3p-footnote {
@@ -1497,7 +1511,7 @@
 }
 
 .osv3p-chart-tick {
-  font-size: var(--t-micro);
+  font-size: var(--t-label);
   fill: var(--v3-muted);
 }
 
@@ -1545,7 +1559,7 @@
 }
 
 .osv3p-donut-caption {
-  font-size: var(--t-micro);
+  font-size: var(--t-label);
   fill: var(--v3-muted);
 }
 

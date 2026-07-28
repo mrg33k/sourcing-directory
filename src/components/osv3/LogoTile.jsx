@@ -12,7 +12,14 @@ import React, { useState } from 'react'
  * legal-suffix noise ("Inc.", "LLC") that would otherwise become the letters.
  */
 
-const SUFFIXES = new Set(['inc', 'inc.', 'llc', 'ltd', 'ltd.', 'corp', 'corp.', 'co', 'co.', 'plc', 'gmbh', 'sa', 'nv', 'usa', 'the', 'and', '&'])
+// Skipped when picking the monogram letters: legal suffixes and the connector
+// words that otherwise become the initials. "The University of Arizona" reads
+// as UA, not UO.
+const SKIP_WORDS = new Set([
+  'inc', 'inc.', 'llc', 'l.l.c.', 'ltd', 'ltd.', 'corp', 'corp.', 'co', 'co.',
+  'plc', 'gmbh', 'sa', 'nv', 'ag', 'bv', 'usa', 'group', 'holdings',
+  'the', 'and', 'of', 'for', 'at', 'in', 'on', 'de', 'la', 'le', '&',
+])
 
 export function monogramOf(name) {
   if (!name) return '?'
@@ -20,7 +27,7 @@ export function monogramOf(name) {
     .replace(/[,]/g, ' ')
     .trim()
     .split(/\s+/)
-    .filter((w) => w && !SUFFIXES.has(w.toLowerCase()))
+    .filter((w) => w && !SKIP_WORDS.has(w.toLowerCase()))
   if (!words.length) return String(name).trim().charAt(0).toUpperCase() || '?'
   if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
   return (words[0][0] + words[1][0]).toUpperCase()

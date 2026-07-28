@@ -17,8 +17,12 @@ import '../../styles/osv3-profile.css'
  * no inline styles anywhere.
  */
 
-export default function OSPersonProfile() {
-  const { slug } = useParams()
+export default function OSPersonProfile({ slug: slugProp }) {
+  // /people/:slug supplies the param. /people/_preview is a LITERAL route with
+  // no param, so it passes the slug in as a prop — reading useParams alone
+  // there yields undefined and the screen renders not-found.
+  const { slug: routeSlug } = useParams()
+  const slug = slugProp || routeSlug
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
@@ -201,6 +205,7 @@ export default function OSPersonProfile() {
                 <MapPanel
                   markers={p.locationCard.markers}
                   highlight={p.locationCard.highlight}
+                  viewBox={p.locationCard.viewBox}
                   ariaLabel={`Map showing ${p.locationCard.city || 'this location'}`}
                 />
                 <div className="osv3p-map-caption">

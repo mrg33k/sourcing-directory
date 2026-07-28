@@ -11,6 +11,10 @@ import { STATE_PATHS } from '../../lib/usStatesPaths.js'
  *
  * markers: [{ id, x, y, label }] in that same 960x600 space.
  * highlight: ['AZ'] — state codes drawn in the accent tint.
+ * viewBox: crop the 960x600 space to a region. A single-location card should
+ *   zoom to the place — showing the whole country to point at one city is both
+ *   less useful and a third taller, which is what left a 130px empty band under
+ *   the neighbouring cards. Multi-site cards keep the full map.
  *
  * A location that is not in the US (Rocket Lab's Mahia complex) simply has no
  * marker; it still appears in the list beside the map. Better an honest gap
@@ -19,13 +23,17 @@ import { STATE_PATHS } from '../../lib/usStatesPaths.js'
 
 const PIN = 'M0,0 c-3.6,-4.6 -6.4,-8 -6.4,-11.4 a6.4,6.4 0 1 1 12.8,0 C6.4,-8 3.6,-4.6 0,0 z'
 
-export default function MapPanel({ markers = [], highlight = [], onExpand, ariaLabel = 'Location map' }) {
+export default function MapPanel({ markers = [], highlight = [], viewBox = '0 0 960 600', onExpand, ariaLabel = 'Location map' }) {
   const hot = new Set(highlight)
+  // Pins are drawn at a fixed on-screen size, so a cropped (zoomed) viewBox
+  // must shrink the pin by the same factor or it swamps the map.
+  const vb = String(viewBox).trim().split(/\s+/).map(Number)
+  const pinScale = vb.length === 4 && vb[2] > 0 ? Math.max(0.6, (vb[2] / 960) * 2.2) : 2.2
   return (
     <div className="osv3p-map">
       <svg
         className="osv3p-map-svg"
-        viewBox="0 0 960 600"
+        viewBox={viewBox}
         preserveAspectRatio="xMidYMid meet"
         role="img"
         aria-label={ariaLabel}
@@ -40,7 +48,7 @@ export default function MapPanel({ markers = [], highlight = [], onExpand, ariaL
           ))}
         </g>
         {markers.map((m) => (
-          <g key={m.id || m.label} transform={`translate(${m.x} ${m.y}) scale(2.2)`}>
+          <g key={m.id || m.label} transform={`translate(${m.x} ${m.y}) scale(${pinScale})`}>
             <title>{m.label}</title>
             <path className="osv3p-map-pin" d={PIN} />
             <circle className="osv3p-map-pin-dot" cx="0" cy="-11.4" r="2.4" />

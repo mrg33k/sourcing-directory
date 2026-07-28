@@ -242,9 +242,11 @@ createRoot(document.getElementById('root')).render(
                 swallows anything registered after it and renders the company
                 page, which reads as a bounce rather than a 404. Keep this
                 block above it. */}
-            <Route path="/people/_preview" element={<OSPersonProfile />} />
+            {/* The two _preview routes are LITERAL, so they hand the slug in as
+                a prop — a literal path has no :slug param to read. */}
+            <Route path="/people/_preview" element={<OSPersonProfile slug="_preview" />} />
             <Route path="/people/:slug" element={<OSPersonProfile />} />
-            <Route path="/company/_preview" element={<OSCompanyProfile />} />
+            <Route path="/company/_preview" element={<OSCompanyProfile slug="_preview" />} />
             <Route path="/profile" element={<OSMyProfile />} />
             <Route path="/profile/edit" element={<OSProfileEdit />} />
             <Route path="/dashboard" element={<OSDashboard />} />

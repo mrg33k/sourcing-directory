@@ -15,9 +15,12 @@ import '../../styles/osv3-profile.css'
  * nothing live changes underneath anyone.
  */
 
-export default function OSCompanyProfile() {
-  const params = useParams()
-  const slug = params.slug || '_preview'
+export default function OSCompanyProfile({ slug: slugProp }) {
+  // /company/_preview is a LITERAL route and carries no param, so the slug
+  // arrives as a prop. Never default it here — a paramless mount would then
+  // silently serve the fixture as if it were a real organization.
+  const { slug: routeSlug } = useParams()
+  const slug = slugProp || routeSlug
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)

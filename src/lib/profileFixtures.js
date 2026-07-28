@@ -128,6 +128,10 @@ export const PERSON_FIXTURE = {
     note: 'Open to local, national, and global collaboration',
     highlight: ['AZ'],
     markers: [{ id: 'scottsdale', x: 248, y: 395, label: 'Scottsdale, Arizona' }],
+    // Cropped to the southwest around the marker. The reference draws a local
+    // street map here, not a national one; a regional zoom is the honest
+    // equivalent without adding a map provider.
+    viewBox: '60 320 400 150',
   },
 
   activity: {
