@@ -560,13 +560,75 @@ CREATE POLICY "analytics_select_tenant_admin"
 -- (verified: grep -rn "directory_members" migrations/ supabase/), so after this section
 -- there are no inline cross-table member lookups left in any policy.
 
--- No-op, asserted defensively: migrations/001_sourcing_directory.sql:90 already enabled
--- RLS on this table. Verify before believing this file — if RLS were OFF on
--- directory_companies today, this line would take the entire public directory dark,
--- because 001:96 "public read companies" would suddenly start being enforced. It is on:
---   SELECT relrowsecurity FROM pg_class
---    WHERE relnamespace='public'::regnamespace AND relname='directory_companies';  -- t
-ALTER TABLE directory_companies ENABLE ROW LEVEL SECURITY;
+-- ── THE HIGHEST-CONSEQUENCE LINE IN THIS FILE ───────────────────────────────────
+-- Until 2026-07-28 this read, unconditionally:
+--
+--     ALTER TABLE directory_companies ENABLE ROW LEVEL SECURITY;
+--
+-- under a comment asserting relrowsecurity was already `t` because
+-- migrations/001_sourcing_directory.sql:90 enabled it. Nobody had ever run that query.
+-- The observable evidence points the other way.
+--
+-- MEASURED against production (kzzvjtthknsozktmpvak) on 2026-07-28 with the public anon
+-- key, counts only, no row data:
+--
+--     directory_companies                       anon -> 206, 166 rows
+--     directory_companies?status=eq.active      anon -> 206, 165 rows
+--     directory_companies?status=eq.inactive    anon -> 200,   1 row    <-- anon CAN read it
+--
+-- Under enforced RLS the only SELECT policies this repo ships for the table are
+--     001:96  "public read companies"     USING (status = 'active')
+--     011:33  "read own pending company"  USING (status IN ('active','pending'))
+-- Neither admits status = 'inactive'. So one of two things is true in production:
+--   (a) RLS is OFF on directory_companies, or
+--   (b) RLS is ON and a broader SELECT policy exists that is in no migration file.
+-- Both are consistent with drift that is already PROVEN in this database: 007:20
+-- "service read contacts" and 007:37 "service read analytics" are both
+-- FOR SELECT USING (true) with no TO clause, and yet anon reads ZERO rows from either
+-- table today. Those two policies were changed out of band. This schema is not what the
+-- migration files say it is.
+--
+-- relrowsecurity itself is not reachable from outside the database (pg_catalog is not
+-- exposed through PostgREST, there is no SECURITY DEFINER helper for it yet, and no
+-- database password is on the machine this was written on). So it is UNKNOWN, not `t`.
+--
+-- If it is (a), an unconditional ENABLE starts enforcing whatever policy set production
+-- actually has. If that set has no working public read path, the entire company
+-- directory on os.spacerising.org goes dark the moment this commits. Part 1's contract
+-- is "no visible product change". It is not allowed to take that bet.
+--
+-- So: enable it only if it is already enabled — a true no-op — and tell the operator the
+-- real state either way. Leaving RLS off where it is off is exactly today's behaviour:
+-- no better, no worse. It is recorded as a follow-up in docs/security/APPLY-RUNBOOK.md
+-- §8 rather than closed blind against a live site.
+DO $companies_rls$
+DECLARE
+  rls_on boolean;
+BEGIN
+  SELECT c.relrowsecurity INTO rls_on
+    FROM pg_class c
+   WHERE c.relnamespace = 'public'::regnamespace
+     AND c.relname = 'directory_companies';
+
+  IF rls_on IS NULL THEN
+    RAISE EXCEPTION 'directory_companies does not exist in schema public — refusing to continue';
+  ELSIF rls_on THEN
+    EXECUTE $ddl$ ALTER TABLE directory_companies ENABLE ROW LEVEL SECURITY $ddl$;  -- no-op
+    RAISE NOTICE 'directory_companies: RLS already ENABLED (relrowsecurity = t). companies_update_admin below WILL be enforced.';
+  ELSE
+    RAISE WARNING '───────────────────────────────────────────────────────────────────';
+    RAISE WARNING 'directory_companies: RLS is DISABLED in production (relrowsecurity = f).';
+    RAISE WARNING 'This migration is deliberately NOT enabling it. Enabling it here could take';
+    RAISE WARNING 'the entire public company directory dark on a live site, which is outside';
+    RAISE WARNING 'Part 1''s no-visible-change contract.';
+    RAISE WARNING 'CONSEQUENCE: every policy on this table — including companies_update_admin,';
+    RAISE WARNING 'created below — is INERT, and anon keeps whatever table privileges it has.';
+    RAISE WARNING 'That is identical to production today. It is NOT fixed.';
+    RAISE WARNING 'FOLLOW-UP REQUIRED: docs/security/APPLY-RUNBOOK.md section 8.';
+    RAISE WARNING '───────────────────────────────────────────────────────────────────';
+  END IF;
+END
+$companies_rls$;
 
 DROP POLICY IF EXISTS "admins update companies"        ON directory_companies;
 DROP POLICY IF EXISTS "companies_update_admin"         ON directory_companies;

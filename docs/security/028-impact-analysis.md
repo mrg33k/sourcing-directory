@@ -7,6 +7,33 @@
 - Author: agent, authoring only. **Neither migration has been run against anything.**
   No SQL in this document or in either migration has been executed against production.
 
+> ### ⚠ 2026-07-28 measurement pass — three claims in this file were wrong
+>
+> `docs/security/APPLY-RUNBOOK.md` is the document a human follows. This one is the
+> caller-by-caller reasoning behind it. On 2026-07-28 every factual claim about *current
+> production state* was re-measured with the public anon key and `service_role` side by
+> side. Three were wrong and are corrected inline below, each marked **CORRECTED
+> 2026-07-28**:
+>
+> 1. **`directory_contacts` is NOT anon-readable today.** anon → `HTTP 200`, count `0`.
+>    `service_role` sees 7 rows. §1E and the step-0b probe both said otherwise. 029 is
+>    hardening, not plugging.
+> 2. **`directory_analytics` is NOT anon-readable today.** anon → `HTTP 200`, count `0`.
+>    `service_role` sees 3,105 rows. §1C said otherwise. 028 §3 is hardening.
+> 3. **`relrowsecurity` on `directory_companies` was never verified** and the evidence
+>    suggests it may be `false`. §1D asserted "It is." on no measurement. Migration 028 §4
+>    has been rewritten so it cannot take the public directory dark either way. See
+>    `APPLY-RUNBOOK.md` §2.
+>
+> `directory_members` — the one that matters most — **was** measured and **is** leaking
+> exactly as described: 70 rows to anon, HTTP 206. That claim survives intact.
+>
+> The pattern behind #1 and #2 is worth stating on its own: **production policy state has
+> drifted from the migration files.** `migrations/007:20` and `007:37` both ship
+> `FOR SELECT USING (true)` with no `TO` clause and production is running neither. Someone
+> hand-edited them and left no file. That is the real argument for applying 029 and §3 —
+> not that a hole is open, but that nothing on disk describes what is actually deployed.
+
 ---
 
 ## The split, in one box
@@ -53,15 +80,21 @@ leaves production exactly as it was.
 node --env-file=.env.prod.local scripts/run-migration-028.mjs --check
 node --env-file=.env.prod.local scripts/run-migration-029.mjs --check
 
-# 0b. Prove the two holes are real from outside, with only the PUBLIC anon key.
-#     Do this before you fix them — it is the difference between a claim and a receipt.
+# 0b. Prove the hole is real from outside, with only the PUBLIC anon key.
+#     Do this before you fix it — it is the difference between a claim and a receipt.
 source .env.prod.local 2>/dev/null || true
 curl -si "$VITE_SUPABASE_URL/rest/v1/directory_members?select=email,full_name,role,status,auth_user_id" \
   -H "apikey: $VITE_SUPABASE_ANON_KEY" -H "Range: 0-0" -H "Prefer: count=exact" | head -20
-#   BEFORE: HTTP/2 206, `content-range: 0-0/70`, one real member row in the body.
-curl -s "$VITE_SUPABASE_URL/rest/v1/directory_contacts?select=sender_name,sender_email,sender_phone&limit=3" \
-  -H "apikey: $VITE_SUPABASE_ANON_KEY"
-#   BEFORE: real contact submissions with email and phone.
+#   BEFORE, measured 2026-07-28: HTTP/2 206, `content-range: 0-0/70`, a real member row.
+#   This is the leak. It is the reason to run 028 today.
+
+# CORRECTED 2026-07-28. This probe used to sit here claiming it would return real
+# submissions. It does not — it returns []. directory_contacts is NOT anon-readable in
+# production. Keep the probe as a regression guard, not as proof of a leak.
+curl -si "$VITE_SUPABASE_URL/rest/v1/directory_contacts?select=id" \
+  -H "apikey: $VITE_SUPABASE_ANON_KEY" -H "Range: 0-0" -H "Prefer: count=exact"
+#   BEFORE, measured 2026-07-28: HTTP/2 200, `content-range: */0`, body [].
+#   AFTER: identical. Rows appearing here would mean 029 made things WORSE.
 
 # 1. Apply 028 PART 1. Part 2 stays off — you do not need to edit anything.
 node --env-file=.env.prod.local scripts/run-migration-028.mjs --apply
@@ -70,7 +103,9 @@ node --env-file=.env.prod.local scripts/run-migration-028.mjs --apply
 # 2. Apply 029. It refuses to run unless 028 Part 1 landed first (it needs the helpers).
 node --env-file=.env.prod.local scripts/run-migration-029.mjs --apply
 
-# 3. Re-run both curls from step 0b. Both must now return an empty array.
+# 3. Re-run both curls from step 0b. The members one must FLIP to an empty array.
+#    The contacts one must STAY an empty array (it already is one).
+#    The real pass condition is the full probe set in APPLY-RUNBOOK.md §5.
 # 4. Smoke-test the live site. The checklist is in "Part 1 changes" below.
 ```
 
@@ -102,6 +137,11 @@ Not blocked on either migration, and neither migration is blocked on it. See
 - The variable is still present in Vercel's env (it appears in the pulled
   `.env.production` and `.env.prod.local`), and **every bundle served up to now shipped
   it**. Treat that key as public. Remove the var and rotate `SUPABASE_SERVICE_ROLE_KEY`.
+- **Measured 2026-07-28, not inferred:** `https://os.spacerising.org/` and all 87 of its
+  JS chunks were fetched and scanned. `assets/SourcingAdmin-zbp9a1l4.js` carries a
+  decodable JWT with `role: service_role`, `ref: kzzvjtthknsozktmpvak`. The `anon` key
+  appears in `assets/supabase-*.js` and `assets/SourcingTheme-*.js`, which is by design.
+  Nothing on this branch has been deployed, so the fix is not live yet.
 
 This matters less than it looks for the urgent lane, and that is worth being precise
 about: **the `directory_members` hole is exploitable with the plain anon key**, which is
@@ -109,38 +149,39 @@ public by design and can never be rotated away. Part 1 is not waiting on rotatio
 
 ---
 
-## ⚠ Expected false alarm on step 1
+## ~~⚠ Expected false alarm on step 1~~ — FIXED, ignore this section
 
-`scripts/run-migration-028.mjs:161-174` post-checks that five policy names are gone,
-including `'service full access reports'` and `'public read free reports'`. Those two
-belong to **Part 2**. A correct Part-1-only apply therefore prints:
+**CORRECTED 2026-07-28. This section is stale. Do not act on it.**
 
-```
-POST-CONDITION FAILURES:
-  - policy directory_reports."service full access reports" still present
-```
+It used to say that a correct Part-1-only apply would print `POST-CONDITION FAILURES` and
+exit `1`, because `scripts/run-migration-028.mjs` asserted Part 2's effects
+unconditionally. That was true when it was written. It was fixed in commit `252f2c7`: the
+script now parses the `run_part_2 boolean := <true|false>;` literal out of the migration
+file, cross-checks it against the database's own `PART 2 APPLIED` / `PART 2 SKIPPED`
+notices, and asserts only what actually ran (`run-migration-028.mjs`, the
+`if (part2Ran) { … } else { … }` split in the post-condition block). A correct Part-1-only
+apply exits `0`.
 
-and exits `1`.
-
-**The transaction has already COMMITTED at that point.** Part 1 is applied and production
-is fine. The exit code is wrong, not the database.
-
-Confirm the apply with the AFTER queries in this document, not with that exit code. That
-script is outside this change's file scope; the one-line patch is hand-off request #1.
+**So if you see `POST-CONDITION FAILURES` now, it is real.** Do not wave it through as a
+known false alarm. Go to `APPLY-RUNBOOK.md` §6.
 
 ---
 
 ## What changes, at a glance
 
-| Part | § | Table | Removed | Replaced by | Breaks anything live? |
-|---|---|---|---|---|---|
-| **1** | §0 | — | — | 4 `SECURITY DEFINER` predicate helpers | No |
-| **1** | §1 | `directory_reports` | — (columns only) | `is_premium`, `updated_at`, `updated_by`, `created_by`, `created_at`, `cover_image_url` | **No** — it *un*-breaks a currently-500ing endpoint |
-| **1** | §2 | `directory_members` | `service role all` (ALL, `USING (true)`), `signup insert members` (INSERT, `WITH CHECK (true)`) | `members_select_own`, `members_select_tenant_admin`, `members_insert_self`, `members_update_tenant_admin`, `members_delete_tenant_admin` | **No** — verified caller by caller |
-| **1** | §3 | `directory_analytics` | `service read analytics` (SELECT, `USING (true)`) | `analytics_select_tenant_admin`; anon INSERT kept as `analytics_public_insert` | **No** — no anon-key reader exists |
-| **1** | §4 | `directory_companies` | `admins update companies` (017 — wrong JWT claim) | `companies_update_admin` | **No** — the branch being fixed has never matched |
-| **1** | 029 | `directory_contacts` | `service read contacts` (SELECT, `USING (true)`) | `contacts_select_tenant_admin`; anon INSERT kept as `contacts_public_insert` | **No** — the only anon-key toucher is an INSERT |
-| **2** | §5 | `directory_reports` | `public read free reports` / `public read public reports`, `service full access reports` (ALL, `USING (true)`) | `reports_public_read` (accepts `public`, `free`, NULL), `reports_member_read` | **YES — visible product change.** See Part 2 |
+"Removed" below names the policy **as the migration files describe it**. Where production
+was measured to disagree, the row says so — the `DROP POLICY IF EXISTS` is by name and is
+a no-op if the name is not there.
+
+| Part | § | Table | Removed | Replaced by | Breaks anything live? | Closing a live hole? |
+|---|---|---|---|---|---|---|
+| **1** | §0 | — | — | **5** `SECURITY DEFINER` predicate helpers (`dir_is_global_admin`, `dir_is_tenant_admin`, `dir_is_tenant_member`, `dir_may_claim_company`, `dir_may_join_tenant`) | No | — |
+| **1** | §1 | `directory_reports` | — (columns only) | `is_premium`, `updated_at`, `updated_by`, `created_by`, `created_at`, `cover_image_url` | **No** — it *un*-breaks a 500ing endpoint | Five of the six are genuinely absent from prod; `created_at` already exists |
+| **1** | §2 | `directory_members` | `service role all` (ALL, `USING (true)`), `signup insert members` (INSERT, `WITH CHECK (true)`) | `members_select_own`, `members_select_tenant_admin`, `members_insert_self`, `members_update_tenant_admin`, `members_delete_tenant_admin` | **No** — verified caller by caller | **YES.** Measured: 70 rows to anon, HTTP 206 |
+| **1** | §3 | `directory_analytics` | `service read analytics` (SELECT, `USING (true)`) — **but production is not running this policy**, measured 2026-07-28 | `analytics_select_tenant_admin`; anon INSERT kept as `analytics_public_insert` | **No** — no anon-key reader exists | **No.** anon already reads 0 rows. Hardening + putting the real state in a file |
+| **1** | §4 | `directory_companies` | `admins update companies` (017 — wrong JWT claim) | `companies_update_admin` | **No** — the branch being fixed has never matched, and the `ENABLE ROW LEVEL SECURITY` is now conditional | **No.** And it may be inert: RLS state on this table is unverified — see §1D |
+| **1** | 029 | `directory_contacts` | `service read contacts` (SELECT, `USING (true)`) — **but production is not running this policy**, measured 2026-07-28 | `contacts_select_tenant_admin`; anon INSERT kept as `contacts_public_insert` | **No** — the only anon-key toucher is an INSERT | **No.** anon already reads 0 rows. Hardening |
+| **2** | §5 | `directory_reports` | `public read free reports` / `public read public reports`, `service full access reports` (ALL, `USING (true)`) | `reports_public_read` (accepts `public`, `free`, NULL), `reports_member_read` | **YES — visible product change.** See Part 2 | **YES**, structurally — though all 8 live reports are `access = 'free'`, so nothing gated exists to leak today |
 
 ---
 
@@ -351,15 +392,27 @@ is_premium, published_at, created_at, updated_at, created_by, updated_by
 ```
 
 PostgREST rejects the entire request if any column in the select list does not exist, and
-`admin-reports.js:249` turns that into a 500. So **every** GET/POST/PUT against
-`/api/sourcing/admin-reports` fails today — the admin Reports tab cannot create or edit a
-report at all (`src/pages/admin/ReportsSection.jsx:99` POST, `:124` PUT).
+the `catch` at `admin-reports.js:258` turns that into a 500. So **every** GET/POST/PUT
+against `/api/sourcing/admin-reports` fails today — the admin Reports tab cannot create or
+edit a report at all (`src/pages/admin/ReportsSection.jsx:99` POST, `:124` PUT).
+
+**Measured 2026-07-28** — each of the 14 selected columns probed individually with
+`service_role`:
+
+| | Columns |
+|---|---|
+| **Present in production (9)** | `id`, `tenant_id`, `title`, `description`, `category`, `access`, `file_url`, `published_at`, `created_at` |
+| **MISSING in production (5)** | `cover_image_url`, `is_premium`, `updated_at`, `created_by`, `updated_by` |
+
+Five, not six. §1 issues six `ADD COLUMN IF NOT EXISTS` statements because it also
+re-asserts `created_at`, which already exists — that one really is a defensive no-op.
+`cover_image_url` is **not**: it is genuinely absent, so
+`supabase/migrations/20260723150000_directory_reports_cover_image_url.sql` has not been
+applied to production either. §1 is what puts it there.
 
 **Extra finding:** `created_by` is selected at line 23 *and* inserted at line 224
 (`created_by: user.id`) but has **no migration anywhere in this repo**. It was never
-authored, only assumed. §1 adds it. `cover_image_url` and `created_at` are re-asserted
-defensively (no-ops if `supabase/migrations/20260723150000_directory_reports_cover_image_url.sql`
-and `migrations/012` are already live).
+authored, only assumed. §1 adds it.
 
 ### Why this is a no-visible-change item
 
@@ -388,7 +441,8 @@ SELECT column_name, data_type, column_default, is_nullable
   FROM information_schema.columns
  WHERE table_schema = 'public' AND table_name = 'directory_reports'
  ORDER BY ordinal_position;
--- expect is_premium / updated_at / updated_by / created_by to be ABSENT
+-- Measured 2026-07-28: expect cover_image_url / is_premium / updated_at / created_by /
+-- updated_by to be ABSENT, and created_at to be PRESENT.
 ```
 
 ```bash
@@ -433,10 +487,32 @@ CREATE POLICY "public insert analytics" ON directory_analytics FOR INSERT WITH C
 CREATE POLICY "service read analytics" ON directory_analytics FOR SELECT USING (true);
 ```
 
-The SELECT policy lets any anonymous caller enumerate every `page_view`, `profile_view`,
-`contact_click` and — via `metadata` — every **search query typed into the site**
-(`SourcingDirectory.jsx:710` writes `{ query, vertical }`). Competitor intelligence, free,
-over HTTP.
+On paper that SELECT policy lets any anonymous caller enumerate every `page_view`,
+`profile_view`, `contact_click` and — via `metadata` — every **search query typed into the
+site** (`SourcingDirectory.jsx:710` writes `{ query, vertical }`). Competitor intelligence,
+free, over HTTP.
+
+> **CORRECTED 2026-07-28 — this is not what production does.**
+>
+> ```
+> directory_analytics?select=id   anon         -> HTTP 200, content-range */0,     body []
+> directory_analytics?select=id   service_role -> HTTP 206, content-range 0-0/3105, 1 row
+> ```
+>
+> **Anon reads zero analytics rows today.** The data is there; anon is being filtered. So
+> `"service read analytics" USING (true)` as written in `007:37` is *not* the policy
+> production is running — it was changed out of band and no migration records it.
+>
+> §3 is therefore **defence in depth, not a plug**. What it actually buys:
+> - the SELECT path becomes an explicitly named, `dir_is_tenant_admin()`-scoped policy
+>   instead of an undocumented hand edit,
+> - the kept anon INSERT becomes explicit (`TO anon, authenticated`) so intent is legible
+>   in `pg_policies`,
+> - and the next person who opens the Supabase dashboard and "fixes" something sees drift
+>   against a file instead of silently reopening the hole.
+>
+> That is a legitimate reason to run it. It is not a reason to tell anyone a leak is open.
+> Do not describe this section as closing one.
 
 ### What is kept, and why nothing visible changes
 
@@ -474,18 +550,25 @@ abort the whole migration. Follow-up work.
 **Before:**
 
 ```bash
-curl -s "$VITE_SUPABASE_URL/rest/v1/directory_analytics?select=event_type,metadata,created_at&limit=5" \
-  -H "apikey: $VITE_SUPABASE_ANON_KEY"
-# BEFORE: real events including search queries.  AFTER: []
+curl -si "$VITE_SUPABASE_URL/rest/v1/directory_analytics?select=id" \
+  -H "apikey: $VITE_SUPABASE_ANON_KEY" -H "Range: 0-0" -H "Prefer: count=exact"
+# CORRECTED 2026-07-28. This used to read "BEFORE: real events including search queries."
+# BEFORE, measured: HTTP/2 200, content-range */0, body [].
+# AFTER:  identical. Rows appearing here would mean §3 made things WORSE.
 ```
 
 ```sql
 SELECT policyname, cmd, roles::text, qual, with_check
   FROM pg_policies
  WHERE schemaname = 'public' AND tablename = 'directory_analytics';
--- BEFORE: "public insert analytics" (INSERT, true), "service read analytics" (SELECT, true)
+-- BEFORE: UNKNOWN — do not assume. migrations/007:36-37 say "public insert analytics"
+--         (INSERT, true) and "service read analytics" (SELECT, true), but the HTTP probe
+--         above proves production is NOT running that SELECT policy as written. Record
+--         what this query actually returns; it is the only description of the live state
+--         that exists anywhere.
 -- AFTER:  "analytics_public_insert"       (INSERT, {anon,authenticated}, with_check = true)
 --         "analytics_select_tenant_admin" (SELECT, {authenticated}, dir_is_tenant_admin(...))
+--         and NO SELECT policy reachable by {public} or {anon}.
 ```
 
 **After** — confirm anonymous writes still land. Load any public directory page in a
@@ -550,17 +633,64 @@ also had no `TO` clause, so it nominally applied to `anon` — but `anon` never 
 either branch (`auth.uid()` is null, and the top-level claim is `'anon'`), so scoping the
 new one `TO authenticated` loses nothing.
 
-`ALTER TABLE directory_companies ENABLE ROW LEVEL SECURITY` in §4 is a defensive no-op —
-`migrations/001_sourcing_directory.sql:90` already enabled it. **Verify that before
-believing this file.** If RLS were off on `directory_companies`, that line would take the
-entire public directory dark, because `001:96 "public read companies"` would suddenly start
-being enforced:
+> ### CORRECTED 2026-07-28 — the RLS assertion in this section was never measured
+>
+> This section used to say `ALTER TABLE directory_companies ENABLE ROW LEVEL SECURITY` in
+> §4 was "a defensive no-op — `001:90` already enabled it", and closed with
+> `-- must already be \`t\` BEFORE you apply. It is.` **Nobody ran that query.** The
+> credentials to run it are not on this machine: `pg_catalog` is not exposed through
+> PostgREST, there is no `SECURITY DEFINER` helper for it yet, and there is no database
+> password on disk. So the true value is **UNKNOWN**.
+>
+> Worse, the evidence available over HTTP points the other way. Measured with the anon key:
+>
+> ```
+> directory_companies                       anon -> 206, 166 rows
+> directory_companies?status=eq.active      anon -> 206, 165 rows
+> directory_companies?status=eq.inactive    anon -> 200,   1 row    <-- anon CAN read it
+> ```
+>
+> The only SELECT policies this repo ships for the table are `001:96`
+> (`USING (status = 'active')`) and `011:33` (`USING (status IN ('active','pending'))`).
+> Neither admits `status = 'inactive'`. So production is running **either** RLS off on that
+> table, **or** RLS on plus a permissive SELECT policy that exists in no migration file.
+> Given that `007:20` and `007:37` have already been proven to differ from production, both
+> are entirely plausible.
+>
+> Note also that of the four tables `001:88-91` enables RLS on, `directory_companies` is
+> the only one whose policy is *observable* — `directory_organizations` and
+> `directory_certifications` use `USING (true)`, and all 150 `directory_listings` rows are
+> `status = 'active'`, so none of the other three can discriminate. The one table that can
+> tell us something says the policy is not being enforced.
+>
+> **What was done about it:** migration 028 §4 no longer runs the `ALTER` unconditionally.
+> It reads `relrowsecurity` first, enables RLS only if it is already on (a true no-op), and
+> if it is off it leaves it off and raises a `WARNING` block naming the follow-up. Leaving
+> it off is exactly today's behaviour — no better, no worse — which is the bar for this
+> round. It is recorded as open in `APPLY-RUNBOOK.md` §8, item 1.
+
+Run this in the SQL editor before you apply, so you know which branch you are in:
 
 ```sql
 SELECT relrowsecurity FROM pg_class
  WHERE relnamespace = 'public'::regnamespace AND relname = 'directory_companies';
--- must already be `t` BEFORE you apply. It is.
+-- UNKNOWN as of 2026-07-28. Record the answer here when someone runs it.
+
+SELECT policyname, cmd, roles::text, qual, with_check
+  FROM pg_policies
+ WHERE schemaname = 'public' AND tablename = 'directory_companies'
+ ORDER BY cmd, policyname;
+-- If relrowsecurity is `t`, expect a THIRD permissive SELECT policy in this list that no
+-- migration file creates — it is the only thing that explains the inactive row being
+-- readable. Do not drop it in the same sitting as this migration.
 ```
+
+⚠ **If RLS turns out to be off, that is a bigger finding than anything §4 fixes.** Every
+policy on the public company directory would be inert, and `anon` would hold whatever raw
+table privileges Postgres granted it — which on a default Supabase project includes
+`UPDATE` and `DELETE`. Read it together with `APPLY-RUNBOOK.md` §8 item 3
+(`api/sourcing/upgrade-membership.js` is unauthenticated and writes to this exact table).
+Do not close it blind against a live site; give it its own round.
 
 §4 deliberately does **not** touch `directory_companies`' other policies — 011's
 `"signup insert companies"` and `"read own pending company"` are the public directory's
@@ -620,13 +750,32 @@ CREATE POLICY "service read contacts" ON directory_contacts FOR SELECT USING (tr
 ```
 
 Same lie in the name as `"service role all"`. No `TO` clause means `PUBLIC`, and
-`service_role` never needed it. So any caller with the public anon key can read **every
-contact and RFQ submission ever sent through the site**: `sender_name`, `sender_email`,
-`sender_phone`, `message`.
+`service_role` never needed it. As written, that policy lets any caller with the public
+anon key read **every contact and RFQ submission ever sent through the site**:
+`sender_name`, `sender_email`, `sender_phone`, `message` — inbound leads from third parties
+who never had an account, typed into a form that said nothing about being world-readable.
 
-This is the same class of PII leak as the members one, and arguably worse: these are
-inbound leads from third parties who never had an account, typed into a form that said
-nothing about being world-readable.
+> ### CORRECTED 2026-07-28 — production is not running that policy
+>
+> ```
+> directory_contacts?select=id   anon         -> HTTP 200, content-range */0,  body []
+> directory_contacts?select=id   service_role -> HTTP 206, content-range 0-0/7, 1 row
+> ```
+>
+> **Anon reads zero contact rows today.** The 7 submissions are there and anon is being
+> filtered. `007:20` describes a leak; the live database does not have one. Somebody
+> changed that policy by hand and left no migration behind.
+>
+> This document previously stated the leak as live fact, and the runbook repeated it. It
+> was wrong. Correcting it matters for two reasons beyond honesty: it changes the urgency
+> ordering (only `directory_members` is actually bleeding), and it means the AFTER probe is
+> a **regression guard** — rows appearing after 029 would mean 029 made things worse.
+>
+> **029 is still worth applying**, for the same reason as §3: the correct state is correct
+> by accident, nothing on disk describes it, and the next dashboard edit can undo it
+> silently. Replacing an undocumented hand edit with `contacts_public_insert` +
+> `contacts_select_tenant_admin` in a file is real defence in depth. Just do not call it
+> plugging a hole.
 
 ### Every call site (`grep -rn "directory_contacts" src/ api/ scripts/ migrations/`)
 
@@ -663,20 +812,24 @@ rate-limited server-side ingest endpoint, the same follow-up the analytics INSER
 SELECT policyname, cmd, roles::text, qual, with_check
   FROM pg_policies
  WHERE schemaname = 'public' AND tablename = 'directory_contacts';
--- expect "public insert contacts" (INSERT, {public}, with_check = true)
---        "service read contacts"  (SELECT, {public}, qual = true)
+-- CORRECTED 2026-07-28: do NOT expect "service read contacts" (SELECT, {public}, true).
+-- The HTTP probe below proves production is not running it. Record what you actually get;
+-- it is the only description of the live policy set that exists anywhere.
 
 SELECT count(*) AS submissions, count(DISTINCT tenant_id) AS tenants,
        min(created_at), max(created_at)
   FROM directory_contacts;
--- this is the size of the exposure, in rows
+-- 7 submissions as of 2026-07-28 (service_role count). This is the size of the data at
+-- risk if the SELECT policy is ever loosened again — not the size of a current exposure.
 ```
 
 ```bash
-curl -s "$VITE_SUPABASE_URL/rest/v1/directory_contacts?select=sender_name,sender_email,sender_phone,message&limit=3" \
-  -H "apikey: $VITE_SUPABASE_ANON_KEY"
-# BEFORE: real submissions with email, phone and message body.
-# AFTER:  []
+curl -si "$VITE_SUPABASE_URL/rest/v1/directory_contacts?select=id" \
+  -H "apikey: $VITE_SUPABASE_ANON_KEY" -H "Range: 0-0" -H "Prefer: count=exact"
+# CORRECTED 2026-07-28. This used to read "BEFORE: real submissions with email, phone and
+# message body." It does not.
+# BEFORE, measured: HTTP/2 200, content-range */0, body [].
+# AFTER:  identical. Rows appearing here would mean 029 made things WORSE.
 ```
 
 **After:**
@@ -799,14 +952,18 @@ this means moving `sourcing-reports` to a private bucket and serving signed URLs
 
 **Before** — record these numbers. The drop in `anon-visible rows` is exactly the set of
 cards that will disappear from the seven pages, i.e. your blast radius as a number, before
-you commit to it.
+you commit to it. **Measured 2026-07-28 that number is zero** — see the note under the
+probe below, and do not read that as "Part 2 is safe to flip".
 
 ```sql
 SELECT policyname, cmd, roles::text, qual
   FROM pg_policies
  WHERE schemaname = 'public' AND tablename = 'directory_reports';
--- expect "service full access reports" (ALL, {public}, qual = true)
---    and one of "public read free reports" / "public read public reports"
+-- The files predict "service full access reports" (ALL, {public}, qual = true) plus one of
+-- "public read free reports" / "public read public reports". NOT VERIFIED against
+-- production — and the same files were wrong about directory_contacts and
+-- directory_analytics. Record what you actually get. Anon does read all 8 rows today, so
+-- SOMETHING permissive is there; the name is the open question.
 ```
 
 ```bash
@@ -818,8 +975,20 @@ prem=[r for r in rows if (r.get('access') or 'public').lower() not in ('public',
 print('anon-visible rows:', len(rows))
 print('premium rows visible to anon:', len(prem))
 print('premium rows exposing file_url:', len([r for r in prem if r.get('file_url')]))"
-# BEFORE: premium rows visible > 0, file_urls exposed > 0
-# AFTER:  premium rows visible = 0
+# CORRECTED 2026-07-28. Measured today, this prints:
+#   anon-visible rows: 8
+#   premium rows visible to anon: 0
+#   premium rows exposing file_url: 0
+# ALL 8 live reports have access = 'free'. There is no gated report in production, so
+# there is currently NOTHING for Part 2 to hide and nothing paid to steal. "BEFORE:
+# premium rows visible > 0" was an assumption, not a measurement.
+#
+# Two consequences, and they pull in opposite directions:
+#   * Part 2's blast radius is ZERO today. Nothing would vanish from the seven pages.
+#     That makes the frontend hand-off cheap to do NOW, before there is anything to lose.
+#   * It also means this probe cannot prove Part 2 worked. Seed one members-only report
+#     first, confirm anon stops seeing it, then delete it. Otherwise BEFORE and AFTER are
+#     identical and you have verified nothing.
 ```
 
 **After:**
