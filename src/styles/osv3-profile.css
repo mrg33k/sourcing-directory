@@ -1308,7 +1308,7 @@
   display: flex;
   align-items: center;
   gap: var(--p-1);
-  font-size: var(--t-meta);
+  font-size: var(--t-label);
   color: var(--v3-muted);
   margin-top: var(--p-3);
 }
@@ -1322,6 +1322,14 @@
   width: 14px;
   height: 14px;
   color: #1B7A2C;
+}
+
+/* "View all organizations" is the longest of the five KPI links and the only
+   one that wrapped, which put one tile's link on a different baseline from its
+   four neighbours. One step down clears it; the profile screens keep the 12px
+   link the reference draws. */
+.osv3p-kpi-row .osv3p-card-link {
+  font-size: var(--t-label);
 }
 
 .osv3p-table-scroll {

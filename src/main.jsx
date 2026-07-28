@@ -167,6 +167,10 @@ const OSSaved = lazy(() => import('./pages/os/OSSaved.jsx'))
 const OSMessages = lazy(() => import('./pages/os/OSMessages.jsx'))
 const OSNotifications = lazy(() => import('./pages/os/OSNotifications.jsx'))
 const OSAddProfile = lazy(() => import('./pages/os/OSAddProfile.jsx'))
+// Third screen of the rebuild. Preview-only and fixture-backed — it reads
+// nothing live, so it needs no guard; the working admin surface stays at
+// /admin behind RequireAdmin.
+const OSAdminTools = lazy(() => import('./pages/os/OSAdminTools.jsx'))
 
 // Admin route guard. Lazy on purpose — it pulls in the Supabase client, and
 // eager-importing it here would drag that chunk into the entry bundle for every
@@ -255,6 +259,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/messages" element={<OSMessages />} />
             <Route path="/notifications" element={<OSNotifications />} />
             <Route path="/add-profile" element={<OSAddProfile />} />
+            <Route path="/admin-tools/_preview" element={<OSAdminTools />} />
 
             <Route path="/company/:slug" element={<SourcingCompanyV2 />} />
             <Route path="/:slug" element={<SourcingCompanyV2 />} />

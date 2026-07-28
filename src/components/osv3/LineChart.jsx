@@ -58,13 +58,16 @@ export default function LineChart({ series = [], xLabels = [], yTicks = [0, 25, 
             ))}
           </g>
         ))}
+        {/* First and last labels anchor inward. Centring every tick puts half
+            of the final label ("May 29") outside the viewBox, where it is
+            clipped rather than drawn. */}
         {xLabels.map((l, i) => (
           <text
             key={l}
             className="osv3p-chart-tick"
             x={PAD_L + (xLabels.length <= 1 ? 0 : (i / (xLabels.length - 1)) * plotW)}
             y={H - 8}
-            textAnchor="middle"
+            textAnchor={i === 0 ? 'start' : (i === xLabels.length - 1 ? 'end' : 'middle')}
           >
             {l}
           </text>
