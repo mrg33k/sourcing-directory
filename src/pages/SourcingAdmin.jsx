@@ -457,15 +457,49 @@ function SourcingAdminInner() {
     try {
       const newStatus = action === 'approve' ? 'approved' : 'rejected';
       const member = pendingMembers.find(m => m.id === memberId);
-      await adminSupabase.from('directory_members').update({ status: newStatus }).eq('id', memberId);
-      logAudit(adminSupabase, { tenant_id: selectedTenantId, actor_email: currentUserEmail, action: `member.${action}`, entity_type: 'member', entity_id: memberId, detail: { email: member?.email } });
 
-      // If approving, also activate their company
-      if (action === 'approve' && member?.company_id) {
-        await adminSupabase.from('directory_companies').update({ status: 'active' }).eq('id', member.company_id);
+      // The admin API client resolves with { data, error } and NEVER throws, so a bare
+      // `await` here reads as success for a write the server refused. The approval email
+      // used to go out on that path: the person was told they were approved while their
+      // record still said pending. `.select('id')` makes the server return the rows it
+      // actually changed, so "no error but nothing matched" is caught too.
+      const { data: updatedRows, error: statusErr } = await adminSupabase
+        .from('directory_members')
+        .update({ status: newStatus })
+        .eq('id', memberId)
+        .select('id');
+
+      if (statusErr) {
+        console.error('Member action error:', statusErr);
+        alert(`Could not ${action} this member: ${statusErr.message}\n\nNothing was changed and no email was sent.`);
+        return;
+      }
+      if (!Array.isArray(updatedRows) || updatedRows.length === 0) {
+        console.error('Member action error: update matched no rows', { memberId, newStatus });
+        alert(`Could not ${action} this member: the record was not found or is outside your access.\n\nNothing was changed and no email was sent.`);
+        return;
       }
 
-      // Send approve / decline email via Resend (fire-and-forget; never blocks the action)
+      // Only reached once the status write is confirmed, so the audit row records
+      // something that happened.
+      logAudit(adminSupabase, { tenant_id: selectedTenantId, actor_email: currentUserEmail, action: `member.${action}`, entity_type: 'member', entity_id: memberId, detail: { email: member?.email } });
+
+      // If approving, also activate their company. A failure here does not undo the
+      // approval, so it is reported rather than thrown — but it is reported, not eaten.
+      let companyWarning = '';
+      if (action === 'approve' && member?.company_id) {
+        const { error: companyErr } = await adminSupabase
+          .from('directory_companies')
+          .update({ status: 'active' })
+          .eq('id', member.company_id);
+        if (companyErr) {
+          console.error('Member action: company activation failed', companyErr);
+          companyWarning = `\n\nThe member was approved, but their company listing could not be set to active: ${companyErr.message}`;
+        }
+      }
+
+      // Send approve / decline email via Resend. Reached only after the status write is
+      // confirmed above, so the email can no longer contradict the record.
       if (member?.email) {
         fetch('/api/sourcing/member-email', {
           method: 'POST',
@@ -475,12 +509,21 @@ function SourcingAdminInner() {
             status: newStatus, directory_name: selectedTenant?.name,
             base_url: window.location.origin,
           }),
-        }).catch(() => {});
+        })
+          .then(resp => {
+            // The record is already correct; the notification is best-effort. It is
+            // logged rather than silently dropped so a dead mail path is visible.
+            if (!resp.ok) console.error(`member-email failed (HTTP ${resp.status}) for ${member.email}`);
+          })
+          .catch(err => console.error('member-email request failed:', err));
       }
+
+      if (companyWarning) alert(`Member ${newStatus}.${companyWarning}`);
 
       await fetchData();
     } catch (err) {
       console.error('Member action error:', err);
+      alert(`Member ${action} failed: ${err.message || err}`);
     }
   };
 
@@ -707,12 +750,12 @@ function SourcingAdminInner() {
   // rendered for them at all — they get a plain statement instead.
   const canSeeDealBank = isGlobalAdmin;
 
-  // NOTE: this array is not the rendered navigation. The sidebar the admin actually
-  // clicks is ADMIN_NAV inside src/pages/admin/AdminShellV3.jsx, which has no
-  // isGlobalAdmin gate and still lists "Deal Bank" for tenant admins. Hiding the item
-  // there is a one-line filter in that file; until it lands, clicking it reaches the
-  // explanation below rather than a dead screen. TABS is kept in sync so the gate is
-  // correct wherever it gets used.
+  // DEAD CODE — nothing renders this. The navigation the admin actually clicks is
+  // ADMIN_NAV inside src/pages/admin/AdminShellV3.jsx, which now hides globalOnly items
+  // (Deal Bank) from tenant admins once `adminScopeResolved` is true. TABS is left here
+  // untouched rather than deleted because removing it is not this round's job, but no
+  // gate belongs in it: a gate here protects nothing.
+  // eslint-disable-next-line no-unused-vars
   const TABS = [
     { key: 'stats',      label: 'Stats' },
     { key: 'companies',  label: `Companies${pendingCompanies.length > 0 ? ` (${pendingCompanies.length} pending)` : ''}` },
@@ -744,6 +787,7 @@ function SourcingAdminInner() {
         selectedTenantId={selectedTenantId}
         setSelectedTenantId={setSelectedTenantId}
         isGlobalAdmin={isGlobalAdmin}
+        adminScopeResolved={adminScopeResolved}
         selectedTenant={selectedTenant}
         currentUserEmail={currentUserEmail}
         pendingCompanyCount={pendingCompanies.length}
@@ -866,6 +910,7 @@ function SourcingAdminInner() {
             V={V}
             adminSupabase={adminSupabase}
             selectedTenantId={selectedTenantId}
+            selectedTenant={selectedTenant}
             fetchData={fetchData}
           />
         )}

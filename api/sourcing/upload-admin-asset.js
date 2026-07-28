@@ -30,6 +30,10 @@
 //   { action: 'sign-upload', kind: 'tenant-logo',  tenant_id,  content_type }
 //   { action: 'sign-upload', kind: 'report-file',  filename, content_type, report_id? }
 //     -> 200 { bucket, path, token, signedUrl, publicUrl }
+//     `report-file` is gated to EXACTLY what api/sourcing/admin-reports.js will accept
+//     on the save — never looser. `sourcing-reports` is a public bucket, so a token
+//     issued for a file the save would refuse leaves a public orphan behind a
+//     success message. See the gate-parity note in the handler.
 //     The browser then calls
 //       supabase.storage.from(bucket).uploadToSignedUrl(path, token, file, { contentType })
 //     which needs no storage RLS permission of its own — the token is the authorization.
@@ -109,6 +113,18 @@ function publicUrlFor(bucket, path) {
     .join('/')}`;
 }
 
+/**
+ * The tenant scope api/sourcing/admin-reports.js resolves for a caller.
+ *
+ * Copied from that file on purpose (it reads exactly this, at the top of its handler),
+ * because admin-reports.js is the ONLY code in the product that can persist
+ * directory_reports.file_url. If this expression drifts there, it must move here in the
+ * same commit — see the gate-parity note in the 'report-file' branch below.
+ */
+function reportsSaveTenantId(user) {
+  return user?.user_metadata?.tenant_id || user?.app_metadata?.tenant_id || null;
+}
+
 /** Object key inside REPORT_BUCKET for a stored file_url, or null if it is not ours. */
 function reportObjectPath(fileUrl) {
   if (typeof fileUrl !== 'string' || !fileUrl) return null;
@@ -130,7 +146,7 @@ export default async function handler(req, res) {
   // does: an unauthenticated caller learns nothing about what this endpoint accepts.
   const auth = await requireAdmin(req);
   if (!auth.ok) return fail(res, auth.status, auth.error);
-  const { sb, isGlobal, tenantIds } = auth;
+  const { sb, user, isGlobal, tenantIds } = auth;
 
   const body = parseBody(req);
   if (body === null) return fail(res, 400, 'Request body must be a JSON object');
@@ -226,23 +242,56 @@ export default async function handler(req, res) {
       if (!PDF_TYPES.has(contentType)) {
         return fail(res, 400, 'Report file must be a PDF');
       }
-      // Reports are a platform-level surface: api/sourcing/admin-reports.js — the only
-      // thing that can persist file_url — accepts global admins only. Issuing a tenant
-      // admin an upload token would hand them a file they could never attach to
-      // anything, which is precisely the "succeeded but nothing happened" shape this
-      // repair round exists to remove.
+      // ── GATE PARITY WITH THE SAVE ────────────────────────────────────────────
+      // The bucket this writes to is PUBLIC, and the only code that can attach an
+      // uploaded PDF to anything is api/sourcing/admin-reports.js. That endpoint admits
+      // a caller only when BOTH of these hold:
+      //
+      //   1. app_metadata.role === 'admin'                      (requireAdmin -> isGlobal)
+      //   2. user_metadata.tenant_id || app_metadata.tenant_id  (its tenant scope, and it
+      //      403s "Tenant scope missing for admin user" without one)
+      //
+      // Gating uploads on (1) alone was strictly looser than the save. Every admin on
+      // the live system satisfies (1) and none satisfies (2) — verified against the
+      // production auth users, 5 of 5 role=admin accounts carry no tenant_id in either
+      // metadata bag — so the upload succeeded, dropped a PDF into the public bucket,
+      // and the save that followed 403'd. The file stayed there referenced by nothing
+      // and the admin was told the upload worked.
+      //
+      // So: never looser than the save. If the save would refuse it, no token is issued
+      // and no byte is written. The message below is what the admin reads (AdminUI's
+      // adminAssetRequest rethrows the server's `error` string and ReportsSection prints
+      // it), so it has to explain the situation, not just deny.
       if (!isGlobal) {
         return fail(res, 403, 'Reports are managed platform-wide. Ask a platform admin to upload this file.');
+      }
+      const saveTenantId = reportsSaveTenantId(user);
+      if (!saveTenantId) {
+        return fail(
+          res,
+          403,
+          'Report files cannot be uploaded from this account. Saving a report requires your admin login to be attached to a directory, and this one is not attached to any, so the file could never be saved to the report. Nothing was uploaded. Ask a platform administrator to attach your login to a directory first.',
+        );
       }
       if (body.report_id !== undefined && body.report_id !== null && body.report_id !== '') {
         if (!isUuidish(body.report_id)) return fail(res, 400, 'report_id is malformed');
         const { data: report, error: reportErr } = await sb
           .from('directory_reports')
-          .select('id')
+          .select('id, tenant_id')
           .eq('id', body.report_id)
           .maybeSingle();
         if (reportErr) return fail(res, 500, `Could not load the report: ${reportErr.message}`);
         if (!report) return fail(res, 404, 'Report not found');
+        // admin-reports.js scopes its PUT with `.eq('tenant_id', tenantId)` and answers
+        // 404 when the row belongs to someone else. Same answer here, before the upload,
+        // for the same reason: the save would not take this file.
+        if (report.tenant_id !== saveTenantId) {
+          return fail(
+            res,
+            404,
+            'That report belongs to a different directory than your admin login, so this file could not be saved to it. Nothing was uploaded.',
+          );
+        }
       }
       bucket = REPORT_BUCKET;
       let name = safeFileName(body.filename, 'report-file.pdf');

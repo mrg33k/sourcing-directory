@@ -15,13 +15,32 @@ const BLANK_FORM = {
   featured: false, owner_email: '',
 };
 
-export default function AddCompanySection({ orgs, V, adminSupabase, selectedTenantId, fetchData }) {
+export default function AddCompanySection({ orgs, V, adminSupabase, selectedTenantId, selectedTenant, fetchData }) {
   const [addCompanyForm, setAddCompanyForm] = useState({ ...BLANK_FORM });
   const [addCompanyStatus, setAddCompanyStatus] = useState('');
+
+  // A company with no directory is invisible everywhere.
+  //
+  // Every directory-facing query filters on the directory the company belongs to, so a
+  // row created without one is in the database and on no screen. It used to be created
+  // that way by default: the payload carried the directory only `if (selectedTenantId)`,
+  // and SourcingAdmin starts every admin in "All Directories" mode with that unset. The
+  // server does not rescue it either — api/sourcing/admin.js preparePayload only fills
+  // the directory in for a scoped admin who administers exactly one, and skips the whole
+  // block for a platform admin (`if (key && !auth.isGlobal)`). All five live admin
+  // accounts are platform admins, so every company added from this form landed
+  // directoryless while the form said "Added!".
+  //
+  // So the choice is required, up front, instead of guessed at and lost.
+  const needsDirectory = !selectedTenantId;
 
   const handleAddCompany = async (e) => {
     e.preventDefault();
     if (!adminSupabase) return;
+    if (needsDirectory) {
+      setAddCompanyStatus('Error: Choose a directory first. Use the directory picker in the top bar — a company has to belong to one, and nothing was saved.');
+      return;
+    }
     setAddCompanyStatus('Saving...');
     const slug = addCompanyForm.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
     const orgId = orgs.find(o => o.vertical === addCompanyForm.vertical)?.id || null;
@@ -41,7 +60,9 @@ export default function AddCompanySection({ orgs, V, adminSupabase, selectedTena
       featured: addCompanyForm.featured,
       status: 'active',
       organization_id: orgId,
-      ...(selectedTenantId ? { tenant_id: selectedTenantId } : {}),
+      // Unconditional. Guarded by `needsDirectory` above — if this is ever absent the
+      // row is orphaned, so it is not an optional spread.
+      tenant_id: selectedTenantId,
     }).select().single();
     if (error) {
       setAddCompanyStatus('Error: ' + error.message);
@@ -59,7 +80,7 @@ export default function AddCompanySection({ orgs, V, adminSupabase, selectedTena
             mode: 'member',
             email: addCompanyForm.owner_email.trim(),
             company_id: insertedCompany.id,
-            tenant_id: selectedTenantId || null,
+            tenant_id: selectedTenantId,
           }),
         }).catch(() => null);
         if (!resp || !resp.ok) {
@@ -81,7 +102,32 @@ export default function AddCompanySection({ orgs, V, adminSupabase, selectedTena
     <AdminSection title="Add Company" V={V}>
       <div style={{ background: V.card, border: `1px solid ${V.border}`, borderRadius: 10, padding: '28px 24px', maxWidth: 600 }}>
         <style>{`input,textarea,select { box-sizing: border-box; } input::placeholder,textarea::placeholder { color: ${V.dim}; } input:focus,textarea:focus,select:focus { outline: none; border-color: ${V.accentBrd} !important; }`}</style>
-        <form onSubmit={handleAddCompany} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+        {/* Which directory this company is being added to — stated before the form,
+            because it is the one thing here that cannot be corrected by editing a field. */}
+        {needsDirectory ? (
+          <div style={{
+            background: V.accentDim, border: `1px solid ${V.accentBrd}`, borderRadius: 8,
+            padding: '14px 16px', marginBottom: 20,
+          }}>
+            <div style={{ fontSize: 13, fontWeight: 700, fontFamily: V.space, color: V.accent, marginBottom: 6 }}>
+              Choose a directory first
+            </div>
+            <div style={{ fontSize: 12.5, fontFamily: V.space, color: V.muted, lineHeight: 1.55 }}>
+              You are viewing all directories at once. A company has to belong to one, so pick the
+              directory this company goes into using the picker in the top bar, then fill in the form.
+            </div>
+          </div>
+        ) : (
+          <div style={{
+            fontSize: 12.5, fontFamily: V.space, color: V.muted, marginBottom: 20,
+            paddingBottom: 14, borderBottom: `1px solid ${V.border}`,
+          }}>
+            Adding to <span style={{ color: V.text, fontWeight: 700 }}>{selectedTenant?.name || 'the selected directory'}</span>.
+          </div>
+        )}
+
+        <form onSubmit={handleAddCompany} style={{ display: 'flex', flexDirection: 'column', gap: 16, opacity: needsDirectory ? 0.55 : 1 }}>
           {[
             { label: 'Company Name *', key: 'name', type: 'text', placeholder: 'e.g. Acme Semiconductors' },
             { label: 'Website', key: 'website', type: 'url', placeholder: 'https://example.com' },
@@ -138,7 +184,17 @@ export default function AddCompanySection({ orgs, V, adminSupabase, selectedTena
             <label htmlFor="featured-cb" style={{ fontSize: 13, fontFamily: V.space, color: V.muted, cursor: 'pointer' }}>Mark as featured (shows first in directory)</label>
           </div>
           <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 4 }}>
-            <button type="submit" style={{ background: V.accent, border: 'none', color: '#fff', borderRadius: 8, padding: '10px 24px', fontSize: 14, fontWeight: 700, fontFamily: V.space, cursor: 'pointer' }}>
+            <button
+              type="submit"
+              disabled={needsDirectory}
+              title={needsDirectory ? 'Choose a directory in the top bar first' : undefined}
+              style={{
+                background: needsDirectory ? V.dim : V.accent,
+                border: 'none', color: '#fff', borderRadius: 8, padding: '10px 24px',
+                fontSize: 14, fontWeight: 700, fontFamily: V.space,
+                cursor: needsDirectory ? 'not-allowed' : 'pointer',
+              }}
+            >
               Add Company
             </button>
             {addCompanyStatus && (

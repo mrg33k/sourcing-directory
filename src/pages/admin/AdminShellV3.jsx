@@ -33,7 +33,11 @@ const ADMIN_NAV = [
     items: [
       { key: 'listings',  label: 'Listings',        icon: 'tim', src: '/v2-assets/tim-icons/space-mission.png' },
       { key: 'reports',   label: 'Reports',         icon: 'tim', src: '/v2-assets/tim-icons/reports.png' },
-      { key: 'deal-bank', label: 'Deal Bank',       icon: 'tim', src: '/v2-assets/tim-icons/commercial.png' },
+      // globalOnly: the deal_bank_* tables are marked globalOnly in
+      // api/sourcing/lib/tablePolicy.js. A tenant admin 403s on every read, and
+      // DealBankSection swallows that into `.data || []`, so the screen renders three
+      // empty lists and buttons that do nothing. See NAV VISIBILITY below.
+      { key: 'deal-bank', label: 'Deal Bank',       icon: 'tim', src: '/v2-assets/tim-icons/commercial.png', globalOnly: true },
       { key: 'tags',         label: 'Tags',            icon: 'svg', svg: ICON.tag },
       { key: 'site-content', label: 'Site Content',    icon: 'svg', svg: ICON.siteContent },
     ],
@@ -72,6 +76,9 @@ export default function AdminShellV3({
   selectedTenantId,
   setSelectedTenantId,
   isGlobalAdmin,
+  // False only while SourcingAdmin is still resolving the signed-in admin's scope.
+  // Defaults to true so a caller that does not thread it through behaves as before.
+  adminScopeResolved = true,
   selectedTenant,
   currentUserEmail,
   // badge counts
@@ -98,7 +105,26 @@ export default function AdminShellV3({
     'deal-bank': 0, // deal-bank gets the "attention" treatment but no count
   };
 
-  // Active group + label for breadcrumb
+  // ─── NAV VISIBILITY ────────────────────────────────────────────────────────
+  // This sidebar IS the navigation the admin clicks — SourcingAdmin's TABS array is
+  // dead code that nothing renders, so gating an item there hid nothing. A globalOnly
+  // item is offered only to a global admin.
+  //
+  // The `!adminScopeResolved` term is deliberate. isGlobalAdmin starts false and only
+  // becomes meaningful once the tenant/scope load finishes, so filtering on it while it
+  // is still unresolved would blink Deal Bank out of a real platform admin's sidebar on
+  // every page load. Unresolved means "not known yet", not "no". A tenant admin sees the
+  // item for that first moment and, if they click it, lands on the explanation card
+  // SourcingAdmin renders — never on a dead screen.
+  const canSeeNavItem = (item) => !item.globalOnly || isGlobalAdmin || !adminScopeResolved;
+
+  const visibleNav = ADMIN_NAV
+    .map(group => ({ ...group, items: group.items.filter(canSeeNavItem) }))
+    .filter(group => group.items.length > 0);
+  const visibleSettingsNav = SETTINGS_NAV.filter(canSeeNavItem);
+
+  // Breadcrumb resolves against the FULL roster, not the visible one: a hidden tab can
+  // still be the active tab, and the breadcrumb must name where the admin actually is.
   const allItems = [...ADMIN_NAV.flatMap(g => g.items), ...SETTINGS_NAV];
   const activeItem = allItems.find(i => i.key === activeTab);
   const activeGroup = ADMIN_NAV.find(g => g.items.some(i => i.key === activeTab))?.group || 'SETTINGS';
@@ -182,7 +208,7 @@ export default function AdminShellV3({
         </button>
 
         {/* Nav groups: OVERVIEW → INSIGHTS */}
-        {ADMIN_NAV.map((group, gi) => (
+        {visibleNav.map((group, gi) => (
           <React.Fragment key={group.group}>
             {gi > 0 && <div className="osv3-sidebar-divider" />}
             <div className="osv3-admin-section-header">{group.group}</div>
@@ -199,7 +225,7 @@ export default function AdminShellV3({
         <div className="osv3-sidebar-divider" style={{ marginTop: 16 }} />
         <div className="osv3-admin-section-header">SETTINGS</div>
         <nav className="osv3-nav-section" style={{ marginBottom: 0 }}>
-          {SETTINGS_NAV.map(renderNavItem)}
+          {visibleSettingsNav.map(renderNavItem)}
         </nav>
 
         {/* User chip */}
