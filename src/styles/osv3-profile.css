@@ -1,0 +1,1629 @@
+/* ============================================================================
+   SpaceOS v3 — Profiles + Admin Tools stylesheet
+   The single stylesheet for the person profile, the company profile, and the
+   admin tools screen. Every value below reads a --v3-* token from
+   src/osv3-tokens.css (scoped to .osv3, which the shell puts on the root
+   element). Nothing here re-declares a colour that already has a token.
+
+   ------------------------------------------------------------------------
+   THE SPACING SCALE — 8 steps, every one on the 4/8 grid. Nothing else.
+   ------------------------------------------------------------------------
+     0     flush        no space at all
+     4px   --p-1        icon-to-word, label-to-value, hairline insets
+     8px   --p-2        inside a group (list rows, pill padding, stat stack)
+     12px  --p-3        between groups inside one card
+     16px  --p-4        THE GUTTER. card padding, grid gaps, section rhythm
+     24px  --p-6        between a card's regions, hero column gap
+     32px  --p-8        between major page bands
+     48px  --p-12       page tail
+
+   Ranked, not evenly spread: 4/8 live inside a group, 12/16 between groups,
+   24/32/48 between bands. Measured off the reference PNGs, which run a clean
+   16px gutter on both axes (reference/MEASUREMENTS.md section 4).
+
+   ------------------------------------------------------------------------
+   THE TYPE LADDER — 8 sizes, Roboto throughout, no ninth size anywhere.
+   ------------------------------------------------------------------------
+     32px  --t-hero     company name (the one thing that wins on that screen)
+     24px  --t-name     person name, admin page title
+     20px  --t-num      KPI numbers, donut centre total
+     16px  --t-lead     card stat numbers, at-a-glance values
+     14px  --t-body     body copy, list items, buttons, table cells
+     12px  --t-meta     subtitles, meta lines, secondary links, footnotes
+     11px  --t-label    ALL-CAPS section headings, tab labels, pill text
+     10px  --t-micro    stat captions, status pills, count badges
+
+   Hierarchy: 32 / 10 = 3.2x. The hero always dominates.
+
+   Verify:  python3 scripts/design_spacing_check.py \
+              src/styles/osv3-profile.css --strict
+   ============================================================================ */
+
+.osv3p-screen {
+  /* spacing scale */
+  --p-1: 4px;
+  --p-2: 8px;
+  --p-3: 12px;
+  --p-4: 16px;
+  --p-6: 24px;
+  --p-8: 32px;
+  --p-12: 48px;
+
+  /* type ladder */
+  --t-hero: 32px;
+  --t-name: 24px;
+  --t-num: 20px;
+  --t-lead: 16px;
+  --t-body: 14px;
+  --t-meta: 12px;
+  --t-label: 11px;
+  --t-micro: 10px;
+
+  /* screen-local semantics, all derived from the shipped tokens */
+  --p-radius: 8px;
+  --p-radius-sm: 6px;
+  --p-track: #E5E7EB;
+  --p-hair: 1px solid var(--v3-border);
+  --p-focus: 0 0 0 3px rgba(206, 68, 33, 0.18);
+  --p-focus-blue: 0 0 0 3px rgba(37, 99, 235, 0.18);
+
+  font-family: var(--v3-font-family-base);
+  color: var(--v3-ink-primary);
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-4);
+  padding-bottom: var(--p-8);
+  max-width: var(--v3-content-max-width);
+}
+
+/* The admin screen swaps the accent to the existing link blue for its OWN
+   tabs and buttons. The shared navy sidebar keeps the rust accent — that is
+   the design, and design-decisions.md D2 records why. */
+.osv3p-screen--admin {
+  --p-screen-accent: var(--v3-link);
+  --p-screen-focus: var(--p-focus-blue);
+}
+.osv3p-screen--profile {
+  --p-screen-accent: var(--v3-accent);
+  --p-screen-focus: var(--p-focus);
+}
+
+/* ===========================================================================
+   CARD
+   Page and card are both near-white. A card is delineated by its 1px border
+   and nothing else — no fill contrast (design-decisions.md D5).
+   =========================================================================== */
+
+.osv3p-card {
+  border: var(--p-hair);
+  border-radius: var(--p-radius);
+  background: var(--v3-content-bg);
+  display: flex;
+  flex-direction: column;
+  padding: var(--p-4);
+  min-width: 0;
+}
+
+.osv3p-card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--p-3);
+  margin-bottom: var(--p-3);
+}
+
+.osv3p-card-title {
+  font-size: var(--t-label);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v3-ink-secondary);
+  margin: 0;
+}
+
+.osv3p-card-count {
+  font-weight: 400;
+  color: var(--v3-muted);
+}
+
+.osv3p-card-action {
+  font-size: var(--t-meta);
+  font-weight: 600;
+  color: var(--p-screen-accent, var(--v3-accent));
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  font-family: inherit;
+}
+
+.osv3p-card-action:hover {
+  text-decoration: underline;
+}
+
+.osv3p-card-action:focus-visible {
+  outline: none;
+  border-radius: var(--p-radius-sm);
+  box-shadow: var(--p-screen-focus, var(--p-focus));
+}
+
+.osv3p-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.osv3p-card-footer {
+  margin-top: var(--p-3);
+  padding-top: 0;
+}
+
+.osv3p-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-2);
+  font-size: var(--t-meta);
+  font-weight: 600;
+  color: var(--p-screen-accent, var(--v3-accent));
+  text-decoration: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.osv3p-card-link:hover {
+  text-decoration: underline;
+}
+
+.osv3p-card-link:focus-visible {
+  outline: none;
+  border-radius: var(--p-radius-sm);
+  box-shadow: var(--p-screen-focus, var(--p-focus));
+}
+
+.osv3p-card-link svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.osv3p-prose {
+  font-size: var(--t-body);
+  line-height: 1.6;
+  color: var(--v3-ink-secondary);
+  margin: 0;
+}
+
+/* ===========================================================================
+   TABS
+   =========================================================================== */
+
+.osv3p-tabs {
+  display: flex;
+  align-items: stretch;
+  gap: var(--p-8);
+  border-bottom: var(--p-hair);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.osv3p-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.osv3p-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-2);
+  padding: var(--p-3) 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-family: inherit;
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v3-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  margin-bottom: -1px;
+}
+
+.osv3p-tab:hover {
+  color: var(--v3-ink-primary);
+}
+
+.osv3p-tab:focus-visible {
+  outline: none;
+  box-shadow: var(--p-screen-focus, var(--p-focus));
+  border-radius: var(--p-radius-sm);
+}
+
+.osv3p-tab[aria-selected='true'] {
+  color: var(--p-screen-accent, var(--v3-accent));
+  border-bottom-color: var(--p-screen-accent, var(--v3-accent));
+}
+
+.osv3p-tab-count {
+  font-size: var(--t-micro);
+  font-weight: 700;
+  color: var(--v3-muted);
+}
+
+.osv3p-tab[aria-selected='true'] .osv3p-tab-count {
+  color: var(--p-screen-accent, var(--v3-accent));
+}
+
+/* ===========================================================================
+   PILL / TAG
+   =========================================================================== */
+
+.osv3p-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-1);
+  padding: var(--p-1) var(--p-3);
+  border: var(--p-hair);
+  border-radius: var(--p-radius-sm);
+  background: var(--v3-content-bg);
+  font-size: var(--t-label);
+  font-weight: 500;
+  color: var(--v3-ink-secondary);
+  white-space: nowrap;
+}
+
+.osv3p-pill--status {
+  padding: var(--p-1) var(--p-2);
+  font-size: var(--t-micro);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.osv3p-pill--verified {
+  color: #1B7A2C;
+  border-color: #BFDDC4;
+  background: #EFF6F0;
+}
+
+.osv3p-pill--pending {
+  color: var(--v3-accent);
+  border-color: #F0C9BC;
+  background: #FBF0EC;
+}
+
+.osv3p-pill--unverified {
+  color: var(--v3-muted);
+}
+
+.osv3p-pill--rejected {
+  color: #B3161B;
+  border-color: #E9C0C1;
+  background: #FBEFEF;
+}
+
+.osv3p-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--p-2);
+}
+
+/* ===========================================================================
+   VERIFIED BADGE
+   =========================================================================== */
+
+.osv3p-verified {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-1);
+  font-size: var(--t-meta);
+  font-weight: 600;
+  color: #1B7A2C;
+  white-space: nowrap;
+}
+
+.osv3p-verified svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* ===========================================================================
+   AVATAR
+   =========================================================================== */
+
+.osv3p-avatar {
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(140deg, #16233A 0%, #2C3E5C 100%);
+  color: #FFFFFF;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.04em;
+}
+
+.osv3p-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.osv3p-avatar--xl {
+  width: 176px;
+  height: 176px;
+  font-size: var(--t-hero);
+}
+
+.osv3p-avatar--md {
+  width: 40px;
+  height: 40px;
+  font-size: var(--t-meta);
+}
+
+.osv3p-avatar--sm {
+  width: 32px;
+  height: 32px;
+  font-size: var(--t-micro);
+}
+
+.osv3p-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-flex;
+}
+
+.osv3p-avatar-status {
+  position: absolute;
+  right: var(--p-2);
+  bottom: var(--p-2);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #1B7A2C;
+  border: 3px solid var(--v3-content-bg);
+}
+
+/* ===========================================================================
+   LOGO TILE — 165 of 166 companies have no logo_url, so the fallback IS the
+   common case, not the exception. It renders the monogram on the navy field.
+   =========================================================================== */
+
+.osv3p-logo {
+  position: relative;
+  flex-shrink: 0;
+  border: var(--p-hair);
+  border-radius: var(--p-radius);
+  overflow: hidden;
+  background: var(--v3-sidebar-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.osv3p-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.osv3p-logo-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(140deg, var(--v3-sidebar-bg) 0%, #16274A 100%);
+  color: #FFFFFF;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.osv3p-logo--xl {
+  width: 144px;
+  height: 144px;
+}
+
+.osv3p-logo--xl .osv3p-logo-fallback {
+  font-size: var(--t-hero);
+}
+
+.osv3p-logo--md {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--p-radius-sm);
+}
+
+.osv3p-logo--md .osv3p-logo-fallback {
+  font-size: var(--t-meta);
+}
+
+.osv3p-logo--sm {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--p-radius-sm);
+}
+
+.osv3p-logo--sm .osv3p-logo-fallback {
+  font-size: var(--t-micro);
+}
+
+/* ===========================================================================
+   MISSION BARS
+   Fill width = the printed percentage, exactly. The reference PNGs draw all
+   12 bars short of their own labels, inconsistently — design-decisions.md D3
+   rules that a rendering bug, not intent.
+   =========================================================================== */
+
+.osv3p-missions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-3);
+}
+
+.osv3p-mission {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) 116px 32px;
+  align-items: center;
+  gap: var(--p-2);
+}
+
+.osv3p-mission-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--v3-ink-secondary);
+}
+
+.osv3p-mission-icon svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.osv3p-mission-label {
+  font-size: var(--t-body);
+  color: var(--v3-ink-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* The bar is an SVG so the fill width is a geometry ATTRIBUTE, never an inline
+   style. width = the printed percentage, exactly (design-decisions.md D3). */
+.osv3p-bar {
+  display: block;
+  width: 100%;
+  height: 4px;
+}
+
+.osv3p-bar-track {
+  fill: var(--p-track);
+}
+
+.osv3p-bar-fill {
+  fill: var(--v3-accent);
+}
+
+.osv3p-mission-pct {
+  font-size: var(--t-meta);
+  font-weight: 500;
+  color: var(--v3-ink-secondary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ===========================================================================
+   STAT STRIP — equal columns divided by hairlines
+   =========================================================================== */
+
+.osv3p-stats {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+}
+
+.osv3p-stat {
+  display: flex;
+  align-items: center;
+  gap: var(--p-3);
+  padding: 0 var(--p-4);
+  border-left: var(--p-hair);
+  min-width: 0;
+}
+
+.osv3p-stat:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+
+.osv3p-stat:last-child {
+  padding-right: 0;
+}
+
+.osv3p-stat-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--v3-ink-secondary);
+  flex-shrink: 0;
+}
+
+.osv3p-stat-icon svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.osv3p-stat-text {
+  min-width: 0;
+}
+
+.osv3p-stat-label {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.osv3p-stat-value {
+  font-size: var(--t-num);
+  font-weight: 700;
+  color: var(--v3-ink-primary);
+  font-variant-numeric: tabular-nums;
+  margin-top: var(--p-1);
+}
+
+.osv3p-stat-note {
+  font-size: var(--t-micro);
+  color: var(--v3-muted);
+  margin-top: var(--p-1);
+}
+
+/* ===========================================================================
+   CHECK LIST — two columns of ticked capabilities
+   =========================================================================== */
+
+.osv3p-checklist {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--p-3) var(--p-4);
+}
+
+.osv3p-checklist--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.osv3p-check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--p-2);
+  min-width: 0;
+}
+
+.osv3p-check-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--v3-accent);
+}
+
+.osv3p-check-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.osv3p-check-text {
+  min-width: 0;
+}
+
+.osv3p-check-title {
+  font-size: var(--t-body);
+  color: var(--v3-ink-secondary);
+}
+
+.osv3p-check-sub {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+  margin-top: var(--p-1);
+}
+
+/* ===========================================================================
+   KEY / VALUE LIST — "At a glance"
+   =========================================================================== */
+
+.osv3p-kv {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-3);
+}
+
+.osv3p-kv-row {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--p-2);
+}
+
+.osv3p-kv-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--v3-ink-secondary);
+}
+
+.osv3p-kv-icon svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.osv3p-kv-key {
+  font-size: var(--t-body);
+  color: var(--v3-ink-secondary);
+}
+
+.osv3p-kv-value {
+  font-size: var(--t-body);
+  font-weight: 500;
+  color: var(--v3-ink-primary);
+  text-align: right;
+}
+
+/* ===========================================================================
+   COUNT GRID — "Who we work with"
+   =========================================================================== */
+
+.osv3p-counts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--p-4);
+}
+
+.osv3p-count {
+  display: flex;
+  align-items: center;
+  gap: var(--p-2);
+  min-width: 0;
+}
+
+.osv3p-count-icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  color: var(--v3-ink-secondary);
+}
+
+.osv3p-count-icon svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.osv3p-count-value {
+  font-size: var(--t-lead);
+  font-weight: 700;
+  color: var(--v3-ink-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.osv3p-count-label {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+  white-space: nowrap;
+}
+
+/* ===========================================================================
+   ICON LIST — affiliations, locations, activity feed
+   =========================================================================== */
+
+.osv3p-iconlist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-3);
+}
+
+.osv3p-iconlist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--p-2);
+  min-width: 0;
+}
+
+.osv3p-iconlist-media {
+  flex-shrink: 0;
+  color: var(--v3-ink-secondary);
+  display: inline-flex;
+}
+
+.osv3p-iconlist-media svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.osv3p-iconlist-text {
+  min-width: 0;
+}
+
+.osv3p-iconlist-title {
+  font-size: var(--t-body);
+  font-weight: 500;
+  color: var(--v3-ink-primary);
+}
+
+.osv3p-iconlist-sub {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+  margin-top: var(--p-1);
+}
+
+.osv3p-iconlist-time {
+  font-size: var(--t-micro);
+  color: var(--v3-muted);
+  margin-top: var(--p-1);
+}
+
+/* ===========================================================================
+   BULLET LIST — "I'm seeking" / "I can provide" / "Looking for"
+   =========================================================================== */
+
+.osv3p-bullets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-2);
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.osv3p-bullets li {
+  position: relative;
+  padding-left: var(--p-3);
+  font-size: var(--t-body);
+  line-height: 1.5;
+  color: var(--v3-ink-secondary);
+}
+
+.osv3p-bullets li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--v3-ink-secondary);
+}
+
+.osv3p-subhead {
+  font-size: var(--t-label);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v3-ink-primary);
+  margin-bottom: var(--p-3);
+}
+
+.osv3p-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--p-4);
+}
+
+/* ===========================================================================
+   BUTTON
+   =========================================================================== */
+
+.osv3p-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--p-2);
+  padding: var(--p-3) var(--p-4);
+  border-radius: var(--p-radius-sm);
+  border: 1px solid transparent;
+  font-family: inherit;
+  font-size: var(--t-label);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  background: none;
+  white-space: nowrap;
+  transition: background-color var(--v3-transition-fast), color var(--v3-transition-fast), border-color var(--v3-transition-fast);
+}
+
+.osv3p-btn svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.osv3p-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--p-screen-focus, var(--p-focus));
+}
+
+.osv3p-btn--primary {
+  border-color: var(--p-screen-accent, var(--v3-accent));
+  color: var(--p-screen-accent, var(--v3-accent));
+  background: var(--v3-content-bg);
+}
+
+.osv3p-btn--primary:hover {
+  background: var(--p-screen-accent, var(--v3-accent));
+  color: #FFFFFF;
+}
+
+.osv3p-btn--solid {
+  border-color: var(--p-screen-accent, var(--v3-accent));
+  background: var(--p-screen-accent, var(--v3-accent));
+  color: #FFFFFF;
+}
+
+.osv3p-btn--solid:hover {
+  filter: brightness(0.92);
+}
+
+.osv3p-btn--secondary {
+  border-color: var(--v3-ink-primary);
+  color: var(--v3-ink-primary);
+  background: var(--v3-content-bg);
+}
+
+.osv3p-btn--secondary:hover {
+  background: var(--v3-panel-bg);
+}
+
+.osv3p-btn--quiet {
+  border-color: var(--v3-border);
+  color: var(--v3-ink-secondary);
+  background: var(--v3-content-bg);
+  letter-spacing: 0.04em;
+}
+
+.osv3p-btn--quiet:hover {
+  background: var(--v3-panel-bg);
+}
+
+.osv3p-btn--block {
+  width: 100%;
+}
+
+.osv3p-btn-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-2);
+}
+
+/* ===========================================================================
+   EMPTY STATE
+   =========================================================================== */
+
+.osv3p-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--p-3);
+  padding: var(--p-12) var(--p-4);
+  border: 1px dashed var(--v3-border);
+  border-radius: var(--p-radius);
+}
+
+.osv3p-empty-icon {
+  color: var(--v3-muted);
+}
+
+.osv3p-empty-icon svg {
+  width: 32px;
+  height: 32px;
+  display: block;
+}
+
+.osv3p-empty-title {
+  font-size: var(--t-lead);
+  font-weight: 600;
+  color: var(--v3-ink-primary);
+}
+
+.osv3p-empty-body {
+  font-size: var(--t-body);
+  line-height: 1.5;
+  color: var(--v3-muted);
+  max-width: 440px;
+}
+
+/* ===========================================================================
+   COMPLETENESS METER
+   =========================================================================== */
+
+.osv3p-meter-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--p-2);
+  margin-bottom: var(--p-2);
+}
+
+.osv3p-meter-pct {
+  font-size: var(--t-num);
+  font-weight: 700;
+  color: var(--v3-ink-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.osv3p-meter-missing {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--p-2);
+  margin-top: var(--p-3);
+}
+
+/* ===========================================================================
+   MAP PANEL — the repo's own zero-dependency albersUsa SVG (usStatesPaths.js).
+   No map library, no Maps key: a key would compile into the public bundle.
+   =========================================================================== */
+
+.osv3p-map {
+  position: relative;
+  border-radius: var(--p-radius-sm);
+  overflow: hidden;
+  background: linear-gradient(180deg, #EAF1F6 0%, #DCE7EF 100%);
+  border: var(--p-hair);
+}
+
+.osv3p-map-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.osv3p-map-land {
+  fill: #EFF2F4;
+  stroke: #C8D3DA;
+  stroke-width: 0.8;
+}
+
+.osv3p-map-land--active {
+  fill: #F3DED6;
+  stroke: var(--v3-accent);
+}
+
+.osv3p-map-pin {
+  fill: var(--v3-accent);
+}
+
+.osv3p-map-pin-dot {
+  fill: #FFFFFF;
+}
+
+.osv3p-map-expand {
+  position: absolute;
+  top: var(--p-2);
+  right: var(--p-2);
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--p-hair);
+  border-radius: var(--p-radius-sm);
+  background: var(--v3-content-bg);
+  color: var(--v3-ink-secondary);
+  cursor: pointer;
+  padding: 0;
+}
+
+.osv3p-map-expand svg {
+  width: 14px;
+  height: 14px;
+}
+
+.osv3p-map-expand:focus-visible {
+  outline: none;
+  box-shadow: var(--p-screen-focus, var(--p-focus));
+}
+
+.osv3p-map-caption {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--p-2);
+  margin-top: var(--p-3);
+}
+
+/* ===========================================================================
+   PROFILE SCREEN LAYOUT
+   =========================================================================== */
+
+.osv3p-identity {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 296px;
+  gap: var(--p-4);
+  align-items: start;
+}
+
+.osv3p-identity-main {
+  display: flex;
+  gap: var(--p-6);
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.osv3p-identity-text {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-3);
+  padding-top: var(--p-2);
+}
+
+.osv3p-identity-titleline {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--p-3);
+}
+
+.osv3p-identity-name {
+  font-size: var(--t-name);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--v3-ink-primary);
+  margin: 0;
+}
+
+.osv3p-identity-name--org {
+  font-size: var(--t-hero);
+}
+
+.osv3p-identity-role {
+  font-size: var(--t-lead);
+  color: var(--v3-ink-secondary);
+}
+
+.osv3p-identity-role b {
+  font-weight: 500;
+  color: var(--v3-ink-primary);
+}
+
+.osv3p-identity-sep {
+  color: var(--v3-border);
+  padding: 0 var(--p-2);
+}
+
+.osv3p-identity-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--p-4);
+  font-size: var(--t-meta);
+  color: var(--v3-ink-secondary);
+}
+
+.osv3p-identity-meta a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.osv3p-identity-meta a:hover {
+  text-decoration: underline;
+}
+
+.osv3p-meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-1);
+}
+
+.osv3p-meta-item svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--v3-muted);
+}
+
+.osv3p-identity-bio {
+  font-size: var(--t-body);
+  line-height: 1.6;
+  color: var(--v3-ink-secondary);
+  max-width: 68ch;
+  margin: 0;
+}
+
+/* The side panel: availability (person) / connect (company) */
+.osv3p-sidepanel {
+  border: var(--p-hair);
+  border-radius: var(--p-radius);
+  padding: var(--p-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-3);
+  background: var(--v3-content-bg);
+}
+
+.osv3p-sidepanel-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-2);
+  font-size: var(--t-body);
+  font-weight: 600;
+  color: #1B7A2C;
+}
+
+.osv3p-sidepanel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #1B7A2C;
+  flex-shrink: 0;
+}
+
+.osv3p-sidepanel-body {
+  font-size: var(--t-body);
+  line-height: 1.5;
+  color: var(--v3-ink-secondary);
+  margin: 0;
+}
+
+.osv3p-tabbar {
+  margin-top: var(--p-1);
+}
+
+.osv3p-grid {
+  display: grid;
+  gap: var(--p-4);
+  align-items: stretch;
+}
+
+/* Column ratios transcribed from the reference PNGs. They are content-driven,
+   not equal fractions (MEASUREMENTS.md section 4). */
+.osv3p-grid--person-a { grid-template-columns: 334fr 427fr 443fr; }
+.osv3p-grid--person-b { grid-template-columns: 334fr 427fr 443fr; }
+.osv3p-grid--company-a { grid-template-columns: 299fr 491fr 442fr; }
+.osv3p-grid--company-b { grid-template-columns: 373fr 393fr 467fr; }
+.osv3p-grid--company-c { grid-template-columns: 559fr 688fr; }
+.osv3p-grid--halves { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+.osv3p-footnote {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+  text-align: center;
+  padding-top: var(--p-4);
+  border-top: var(--p-hair);
+}
+
+/* ===========================================================================
+   ADMIN SCREEN LAYOUT
+   =========================================================================== */
+
+.osv3p-pagehead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--p-4);
+}
+
+.osv3p-pagehead-title {
+  font-size: var(--t-name);
+  font-weight: 700;
+  color: var(--v3-ink-primary);
+  margin: 0;
+}
+
+.osv3p-pagehead-sub {
+  font-size: var(--t-body);
+  color: var(--v3-muted);
+  margin-top: var(--p-1);
+}
+
+.osv3p-admin-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 288px;
+  gap: var(--p-4);
+  align-items: start;
+}
+
+.osv3p-admin-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-4);
+  min-width: 0;
+}
+
+.osv3p-admin-rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-4);
+}
+
+.osv3p-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--p-4);
+}
+
+.osv3p-kpi-top {
+  display: flex;
+  align-items: center;
+  gap: var(--p-3);
+}
+
+.osv3p-kpi-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--p-radius-sm);
+  background: var(--v3-panel-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--v3-link);
+  flex-shrink: 0;
+}
+
+.osv3p-kpi-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.osv3p-kpi-label {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+}
+
+.osv3p-kpi-value {
+  font-size: var(--t-num);
+  font-weight: 700;
+  color: var(--v3-ink-primary);
+  font-variant-numeric: tabular-nums;
+  margin-top: var(--p-1);
+}
+
+.osv3p-kpi-delta {
+  display: flex;
+  align-items: center;
+  gap: var(--p-1);
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+  margin-top: var(--p-3);
+}
+
+.osv3p-kpi-delta b {
+  color: #1B7A2C;
+  font-weight: 600;
+}
+
+.osv3p-kpi-delta svg {
+  width: 14px;
+  height: 14px;
+  color: #1B7A2C;
+}
+
+.osv3p-table-scroll {
+  overflow-x: auto;
+}
+
+.osv3p-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.osv3p-table th {
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--v3-muted);
+  text-align: left;
+  padding: 0 var(--p-3) var(--p-3) 0;
+  border-bottom: var(--p-hair);
+  white-space: nowrap;
+}
+
+.osv3p-table td {
+  font-size: var(--t-body);
+  color: var(--v3-ink-secondary);
+  padding: var(--p-3) var(--p-3) var(--p-3) 0;
+  border-bottom: var(--p-hair);
+  vertical-align: middle;
+}
+
+.osv3p-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.osv3p-table-org {
+  display: flex;
+  align-items: center;
+  gap: var(--p-2);
+}
+
+.osv3p-table-actions {
+  text-align: right;
+}
+
+.osv3p-icon-btn {
+  width: 32px;
+  height: 32px;
+  border: var(--p-hair);
+  border-radius: var(--p-radius-sm);
+  background: var(--v3-content-bg);
+  color: var(--v3-ink-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.osv3p-icon-btn:hover {
+  background: var(--v3-panel-bg);
+}
+
+.osv3p-icon-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--p-screen-focus, var(--p-focus));
+}
+
+.osv3p-rail-title {
+  font-size: var(--t-lead);
+  font-weight: 600;
+  color: var(--v3-ink-primary);
+  margin: 0 0 var(--p-3) 0;
+}
+
+.osv3p-rail-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--p-3);
+  font-size: var(--t-body);
+  color: var(--v3-ink-secondary);
+  padding: var(--p-2) 0;
+}
+
+.osv3p-rail-row b {
+  font-weight: 600;
+  color: var(--v3-ink-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.osv3p-quick {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-3);
+}
+
+.osv3p-quick-item {
+  display: flex;
+  align-items: center;
+  gap: var(--p-2);
+  font-size: var(--t-body);
+  color: var(--v3-link);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+}
+
+.osv3p-quick-item:hover {
+  text-decoration: underline;
+}
+
+.osv3p-quick-item svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.osv3p-legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-3);
+}
+
+.osv3p-legend-row {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--p-2);
+  font-size: var(--t-body);
+  color: var(--v3-ink-secondary);
+}
+
+.osv3p-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.osv3p-legend-value {
+  font-weight: 600;
+  color: var(--v3-ink-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.osv3p-legend-share {
+  font-weight: 400;
+  color: var(--v3-muted);
+}
+
+/* ---- charts: SVG only, geometry in attributes, colour in classes ---- */
+
+.osv3p-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--p-4);
+  margin-bottom: var(--p-3);
+  font-size: var(--t-meta);
+  color: var(--v3-ink-secondary);
+}
+
+.osv3p-chart-key {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-2);
+}
+
+.osv3p-chart-rule {
+  width: 16px;
+  height: 2px;
+  border-radius: 1px;
+}
+
+.osv3p-chart-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.osv3p-chart-grid {
+  stroke: var(--v3-border);
+  stroke-width: 1;
+}
+
+.osv3p-chart-tick {
+  font-size: var(--t-micro);
+  fill: var(--v3-muted);
+}
+
+.osv3p-chart-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.osv3p-series--a { stroke: var(--v3-link); }
+.osv3p-series--b { stroke: var(--v3-mission-purple); }
+.osv3p-series--c { stroke: #2E9E3F; }
+.osv3p-rule--a { background: var(--v3-link); }
+.osv3p-rule--b { background: var(--v3-mission-purple); }
+.osv3p-rule--c { background: #2E9E3F; }
+
+.osv3p-chart-dot--a { fill: var(--v3-link); }
+.osv3p-chart-dot--b { fill: var(--v3-mission-purple); }
+.osv3p-chart-dot--c { fill: #2E9E3F; }
+
+.osv3p-donut {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--p-4);
+}
+
+.osv3p-donut-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 200px;
+}
+
+.osv3p-donut-seg {
+  fill: none;
+  stroke-width: 24;
+}
+
+.osv3p-donut-total {
+  font-size: var(--t-num);
+  font-weight: 700;
+  fill: var(--v3-ink-primary);
+}
+
+.osv3p-donut-caption {
+  font-size: var(--t-micro);
+  fill: var(--v3-muted);
+}
+
+.osv3p-status--verified { stroke: #2E9E3F; background: #2E9E3F; }
+.osv3p-status--pending { stroke: var(--v3-accent); background: var(--v3-accent); }
+.osv3p-status--unverified { stroke: #7E8496; background: #7E8496; }
+.osv3p-status--rejected { stroke: #D01A20; background: #D01A20; }
+
+/* ===========================================================================
+   RESPONSIVE — the shell already drops the sidebar under 900px
+   =========================================================================== */
+
+@media (max-width: 1180px) {
+  .osv3p-identity,
+  .osv3p-admin-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .osv3p-grid--person-a,
+  .osv3p-grid--person-b,
+  .osv3p-grid--company-a,
+  .osv3p-grid--company-b,
+  .osv3p-grid--company-c {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .osv3p-kpi-row {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .osv3p-stats {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--p-4);
+  }
+
+  .osv3p-stat {
+    border-left: 0;
+    padding: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .osv3p-identity-main {
+    flex-direction: column;
+    gap: var(--p-4);
+  }
+
+  .osv3p-avatar--xl {
+    width: 96px;
+    height: 96px;
+    font-size: var(--t-name);
+  }
+
+  .osv3p-logo--xl {
+    width: 96px;
+    height: 96px;
+  }
+
+  .osv3p-grid--person-a,
+  .osv3p-grid--person-b,
+  .osv3p-grid--company-a,
+  .osv3p-grid--company-b,
+  .osv3p-grid--company-c,
+  .osv3p-checklist,
+  .osv3p-split,
+  .osv3p-counts,
+  .osv3p-kpi-row,
+  .osv3p-stats {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .osv3p-identity-name--org {
+    font-size: var(--t-name);
+  }
+
+  .osv3p-pagehead {
+    flex-direction: column;
+    gap: var(--p-3);
+  }
+}

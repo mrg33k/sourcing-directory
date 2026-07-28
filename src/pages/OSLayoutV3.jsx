@@ -44,6 +44,19 @@ const ADMIN_NAV = [
   { to: '/admin/settings/space-rising', key: 'settings', label: 'Settings' },
 ]
 
+// MY SPACEOS — the member area. Word-only rows (no icons), which is exactly how
+// the design separates "your stuff" from the ecosystem nav above it.
+// `badge` names the counter key; a count of 0 renders NO badge rather than a
+// grey zero, and nothing here invents a number it does not have.
+const MY_SPACEOS_NAV = [
+  { to: '/dashboard', label: 'Dashboard' },
+  { to: '/profile', label: 'Profile' },
+  { to: '/connections', label: 'Connections' },
+  { to: '/saved', label: 'Saved' },
+  { to: '/messages', label: 'Messages', badge: 'messages' },
+  { to: '/notifications', label: 'Notifications', badge: 'notifications' },
+]
+
 const OSLayoutV3 = () => {
   const navigate = useNavigate()
   const { user } = useAuth()
@@ -54,6 +67,10 @@ const OSLayoutV3 = () => {
   const [showUserMenu, setShowUserMenu] = useState(false)
   const [showTopbarMenu, setShowTopbarMenu] = useState(false)
   const [navOpen, setNavOpen] = useState(false)
+  // Sidebar counters. Start at zero and stay at zero until something real
+  // feeds them — a hardcoded "1" next to Messages is a lie the whole shell
+  // then tells on every page.
+  const [navCounts] = useState({ messages: 0, notifications: 0 })
 
   useEffect(() => {
     if (user) {
@@ -182,14 +199,36 @@ const OSLayoutV3 = () => {
           </>
         )}
 
-        {/* Promo Card */}
-        <div className="osv3-promo-card">
-          <div className="osv3-promo-card-title">Organization Membership</div>
-          <div>Claim your organization and contribute to the ecosystem.</div>
-          <div className="osv3-promo-card-btn" onClick={() => navigate('/membership')}>
-            Learn More →
-          </div>
-        </div>
+        {/* MY SPACEOS — the member area */}
+        <div className="osv3-group-header">My SpaceOS</div>
+        <nav className="osv3-nav-section osv3-subnav-section">
+          {MY_SPACEOS_NAV.map((item) => {
+            const count = item.badge ? navCounts[item.badge] : 0
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                onClick={() => setNavOpen(false)}
+                className={({ isActive }) => `osv3-subnav-item ${isActive ? 'osv3-subnav-item-active' : ''}`}
+              >
+                <span className="osv3-subnav-label">{item.label}</span>
+                {count > 0 && <span className="osv3-nav-badge">{count}</span>}
+              </NavLink>
+            )
+          })}
+        </nav>
+
+        {/* Add Profile — carries the margin-bottom:auto the promo card used to
+            own. That single declaration is what pushes the user chip to the
+            bottom of the sidebar; drop it and the chip floats up mid-column. */}
+        <button
+          type="button"
+          className="osv3-add-profile"
+          onClick={() => { setNavOpen(false); navigate('/add-profile') }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          Add Profile
+        </button>
 
         {/* User Chip */}
         <div className="osv3-user-chip" onClick={() => setShowUserMenu(!showUserMenu)}>

@@ -152,6 +152,22 @@ const OSPeoplePage = lazy(() => import('./pages/OSPeoplePage.jsx'))
 const OSRFPsPage = lazy(() => import('./pages/OSRFPsPage.jsx'))
 const OSGrantsPage = lazy(() => import('./pages/OSGrantsPage.jsx'))
 
+// Space OS v3 — MY SPACEOS: the person/company profile screens and the
+// member-area pages the sidebar's new nav group points at.
+// Every one of these MUST be declared above the "/:slug" catch-all below;
+// a route registered after it renders the company page instead, and the
+// failure looks like a bounce, not a 404.
+const OSPersonProfile = lazy(() => import('./pages/os/OSPersonProfile.jsx'))
+const OSCompanyProfile = lazy(() => import('./pages/os/OSCompanyProfile.jsx'))
+const OSMyProfile = lazy(() => import('./pages/os/OSMyProfile.jsx'))
+const OSProfileEdit = lazy(() => import('./pages/os/OSProfileEdit.jsx'))
+const OSDashboard = lazy(() => import('./pages/os/OSDashboard.jsx'))
+const OSConnections = lazy(() => import('./pages/os/OSConnections.jsx'))
+const OSSaved = lazy(() => import('./pages/os/OSSaved.jsx'))
+const OSMessages = lazy(() => import('./pages/os/OSMessages.jsx'))
+const OSNotifications = lazy(() => import('./pages/os/OSNotifications.jsx'))
+const OSAddProfile = lazy(() => import('./pages/os/OSAddProfile.jsx'))
+
 // Admin route guard. Lazy on purpose — it pulls in the Supabase client, and
 // eager-importing it here would drag that chunk into the entry bundle for every
 // visitor to the home page. Only /admin/* ever loads it.
@@ -220,6 +236,24 @@ createRoot(document.getElementById('root')).render(
             <Route path="/marketplace/:id" element={<SourcingListingV2 kind="marketplace" />} />
             <Route path="/articles/:id" element={<SourcingListingV2 kind="article" />} />
             <Route path="/reports/:id" element={<SourcingReportDetailV2 />} />
+
+            {/* ===== MY SPACEOS =====
+                Declared HERE, above "/:slug". That bare single-segment route
+                swallows anything registered after it and renders the company
+                page, which reads as a bounce rather than a 404. Keep this
+                block above it. */}
+            <Route path="/people/_preview" element={<OSPersonProfile />} />
+            <Route path="/people/:slug" element={<OSPersonProfile />} />
+            <Route path="/company/_preview" element={<OSCompanyProfile />} />
+            <Route path="/profile" element={<OSMyProfile />} />
+            <Route path="/profile/edit" element={<OSProfileEdit />} />
+            <Route path="/dashboard" element={<OSDashboard />} />
+            <Route path="/connections" element={<OSConnections />} />
+            <Route path="/saved" element={<OSSaved />} />
+            <Route path="/messages" element={<OSMessages />} />
+            <Route path="/notifications" element={<OSNotifications />} />
+            <Route path="/add-profile" element={<OSAddProfile />} />
+
             <Route path="/company/:slug" element={<SourcingCompanyV2 />} />
             <Route path="/:slug" element={<SourcingCompanyV2 />} />
           </Route>
