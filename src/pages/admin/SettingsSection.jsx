@@ -1,5 +1,5 @@
 import React from 'react';
-import { AdminSection } from './AdminUI.jsx';
+import { AdminSection, uploadAdminAsset } from './AdminUI.jsx';
 
 const FEATURE_KEYS = ['jobs', 'marketplace', 'events', 'articles', 'signup'];
 
@@ -38,6 +38,8 @@ export default function SettingsSection({ tenant, adminSupabase, setTenants, V }
   const [saving, setSaving] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
   const [msg, setMsg] = React.useState('');
+  // Upload feedback belongs next to the Logo field, not 200px away next to Save.
+  const [logoMsg, setLogoMsg] = React.useState({ text: '', ok: false });
 
   // resync when the selected tenant changes
   React.useEffect(() => {
@@ -48,24 +50,31 @@ export default function SettingsSection({ tenant, adminSupabase, setTenants, V }
       features: initFeatures(),
     });
     setMsg('');
+    setLogoMsg({ text: '', ok: false });
   }, [tenant.id]);
 
   const up = (k) => (e) => setF(prev => ({ ...prev, [k]: e.target.value }));
   const toggleFeat = (k) => setF(prev => ({ ...prev, features: { ...prev.features, [k]: !prev.features[k] } }));
 
+  // Uploads go through the server (POST /api/sourcing/upload-admin-asset), which
+  // verifies this admin's reach over `tenant.id` before it issues an upload token.
+  // Direct `.storage.upload()` from the browser is RLS default-deny since the
+  // service_role key was removed — it fails 100% of the time.
   const uploadLogo = async (e) => {
     const file = e.target.files && e.target.files[0];
-    if (!file || !adminSupabase) return;
-    setUploading(true); setMsg('');
+    if (!file) return;
+    setUploading(true); setMsg(''); setLogoMsg({ text: '', ok: false });
     try {
-      const ext = (file.name.split('.').pop() || 'png').toLowerCase();
-      const key = `directory-logos/${tenant.id}-${Date.now()}.${ext}`;
-      const { error: upErr } = await adminSupabase.storage.from('company-logos').upload(key, file, { upsert: true, contentType: file.type });
-      if (upErr) throw upErr;
-      const { data } = adminSupabase.storage.from('company-logos').getPublicUrl(key);
-      setF(prev => ({ ...prev, logo_url: data.publicUrl }));
-    } catch (err) { setMsg('Logo upload failed: ' + err.message); }
-    finally { setUploading(false); }
+      const publicUrl = await uploadAdminAsset(file, { kind: 'tenant-logo', tenant_id: tenant.id });
+      setF(prev => ({ ...prev, logo_url: publicUrl }));
+      setLogoMsg({ text: 'Logo uploaded. Save settings to apply it.', ok: true });
+    } catch (err) {
+      setLogoMsg({ text: 'Logo upload failed: ' + (err.message || 'Unknown error'), ok: false });
+    }
+    finally {
+      setUploading(false);
+      if (e.target) e.target.value = '';
+    }
   };
 
   const save = async () => {
@@ -115,10 +124,16 @@ export default function SettingsSection({ tenant, adminSupabase, setTenants, V }
               : <div style={{ width: 46, height: 46, borderRadius: 6, border: `1px dashed ${V.border}`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: V.dim, fontSize: 10, fontFamily: V.mono }}>none</div>}
             <label style={{ background: 'rgba(59,130,246,0.12)', border: '1px solid rgba(59,130,246,0.35)', color: '#93C5FD', borderRadius: 6, padding: '7px 13px', fontSize: 12, fontWeight: 700, fontFamily: V.space, cursor: uploading ? 'wait' : 'pointer', opacity: uploading ? 0.6 : 1, whiteSpace: 'nowrap' }}>
               {uploading ? 'Uploading…' : (f.logo_url ? 'Replace' : 'Upload')}
-              <input type="file" accept="image/*" style={{ display: 'none' }} onChange={uploadLogo} disabled={uploading} />
+              {/* Matches the server's allowlist exactly — SVG is excluded on purpose. */}
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" style={{ display: 'none' }} onChange={uploadLogo} disabled={uploading} />
             </label>
             <input style={{ ...inp, flex: '1 1 200px' }} value={f.logo_url} onChange={up('logo_url')} placeholder="…or paste an image URL" />
           </div>
+          {logoMsg.text && (
+            <div style={{ marginTop: 6, fontSize: 11, fontFamily: V.space, color: logoMsg.ok ? V.green : '#DC2626' }}>
+              {logoMsg.text}
+            </div>
+          )}
         </div>
 
         <div style={{ marginBottom: 16 }}>
@@ -146,7 +161,7 @@ export default function SettingsSection({ tenant, adminSupabase, setTenants, V }
           <button onClick={save} disabled={saving} style={{ background: V.accent, border: 'none', color: '#fff', borderRadius: 7, padding: '8px 22px', fontSize: 13, fontWeight: 700, fontFamily: V.space, cursor: saving ? 'wait' : 'pointer', opacity: saving ? 0.6 : 1 }}>
             {saving ? 'Saving…' : 'Save settings'}
           </button>
-          {msg && <span style={{ fontSize: 12, fontFamily: V.space, color: msg.startsWith('Save failed') || msg.startsWith('Logo') ? '#FCA5A5' : V.green }}>{msg}</span>}
+          {msg && <span style={{ fontSize: 12, fontFamily: V.space, color: /failed/i.test(msg) ? '#DC2626' : V.green }}>{msg}</span>}
         </div>
       </div>
     </AdminSection>

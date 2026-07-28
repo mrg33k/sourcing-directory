@@ -299,7 +299,10 @@ END $$;
 -- Dropping "service role all" alone would be cosmetic: 011's INSERT policy leaves the
 -- write side wide open on its own. Both must go together.
 --
--- Live code that MUST keep working, and does (verified caller by caller):
+-- Live code that MUST keep working, and does (verified caller by caller). ONE
+-- qualification, spelled out under members_insert_self below: the four auto-provision
+-- call sites keep working for every user the product created, but they no longer let a
+-- signed-in user insert themselves into an ARBITRARY tenant. See dir_may_join_tenant.
 --   * SourcingPortalV2.jsx:104-146   read own + auto-provision  -> members_select_own,
 --                                                                  members_insert_self
 --   * SourcingLoginV2.jsx:130-172    read own + auto-provision  -> same
@@ -317,6 +320,61 @@ END $$;
 --                                    all service_role            -> bypass RLS
 
 ALTER TABLE directory_members ENABLE ROW LEVEL SECURITY;
+
+-- ── §2 helper: does this tenant already know the caller? ────────────────────────
+-- Lives here rather than in §0 because members_insert_self is its only consumer.
+--
+-- WHY IT EXISTS. The first draft of members_insert_self pinned role, auth_user_id and
+-- company_id but left tenant_id completely unconstrained, so any authenticated user could
+-- INSERT {tenant_id:<ANY tenant>, role:'member', status:'approved', company_id:null} and
+-- become an approved member of a tenant they have no relationship with. company_id:null
+-- sails through dir_may_claim_company by design (its first disjunct is
+-- `p_company_id IS NULL`), so nothing in the policy pushed back. And approved membership
+-- is not cosmetic — §5's reports_member_read hands every approved member of a tenant the
+-- full report set for that tenant, file_url included, members-only and paid rows and all.
+-- Signing up free in any vertical and then self-inserting into the paid tenant would have
+-- been the whole paywall. Part 2 is what turns that policy on, which is why this is fixed
+-- now, while it costs one predicate instead of an incident.
+--
+-- WHAT COUNTS AS A RELATIONSHIP. The tenant already holds a directory_companies row
+-- carrying the caller's own login address. That is not a proxy for the real thing, it IS
+-- how the product creates members: both signup forms post the company's `email` as the
+-- signing-up user's auth address (SourcingSignup.jsx:111, SourcingSignupV2.jsx:90 —
+-- `email: form.auth_email.trim()`), and api/sourcing/signup.js:135 writes it straight onto
+-- the company row. So every company the product has ever created carries the login address
+-- of the person who created it, in the tenant they created it in.
+--
+-- Deliberately NOT case-sensitive and deliberately NOT dependent on company_id: a user
+-- whose member row is missing but whose company exists still repairs itself, which is the
+-- entire purpose of the four auto-provision call sites.
+--
+-- SECURITY DEFINER for the same reason as the §0 helpers: directory_companies' own read
+-- policies must not be able to change the answer. search_path pinned — mandatory here.
+CREATE OR REPLACE FUNCTION public.dir_may_join_tenant(p_tenant_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+  SELECT p_tenant_id IS NOT NULL AND EXISTS (
+    SELECT 1
+    FROM public.directory_companies c
+    WHERE c.tenant_id  = p_tenant_id
+      AND lower(c.email) = lower(auth.jwt() ->> 'email')
+  );
+$$;
+
+REVOKE EXECUTE ON FUNCTION public.dir_may_join_tenant(uuid) FROM PUBLIC;
+GRANT  EXECUTE ON FUNCTION public.dir_may_join_tenant(uuid) TO anon, authenticated, service_role;
+
+-- Supports the EXISTS above. directory_companies has no index on email at all today
+-- (migrations/001), so without this the predicate is a seq scan on every self-insert.
+-- Plain CREATE INDEX, not CONCURRENTLY: this file is one transaction and CONCURRENTLY
+-- cannot run inside one. It takes a brief SHARE lock on directory_companies, which is a
+-- non-event at this table's size and matches every other DDL statement in Part 1.
+CREATE INDEX IF NOT EXISTS idx_dir_companies_tenant_lower_email
+  ON directory_companies (tenant_id, lower(email));
 
 DROP POLICY IF EXISTS "service role all"           ON directory_members;
 DROP POLICY IF EXISTS "signup insert members"      ON directory_members;
@@ -350,25 +408,56 @@ CREATE POLICY "members_select_tenant_admin"
   TO authenticated
   USING (public.dir_is_tenant_admin(tenant_id) OR public.dir_is_global_admin());
 
--- Browser auto-provision. Preserves today's behaviour exactly (role 'member',
--- status 'approved') while blocking three escalations the old WITH CHECK (true) allowed:
+-- Browser auto-provision. Preserves today's behaviour for every user the product has
+-- actually created (role 'member', status 'approved', in their own tenant) while blocking
+-- four escalations the old WITH CHECK (true) allowed:
 --   * inserting a row for somebody else's auth_user_id
+--   * inserting a row under somebody else's email address
 --   * self-promoting to role = 'admin'   <- this is the requireAdmin() bypass
 --   * claiming an arbitrary company_id (-> write access to that company)
+-- and one that the first draft of THIS policy still allowed:
+--   * self-granting approved membership of a tenant you have no relationship with
+--     (-> that tenant's members-only and paid reports, once §5 is live)
 --
--- DELIBERATE, FLAGGED: status = 'approved' is still self-grantable, because the four
--- auto-provision call sites hard-code it and forcing 'pending' would strand every
--- returning user on the "pending review" screen. This is a product decision, not a
--- schema one — see problem 1, open question A in the impact analysis. It is NOT the
--- admin-escalation path: role is pinned to 'member' above.
+-- WHY status = 'approved' IS STILL PERMITTED. Because the constraint that matters is not
+-- the status, it is the tenant. All four auto-provision call sites hard-code
+-- status:'approved' (SourcingPortalV2.jsx:135, SourcingLoginV2.jsx:157,
+-- SourcingPortal.jsx:96, SourcingLogin.jsx:143), so requiring 'pending' would fail their
+-- INSERT outright — `.insert(...).select().single()` would raise, and every affected user
+-- would hit "Could not set up your account. Please contact support." rather than a pending
+-- screen. Sign-in would break for real users to fix an abuse that dir_may_join_tenant
+-- closes on its own. The self-grant is closed by pinning WHERE you may insert, which costs
+-- nothing to anyone the product created; self-approval within your own tenant is not the
+-- vulnerability, it is how free signup has always worked (api/sourcing/signup.js:181 writes
+-- status 'approved' server-side too).
+--
+-- Supersedes "Open question A" in docs/security/028-impact-analysis.md, which reads as
+-- though the only options were "leave it open" or "change the four call sites". There is
+-- a third, and this is it.
+--
+-- WHO THIS COSTS. A user with NO directory_companies row in the target tenant carrying
+-- their login address AND no member row there. That is not the normal population:
+-- signup.js creates company + member together, admin-setup.js member mode creates the
+-- member row server-side, so auto-provision is a repair path, not the front door. The
+-- residual case is a member row that went missing while the company's email was later
+-- edited away from the owner's login address. Those users land on the existing
+-- provisionErr branch ("Could not set up your account. Please contact support.") and an
+-- admin re-adds them from the Members panel. Stated plainly rather than buried: this is
+-- the one behaviour that narrows, and it is narrower than the paywall it closes.
 CREATE POLICY "members_insert_self"
   ON directory_members FOR INSERT
   TO authenticated
   WITH CHECK (
     auth_user_id = auth.uid()
+    -- The row's email is the caller's own. Without this, a user could plant a row under
+    -- another person's address and — via UNIQUE (tenant_id, email), migrations/006:21 —
+    -- permanently block that person from ever provisioning in the tenant.
+    AND lower(email) = lower(auth.jwt() ->> 'email')
     AND role   = 'member'
     AND status IN ('pending', 'approved')
     AND public.dir_may_claim_company(company_id, tenant_id)
+    -- THE TENANT CONSTRAINT. Without it, tenant_id was free text.
+    AND public.dir_may_join_tenant(tenant_id)
   );
 
 -- Approve / reject / role changes and removals, for tenant + global admins.

@@ -63,6 +63,13 @@ const MAX_PAYLOAD_ROWS = 500;
 const MAX_PARENT_IDS = 200;
 const MUTATIONS = new Set(['insert', 'update', 'upsert', 'delete']);
 
+/**
+ * The only values supabase-js will accept for `count`. It is interpolated into the
+ * PostgREST request header `Prefer: count=<value>`, so it is request data that reaches
+ * a header and must be allowlisted rather than merely truthy-checked.
+ */
+const COUNT_MODES = new Set(['exact', 'planned', 'estimated']);
+
 // ── CORS ────────────────────────────────────────────────────────────────────
 // This endpoint is Bearer-authenticated and is called by the admin panel through the
 // RELATIVE url '/api/sourcing/admin' (src/lib/adminApi.js), i.e. always same-origin —
@@ -101,7 +108,10 @@ function allowedOrigins() {
   return set;
 }
 
-function applyCors(req, res) {
+// Exported so api/sourcing/admin-setup.js — the other Bearer-authenticated endpoint in
+// this directory — uses THIS function rather than a second, subtly different copy of the
+// same idea. One allowlist, one code path, one place to change it.
+export function applyCors(req, res, { allowHeaders } = {}) {
   res.setHeader('Vary', 'Origin');
   const raw = req?.headers?.origin;
   if (typeof raw !== 'string' || !raw) return;
@@ -109,7 +119,7 @@ function applyCors(req, res) {
   if (!allowedOrigins().has(origin)) return;
   res.setHeader('Access-Control-Allow-Origin', origin);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', allowHeaders || 'Content-Type, Authorization');
   res.setHeader('Access-Control-Max-Age', '600');
 }
 
@@ -467,6 +477,28 @@ export default async function handler(req, res) {
 
   const single = body.single === 'one' ? 'one' : (body.single === 'maybe' ? 'maybe' : null);
 
+  // ── count / head ─────────────────────────────────────────────────────────
+  // Both used to be read straight off the body at execution time (`if (body.count)
+  // selectOpts.count = body.count`). `count` ends up inside the PostgREST request
+  // header `Prefer: count=<value>`, so an arbitrary caller-supplied string was reaching
+  // a header value; `head` decided the HTTP verb on any truthy value. Neither is a
+  // mutation bypass — this is the op === 'select' branch — but unvalidated request data
+  // does not belong in a header, so both are allowlisted here, before the request is
+  // acted on, rather than trusted at the point of use.
+  let countMode = null;
+  if (body.count !== undefined && body.count !== null) {
+    if (typeof body.count !== 'string' || !COUNT_MODES.has(body.count)) {
+      return fail(res, 400, `count must be one of: ${[...COUNT_MODES].join(', ')}`);
+    }
+    countMode = body.count;
+  }
+
+  let headOnly = false;
+  if (body.head !== undefined && body.head !== null) {
+    if (typeof body.head !== 'boolean') return fail(res, 400, 'head must be a boolean');
+    headOnly = body.head;
+  }
+
   // ── upsert options ───────────────────────────────────────────────────────
   // onConflict names columns and is interpolated into the PostgREST query string. It
   // was checked against an identifier regex only — never against this table's columns —
@@ -549,8 +581,8 @@ export default async function handler(req, res) {
 
     if (op === 'select') {
       const selectOpts = {};
-      if (body.count) selectOpts.count = body.count;
-      if (body.head) selectOpts.head = true;
+      if (countMode) selectOpts.count = countMode;
+      if (headOnly) selectOpts.head = true;
       query = query.select(selectClause, Object.keys(selectOpts).length ? selectOpts : undefined);
       query = applyFilters(query, filters);
       for (const o of order) query = query.order(o.column, { ascending: o.ascending, nullsFirst: o.nullsFirst });

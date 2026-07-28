@@ -1,4 +1,89 @@
 import React from 'react';
+import { supabase } from '../../lib/supabase.js';
+
+// ─── Admin asset uploads ──────────────────────────────────────────────────────
+//
+// The browser no longer holds the service_role key, and `storage.objects` is RLS
+// default-deny, so `adminSupabase.storage.from(...).upload(...)` cannot work from here
+// any more and must not be called. Every admin upload goes through
+// POST /api/sourcing/upload-admin-asset, which verifies the caller's JWT server-side,
+// resolves their tenant reach, picks the object path itself, and hands back a signed
+// upload URL good for that one path. The signed URL carries its own authorization, so
+// the actual PUT needs no storage permission from the browser.
+//
+// These helpers live in AdminUI.jsx because it is the module the three uploading
+// sections (AdminUI's own company editor, SettingsSection, ReportsSection) already
+// share. Nothing about them is presentational; if a shared src/lib home opens up,
+// they belong there.
+
+const ASSET_ENDPOINT = '/api/sourcing/upload-admin-asset';
+
+const EXT_CONTENT_TYPE = {
+  pdf: 'application/pdf',
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  webp: 'image/webp',
+  gif: 'image/gif',
+};
+
+/** Some browsers hand back a blank File.type; fall back to the extension. */
+function contentTypeOf(file) {
+  const declared = (file?.type || '').split(';')[0].trim().toLowerCase();
+  if (declared) return declared;
+  const ext = (file?.name || '').split('.').pop()?.toLowerCase();
+  return EXT_CONTENT_TYPE[ext] || '';
+}
+
+/** POST to the admin asset endpoint. Throws with the server's message on failure. */
+export async function adminAssetRequest(payload) {
+  if (!supabase) throw new Error('Supabase is not configured.');
+  const { data: sessionData } = await supabase.auth.getSession();
+  const token = sessionData?.session?.access_token;
+  if (!token) throw new Error('You are signed out. Sign in again to continue.');
+
+  const res = await fetch(ASSET_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body: JSON.stringify(payload),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.error || `Upload service failed (HTTP ${res.status})`);
+  return json;
+}
+
+/**
+ * Upload one admin asset and return its public URL.
+ *
+ * @param {File}   file        the chosen file
+ * @param {object} descriptor  what it is — { kind:'company-logo', company_id }
+ *                             | { kind:'tenant-logo', tenant_id }
+ *                             | { kind:'report-file', report_id? }
+ * The caller never names a storage path or bucket; the server derives both.
+ */
+export async function uploadAdminAsset(file, descriptor) {
+  const contentType = contentTypeOf(file);
+  if (!contentType) throw new Error('Could not determine the file type. Rename the file with a proper extension.');
+
+  const signed = await adminAssetRequest({
+    action: 'sign-upload',
+    content_type: contentType,
+    filename: file.name || '',
+    ...descriptor,
+  });
+
+  const { error } = await supabase.storage
+    .from(signed.bucket)
+    .uploadToSignedUrl(signed.path, signed.token, file, { contentType });
+  if (error) throw new Error(error.message || 'Upload failed.');
+
+  return signed.publicUrl;
+}
+
+/** Delete the stored PDF a report points at. Throws if the file could not be removed. */
+export async function removeReportFile(reportId) {
+  return adminAssetRequest({ action: 'remove-report-file', report_id: reportId });
+}
 
 // ─── Stat Card ────────────────────────────────────────────────────────────────
 export function StatCard({ label, value, color, sub, V }) {
@@ -67,7 +152,10 @@ function CompanyEditForm({ company, onSave, onCancel, V, adminSupabase }) {
     city: company.city || '',
     state: company.state || '',
     vertical: company.vertical || '',
-    membership_tier: company.membership_tier || 'free',
+    // membership_tier is deliberately absent. It is billing state, written by the
+    // Stripe checkout flow, and PROTECTED_COLUMNS in api/sourcing/lib/tablePolicy.js
+    // strips it from every admin write. Keeping it in this form meant an admin picked
+    // a tier, saw "Saved", and nothing changed. It is shown read-only below instead.
     employee_count: company.employee_count || '',
     year_founded: company.year_founded || '',
     logo_url: company.logo_url || '',
@@ -80,20 +168,18 @@ function CompanyEditForm({ company, onSave, onCancel, V, adminSupabase }) {
 
   const handleLogoUpload = async (e) => {
     const file = e.target.files && e.target.files[0];
-    if (!file || !adminSupabase) return;
+    if (!file) return;
     setUploadErr('');
     setUploading(true);
     try {
-      const ext = (file.name.split('.').pop() || 'png').toLowerCase();
-      const key = `${company.id}-${Date.now()}.${ext}`;
-      const { error: upErr } = await adminSupabase.storage.from('company-logos').upload(key, file, { upsert: true, contentType: file.type });
-      if (upErr) throw upErr;
-      const { data } = adminSupabase.storage.from('company-logos').getPublicUrl(key);
-      setFields(prev => ({ ...prev, logo_url: data.publicUrl }));
+      const publicUrl = await uploadAdminAsset(file, { kind: 'company-logo', company_id: company.id });
+      setFields(prev => ({ ...prev, logo_url: publicUrl }));
     } catch (err) {
       setUploadErr(err.message || 'Upload failed.');
     } finally {
       setUploading(false);
+      // Let the same file be re-selected after a failure.
+      if (e.target) e.target.value = '';
     }
   };
 
@@ -169,13 +255,12 @@ function CompanyEditForm({ company, onSave, onCancel, V, adminSupabase }) {
         <div><label style={labelStyle}>Vertical</label><input style={inputStyle} value={fields.vertical} onChange={update('vertical')} /></div>
         <div>
           <label style={labelStyle}>Membership Tier</label>
-          <select style={inputStyle} value={fields.membership_tier} onChange={update('membership_tier')}>
-            <option value="free">free</option>
-            <option value="basic">basic</option>
-            <option value="standard">standard</option>
-            <option value="premium">premium</option>
-            <option value="founding">founding</option>
-          </select>
+          <div style={{ ...inputStyle, background: V.card, color: V.muted, display: 'flex', alignItems: 'center', minHeight: 29 }}>
+            {company.membership_tier || 'free'}
+          </div>
+          <div style={{ fontSize: 10, color: V.dim, fontFamily: V.space, marginTop: 4, lineHeight: 1.4 }}>
+            Billing state. Set by checkout, not editable here.
+          </div>
         </div>
         <div><label style={labelStyle}>Employee Count</label><input style={inputStyle} value={fields.employee_count} onChange={update('employee_count')} placeholder="e.g. 50-100" /></div>
         <div><label style={labelStyle}>Year Founded</label><input style={inputStyle} value={fields.year_founded} onChange={update('year_founded')} placeholder="2020" /></div>
@@ -192,7 +277,8 @@ function CompanyEditForm({ company, onSave, onCancel, V, adminSupabase }) {
             fontFamily: V.space, cursor: uploading ? 'wait' : 'pointer', opacity: uploading ? 0.6 : 1, whiteSpace: 'nowrap',
           }}>
             {uploading ? 'Uploading…' : (fields.logo_url ? 'Replace logo' : 'Upload logo')}
-            <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handleLogoUpload} disabled={uploading} />
+            {/* Matches the server's allowlist exactly — SVG is excluded on purpose. */}
+            <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" style={{ display: 'none' }} onChange={handleLogoUpload} disabled={uploading} />
           </label>
           <input style={{ ...inputStyle, flex: '1 1 200px' }} value={fields.logo_url} onChange={update('logo_url')} placeholder="…or paste an image URL" />
           {fields.logo_url && (

@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { supabase } from '../../lib/supabase.js';
-import { AdminSection } from './AdminUI.jsx';
+import { AdminSection, uploadAdminAsset, removeReportFile } from './AdminUI.jsx';
 
 export default function ReportsSection({ reports, setReports, reportsLoading, V, adminSupabase, selectedTenantId, fetchReports }) {
   const [reportsSearch, setReportsSearch] = useState('');
@@ -44,34 +44,28 @@ export default function ReportsSection({ reports, setReports, reportsLoading, V,
     setReportFormStatus('');
   }, []);
 
+  // The PDF is uploaded through POST /api/sourcing/upload-admin-asset, which verifies
+  // the caller server-side and returns a signed upload URL for a path IT chose. Direct
+  // `.storage.upload()` from the browser has been RLS default-deny since the
+  // service_role key was removed from the bundle — it cannot succeed.
   const handleReportFileChange = async (e) => {
     const file = e.target.files[0];
-    if (!file || !adminSupabase) return;
+    if (!file) return;
     setReportFileUploading(true);
     setReportFormStatus('Uploading file...');
     try {
-      let safeName = file.name
-        .replace(/\s+/g, '-')
-        .replace(/[#?&%]/g, '')
-        .replace(/[^a-zA-Z0-9._-]/g, '_')
-        .replace(/-+/g, '-')
-        .replace(/^[-_.]+|[-_.]+$/g, '')
-        .slice(0, 100);
-
-      if (!safeName) safeName = 'report-file.pdf';
-
-      const filePath = `${Date.now()}_${safeName}`;
-      const { data: uploadData, error: uploadError } = await adminSupabase.storage
-        .from('sourcing-reports')
-        .upload(filePath, file, { upsert: true });
-      if (uploadError) throw uploadError;
-      const { data: { publicUrl } } = adminSupabase.storage.from('sourcing-reports').getPublicUrl(uploadData.path);
+      const publicUrl = await uploadAdminAsset(file, {
+        kind: 'report-file',
+        report_id: editingReport?.id || null,
+      });
       setReportForm(prev => ({ ...prev, file_url: publicUrl }));
       setReportFormStatus('File uploaded successfully. Save changes to update this report.');
     } catch (err) {
-      setReportFormStatus('Error: ' + err.message);
+      setReportFormStatus('Error: ' + (err.message || 'Upload failed.'));
     } finally {
       setReportFileUploading(false);
+      // Without this the same file cannot be re-picked after a failed attempt.
+      if (e.target) e.target.value = '';
     }
   };
 
@@ -166,23 +160,36 @@ export default function ReportsSection({ reports, setReports, reportsLoading, V,
     setReportFormStatus('');
   };
 
+  // File first, row second — and the row only if the file is actually gone.
+  //
+  // The old version called `.storage.remove()` with no error capture one line before
+  // deleting the DB row, and swallowed every failure into console.error. Since the
+  // service_role key left the browser that removal fails every time, so the row
+  // vanished while the PDF stayed in a public bucket with nothing pointing at it:
+  // invisible from this panel and impossible to clean up from here.
+  //
+  // DECISION: the orphan is not accepted. A failed file removal aborts the delete and
+  // says so. The report row survives, still lists, and the admin can retry — which is
+  // the recoverable direction. (The reverse residue, a row whose PDF is already gone,
+  // is possible if the row delete fails after the file is removed; that one is visible
+  // in the list and fixable by re-uploading or deleting again.)
   const handleReportDelete = async (report) => {
     if (!adminSupabase) return;
     if (!window.confirm(`Delete "${report.title}"?`)) return;
+    setReportFormStatus('Deleting...');
     try {
-      // Delete file from storage if present
       if (report.file_url) {
-        const url = new URL(report.file_url);
-        const pathParts = url.pathname.split('/object/public/sourcing-reports/');
-        if (pathParts.length === 2) {
-          await adminSupabase.storage.from('sourcing-reports').remove([pathParts[1]]);
-        }
+        // Server-side: verifies this admin's reach over the report, reads the object
+        // path off the DB row (never off the request), removes it with the service key.
+        // Throws with the server's message if the object could not be removed.
+        await removeReportFile(report.id);
       }
-      await adminSupabase.from('directory_reports').delete().eq('id', report.id);
+      const { error } = await adminSupabase.from('directory_reports').delete().eq('id', report.id);
+      if (error) throw new Error(error.message || 'Could not delete the report record.');
       await fetchReports();
       resetReportEditor();
     } catch (err) {
-      console.error('Delete report error:', err);
+      setReportFormStatus(`Error: ${err.message || 'Delete failed.'} The report was NOT deleted.`);
     }
   };
 
