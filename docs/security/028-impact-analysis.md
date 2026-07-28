@@ -635,7 +635,7 @@ nothing about being world-readable.
 | `src/pages/SourcingProfile.jsx:640` | `supabase` — **ANON KEY** | INSERT (public contact / RFQ form) | Yes — `contacts_public_insert` |
 | `src/pages/SourcingAdmin.jsx:335` | `adminSupabase` → `POST /api/sourcing/admin` | SELECT (Contacts tab) | Yes — server-side `service_role`, bypasses RLS |
 | `src/pages/SourcingAdmin.jsx:374` | `adminSupabase` → `POST /api/sourcing/admin` | UPDATE `status` | Yes — same |
-| `api/sourcing/lib/tablePolicy.js:142` | server allowlist entry (`ops: select/update/delete`, `writable: ['status']`) | — | Yes — that path is `service_role` |
+| `api/sourcing/lib/tablePolicy.js` (`directory_contacts:` entry) | server allowlist entry (`ops: select/update/delete`, `writable: ['status']`) | — | Yes — that path is `service_role` |
 
 **Exactly one anon-key toucher, and it is a write.** No page, component or endpoint reads
 `directory_contacts` with the anon key. The contact form (`SourcingProfile.jsx` →

@@ -33,7 +33,7 @@
 --   | src/pages/SourcingProfile.jsx:640  | `supabase` — ANON KEY     | INSERT | Yes — contacts_public_insert |
 --   | src/pages/SourcingAdmin.jsx:335    | `adminSupabase` -> POST /api/sourcing/admin | SELECT | Yes — server-side service_role, bypasses RLS |
 --   | src/pages/SourcingAdmin.jsx:374    | `adminSupabase` -> POST /api/sourcing/admin | UPDATE status | Yes — same |
---   | api/sourcing/lib/tablePolicy.js:142| server allowlist entry (ops: select/update/delete, writable: ['status']) | — | Yes — the server path is service_role |
+--   | api/sourcing/lib/tablePolicy.js `directory_contacts:` entry| server allowlist entry (ops: select/update/delete, writable: ['status']) | — | Yes — the server path is service_role |
 --
 --   There is exactly ONE anon-key toucher of this table and it is a write, not a read.
 --   No page, component or endpoint reads directory_contacts with the anon key. The
@@ -98,10 +98,11 @@ CREATE POLICY "contacts_select_tenant_admin"
   USING (public.dir_is_tenant_admin(tenant_id) OR public.dir_is_global_admin());
 
 -- DELIBERATE: no UPDATE or DELETE policy for anon or authenticated. The only status
--- change (SourcingAdmin.jsx:374 'new' -> 'read' / 'replied') and the only delete
--- (api/sourcing/lib/tablePolicy.js:142 allows both) run through the server admin
--- endpoint under service_role, which bypasses RLS. Adding browser-side write policies
--- would widen the surface for nothing. The table is NOT left with zero policies.
+-- change (SourcingAdmin.jsx:374, 'new' -> 'read' / 'replied') and the only delete both
+-- run through the server admin endpoint under service_role, which bypasses RLS — the
+-- `directory_contacts:` entry in api/sourcing/lib/tablePolicy.js allows exactly
+-- select/update/delete with 'status' as the only writable column. Adding browser-side
+-- write policies would widen the surface for nothing. Not left with zero policies.
 
 -- ACCEPTED RISK, NOT CLOSED HERE: WITH CHECK (true) lets anyone POST forged contact rows
 -- against any tenant_id / company_id — spam and lead poisoning, not disclosure. Closing
