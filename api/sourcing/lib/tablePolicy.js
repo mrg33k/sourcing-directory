@@ -5,12 +5,47 @@
 // Anything not named here is rejected. There is no wildcard and no fallthrough.
 //
 // Per table:
-//   ops       - operations permitted. Nothing else is executable.
-//   columns   - readable / filterable / orderable columns.
-//   writable  - columns accepted in an insert / update / upsert payload.
-//               Always a subset of `columns`.
-//   tenantKey - column carrying the tenant id, or null when the table is global.
-//               A non-global admin is force-scoped to their tenants on this column.
+//   ops         - operations permitted. Nothing else is executable.
+//   columns     - readable / filterable / orderable columns.
+//   writable    - columns accepted in an insert / update / upsert payload.
+//                 Always a subset of `columns`.
+//   tenantKey   - column carrying the tenant id, or null when the table has no
+//                 tenant column at all. A non-global admin is force-scoped to their
+//                 tenants on this column.
+//   primaryKey  - row identity column. Defaults to 'id' (see primaryKeyOf).
+//   globalOnly  - true when ONLY a global admin (app_metadata.role === 'admin') may
+//                 touch the table at all. See "tenant-less tables" below.
+//   parentScope - for a tenant-less child table whose tenant is decided by its PARENT
+//                 row: { column, table, parentKey, tenantKey }. A non-global admin
+//                 only reaches rows whose parent belongs to one of their tenants.
+//
+// TENANT-LESS TABLES (the 2026-07-28 fix)
+// ---------------------------------------
+// `tenantKey: null` used to mean "no scoping applied" — which handed an admin of ANY
+// single tenant unscoped global read/write/DELETE on those tables. An admin of one
+// small directory could POST
+//     {table:'deal_bank_listings', op:'delete', filters:[{type:'neq',column:'id',value:<zero uuid>}]}
+// and wipe the entire global Deal Bank. It passed the "must have one filter" rule and
+// received no tenant scoping whatsoever.
+//
+// A table with no tenant column now has to declare which of two things is true:
+//   globalOnly  - the data is platform-level and cannot be attributed to a tenant, so
+//                 only a global admin may see or change it (the deal_bank_* tables).
+//   parentScope - the data belongs to a parent row that DOES carry a tenant, so the
+//                 tenant is resolved through that parent (admin_ticket_comments).
+// There is no third option. `tenantKey: null` on its own is not a policy.
+//
+// DESTRUCTIVE BREADTH
+// -------------------
+// "must have at least one filter" is not a safety property: `neq id <zero uuid>` is one
+// filter and selects the whole table. admin.js therefore requires, on top of any filter
+// the caller supplies:
+//   delete  - an eq (or bounded in) filter on the primary key. Always. Every delete in
+//             src/pages/admin/ is already `.delete().eq('id', x)`, so this costs nothing.
+//   update  - the same primary-key filter, UNLESS the statement is bounded by the
+//             table's tenant key (caller-supplied or server-injected). That exemption
+//             exists for exactly one caller: the "move all to space" bulk reclassify in
+//             SourcingAdmin.jsx, which is `.update(...).neq('vertical','space').eq('tenant_id', t)`.
 //
 // PROTECTED_COLUMNS is a second, table-independent gate: billing and payment state
 // is NEVER writable through a browser-reachable endpoint, whatever the allowlist
@@ -185,16 +220,41 @@ export const TABLE_POLICY = {
     writable: without(TICKET_COLUMNS, ['id', 'created_at']),
   },
 
+  // No tenant column of its own — admin_ticket_comments.ticket_id is a NOT NULL FK to
+  // admin_tickets(id), and admin_tickets.tenant_id is the real owner. So the tenant is
+  // resolved through the parent ticket: a tenant admin reads and writes comments on
+  // their own tickets and no one else's. Matches TicketsSection.jsx, which always
+  // works one ticket at a time (`.eq('ticket_id', ticket.id)` / insert with ticket_id).
   admin_ticket_comments: {
     ops: ['select', 'insert', 'delete'],
-    tenantKey: null, // no tenant column; reachable only via a ticket_id
+    tenantKey: null,
+    parentScope: {
+      column: 'ticket_id',
+      table: 'admin_tickets',
+      parentKey: 'id',
+      tenantKey: 'tenant_id',
+    },
     columns: ['id', 'ticket_id', 'author', 'body', 'is_agent', 'created_at'],
     writable: ['ticket_id', 'author', 'body', 'is_agent'],
+    // Overwritten server-side with the verified caller, like directory_audit.actor_email.
+    actorColumn: 'author',
   },
 
+  // ── Deal Bank ────────────────────────────────────────────────────────────────
+  // One global surface shared by the whole platform, not by any tenant: pending deal
+  // submissions, deck URLs, revenue figures, and investor contact_email_internal.
+  // There is no tenant column and no honest way to invent one — a row simply does not
+  // belong to a directory. Restricted to global admins.
+  //
+  // Panel impact, stated plainly: the "Deal Bank" tab is currently rendered for every
+  // admin (SourcingAdmin.jsx TABS has no isGlobalAdmin gate). A tenant admin who opens
+  // it now sees three empty lists instead of the whole platform's deal flow. Nothing
+  // crashes — DealBankSection reads `.data || []`. The tab should be hidden for
+  // non-global admins; that is a one-line change in SourcingAdmin.jsx.
   deal_bank_listings: {
     ops: ['select', 'insert', 'update', 'delete'],
-    tenantKey: null, // Deal Bank is a global surface; the table has no tenant column
+    tenantKey: null,
+    globalOnly: true,
     columns: DEAL_LISTING_COLUMNS,
     writable: without(DEAL_LISTING_COLUMNS, ['id', 'created_at']),
   },
@@ -202,6 +262,7 @@ export const TABLE_POLICY = {
   deal_bank_investors: {
     ops: ['select', 'insert', 'update', 'delete'],
     tenantKey: null,
+    globalOnly: true,
     columns: DEAL_INVESTOR_COLUMNS,
     writable: without(DEAL_INVESTOR_COLUMNS, ['id', 'created_at']),
   },
@@ -209,10 +270,23 @@ export const TABLE_POLICY = {
   deal_bank_completed_rounds: {
     ops: ['select', 'insert', 'update', 'delete'],
     tenantKey: null,
+    globalOnly: true,
     columns: DEAL_ROUND_COLUMNS,
     writable: without(DEAL_ROUND_COLUMNS, ['id', 'created_at']),
   },
 };
+
+// Fail closed at module load: a tenant-less table that declares neither `globalOnly`
+// nor `parentScope` is unscoped for every tenant admin. That is the bug this file was
+// edited to remove, and it must not be reintroduced by adding a table.
+for (const [name, policy] of Object.entries(TABLE_POLICY)) {
+  if (!policy.tenantKey && !policy.globalOnly && !policy.parentScope) {
+    throw new Error(
+      `[tablePolicy] ${name} has no tenantKey and declares neither globalOnly nor parentScope. ` +
+      'A tenant-less table must say how a non-global admin is scoped, or that none may reach it.'
+    );
+  }
+}
 
 /** Look up a table's policy. Returns null for anything not on the allowlist. */
 export function getPolicy(table) {
@@ -222,6 +296,61 @@ export function getPolicy(table) {
 
 export function isProtectedColumn(name) {
   return PROTECTED_COLUMNS.some(re => re.test(name));
+}
+
+/** Row identity column for a table. Every table on the allowlist uses `id`. */
+export function primaryKeyOf(policy) {
+  return policy.primaryKey || 'id';
+}
+
+/**
+ * Largest id list accepted as a "bounded" primary-key filter on a destructive op.
+ * Matches MAX_PAYLOAD_ROWS in admin.js: you may not delete more rows in one call
+ * than you may write in one call.
+ */
+export const MAX_KEYED_ROWS = 500;
+
+/**
+ * Does this filter list pin `column` to a known, bounded set of values?
+ *
+ * Only `eq` (one value) and `in` (an explicit, capped list) count. `neq`, `gt`,
+ * `like`, `is` and friends are deliberately NOT bounding: `neq id <zero uuid>` names
+ * one column and selects every row in the table, which is exactly the shape that got
+ * past the old "at least one filter" rule.
+ */
+export function isBoundedBy(filters, column, max = MAX_KEYED_ROWS) {
+  if (!column) return false;
+  return filters.some(f => {
+    if (f.column !== column) return false;
+    if (f.type === 'eq') return f.value !== undefined && f.value !== null;
+    if (f.type === 'in') return Array.isArray(f.value) && f.value.length > 0 && f.value.length <= max;
+    return false;
+  });
+}
+
+/**
+ * Scoping a destructive op needs more than "the caller sent a filter".
+ *
+ * @returns {{ ok: true } | { ok: false, error: string }}
+ */
+export function checkDestructiveScope(policy, op, filters) {
+  if (op !== 'update' && op !== 'delete') return { ok: true };
+
+  const pk = primaryKeyOf(policy);
+  if (isBoundedBy(filters, pk)) return { ok: true };
+
+  // An update may instead be bounded by the tenant key — the bulk reclassify path.
+  // A delete may not: there is no admin screen that bulk-deletes a whole tenant.
+  if (op === 'update' && policy.tenantKey && isBoundedBy(filters, policy.tenantKey, 1000)) {
+    return { ok: true };
+  }
+
+  return {
+    ok: false,
+    error: op === 'delete'
+      ? `delete requires an exact '${pk}' filter (eq, or in with an explicit list)`
+      : `update must be pinned to '${pk}'${policy.tenantKey ? ` or to '${policy.tenantKey}'` : ''} with an eq or in filter`,
+  };
 }
 
 /** A column that may appear in a filter / order / select clause. */
