@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useSearchParams, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import { SourcingNav } from './SourcingMarketplace.jsx';
@@ -7,44 +7,20 @@ import { trackEvent } from './sourcingAnalytics.js';
 import { getVerticalImage } from './SourcingLanding.jsx';
 import '../space-rising-theme.css';
 
-// ─── Scout Answer Card (streaming AI response) ───────────────────────────────
-function ScoutAnswerCard({ text, streaming, V }) {
-  if (!text && !streaming) return null;
-  return (
-    <div style={{
-      background: 'rgba(16,185,129,0.07)',
-      border: `1px solid rgba(16,185,129,0.3)`,
-      borderRadius: 10,
-      padding: '14px 18px',
-      marginBottom: 20,
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: text ? 10 : 0 }}>
-        <div style={{
-          background: 'rgba(16,185,129,0.15)',
-          border: '1px solid rgba(16,185,129,0.35)',
-          borderRadius: 5, padding: '3px 8px',
-          fontSize: 10, fontWeight: 800, fontFamily: "'JetBrains Mono', monospace",
-          color: '#10b981', letterSpacing: '0.1em', textTransform: 'uppercase',
-          display: 'flex', alignItems: 'center', gap: 5,
-        }}>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-          </svg>
-          Scout · AI Answer
-        </div>
-        {streaming && (
-          <div style={{ width: 14, height: 14, borderRadius: '50%', border: '2px solid rgba(16,185,129,0.3)', borderTop: '2px solid #10b981', animation: 'spin 0.8s linear infinite' }} />
-        )}
-      </div>
-      {text && (
-        <div style={{ fontSize: 13, color: V.text, fontFamily: "'Space Grotesk', sans-serif", lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
-          {text}
-          {streaming && <span style={{ display: 'inline-block', width: 2, height: 14, background: '#10b981', marginLeft: 2, verticalAlign: 'middle', animation: 'pulse 1s ease-in-out infinite' }} />}
-        </div>
-      )}
-    </div>
-  );
-}
+// ─── REMOVED: Scout AI answer ────────────────────────────────────────────────
+// This page used to stream an AI answer above the results grid from
+// /api/sourcing/agent (mode: 'scout'). That endpoint was deleted in the
+// 2026-07-28 security round -- it was unauthenticated and could commit code and
+// delete tenants -- and it is not coming back. The admin-side twin
+// (src/pages/admin/ScoutPanel.jsx) was deleted in the same commit.
+//
+// Removed rather than made to error: the streaming card, its state, the fetch,
+// and the "Scout is ready" promise under the search box are all gone. Search
+// itself is unaffected -- it queries Supabase directly and always did.
+//
+// Note for whoever reads this next: this page is legacy V1 and is NOT ROUTED.
+// src/main.jsx line 56 lazy-imports it and no <Route> ever renders it; /directory
+// serves SourcingDirectoryV2. Nothing here reaches a browser today.
 
 // ─── Vertical config ──────────────────────────────────────────────────────────
 const VERTICALS = [
@@ -216,6 +192,12 @@ function CompanyCard({ company, certs, V, tenantSlug, isFavorite, onToggleFavori
 }
 
 // ─── AI Summary Card ──────────────────────────────────────────────────────────
+// DEAD BEFORE THE SECURITY ROUND, LEFT AS FOUND. This component has no JSX call
+// site anywhere in the file, and `aiResult` is only ever set to null, so it has
+// never rendered. Its sibling `handleSuggestionClick` is likewise never wired to
+// anything. Not removed here because this page is unrouted legacy and the change
+// would be pure churn -- but do not read the "Scout · AI Search" badge below as
+// evidence that Scout still exists. It does not; see the note at the top.
 function AiSummaryCard({ aiResult, onSuggestionClick, V }) {
   if (!aiResult) return null;
   const { summary, filters_applied, suggestion } = aiResult;
@@ -319,7 +301,8 @@ function AiSummaryCard({ aiResult, onSuggestionClick, V }) {
 }
 
 // ─── Search Bar ───────────────────────────────────────────────────────────────
-// EVERY search goes through Scout. No gate. No trigger words.
+// Plain directory search against Supabase. The Scout AI pass this used to run
+// alongside it is gone -- see the note at the top of the file.
 function SearchBar({ value, onChange, onSearch, loading, aiLoading, V }) {
   const handleKey = (e) => {
     if (e.key === 'Enter') onSearch();
@@ -368,17 +351,6 @@ function SearchBar({ value, onChange, onSearch, loading, aiLoading, V }) {
           Search
         </button>
       </div>
-      {value && (
-        <div style={{
-          display: 'flex', alignItems: 'center', gap: 5,
-          fontSize: 11, color: '#10b981', fontFamily: V.mono,
-        }}>
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-          </svg>
-          Scout is ready — understands any search
-        </div>
-      )}
     </div>
   );
 }
@@ -407,10 +379,6 @@ function SourcingDirectoryInner() {
   const [aiResult, setAiResult] = useState(null);
   // For AI search results, we store companies separately so certs are already embedded
   const [aiCompanies, setAiCompanies] = useState(null);
-  // Scout agent streaming answer (shown above the grid)
-  const [scoutAnswer, setScoutAnswer] = useState('');
-  const [scoutStreaming, setScoutStreaming] = useState(false);
-  const scoutAbortRef = useRef(null);
 
   // Favorites (localStorage)
   const [favorites, setFavorites] = useState(() => {
@@ -631,62 +599,12 @@ function SourcingDirectoryInner() {
     }
   }, [query, vertical, fetchCompanies, aiCompanies, tenantLoading, tenantSlug]);
 
-  // Call Scout agent via SSE and stream the text answer
-  const callScoutAgent = useCallback(async (q) => {
-    // Cancel any in-flight request
-    if (scoutAbortRef.current) scoutAbortRef.current = false;
-    const token = {};
-    scoutAbortRef.current = token;
-
-    setScoutAnswer('');
-    setScoutStreaming(true);
-
-    try {
-      const res = await fetch('/api/sourcing/agent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: q, mode: 'scout', tenantId: tenant?.id || null }),
-      });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        if (token !== scoutAbortRef.current) break; // aborted
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop() || '';
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          try {
-            const event = JSON.parse(line.slice(6));
-            if (event.type === 'text') {
-              setScoutAnswer(prev => prev + event.text);
-            }
-          } catch { /* skip */ }
-        }
-      }
-    } catch (err) {
-      if (token === scoutAbortRef.current) {
-        setScoutAnswer(`Scout couldn't search right now. Results below are from the directory.`);
-      }
-    } finally {
-      if (token === scoutAbortRef.current) setScoutStreaming(false);
-    }
-  }, []);
-
   const handleSearch = async () => {
     const q = searchInput.trim();
     if (!q) {
       // Clear all search state and reset
       setAiResult(null);
       setAiCompanies(null);
-      setScoutAnswer('');
-      setScoutStreaming(false);
       setQuery('');
       setSearchParams({});
       return;
@@ -699,10 +617,8 @@ function SourcingDirectoryInner() {
     if (selectedSubsectors.length > 0) params.industry_subsector = selectedSubsectors.join(',');
     setSearchParams(params);
 
-    // Run Scout agent (streaming text answer) + standard grid in parallel
     setAiResult(null);
     setAiCompanies(null);
-    callScoutAgent(q); // fire and forget -- streams into scoutAnswer
     setQuery(q);
     fetchCompanies(q, vertical);
 
@@ -716,7 +632,6 @@ function SourcingDirectoryInner() {
       const q = suggestionQuery.trim();
       setAiResult(null);
       setAiCompanies(null);
-      callScoutAgent(q);
       setQuery(q);
       fetchCompanies(q, vertical);
     }, 0);
@@ -733,8 +648,6 @@ function SourcingDirectoryInner() {
     if (selectedCounties.length > 0) params.county = selectedCounties.join(',');
     if (selectedSubsectors.length > 0) params.industry_subsector = selectedSubsectors.join(',');
     setSearchParams(params);
-    setScoutAnswer('');
-    setScoutStreaming(false);
   };
 
   const filteredCompanies = useMemo(() => {
@@ -1207,13 +1120,6 @@ function SourcingDirectoryInner() {
 
       {/* Results */}
       <div style={{ padding: '0 0 80px' }}>
-        {/* Scout AI Answer */}
-        {(scoutAnswer || scoutStreaming) && (
-          <div style={{ padding: '12px 20px' }}>
-            <ScoutAnswerCard text={scoutAnswer} streaming={scoutStreaming} V={V} />
-          </div>
-        )}
-
         {/* Section header */}
         <div className="sec-hdr">
           <div className="sec-title">
