@@ -272,78 +272,18 @@ function Step3({ data, onChange, V, accent }) {
   );
 }
 
-// ─── Step 4: Seed Companies ──────────────────────────────────────────────────
-function Step4({ data, onChange, V, accent }) {
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
-      <div>
-        <label style={labelStyle(V)}>Seed with AI-sourced companies?</label>
-        <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
-          {[{ val: true, label: 'Yes, seed companies' }, { val: false, label: 'No, start empty' }].map(opt => (
-            <button
-              key={String(opt.val)}
-              type="button"
-              onClick={() => onChange({ seed: opt.val })}
-              style={{
-                flex: 1,
-                background: data.seed === opt.val ? `${accent}18` : V.card,
-                border: `1px solid ${data.seed === opt.val ? accent : V.border}`,
-                borderRadius: 8,
-                padding: '14px 18px',
-                fontSize: 14,
-                fontFamily: V.space,
-                fontWeight: data.seed === opt.val ? 700 : 500,
-                color: data.seed === opt.val ? accent : V.muted,
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-              }}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {data.seed && (
-        <>
-          <div>
-            <label style={labelStyle(V)}>How many companies?</label>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 4 }}>
-              <input
-                type="range"
-                min={5} max={50} step={5}
-                value={data.seedCount}
-                onChange={e => onChange({ seedCount: parseInt(e.target.value) })}
-                style={{
-                  flex: 1,
-                  accentColor: accent,
-                  height: 6,
-                }}
-              />
-              <span style={{
-                fontSize: 20, fontWeight: 800, fontFamily: V.mono, color: accent,
-                minWidth: 36, textAlign: 'center',
-              }}>
-                {data.seedCount}
-              </span>
-            </div>
-          </div>
-
-          <div>
-            <label style={labelStyle(V)}>Target Region</label>
-            <input
-              type="text"
-              value={data.seedRegion}
-              onChange={e => onChange({ seedRegion: e.target.value })}
-              placeholder="e.g. Arizona, Texas, Nationwide"
-              style={inputStyle(V)}
-            />
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
+// ─── REMOVED: "Seed companies" step ──────────────────────────────────────────
+// The wizard used to offer a fourth step — "Seed with AI-sourced companies?",
+// a count slider and a target region — which POSTed to /api/sourcing/agent.
+// That endpoint was deleted in the 2026-07-28 security round: it was
+// unauthenticated and could commit code and delete tenants. It is not coming
+// back, and there is no other server capability that bulk-creates companies.
+//
+// The step is removed rather than made to error, because a control that can
+// never succeed should not be on screen at all. Nothing else regressed: the
+// old code caught the failing request and navigated as if it had worked, so
+// nobody has actually received seeded companies since the deletion.
+// Companies are added from the Companies section of the admin panel.
 
 // ─── Final: Summary ──────────────────────────────────────────────────────────
 function StepSummary({ data, V, accent }) {
@@ -414,15 +354,6 @@ function StepSummary({ data, V, accent }) {
           </div>
         </div>
 
-        {data.seed && (
-          <div>
-            <div style={{ ...labelStyle(V), marginBottom: 4 }}>Seed Companies</div>
-            <div style={{ fontSize: 14, fontFamily: V.space, color: V.text }}>
-              {data.seedCount} companies in {data.seedRegion || 'Arizona'}
-            </div>
-          </div>
-        )}
-
         <div>
           <div style={{ ...labelStyle(V), marginBottom: 4 }}>Slug</div>
           <div style={{ fontSize: 14, fontFamily: V.mono, color: V.dim }}>
@@ -454,14 +385,11 @@ function SourcingCreateInner() {
     description: '',
     brandColor: '#1B5E20',
     features: { ...DEFAULT_FEATURES },
-    seed: false,
-    seedCount: 20,
-    seedRegion: 'Arizona',
   });
 
   const update = (patch) => setData(prev => ({ ...prev, ...patch }));
 
-  const totalSteps = 5; // 0-4
+  const totalSteps = 4; // 0-3 (the old step 3, "Seed companies", was removed — see above)
   const canNext = () => {
     if (step === 0) return data.name.trim() && (data.vertical && (data.vertical !== 'custom' || data.customVertical.trim()));
     return true;
@@ -518,46 +446,20 @@ function SourcingCreateInner() {
 
         if (insertErr) throw new Error(insertErr.message);
 
-        // If seed requested, call the agent API to bulk-seed
-        if (data.seed && created?.id) {
-          try {
-            await fetch('/api/sourcing/agent', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                message: `Seed ${data.seedCount} ${vertical} companies in ${data.seedRegion || 'Arizona'} for tenant ${created.id}. Use the tenant_id ${created.id} for all inserts. These should be real companies in the ${vertical} industry.`,
-                mode: 'admin',
-                tenantId: created.id,
-              }),
-            });
-          } catch (seedErr) {
-            console.warn('Seed request sent, agent will process async:', seedErr);
-          }
-        }
-
         navigate(`/${slug}`);
         return;
       }
 
-      // Fallback: try API
+      // Fallback for the "Supabase not configured in this build" case only.
+      // NOTE: api/sourcing/tenants.js is GET-only and answers 405 to this POST,
+      // so this branch always lands in the else and surfaces the error. Left in
+      // place (rather than silently dropped) so the failure stays visible.
       const res = await fetch('/api/sourcing/tenants', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
       if (res.ok) {
-        const created = await res.json();
-        if (data.seed && created?.id) {
-          fetch('/api/sourcing/agent', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              message: `Seed ${data.seedCount} ${vertical} companies in ${data.seedRegion || 'Arizona'} for tenant ${created.id}.`,
-              mode: 'admin',
-              tenantId: created.id,
-            }),
-          }).catch(() => {});
-        }
         navigate(`/${slug}`);
       } else {
         const body = await res.json().catch(() => ({}));
@@ -573,7 +475,6 @@ function SourcingCreateInner() {
     'Name your directory',
     'Describe it',
     'Choose features',
-    'Seed companies',
     'Review & create',
   ];
 
@@ -582,8 +483,7 @@ function SourcingCreateInner() {
       case 0: return <Step1 data={data} onChange={update} V={V} accent={accent} />;
       case 1: return <Step2 data={data} onChange={update} V={V} accent={accent} />;
       case 2: return <Step3 data={data} onChange={update} V={V} accent={accent} />;
-      case 3: return <Step4 data={data} onChange={update} V={V} accent={accent} />;
-      case 4: return <StepSummary data={data} V={V} accent={accent} />;
+      case 3: return <StepSummary data={data} V={V} accent={accent} />;
       default: return null;
     }
   };
