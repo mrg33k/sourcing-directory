@@ -15,16 +15,34 @@ Live at: https://sourcing.directory
 - **Deploy:** Vercel (`vercel --prod` from repo root)
 - **Auth:** Supabase Auth (email/password)
 
+## SECURITY NOTICE -- credentials removed from this file (2026-07-28)
+
+This file used to carry the database password, the connection string, and live
+Supabase JWTs in plaintext. They have been replaced with placeholders.
+
+**Scrubbing this file does NOT make those credentials safe.** They are still in
+git history, and the service_role key additionally shipped inside the public
+JavaScript bundle at os.spacerising.org, where any visitor could read it. Every
+value that was ever written here must be treated as **already compromised**.
+
+Rotation is mandatory, not optional. Ordered, human-executable steps:
+**`docs/security/key-rotation-runbook.md`**
+
+Never paste a real key, password, or connection string into this file again.
+Names of variables: fine. Values: never. `scripts/check-no-vite-secrets.mjs`
+fails the build if a service_role key ends up behind a `VITE_` variable.
+
 ## Supabase Project (DEDICATED -- NOT shared with Corner/AOM)
 - **Project ref:** `kzzvjtthknsozktmpvak`
 - **URL:** `https://kzzvjtthknsozktmpvak.supabase.co`
-- **DB password:** `zj3B35zXuKzmQ7F4`
-- **DB connection:** `postgresql://postgres:zj3B35zXuKzmQ7F4@db.kzzvjtthknsozktmpvak.supabase.co:5432/postgres`
-- **Anon key:** `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6enZqdHRoa25zb3prdG1wdmFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU2NzQwMTEsImV4cCI6MjA5MTI1MDAxMX0.GgxauYExjOFU1Us7PH1j7b-lXH4aga3Qbs2xwuPXA3I`
-- **Service role key:** `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6enZqdHRoa25zb3prdG1wdmFrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTY3NDAxMSwiZXhwIjoyMDkxMjUwMDExfQ.yGfEFCLjqn_NtDbELcevG6CGdSSUGHQOkuDb_D3HfvQ`
-- **Publishable key:** `sb_publishable_yQCgAqVBhbzC1nKvDTtPcA_xeING6zn`
+- **DB password:** `<REDACTED -- rotate; see docs/security/key-rotation-runbook.md>`
+- **DB connection:** `postgresql://postgres:<DB_PASSWORD>@db.kzzvjtthknsozktmpvak.supabase.co:5432/postgres` (password from the password manager, never from this file)
+- **Anon key:** `<REDACTED -- read from env var VITE_SUPABASE_ANON_KEY>`
+- **Service role key:** `<REDACTED -- COMPROMISED, rotate; read from env var SUPABASE_SERVICE_ROLE_KEY, server-side only>`
+- **Publishable key:** `<REDACTED -- Supabase dashboard > Project Settings > API>`
 - **Site URL (auth):** `https://sourcing.directory` -- MUST stay this. Never localhost.
 - **HARD RULE:** This is a SEPARATE Supabase project from Corner/AOM. Never share. Never point sourcing env vars at the Corner DB.
+- **HARD RULE:** The service_role key is server-side only. It must never appear behind a `VITE_` variable, in `src/`, or in any file that reaches the browser.
 
 ## Key Environment Variables (all set in Vercel)
 | Variable | Where Used | What It Does |
@@ -35,7 +53,7 @@ Live at: https://sourcing.directory
 | `SUPABASE_SERVICE_ROLE_KEY` | API functions (server) | Full admin access to Supabase |
 | `RESEND_API_KEY` | API functions (server) | Sends emails via Resend |
 | `RESEND_FROM_ADDRESS` | API functions (server) | Defaults to `noreply@sourcing.directory` |
-| `VITE_SOURCING_ADMIN_KEY` | Frontend (browser) | Admin panel access key |
+| `VITE_SOURCING_ADMIN_KEY` | Frontend (browser) | **COMPROMISED -- BEING RETIRED.** Currently holds the *service_role* key. Because it is `VITE_`-prefixed, Vite inlines it into the public JS bundle, so every visitor to os.spacerising.org can read a credential that bypasses all row-level security. Do not reuse this pattern. See `docs/security/key-rotation-runbook.md`. |
 | `ANTHROPIC_API_KEY` | API functions (server) | Powers Scout AI search |
 | `SETUP_SECRET` | API functions (server) | Protects `/api/sourcing/admin-setup` one-time bootstrap endpoint |
 
@@ -154,8 +172,9 @@ vercel --prod
 - Admin panel at `/admin`
 - Requires Supabase user with `app_metadata.role = 'admin'` (set via service role key)
 - Manages: companies (approve/reject), all content moderation, reports, analytics
-- **Ben (super_admin):** `ben@arsenalgpa.com` / `TempPass123!` -- Arsenal Government and Public Affairs, Space Rising tenant. MUST change password.
+- **Ben (super_admin):** `ben@arsenalgpa.com` -- Arsenal Government and Public Affairs, Space Rising tenant. Bootstrap password was committed to this file in plaintext; treat it as compromised and reset it (see the runbook).
 - Patrik's admin account: `patrik@aom.com` (bootstrapped 2026-04-08, change password after first login)
+- **Client-side guard:** `/admin` routes are wrapped in `<RequireAdmin>` (`src/components/RequireAdmin.jsx`, `src/hooks/useAdmin.js`). That is defence in depth only -- it stops an honest signed-in non-admin from rendering the panel, and stops nobody who edits their own JavaScript. Server-side authorization is the real control.
 - To bootstrap a new admin: `SETUP_SECRET=... ADMIN_PASSWORD=... BASE_URL=https://sourcing.directory ./scripts/create-admin.sh`
 - Or promote existing user directly: `api/sourcing/admin-setup` POST with `x-setup-secret` header
 

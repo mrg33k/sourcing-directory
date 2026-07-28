@@ -152,6 +152,18 @@ const OSPeoplePage = lazy(() => import('./pages/OSPeoplePage.jsx'))
 const OSRFPsPage = lazy(() => import('./pages/OSRFPsPage.jsx'))
 const OSGrantsPage = lazy(() => import('./pages/OSGrantsPage.jsx'))
 
+// Admin route guard. Lazy on purpose — it pulls in the Supabase client, and
+// eager-importing it here would drag that chunk into the entry bundle for every
+// visitor to the home page. Only /admin/* ever loads it.
+//
+// DEFENCE IN DEPTH, NOT SECURITY: this keeps an honest signed-in non-admin (a
+// brand-new `pending` signup, for instance) from rendering the admin panel. It
+// does not stop anyone willing to edit their own JavaScript, and it does nothing
+// about the service-role key currently shipping in the public bundle. The real
+// fix is the server-side authorization check plus key rotation
+// (docs/security/key-rotation-runbook.md). See src/hooks/useAdmin.js.
+const RequireAdmin = lazy(() => import('./components/RequireAdmin.jsx'))
+
 const Loading = () => (
   <div style={{ minHeight: '100dvh', background: 'var(--bg, #06060A)' }} />
 )
@@ -235,9 +247,13 @@ createRoot(document.getElementById('root')).render(
           <Route path="/blueprint" element={<Navigate to="/srw-v2/blueprint" replace />} />
 
           {/* ===== ADMIN (outside v3 shell) ===== */}
-          <Route path="/admin" element={<SourcingAdmin />} />
-          <Route path="/admin/new" element={<SourcingAdmin />} />
-          <Route path="/admin/settings/:tenantSlug" element={<SourcingAdmin />} />
+          {/* Guarded by RequireAdmin. Paths and declaration order are unchanged
+              on purpose: these stay above the "*" catch-all, and the element is
+              wrapped rather than the routes being re-nested, so nothing about
+              route matching moves. */}
+          <Route path="/admin" element={<RequireAdmin><SourcingAdmin /></RequireAdmin>} />
+          <Route path="/admin/new" element={<RequireAdmin><SourcingAdmin /></RequireAdmin>} />
+          <Route path="/admin/settings/:tenantSlug" element={<RequireAdmin><SourcingAdmin /></RequireAdmin>} />
 
           {/* ===== LEGACY REDIRECTS ===== */}
           {/* /spaceos/* → clean OS routes (e.g., /spaceos/directory → /directory) */}
