@@ -2,9 +2,113 @@
 // Sends a welcome email via Resend after a company signs up on the sourcing directory.
 // Body: { email, company_name, org_name, company_slug, base_url }
 
-const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_ADDRESS = process.env.RESEND_FROM_ADDRESS || 'Sourcing Directory <noreply@sourcing.directory>';
+import { resolveBrand } from './lib/emailBrand.js';
 
+const RESEND_API_KEY = process.env.RESEND_API_KEY;
+
+// Space OS variant: matches the v3 shell (light content, navy ink, rust accent).
+function buildSpaceOSEmailHtml({ company_name, org_name, profile_url, brand }) {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to ${org_name}</title>
+</head>
+<body style="margin:0;padding:0;background:#F7F8F9;font-family:'Roboto',Helvetica,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F7F8F9;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+
+          <!-- Header -->
+          <tr>
+            <td style="padding-bottom:28px;">
+              <span style="font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#000C20;">Space Rising</span>
+              <span style="font-size:13px;color:#9CA3AF;margin:0 8px;">/</span>
+              <span style="font-size:13px;color:#6B7280;">Space OS</span>
+            </td>
+          </tr>
+
+          <!-- Card -->
+          <tr>
+            <td style="background:#FFFFFF;border:1px solid #D7DEE2;border-radius:8px;padding:40px 36px;">
+
+              <p style="margin:0 0 16px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#6B7280;">
+                Submission received
+              </p>
+              <h1 style="margin:0 0 12px;font-size:24px;font-weight:700;color:#010B13;letter-spacing:-0.01em;line-height:1.2;">
+                You're on the list.
+              </h1>
+              <p style="margin:0 0 24px;font-size:15px;color:#2E2E2E;line-height:1.6;">
+                <strong style="color:#010B13;">${company_name}</strong> has been submitted to <strong style="color:#010B13;">${org_name}</strong>. Our team will review your listing and you'll be live in the directory shortly.
+              </p>
+
+              <!-- What happens next -->
+              <table cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:32px;">
+                <tr>
+                  <td style="background:#F7F8F9;border:1px solid #D7DEE2;border-radius:6px;padding:20px 22px;">
+                    <p style="margin:0 0 14px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#CE4421;">What happens next</p>
+                    <table cellpadding="0" cellspacing="0" style="width:100%;">
+                      <tr>
+                        <td style="padding:6px 0;font-size:13px;color:#2E2E2E;">
+                          <span style="color:#CE4421;font-weight:700;margin-right:10px;">01</span>
+                          Our team reviews your listing (usually within 24h)
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding:6px 0;font-size:13px;color:#2E2E2E;">
+                          <span style="color:#CE4421;font-weight:700;margin-right:10px;">02</span>
+                          Your profile goes live in the directory
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding:6px 0;font-size:13px;color:#2E2E2E;">
+                          <span style="color:#CE4421;font-weight:700;margin-right:10px;">03</span>
+                          Procurement teams and partners can find you
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- CTA -->
+              <table cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="border-radius:6px;background:#CE4421;">
+                    <a href="${profile_url}" style="display:inline-block;padding:12px 28px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;letter-spacing:0.01em;">
+                      View Your Profile
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding-top:28px;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#6B7280;line-height:1.6;">
+                This email was sent because you signed up on <a href="${brand.siteUrl}" style="color:#2563EB;text-decoration:none;">${brand.siteLabel}</a>.<br/>
+                Questions? Reply to this email or reach us at <a href="mailto:${brand.contactEmail}" style="color:#2563EB;text-decoration:none;">${brand.contactEmail}</a>
+              </p>
+              <p style="margin:12px 0 0;font-size:11px;color:#9CA3AF;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;">
+                ${brand.footerSign}
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+// Sourcing.directory variant (original dark/cyan template) — unchanged.
 function buildEmailHtml({ company_name, org_name, profile_url }) {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -134,13 +238,18 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, skipped: true, reason: 'RESEND_API_KEY not configured' });
   }
 
-  const directoryName = org_name || 'AOM Sourcing Directory';
   const origin = base_url || 'https://sourcing.directory';
+  const brand = resolveBrand(origin);
+  const directoryName = org_name || brand.defaultOrgName;
+  // Space OS company profiles live at /<slug>; the legacy s3c path only
+  // exists on sourcing.directory.
   const profile_url = company_slug
-    ? `${origin}/s3c-semiconductor/${company_slug}`
+    ? (brand.key === 'spaceos' ? `${origin}/${company_slug}` : `${origin}/s3c-semiconductor/${company_slug}`)
     : origin;
 
-  const html = buildEmailHtml({ company_name, org_name: directoryName, profile_url });
+  const html = brand.key === 'spaceos'
+    ? buildSpaceOSEmailHtml({ company_name, org_name: directoryName, profile_url, brand })
+    : buildEmailHtml({ company_name, org_name: directoryName, profile_url });
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
@@ -150,7 +259,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: FROM_ADDRESS,
+        from: brand.from,
         to: [email],
         subject: `${company_name} is on the list — ${directoryName}`,
         html,

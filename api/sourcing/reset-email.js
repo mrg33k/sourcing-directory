@@ -3,12 +3,105 @@
 // Body: { email, org_name?, redirect_to? }
 
 import { createClient } from '@supabase/supabase-js';
+import { resolveBrand } from './lib/emailBrand.js';
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://kzzvjtthknsozktmpvak.supabase.co';
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const FROM_ADDRESS = process.env.RESEND_FROM_ADDRESS || 'Sourcing Directory <noreply@sourcing.directory>';
 
+// Space OS variant: matches the v3 shell (light content, navy ink, rust accent)
+// so the email reads as the same product the user just left.
+function buildSpaceOSResetEmailHtml({ org_name, reset_url, brand }) {
+  const displayName = org_name || brand.defaultOrgName;
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reset your password</title>
+</head>
+<body style="margin:0;padding:0;background:#F7F8F9;font-family:'Roboto',Helvetica,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#F7F8F9;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;">
+
+          <!-- Header -->
+          <tr>
+            <td style="padding-bottom:28px;">
+              <span style="font-size:13px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#000C20;">Space Rising</span>
+              <span style="font-size:13px;color:#9CA3AF;margin:0 8px;">/</span>
+              <span style="font-size:13px;color:#6B7280;">Space OS</span>
+            </td>
+          </tr>
+
+          <!-- Card -->
+          <tr>
+            <td style="background:#FFFFFF;border:1px solid #D7DEE2;border-radius:8px;padding:40px 36px;">
+
+              <p style="margin:0 0 16px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#6B7280;">
+                Password reset
+              </p>
+              <h1 style="margin:0 0 12px;font-size:24px;font-weight:700;color:#010B13;letter-spacing:-0.01em;line-height:1.2;">
+                Reset your password
+              </h1>
+              <p style="margin:0 0 28px;font-size:15px;color:#2E2E2E;line-height:1.6;">
+                We received a request to reset your password for <strong style="color:#010B13;">${displayName}</strong>. Click the button below to choose a new password.
+              </p>
+
+              <!-- CTA -->
+              <table cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
+                <tr>
+                  <td style="border-radius:6px;background:#CE4421;">
+                    <a href="${reset_url}" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;letter-spacing:0.01em;">
+                      Reset Password
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Expiry notice -->
+              <table cellpadding="0" cellspacing="0" style="width:100%;">
+                <tr>
+                  <td style="background:#F7F8F9;border:1px solid #D7DEE2;border-radius:6px;padding:16px 20px;">
+                    <p style="margin:0;font-size:13px;color:#6B7280;line-height:1.5;">
+                      <span style="color:#CE4421;font-weight:700;">Note:</span> This link expires in <strong style="color:#010B13;">1 hour</strong>. If you did not request a password reset, you can safely ignore this email.
+                    </p>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Fallback link -->
+              <p style="margin:24px 0 0;font-size:12px;color:#9CA3AF;line-height:1.6;">
+                If the button above doesn't work, paste this URL into your browser:<br/>
+                <a href="${reset_url}" style="color:#2563EB;text-decoration:none;word-break:break-all;font-size:11px;">${reset_url}</a>
+              </p>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="padding-top:28px;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#6B7280;line-height:1.6;">
+                This email was sent because a password reset was requested on <a href="${brand.siteUrl}" style="color:#2563EB;text-decoration:none;">${brand.siteLabel}</a>.<br/>
+                Questions? Reach us at <a href="mailto:${brand.contactEmail}" style="color:#2563EB;text-decoration:none;">${brand.contactEmail}</a>
+              </p>
+              <p style="margin:12px 0 0;font-size:11px;color:#9CA3AF;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;">
+                ${brand.footerSign}
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+// Sourcing.directory variant (original dark/cyan template) — unchanged.
 function buildResetEmailHtml({ org_name, reset_url }) {
   const displayName = org_name || 'AOM Sourcing Directory';
   return `<!DOCTYPE html>
@@ -131,6 +224,7 @@ export default async function handler(req, res) {
   });
 
   const redirectTo = redirect_to || 'https://sourcing.directory';
+  const brand = resolveBrand(redirectTo);
 
   let reset_url;
   try {
@@ -160,8 +254,10 @@ export default async function handler(req, res) {
     return res.status(200).json({ ok: true, skipped: true, reason: 'RESEND_API_KEY not configured' });
   }
 
-  const displayName = org_name || 'AOM Sourcing Directory';
-  const html = buildResetEmailHtml({ org_name: displayName, reset_url });
+  const displayName = org_name || brand.defaultOrgName;
+  const html = brand.key === 'spaceos'
+    ? buildSpaceOSResetEmailHtml({ org_name: displayName, reset_url, brand })
+    : buildResetEmailHtml({ org_name: displayName, reset_url });
 
   try {
     const response = await fetch('https://api.resend.com/emails', {
@@ -171,7 +267,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: FROM_ADDRESS,
+        from: brand.from,
         to: [email],
         subject: `Reset your password — ${displayName}`,
         html,

@@ -91,7 +91,9 @@ function SourcingLoginV2Inner() {
         body: JSON.stringify({
           email: target,
           org_name: tenant?.name || 'Space Rising',
-          redirect_to: `${window.location.origin}${BASE_PATH_V2}/login`,
+          // Straight to /login — the /spaceos/* vercel redirect is a 308 hop
+          // the recovery token fragment doesn't need to survive.
+          redirect_to: `${window.location.origin}/login`,
         }),
       });
       if (res.ok) {

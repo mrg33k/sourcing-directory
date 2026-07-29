@@ -2,8 +2,9 @@
 // Sends an approved / declined email to a directory member via Resend.
 // Body: { email, full_name, status: 'approved'|'rejected', directory_name, base_url }
 
+import { resolveBrand } from './lib/emailBrand.js';
+
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const FROM_ADDRESS = process.env.RESEND_FROM_ADDRESS || 'Space Rising <noreply@sourcing.directory>';
 
 function buildEmailHtml({ full_name, status, directory_name, portal_url }) {
   const approved = status === 'approved';
@@ -38,6 +39,7 @@ export default async function handler(req, res) {
   }
   const dir = directory_name || 'Space Rising';
   const origin = base_url || 'https://www.spacerising.org';
+  const brand = resolveBrand(origin);
   const portal_url = `${origin}/space-rising/portal`;
   const html = buildEmailHtml({ full_name, status, directory_name: dir, portal_url });
   const subject = status === 'approved' ? `You're approved — ${dir}` : `Update on your ${dir} application`;
@@ -45,7 +47,7 @@ export default async function handler(req, res) {
     const response = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: FROM_ADDRESS, to: [email], subject, html }),
+      body: JSON.stringify({ from: brand.from, to: [email], subject, html }),
     });
     const data = await response.json();
     if (!response.ok) {
