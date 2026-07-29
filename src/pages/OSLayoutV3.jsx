@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { useAdmin } from '../hooks/useAdmin.js'
+import { getViewerContext } from '../lib/profileWrite.js'
 import { supabase } from '../lib/supabase'
 import './OSLayoutV3.css'
 
@@ -38,11 +40,24 @@ const PRIMARY_NAV = [
   { to: '/learning', key: 'learning', label: 'Learning' },
   { to: '/library', key: 'library', label: 'My Library' },
 ]
+// One entry, not three: /admin-tools opens on the stats dashboard (Patrik
+// 2026-07-29, "stats should be the first tab admins see") and the legacy
+// management panel is linked from its header. The old three-item list pointed
+// at /admin/requests and /admin/uploads — routes that were never registered.
 const ADMIN_NAV = [
-  { to: '/admin/requests', key: 'requests', label: 'Data Requests' },
-  { to: '/admin/uploads', key: 'uploads', label: 'Uploads' },
-  { to: '/admin/settings/space-rising', key: 'settings', label: 'Settings' },
+  { to: '/admin-tools', key: 'settings', label: 'Admin Tools' },
 ]
+
+// Avatar-menu icons. Same stroke family as ADMIN_ICON, sized for a menu row.
+const M = { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round', strokeLinejoin: 'round' }
+const MENU_ICON = {
+  view: <svg {...M}><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.3 3.1-5.5 7-5.5s7 2.2 7 5.5"/></svg>,
+  edit: <svg {...M}><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>,
+  admin: <svg {...M}><path d="M12 3l7 3v5c0 4.4-3 8.2-7 9.5C8 19.2 5 15.4 5 11V6z"/></svg>,
+  signout: <svg {...M}><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>,
+  signin: <svg {...M}><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>,
+  signup: <svg {...M}><circle cx="9" cy="8" r="3.5"/><path d="M2 20c0-3.3 3.1-5.5 7-5.5 1.2 0 2.3.2 3.3.6"/><path d="M19 8v6M16 11h6"/></svg>,
+}
 
 // MY SPACEOS — the member area. Word-only rows (no icons), which is exactly how
 // the design separates "your stuff" from the ecosystem nav above it.
@@ -60,7 +75,8 @@ const MY_SPACEOS_NAV = [
 const OSLayoutV3 = () => {
   const navigate = useNavigate()
   const { user } = useAuth()
-  const [isAdmin, setIsAdmin] = useState(false)
+  const { isAdmin } = useAdmin()
+  const [personSlug, setPersonSlug] = useState(null)
   const [userName, setUserName] = useState('')
   const [userInitials, setUserInitials] = useState('?')
   const [searchQuery, setSearchQuery] = useState('')
@@ -87,12 +103,39 @@ const OSLayoutV3 = () => {
     }
   }, [user])
 
-  // TODO: Check if user is admin/org member for admin section visibility
+  // The signed-in user's own person profile, if one exists. "View profile" in
+  // the avatar menus goes straight to /people/<slug> when it does — the page a
+  // member actually shows other people — and to /profile (the get-started
+  // screen) when it does not.
   useEffect(() => {
-    if (user) {
-      setIsAdmin(false) // Placeholder; real check would query directory_orgs or roles
-    }
+    let cancelled = false
+    if (!user) { setPersonSlug(null); return undefined }
+    getViewerContext().then(({ data }) => {
+      if (!cancelled) setPersonSlug(data?.personSlug || null)
+    })
+    return () => { cancelled = true }
   }, [user])
+
+  // Close whichever avatar menu is open on outside click or Escape. Without
+  // this, an opened menu sat there until the user happened to click the chip
+  // again — half of what made the old dropdown feel broken.
+  const chipRef = useRef(null)
+  const topbarRef = useRef(null)
+  useEffect(() => {
+    const onPress = (e) => {
+      if (chipRef.current && !chipRef.current.contains(e.target)) setShowUserMenu(false)
+      if (topbarRef.current && !topbarRef.current.contains(e.target)) setShowTopbarMenu(false)
+    }
+    const onKey = (e) => {
+      if (e.key === 'Escape') { setShowUserMenu(false); setShowTopbarMenu(false) }
+    }
+    document.addEventListener('mousedown', onPress)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onPress)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [])
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -141,6 +184,56 @@ const OSLayoutV3 = () => {
         <circle cx="12" cy="8" r="3.5" fill="currentColor" />
         <path d="M4 20c0-3.314 3.582-6 8-6s8 2.686 8 6" fill="currentColor" fillOpacity="0.55" />
       </svg>
+    )
+  }
+
+  // ONE menu, rendered from both avatars. The signed-in menu is the profile's
+  // front door (view, edit, admin for admins, sign out); the guest menu is the
+  // way in. `extraClass` picks direction + surface: the sidebar chip opens
+  // UPWARD on the navy surface, the topbar opens downward on the light one.
+  const renderUserMenu = (close, extraClass) => {
+    const go = (to) => { close(); navigate(to) }
+    return (
+      <div className={`osv3-user-menu ${extraClass}`} onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+        {user ? (
+          <>
+            <div className="osv3-user-menu-head">
+              <div className="osv3-user-menu-name">{userName}</div>
+              <div className="osv3-user-menu-email">{user.email}</div>
+            </div>
+            <div className="osv3-user-menu-sep"></div>
+            <button className="osv3-user-menu-item" onClick={() => go(personSlug ? `/people/${personSlug}` : '/profile')}>
+              {MENU_ICON.view} View profile
+            </button>
+            <button className="osv3-user-menu-item" onClick={() => go('/profile/edit')}>
+              {MENU_ICON.edit} Edit profile
+            </button>
+            {isAdmin && (
+              <button className="osv3-user-menu-item" onClick={() => go('/admin-tools')}>
+                {MENU_ICON.admin} Admin Tools
+              </button>
+            )}
+            <div className="osv3-user-menu-sep"></div>
+            <button className="osv3-user-menu-item osv3-user-menu-item--quiet" onClick={() => { close(); handleSignOut() }}>
+              {MENU_ICON.signout} Sign out
+            </button>
+          </>
+        ) : (
+          <>
+            <div className="osv3-user-menu-head">
+              <div className="osv3-user-menu-name">You're browsing as a guest</div>
+              <div className="osv3-user-menu-email">Sign in to publish your profile</div>
+            </div>
+            <div className="osv3-user-menu-sep"></div>
+            <button className="osv3-user-menu-item" onClick={() => go('/login')}>
+              {MENU_ICON.signin} Sign in
+            </button>
+            <button className="osv3-user-menu-item" onClick={() => go('/signup')}>
+              {MENU_ICON.signup} Create account
+            </button>
+          </>
+        )}
+      </div>
     )
   }
 
@@ -231,30 +324,16 @@ const OSLayoutV3 = () => {
         </button>
 
         {/* User Chip */}
-        <div className="osv3-user-chip" onClick={() => setShowUserMenu(!showUserMenu)}>
+        <div className="osv3-user-chip" ref={chipRef} onClick={() => setShowUserMenu(!showUserMenu)}>
           <div className={`osv3-avatar ${!user ? 'osv3-avatar-guest' : ''}`}>
             {renderAvatar()}
           </div>
           <div className="osv3-user-name">{user ? userName : 'Sign in'}</div>
-          <span className="osv3-chevron">
+          <span className={`osv3-chevron ${showUserMenu ? 'osv3-chevron--open' : ''}`}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 9l6 6 6-6"/></svg>
           </span>
 
-          {showUserMenu && user && (
-            <div className="osv3-user-menu">
-              <button onClick={handleSignOut} className="osv3-user-menu-item">
-                Sign Out
-              </button>
-            </div>
-          )}
-
-          {showUserMenu && !user && (
-            <div className="osv3-user-menu">
-              <button onClick={() => navigate('/login')} className="osv3-user-menu-item">
-                Sign In
-              </button>
-            </div>
-          )}
+          {showUserMenu && renderUserMenu(() => setShowUserMenu(false), 'osv3-user-menu--up')}
         </div>
       </aside>
 
@@ -287,6 +366,7 @@ const OSLayoutV3 = () => {
                 a dead button is worse than no button. Avatar sits cleanly at right. */}
             <div
               className={`osv3-topbar-avatar ${!user ? 'osv3-avatar-guest' : ''}`}
+              ref={topbarRef}
               onClick={() => setShowTopbarMenu(!showTopbarMenu)}
               onKeyDown={e => e.key === 'Enter' && setShowTopbarMenu(!showTopbarMenu)}
               role="button"
@@ -295,20 +375,7 @@ const OSLayoutV3 = () => {
               style={{ cursor: 'pointer', position: 'relative' }}
             >
               {renderAvatar()}
-              {showTopbarMenu && user && (
-                <div className="osv3-user-menu" style={{ top: 'calc(100% + 10px)', right: 0, left: 'auto' }}>
-                  <button onClick={handleSignOut} className="osv3-user-menu-item">
-                    Sign Out
-                  </button>
-                </div>
-              )}
-              {showTopbarMenu && !user && (
-                <div className="osv3-user-menu" style={{ top: 'calc(100% + 10px)', right: 0, left: 'auto' }}>
-                  <button onClick={() => { setShowTopbarMenu(false); navigate('/login'); }} className="osv3-user-menu-item">
-                    Sign In
-                  </button>
-                </div>
-              )}
+              {showTopbarMenu && renderUserMenu(() => setShowTopbarMenu(false), 'osv3-user-menu--down osv3-user-menu--light')}
             </div>
           </div>
         </header>

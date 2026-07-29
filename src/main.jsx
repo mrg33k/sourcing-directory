@@ -173,10 +173,12 @@ const OSSaved = lazy(() => import('./pages/os/OSSaved.jsx'))
 const OSMessages = lazy(() => import('./pages/os/OSMessages.jsx'))
 const OSNotifications = lazy(() => import('./pages/os/OSNotifications.jsx'))
 const OSAddProfile = lazy(() => import('./pages/os/OSAddProfile.jsx'))
-// Third screen of the rebuild. Preview-only and fixture-backed — it reads
-// nothing live, so it needs no guard; the working admin surface stays at
-// /admin behind RequireAdmin.
-const OSAdminTools = lazy(() => import('./pages/os/OSAdminTools.jsx'))
+// Third screen of the rebuild, now the REAL admin surface (Patrik 2026-07-29:
+// "stats should be the first tab admins see"). Imported straight from
+// AdminTools.jsx per the shim's own retirement note. /admin-tools is guarded;
+// /admin-tools/_preview stays open — it renders the same live aggregates a
+// visitor could already count from public pages, and holds no admin controls.
+const OSAdminTools = lazy(() => import('./pages/os/AdminTools.jsx'))
 
 // Admin route guard. Lazy on purpose — it pulls in the Supabase client, and
 // eager-importing it here would drag that chunk into the entry bundle for every
@@ -265,6 +267,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/messages" element={<OSMessages />} />
             <Route path="/notifications" element={<OSNotifications />} />
             <Route path="/add-profile" element={<OSAddProfile />} />
+            <Route path="/admin-tools" element={<RequireAdmin><OSAdminTools /></RequireAdmin>} />
             <Route path="/admin-tools/_preview" element={<OSAdminTools />} />
 
             {/* ===== COMPANY PROFILE =====
@@ -322,11 +325,13 @@ createRoot(document.getElementById('root')).render(
           <Route path="/blueprint" element={<Navigate to="/srw-v2/blueprint" replace />} />
 
           {/* ===== ADMIN (outside v3 shell) ===== */}
-          {/* Guarded by RequireAdmin. Paths and declaration order are unchanged
-              on purpose: these stay above the "*" catch-all, and the element is
-              wrapped rather than the routes being re-nested, so nothing about
-              route matching moves. */}
-          <Route path="/admin" element={<RequireAdmin><SourcingAdmin /></RequireAdmin>} />
+          {/* /admin now lands on the new Admin Tools (dashboard/stats tab
+              first — Patrik 2026-07-29). The legacy management panel moved to
+              /admin/panel; /admin/new and /admin/settings are untouched, and
+              nothing in SourcingAdmin links back to bare /admin (verified by
+              grep before the move). All guarded by RequireAdmin. */}
+          <Route path="/admin" element={<Navigate to="/admin-tools" replace />} />
+          <Route path="/admin/panel" element={<RequireAdmin><SourcingAdmin /></RequireAdmin>} />
           <Route path="/admin/new" element={<RequireAdmin><SourcingAdmin /></RequireAdmin>} />
           <Route path="/admin/settings/:tenantSlug" element={<RequireAdmin><SourcingAdmin /></RequireAdmin>} />
 

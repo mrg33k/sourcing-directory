@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
   Card, CardBody, CardFooter, CardLink,
   Tabs, Pill, LogoTile, Icon,
   KpiTile, LineChart, DonutChart, DonutLegend, DataTable, IconList,
-  Button, EmptyState,
+  Button, ButtonRow, EmptyState,
 } from '../../components/osv3/index.js'
 import { ADMIN_FIXTURE } from '../../lib/profileFixtures.js'
 import {
@@ -182,6 +182,7 @@ function deltaProps(added, prior) {
 
 export default function AdminTools() {
   const a = ADMIN_FIXTURE
+  const navigate = useNavigate()
   const [params] = useSearchParams()
   const previewState = params.get('state') === 'empty'
     ? 'empty'
@@ -343,7 +344,13 @@ export default function AdminTools() {
           <h1 className="osv3p-pagehead-title">{a.title}</h1>
           <p className="osv3p-pagehead-sub">{a.subtitle}</p>
         </div>
-        <Button icon="download" variant="primary">{a.exportCta}</Button>
+        <ButtonRow>
+          {/* The legacy panel still owns the working management flows (add
+              company, uploads, tenant settings). Until the tabs above absorb
+              them, the door to it stays one click from the stats. */}
+          <Button variant="quiet" onClick={() => navigate('/admin/panel')}>Management panel</Button>
+          <Button icon="download" variant="primary">{a.exportCta}</Button>
+        </ButtonRow>
       </header>
 
       <Tabs items={a.tabs} value={tab} onChange={setTab} label={TABS_LABEL} />
@@ -353,6 +360,7 @@ export default function AdminTools() {
           icon="gear"
           title={`${activeTab.label} is not built yet`}
           body={TAB_PROMISES[tab]}
+          action={<Button variant="quiet" onClick={() => navigate('/admin/panel')}>Do this in the management panel</Button>}
         />
       ) : loading ? (
         <EmptyState

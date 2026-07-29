@@ -258,7 +258,10 @@
   background: #CE4421;
   color: white;
 }
-.osv3-avatar-guest svg {
+/* Direct child ONLY: the topbar dropdown renders INSIDE the avatar div, and a
+   bare descendant selector here inflated every 16px menu icon to 60% of its
+   button and painted it white-on-white. */
+.osv3-avatar-guest > svg {
   color: white;
   width: 60%;
   height: 60%;
@@ -276,37 +279,137 @@
 .osv3-chevron {
   font-size: 12px;
   opacity: 0.5;
+  display: inline-flex;
+  transition: transform var(--v3-transition-fast);
 }
 
+.osv3-chevron--open {
+  transform: rotate(180deg);
+}
+
+/* ===== AVATAR MENU =====
+   One menu, two surfaces. --up hangs off the sidebar chip and opens ABOVE it:
+   the chip is stuck to the bottom of the viewport, so the old menu (which
+   dropped 40px BELOW it) rendered pressed against the screen edge — the
+   cramped dropdown. --down/--light hangs off the topbar avatar and matches
+   the light surface it opens over. Spacing sits on the 4px scale (4/8/12). */
 .osv3-user-menu {
   position: absolute;
-  bottom: -40px;
-  left: 12px;
-  background-color: rgba(0, 0, 0, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
+  min-width: 224px;
+  padding: 4px;
+  border-radius: 8px;
+  background-color: #04182F;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35), 0 16px 40px rgba(0, 0, 0, 0.5);
   z-index: 1001;
-  min-width: 150px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  cursor: default;
+}
+
+.osv3-user-menu--up {
+  bottom: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  min-width: 0;
+}
+
+.osv3-user-menu--down {
+  top: calc(100% + 8px);
+  right: 0;
+  left: auto;
+}
+
+.osv3-user-menu-head {
+  padding: 8px 12px;
+}
+
+.osv3-user-menu-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.osv3-user-menu-email {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.osv3-user-menu-sep {
+  height: 1px;
+  background-color: rgba(255, 255, 255, 0.12);
+  margin: 4px 0;
 }
 
 .osv3-user-menu-item {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   width: 100%;
-  padding: 10px 16px;
+  padding: 8px 12px;
   border: none;
+  border-radius: 6px;
   background: none;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.85);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   text-align: left;
-  transition: color var(--v3-transition-fast);
+  transition: background-color var(--v3-transition-fast), color var(--v3-transition-fast);
+}
+
+.osv3-user-menu-item svg {
+  flex-shrink: 0;
+  opacity: 0.7;
+  width: 16px;
+  height: 16px;
+  color: currentColor;
 }
 
 .osv3-user-menu-item:hover {
-  color: white;
-  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.osv3-user-menu-item--quiet {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Topbar variant: same menu on the light surface. */
+.osv3-user-menu--light {
+  background-color: #FFFFFF;
+  border-color: var(--v3-border, #D7DEE2);
+  box-shadow: 0 2px 6px rgba(1, 11, 19, 0.08), 0 16px 40px rgba(1, 11, 19, 0.16);
+}
+
+.osv3-user-menu--light .osv3-user-menu-name {
+  color: var(--v3-ink-primary, #010B13);
+}
+
+.osv3-user-menu--light .osv3-user-menu-email {
+  color: #6B7280;
+}
+
+.osv3-user-menu--light .osv3-user-menu-sep {
+  background-color: #E7EBEE;
+}
+
+.osv3-user-menu--light .osv3-user-menu-item {
+  color: #374151;
+}
+
+.osv3-user-menu--light .osv3-user-menu-item:hover {
+  color: #010B13;
+  background-color: #F3F5F7;
+}
+
+.osv3-user-menu--light .osv3-user-menu-item--quiet {
+  color: #6B7280;
 }
 
 /* ===== MAIN LAYOUT ===== */

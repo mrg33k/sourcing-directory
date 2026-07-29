@@ -1338,6 +1338,13 @@
   gap: var(--p-4);
 }
 
+/* In a page header the button group runs HORIZONTAL — the column default
+   belongs to the profile sidebar stacks, not up here beside the title. */
+.osv3p-pagehead .osv3p-btn-row {
+  flex-direction: row;
+  align-items: center;
+}
+
 .osv3p-pagehead-title {
   font-size: var(--t-name);
   font-weight: 700;
