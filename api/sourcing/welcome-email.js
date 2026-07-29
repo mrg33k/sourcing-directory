@@ -32,7 +32,7 @@ function buildSpaceOSEmailHtml({ company_name, org_name, profile_url, brand }) {
 
           <!-- Card -->
           <tr>
-            <td style="background:#FFFFFF;border:1px solid #D7DEE2;border-radius:8px;padding:40px 36px;">
+            <td style="background:#FFFFFF;border:1px solid #D7DEE2;border-radius:8px;padding:40px 36px;box-shadow:0 1px 2px rgba(1,11,19,0.04),0 8px 24px rgba(1,11,19,0.06);">
 
               <p style="margin:0 0 16px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#6B7280;">
                 Submission received
@@ -47,24 +47,24 @@ function buildSpaceOSEmailHtml({ company_name, org_name, profile_url, brand }) {
               <!-- What happens next -->
               <table cellpadding="0" cellspacing="0" style="width:100%;margin-bottom:32px;">
                 <tr>
-                  <td style="background:#F7F8F9;border:1px solid #D7DEE2;border-radius:6px;padding:20px 22px;">
-                    <p style="margin:0 0 14px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#CE4421;">What happens next</p>
+                  <td style="background:#F7F8F9;border:1px solid #D7DEE2;border-radius:6px;padding:20px 24px;">
+                    <p style="margin:0 0 16px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#CE4421;">What happens next</p>
                     <table cellpadding="0" cellspacing="0" style="width:100%;">
                       <tr>
-                        <td style="padding:6px 0;font-size:13px;color:#2E2E2E;">
-                          <span style="color:#CE4421;font-weight:700;margin-right:10px;">01</span>
+                        <td style="padding:8px 0;font-size:13px;color:#2E2E2E;">
+                          <span style="color:#CE4421;font-weight:700;margin-right:8px;">01</span>
                           Our team reviews your listing (usually within 24h)
                         </td>
                       </tr>
                       <tr>
-                        <td style="padding:6px 0;font-size:13px;color:#2E2E2E;">
-                          <span style="color:#CE4421;font-weight:700;margin-right:10px;">02</span>
+                        <td style="padding:8px 0;font-size:13px;color:#2E2E2E;">
+                          <span style="color:#CE4421;font-weight:700;margin-right:8px;">02</span>
                           Your profile goes live in the directory
                         </td>
                       </tr>
                       <tr>
-                        <td style="padding:6px 0;font-size:13px;color:#2E2E2E;">
-                          <span style="color:#CE4421;font-weight:700;margin-right:10px;">03</span>
+                        <td style="padding:8px 0;font-size:13px;color:#2E2E2E;">
+                          <span style="color:#CE4421;font-weight:700;margin-right:8px;">03</span>
                           Procurement teams and partners can find you
                         </td>
                       </tr>
@@ -76,8 +76,10 @@ function buildSpaceOSEmailHtml({ company_name, org_name, profile_url, brand }) {
               <!-- CTA -->
               <table cellpadding="0" cellspacing="0">
                 <tr>
-                  <td style="border-radius:6px;background:#CE4421;">
-                    <a href="${profile_url}" style="display:inline-block;padding:12px 28px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;letter-spacing:0.01em;">
+                  <!-- Gradient + shadow degrade to the flat #CE4421 background in
+                       clients that strip them (Gmail, Outlook). -->
+                  <td style="border-radius:6px;background:#CE4421;background-image:linear-gradient(180deg,#DB4F27 0%,#CE4421 100%);box-shadow:0 2px 4px rgba(206,68,33,0.24);">
+                    <a href="${profile_url}" style="display:inline-block;padding:16px 32px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;letter-spacing:0.01em;">
                       View Your Profile
                     </a>
                   </td>

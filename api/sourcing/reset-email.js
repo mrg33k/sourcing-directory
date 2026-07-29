@@ -37,7 +37,7 @@ function buildSpaceOSResetEmailHtml({ org_name, reset_url, brand }) {
 
           <!-- Card -->
           <tr>
-            <td style="background:#FFFFFF;border:1px solid #D7DEE2;border-radius:8px;padding:40px 36px;">
+            <td style="background:#FFFFFF;border:1px solid #D7DEE2;border-radius:8px;padding:40px 36px;box-shadow:0 1px 2px rgba(1,11,19,0.04),0 8px 24px rgba(1,11,19,0.06);">
 
               <p style="margin:0 0 16px;font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#6B7280;">
                 Password reset
@@ -52,8 +52,11 @@ function buildSpaceOSResetEmailHtml({ org_name, reset_url, brand }) {
               <!-- CTA -->
               <table cellpadding="0" cellspacing="0" style="margin-bottom:28px;">
                 <tr>
-                  <td style="border-radius:6px;background:#CE4421;">
-                    <a href="${reset_url}" style="display:inline-block;padding:14px 32px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;letter-spacing:0.01em;">
+                  <!-- Gradient + shadow degrade to the flat #CE4421 background in
+                       clients that strip them (Gmail, Outlook), so the button reads
+                       correctly everywhere and gains material where it can. -->
+                  <td style="border-radius:6px;background:#CE4421;background-image:linear-gradient(180deg,#DB4F27 0%,#CE4421 100%);box-shadow:0 2px 4px rgba(206,68,33,0.24);">
+                    <a href="${reset_url}" style="display:inline-block;padding:16px 32px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;letter-spacing:0.01em;">
                       Reset Password
                     </a>
                   </td>
@@ -71,11 +74,19 @@ function buildSpaceOSResetEmailHtml({ org_name, reset_url, brand }) {
                 </tr>
               </table>
 
-              <!-- Fallback link -->
-              <p style="margin:24px 0 0;font-size:12px;color:#9CA3AF;line-height:1.6;">
-                If the button above doesn't work, paste this URL into your browser:<br/>
-                <a href="${reset_url}" style="color:#2563EB;text-decoration:none;word-break:break-all;font-size:11px;">${reset_url}</a>
+              <!-- Fallback link. A recovery URL is long enough that it always wraps
+                   mid-token; framing it as a monospace panel makes that read as a
+                   machine string rather than as text that overflowed. -->
+              <p style="margin:24px 0 8px;font-size:12px;color:#6B7280;line-height:1.6;">
+                If the button above doesn't work, paste this URL into your browser:
               </p>
+              <table cellpadding="0" cellspacing="0" style="width:100%;">
+                <tr>
+                  <td style="background:#F7F8F9;border:1px solid #D7DEE2;border-radius:6px;padding:12px 16px;">
+                    <a href="${reset_url}" style="color:#2563EB;text-decoration:none;word-break:break-all;font-size:11px;line-height:1.6;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;">${reset_url}</a>
+                  </td>
+                </tr>
+              </table>
 
             </td>
           </tr>
