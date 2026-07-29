@@ -34,9 +34,20 @@ PENDING=(
   20260723120000_directory_site_content.sql
   20260723150000_directory_reports_cover_image_url.sql
 )
+# Applied in this order. 035/036 go first: they close an exposure created today
+# by seeding 73 real profiles, so they are the most recent thing to have gone
+# wrong and the cheapest to put right.
 STAGED=(
+  supabase/migrations/20260728105000_people_email_privacy.sql
+  supabase/migrations/20260728105001_person_email_gate.sql
   supabase/migrations/20260728110000_security_hardening.sql
   supabase/migrations/20260728110001_contacts_rls.sql
+)
+SOURCES=(
+  migrations/035_people_email_privacy.sql
+  migrations/036_person_email_gate.sql
+  migrations/028_security_and_missing_tables.sql
+  migrations/029_contacts_rls.sql
 )
 
 # Always put things back, even on failure or Ctrl-C.
@@ -61,8 +72,18 @@ probe() {
     2>/dev/null | grep -i 'content-range' | tr -d '\r' | awk '{print $2}'
 }
 
-echo "==> BEFORE: rows visible to an anonymous caller"
-echo "    directory_members : $(probe directory_members)   <- 0-0/70 means the leak is open"
+email_probe() {
+  # Can an anonymous caller read a member's email address? Prints yes/no only.
+  local anon
+  anon="$(grep -h '^VITE_SUPABASE_ANON_KEY=' .env.production | head -1 | cut -d= -f2- | tr -d '"'"'"' ')"
+  curl -s -H "apikey: $anon" -H "Authorization: Bearer $anon" \
+    "https://kzzvjtthknsozktmpvak.supabase.co/rest/v1/directory_people?select=email&limit=1" \
+    2>/dev/null | grep -qE '"email"[[:space:]]*:[[:space:]]*"[^"]+"' && echo "YES" || echo "no"
+}
+
+echo "==> BEFORE"
+echo "    member list readable by anyone : $(probe directory_members)   <- 0-0/70 means open"
+echo "    member emails readable by anyone: $(email_probe)              <- YES means open"
 echo ""
 
 echo "==> Moving the 3 unrelated pending migrations aside"
@@ -74,9 +95,11 @@ for f in "${PENDING[@]}"; do
 done
 
 echo ""
-echo "==> Staging the two security migrations"
-cp migrations/028_security_and_missing_tables.sql "${STAGED[0]}"
-cp migrations/029_contacts_rls.sql               "${STAGED[1]}"
+echo "==> Staging the four migrations"
+for i in "${!STAGED[@]}"; do
+  cp "${SOURCES[$i]}" "${STAGED[$i]}"
+  echo "    $(basename "${SOURCES[$i]}")"
+done
 
 echo ""
 echo "==> Dry run — this must list EXACTLY the two staged files and nothing else"
@@ -95,15 +118,23 @@ echo "==> Applying. Answer Y at the prompt."
 npx supabase db push
 
 echo ""
-echo "==> AFTER: rows visible to an anonymous caller"
+echo "==> AFTER"
 AFTER="$(probe directory_members)"
-echo "    directory_members : ${AFTER:-<none returned>}"
+AFTER_EMAIL="$(email_probe)"
+echo "    member list readable by anyone  : ${AFTER:-<none returned>}"
+echo "    member emails readable by anyone: ${AFTER_EMAIL}"
 echo ""
 if [ -z "${AFTER:-}" ] || echo "${AFTER}" | grep -q '/0$'; then
-  echo "    ✅ LEAK CLOSED — anonymous callers can no longer read the member list."
+  echo "    ✅ member list closed"
 else
-  echo "    ⚠️  STILL VISIBLE (${AFTER}). Production may carry an extra permissive policy"
-  echo "        under a different name than the ones 028 drops. Tell Claude this number."
+  echo "    ⚠️  member list STILL VISIBLE (${AFTER}). Production may carry an extra"
+  echo "        permissive policy under a different name than the ones 028 drops."
+  echo "        Tell Claude this number."
+fi
+if [ "$AFTER_EMAIL" = "no" ]; then
+  echo "    ✅ member emails closed"
+else
+  echo "    ⚠️  member emails STILL READABLE. Tell Claude — 035 did not take."
 fi
 
 echo ""
