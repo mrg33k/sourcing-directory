@@ -120,3 +120,34 @@ Live login surface at os.spacerising.org/login screenshot-verified rendering the
 **The real risk sits in what I did NOT change:** the dead Resend key. Until it is replaced, every branded email in this system — reset, welcome, member approve/decline, SRW subscribe — is silently failing over to a generic template or not sending at all, and the native mailer is capped at 2 emails/hour. If several Space OS users request resets in the same hour, some get nothing and have no idea why. That is a live user-facing outage that my template work does not touch, and it is the thing I would want Patrik to act on first. It is logged as the top open item in the space-rising CONTEXT.
 
 **Who notices:** Taryn and Tim are the audience most likely to see a Space OS email in front of a client. A visibly sourcing.directory-branded email in a Space Rising demo is the embarrassing version, and that specific failure is now fixed regardless of the shadow question.
+
+---
+
+## AMENDMENT — 2026-07-29, after the live Resend key arrived
+
+**A stated fact in this record was wrong, and the doubt I logged is what caught it.**
+
+Under `call` I wrote that aom-inhouse.com "is verified and already sends Space Rising mail (see srw-subscribe.js)." That was an inference from a default string in code, not a verified fact. Querying the Resend account with the live key showed **sourcing.directory was the only verified domain**. Had this shipped as written, every Space OS send would have been rejected — the exact failure I claimed to be avoiding.
+
+This is the second thing I got wrong that I did not catch by looking: the machine checks caught the spacing and depth failures, and the live API caught this one. My own reading of the artifact caught neither.
+
+**What changed since signing:**
+
+1. **Sender** → `Space Rising <noreply@spacerising.org>` (Patrik: "just change it to spacerising instead" — sourcing.directory is legacy, Space OS is the live product).
+2. **spacerising.org is still NOT verified** on Resend. The account plan holds exactly one domain and sourcing.directory occupies it; removing it and adding spacerising.org, plus publishing DKIM/SPF to Google Cloud DNS, both need Patrik. I was permission-blocked from the domain delete and have no DNS access.
+3. **`sendViaResend()` added** so the unverified domain no longer costs the user the email. It tries `brand.from`, and on rejection retries once on a verified sender carrying the *same Space OS html*. Before this, a rejected send dropped all the way to Supabase's native mailer — generic, unbranded, 2/hour. Now the user gets the correct Space OS design and os.spacerising.org links with no rate cap; only the envelope domain lags. Supabase native remains the true last resort.
+
+**Measured after the change, against the LIVE domain:**
+
+```
+sourcing brand (verified domain): {"ok":true,"id":"0dc77a46-4d27-4924-bfc8-f906fc604f8e"}
+spaceos brand (spacerising.org):  {"ok":true,"id":"a5388f89-6f54-423a-9095-8ded4e69b4af","sender":"fallback"}
+```
+
+Both send. `sender: fallback` confirms the retry path works as designed.
+
+**Live flip done:** os.spacerising.org → `sourcing-directory-d95yfhlob`. Verified after flipping: `/login` HTTP 200, root innerHTML 7885 chars, full sidebar nav, **zero console errors**, screenshot matches the pre-flip surface. Rollback: `vercel alias set sourcing-directory-gp4hqw1o7-aheads-projects-d2a4c70f.vercel.app os.spacerising.org`.
+
+**One process note worth keeping:** my first post-flip screenshot came back solid black and I nearly read it as a broken deploy. It was `npx playwright screenshot` firing before the lazy React chunk hydrated. Re-running with `waitUntil: networkidle` showed a fully rendered page. A bare screenshot of a lazy-loaded SPA is not evidence of anything — check the DOM alongside it.
+
+**Doubt that still stands:** items 1 (never seen in a real mail client) and 3 (no real logo) from `uncertain` are unchanged and unverified. Item 2 is now partly closed — the branded template demonstrably sends and I have message IDs, but I still have not *looked at* one in an inbox.
