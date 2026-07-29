@@ -303,6 +303,10 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35), 0 16px 40px rgba(0, 0, 0, 0.5);
   z-index: 1001;
   cursor: default;
+  /* The menu renders INSIDE the avatar (font-weight: 700) — reset, or the
+     muted email line comes out heavier than the name above it. */
+  font-weight: 400;
+  text-align: left;
 }
 
 .osv3-user-menu--up {
@@ -356,6 +360,9 @@
   border-radius: 6px;
   background: none;
   color: rgba(255, 255, 255, 0.85);
+  /* Buttons do not inherit font-family — without this the labels render in
+     the UA default (Arial) against a Roboto head. */
+  font-family: inherit;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
