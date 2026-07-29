@@ -99,6 +99,12 @@ const SourcingDealBankInvestorSignup = lazy(() => import('./pages/SourcingDealBa
 const SourcingDealBankAddListing = lazy(() => import('./pages/SourcingDealBankAddListing.jsx'))
 const SourcingMembershipV2 = lazy(() => import('./pages/SourcingMembershipV2.jsx'))
 const SourcingSignupV2 = lazy(() => import('./pages/SourcingSignupV2.jsx'))
+// RETIRED as a route target 2026-07-28 — no <Route> renders this any more. It
+// is kept imported, and the file is kept on disk, as the one-line rollback for
+// the company-route switch below. Do NOT point a route back at it without
+// reading that comment first: this page reads directory_companies with
+// select('*'), and the public-read policy on that table still exposes fourteen
+// membership_*/stripe_*/paid_* columns to anon.
 const SourcingCompanyV2 = lazy(() => import('./pages/SourcingCompanyV2.jsx'))
 const SourcingSignupComplete = lazy(() => import('./pages/SourcingSignupComplete.jsx'))
 const SourcingArticlesV2 = lazy(() => import('./pages/SourcingArticlesV2.jsx'))
@@ -261,8 +267,36 @@ createRoot(document.getElementById('root')).render(
             <Route path="/add-profile" element={<OSAddProfile />} />
             <Route path="/admin-tools/_preview" element={<OSAdminTools />} />
 
-            <Route path="/company/:slug" element={<SourcingCompanyV2 />} />
-            <Route path="/:slug" element={<SourcingCompanyV2 />} />
+            {/* ===== COMPANY PROFILE =====
+                Both of these render the SAME screen, and they are the LAST two
+                routes in the shell on purpose. Keep them last, and keep every
+                new route ABOVE them: "/:slug" matches any single segment, so a
+                route added underneath it renders the company page instead of
+                itself, which reads as a bounce rather than a 404.
+
+                Switched off SourcingCompanyV2 2026-07-28 (Patrik: "switch it
+                over now"). The old page did select('*') on directory_companies,
+                whose public-read policy hands anon every column on that table —
+                membership_tier, membership_seats, membership_paid_at,
+                membership_billing, membership_expires_at, paid_seats, paid_at,
+                paid_receipt_url, paid_stripe_session_id,
+                paid_stripe_payment_intent_id, paid_stripe_subscription_id,
+                pending_checkout_session_id, pending_checkout_seats,
+                pending_checkout_at. Fourteen billing columns on a public page.
+                The new screen reads get_company_profile(p_slug), which names
+                its columns and returns none of them.
+
+                "/:slug" moves WITH "/company/:slug" and is not the afterthought
+                of the two: /directory links all 166 companies as "/<slug>"
+                (SourcingDirectoryV2 lines 337 + 470), so it carries the real
+                traffic. "/company/:slug" is only reached from the company chip
+                on a listing detail page. Switching one and not the other would
+                have closed the leak on the quiet URL and left it open on the
+                busy one. Both resolve a slug against directory_companies with
+                status='active' and show a not-found state otherwise, so nothing
+                that used to render stops rendering. */}
+            <Route path="/company/:slug" element={<OSCompanyProfile />} />
+            <Route path="/:slug" element={<OSCompanyProfile />} />
           </Route>
 
           {/* ===== MARKETING PAGES (outside v3 shell) ===== */}
