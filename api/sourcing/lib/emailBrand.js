@@ -35,6 +35,8 @@ export function resolveBrand(originUrl) {
     return {
       key: 'spaceos',
       from: process.env.SPACEOS_FROM_ADDRESS || 'Space Rising <noreply@spacerising.org>',
+      // Used only if the preferred sender is rejected — see sendViaResend below.
+      fromFallback: 'Space Rising <noreply@sourcing.directory>',
       defaultOrgName: 'Space Rising',
       siteLabel: 'os.spacerising.org',
       siteUrl: 'https://os.spacerising.org',
@@ -52,4 +54,39 @@ export function resolveBrand(originUrl) {
     contactEmail: 'hello@sourcing.directory',
     footerSign: 'AOM — Ahead of Market',
   };
+}
+
+// Send through Resend, preferring the brand's own sending domain and falling back
+// to a verified one if that domain is not (yet) verified on the Resend account.
+//
+// Why this exists: Space OS should send from spacerising.org, but that domain is
+// not verified yet, and a rejected send used to drop the caller all the way to
+// Supabase's native mailer — a generic, unbranded email capped at 2/hour. That
+// throws away the correct Space OS design and links over nothing but an envelope
+// address. Retrying on the verified sender keeps the RIGHT email (Space OS body,
+// os.spacerising.org links, "Space Rising" display name) and only concedes the
+// domain part, which is the least user-visible piece.
+//
+// When spacerising.org is verified the first attempt simply succeeds and the
+// fallback never runs — no code change needed at that point.
+export async function sendViaResend({ apiKey, brand, to, subject, html }) {
+  const attempt = async (from) => {
+    const r = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ from, to: [to], subject, html }),
+    });
+    return { ok: r.ok, data: await r.json() };
+  };
+
+  let out = await attempt(brand.from);
+  if (!out.ok && brand.fromFallback && brand.fromFallback !== brand.from) {
+    console.warn(
+      `Resend rejected sender ${brand.from} (${out.data?.message || 'no message'}); ` +
+      `retrying on verified sender ${brand.fromFallback}`
+    );
+    out = await attempt(brand.fromFallback);
+    out.usedFallbackSender = out.ok;
+  }
+  return out;
 }

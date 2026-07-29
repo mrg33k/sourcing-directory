@@ -2,7 +2,7 @@
 // Sends an approved / declined email to a directory member via Resend.
 // Body: { email, full_name, status: 'approved'|'rejected', directory_name, base_url }
 
-import { resolveBrand } from './lib/emailBrand.js';
+import { resolveBrand, sendViaResend } from './lib/emailBrand.js';
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
@@ -44,17 +44,16 @@ export default async function handler(req, res) {
   const html = buildEmailHtml({ full_name, status, directory_name: dir, portal_url });
   const subject = status === 'approved' ? `You're approved — ${dir}` : `Update on your ${dir} application`;
   try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${RESEND_API_KEY}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ from: brand.from, to: [email], subject, html }),
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      console.error('Resend error (member-email):', data);
-      return res.status(200).json({ ok: true, email_skipped: true, reason: data.message });
+    const sent = await sendViaResend({ apiKey: RESEND_API_KEY, brand, to: email, subject, html });
+    if (!sent.ok) {
+      console.error('Resend error (member-email):', sent.data);
+      return res.status(200).json({ ok: true, email_skipped: true, reason: sent.data?.message });
     }
-    return res.status(200).json({ ok: true, id: data.id });
+    return res.status(200).json({
+      ok: true,
+      id: sent.data.id,
+      ...(sent.usedFallbackSender ? { sender: 'fallback' } : {}),
+    });
   } catch (err) {
     console.error('member-email send failed:', err);
     return res.status(200).json({ ok: true, email_skipped: true, reason: err.message });

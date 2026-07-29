@@ -2,7 +2,7 @@
 // Sends a welcome email via Resend after a company signs up on the sourcing directory.
 // Body: { email, company_name, org_name, company_slug, base_url }
 
-import { resolveBrand } from './lib/emailBrand.js';
+import { resolveBrand, sendViaResend } from './lib/emailBrand.js';
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 
@@ -254,29 +254,25 @@ export default async function handler(req, res) {
     : buildEmailHtml({ company_name, org_name: directoryName, profile_url });
 
   try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: brand.from,
-        to: [email],
-        subject: `${company_name} is on the list — ${directoryName}`,
-        html,
-      }),
+    const sent = await sendViaResend({
+      apiKey: RESEND_API_KEY,
+      brand,
+      to: email,
+      subject: `${company_name} is on the list — ${directoryName}`,
+      html,
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error('Resend error (domain may not be verified yet):', data);
+    if (!sent.ok) {
+      console.error('Resend error (domain may not be verified yet):', sent.data);
       // Return success anyway - signup shouldn't fail because of email
-      return res.status(200).json({ ok: true, email_skipped: true, reason: data.message });
+      return res.status(200).json({ ok: true, email_skipped: true, reason: sent.data?.message });
     }
 
-    return res.status(200).json({ ok: true, id: data.id });
+    return res.status(200).json({
+      ok: true,
+      id: sent.data.id,
+      ...(sent.usedFallbackSender ? { sender: 'fallback' } : {}),
+    });
   } catch (err) {
     console.error('welcome-email error:', err);
     // Don't fail the signup flow over email

@@ -3,7 +3,7 @@
 // Body: { email, org_name?, redirect_to? }
 
 import { createClient } from '@supabase/supabase-js';
-import { resolveBrand } from './lib/emailBrand.js';
+import { resolveBrand, sendViaResend } from './lib/emailBrand.js';
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://kzzvjtthknsozktmpvak.supabase.co';
@@ -271,35 +271,32 @@ export default async function handler(req, res) {
     : buildResetEmailHtml({ org_name: displayName, reset_url });
 
   try {
-    const response = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${RESEND_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        from: brand.from,
-        to: [email],
-        subject: `Reset your password — ${displayName}`,
-        html,
-      }),
+    const sent = await sendViaResend({
+      apiKey: RESEND_API_KEY,
+      brand,
+      to: email,
+      subject: `Reset your password — ${displayName}`,
+      html,
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      console.error('Resend error, falling back to Supabase native email:', data);
-      // Fall back to Supabase native password reset
+    if (!sent.ok) {
+      console.error('Resend error, falling back to Supabase native email:', sent.data);
+      // Last resort: Supabase's native mailer. Generic template, 2 emails/hour,
+      // but the link is correct, so the user can still finish the reset.
       const anonKey = process.env.VITE_SUPABASE_ANON_KEY;
       if (anonKey) {
         const anonClient = createClient(SUPABASE_URL, anonKey);
         await anonClient.auth.resetPasswordForEmail(email, { redirectTo });
         return res.status(200).json({ ok: true, fallback: 'supabase' });
       }
-      return res.status(500).json({ error: data.message || 'Email send failed' });
+      return res.status(500).json({ error: sent.data?.message || 'Email send failed' });
     }
 
-    return res.status(200).json({ ok: true, id: data.id });
+    return res.status(200).json({
+      ok: true,
+      id: sent.data.id,
+      ...(sent.usedFallbackSender ? { sender: 'fallback' } : {}),
+    });
   } catch (err) {
     console.error('reset-email send error:', err);
     return res.status(500).json({ error: err.message });
