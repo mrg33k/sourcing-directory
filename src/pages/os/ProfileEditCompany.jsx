@@ -13,7 +13,7 @@ import {
 import { computeCompanyCompleteness } from '../../lib/profileCompleteness.js'
 import {
   Field, TextInput, TextArea, CheckField, FieldGrid, FormGroup,
-  Repeater, TagListField, SaveBar, useSaver,
+  Repeater, TagListField, SaveBar, useSaver, PREVIEW_SLUG,
 } from './ProfileEditPerson.jsx'
 import '../../styles/osv3-profile.css'
 
@@ -115,10 +115,24 @@ export default function ProfileEditCompany({ slug, section }) {
 
   useEffect(() => { document.title = 'Edit organization | SpaceOS' }, [])
 
+  // ?company=_preview renders the empty form with saving off — the same
+  // convention, and the same reason, as ProfileEditPerson's PREVIEW_SLUG.
+  const preview = slug === PREVIEW_SLUG
+
   useEffect(() => {
     let cancelled = false
     setPhase('loading')
     ;(async () => {
+      if (slug === PREVIEW_SLUG) {
+        const tags = await loadMissionTags()
+        if (cancelled) return
+        setCompany({ id: null, slug: PREVIEW_SLUG, name: 'your organization', description: '' })
+        setCanEditCore(true)
+        setMissionTags(tags.data || [])
+        setPhase('ready')
+        return
+      }
+
       const { data: viewer, error: viewerError } = await getViewerContext()
       if (cancelled) return
       if (viewerError) { setLoadError(viewerError.message); setPhase('error'); return }
@@ -260,6 +274,14 @@ export default function ProfileEditCompany({ slug, section }) {
         <Button variant="quiet" icon="eye" href={`/company/${company.slug}`}>View public page</Button>
       </header>
 
+      {preview ? (
+        <EmptyState
+          icon="eye"
+          title="Preview — nothing here saves"
+          body="The organization edit screen as an approved member first meets it: every field empty, nothing filled in for them. It is rendered without an organization record behind it so the screen can be reviewed, so every Save below is switched off."
+        />
+      ) : null}
+
       <Card>
         <CardBody>
           <CompletenessMeter
@@ -294,6 +316,7 @@ export default function ProfileEditCompany({ slug, section }) {
             <CardFooter>
               <SaveBar
                 state={descState}
+                disabled={preview}
                 label="Save description"
                 onSave={() => saveDesc(
                   () => saveCompanyDescription(company.id, description),
@@ -351,6 +374,7 @@ export default function ProfileEditCompany({ slug, section }) {
           <CardFooter>
             <SaveBar
               state={glanceState}
+              disabled={preview}
               label="Save details"
               onSave={() => saveGlanceRow(
                 () => saveCompanyGlance(company.id, glance),
@@ -383,6 +407,7 @@ export default function ProfileEditCompany({ slug, section }) {
           <CardFooter>
             <SaveBar
               state={countsState}
+              disabled={preview}
               label="Save counts"
               onSave={() => saveCountsRow(
                 () => saveCompanyCounts(company.id, counts),
@@ -423,6 +448,7 @@ export default function ProfileEditCompany({ slug, section }) {
           <CardFooter>
             <SaveBar
               state={capsState}
+              disabled={preview}
               label="Save capabilities"
               onSave={() => saveCaps(
                 async () => {
@@ -488,6 +514,7 @@ export default function ProfileEditCompany({ slug, section }) {
           <CardFooter>
             <SaveBar
               state={needsState}
+              disabled={preview}
               label="Save what you are looking for"
               onSave={() => saveNeeds(
                 async () => {
@@ -556,6 +583,7 @@ export default function ProfileEditCompany({ slug, section }) {
           <CardFooter>
             <SaveBar
               state={locState}
+              disabled={preview}
               label="Save locations"
               onSave={() => saveLoc(
                 async () => {
@@ -605,7 +633,7 @@ export default function ProfileEditCompany({ slug, section }) {
           <CardFooter>
             <SaveBar
               state={missionState}
-              disabled={missionTags.length === 0}
+              disabled={preview || missionTags.length === 0}
               label="Save mission alignment"
               onSave={() => saveMissions(
                 async () => {

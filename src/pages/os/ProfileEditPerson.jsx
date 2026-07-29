@@ -251,9 +251,14 @@ export function TagListField({ label, hint, values, onChange, addLabel }) {
  */
 export function SaveBar({ onSave, state, label = 'Save changes', disabled }) {
   const saving = state.status === 'saving'
+  const off = saving || disabled
+  // osv3-profile.css has no :disabled rule on .osv3p-btn, so a disabled solid
+  // button still looks pressable. Dropping to the `quiet` variant while it is
+  // off makes the state visible using a class that already exists, rather than
+  // adding a rule to a stylesheet this work does not own.
   return (
     <div className="osv3p-savebar">
-      <Button variant="solid" icon="check-circle" onClick={onSave} disabled={saving || disabled}>
+      <Button variant={off ? 'quiet' : 'solid'} icon="check-circle" onClick={onSave} disabled={off}>
         {saving ? 'Saving…' : label}
       </Button>
       {state.status === 'ok' ? (
@@ -328,6 +333,18 @@ const VISIBILITY = [
 
 const idsOf = (rows) => rows.map((r) => r.id).filter(Boolean)
 
+/**
+ * /profile/edit?person=_preview — the empty form, with saving off.
+ *
+ * The same convention profileApi.js already uses for /people/_preview, and for
+ * the same reason it gives there: a screen that can only be reviewed by someone
+ * holding a live member session cannot be reviewed. This renders the DAY-ONE
+ * state — every field blank, which is what a member actually meets — and nothing
+ * on it is invented. Every Save is disabled and says so, so it cannot be
+ * mistaken for a form that quietly throws keystrokes away.
+ */
+export const PREVIEW_SLUG = '_preview'
+
 /** The person record as the completeness meter expects to be handed it. */
 function toCompletenessShape(form, capabilities, needs, affiliations, missionScores) {
   return {
@@ -379,10 +396,22 @@ export default function ProfileEditPerson({ slug, section }) {
 
   useEffect(() => { document.title = 'Edit profile | SpaceOS' }, [])
 
+  const preview = slug === PREVIEW_SLUG
+
   useEffect(() => {
     let cancelled = false
     setPhase('loading')
     ;(async () => {
+      if (slug === PREVIEW_SLUG) {
+        const tags = await loadMissionTags()
+        if (cancelled) return
+        setPerson({ id: null, slug: PREVIEW_SLUG })
+        setForm(emptyForm)
+        setMissionTags(tags.data || [])
+        setPhase('ready')
+        return
+      }
+
       const { data: viewer, error: viewerError } = await getViewerContext()
       if (cancelled) return
       if (viewerError) { setLoadError(viewerError.message); setPhase('error'); return }
@@ -515,6 +544,14 @@ export default function ProfileEditPerson({ slug, section }) {
         <Button variant="quiet" icon="eye" href={`/people/${person.slug}`}>View public profile</Button>
       </header>
 
+      {preview ? (
+        <EmptyState
+          icon="eye"
+          title="Preview — nothing here saves"
+          body="This is the edit screen exactly as a member meets it on day one: every field empty, every section still to fill in. It is rendered without a profile record behind it so the screen can be reviewed, so every Save below is switched off."
+        />
+      ) : null}
+
       <Card>
         <CardBody>
           <CompletenessMeter
@@ -642,6 +679,7 @@ export default function ProfileEditPerson({ slug, section }) {
           <CardFooter>
             <SaveBar
               state={detailsState}
+              disabled={preview}
               label="Save details"
               onSave={() => saveDetails(
                 async () => {
@@ -682,6 +720,7 @@ export default function ProfileEditPerson({ slug, section }) {
           <CardFooter>
             <SaveBar
               state={capsState}
+              disabled={preview}
               label="Save capabilities"
               onSave={() => saveCaps(
                 async () => {
@@ -751,6 +790,7 @@ export default function ProfileEditPerson({ slug, section }) {
           <CardFooter>
             <SaveBar
               state={needsState}
+              disabled={preview}
               label="Save what you are looking for"
               onSave={() => saveNeeds(
                 async () => {
@@ -806,6 +846,7 @@ export default function ProfileEditPerson({ slug, section }) {
           <CardFooter>
             <SaveBar
               state={affilState}
+              disabled={preview}
               label="Save affiliations"
               onSave={() => saveAffil(
                 async () => {
@@ -873,6 +914,7 @@ export default function ProfileEditPerson({ slug, section }) {
           <CardFooter>
             <SaveBar
               state={expState}
+              disabled={preview}
               label="Save experience"
               onSave={() => saveExp(
                 async () => {
@@ -926,7 +968,7 @@ export default function ProfileEditPerson({ slug, section }) {
           <CardFooter>
             <SaveBar
               state={missionState}
-              disabled={missionTags.length === 0}
+              disabled={preview || missionTags.length === 0}
               label="Save mission alignment"
               onSave={() => saveMissions(
                 async () => {
