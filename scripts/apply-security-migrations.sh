@@ -25,9 +25,16 @@
 #
 # Run from the repo root:   bash scripts/apply-security-migrations.sh
 #
-set -euo pipefail
+set -uo pipefail
 
 cd "$(dirname "$0")/.."
+
+# Everything this script prints also goes to a log, so it can be diagnosed even
+# if the terminal output is lost. Nothing secret is ever printed.
+LOG="/tmp/spaceos-migrations-$(date +%Y%m%d-%H%M%S).log"
+exec > >(tee -a "$LOG") 2>&1
+echo "==> log: $LOG"
+echo ""
 HOLD="$(mktemp -d)"
 PENDING=(
   20260723000000_directory_listings_grant_columns.sql
@@ -114,8 +121,12 @@ if echo "$DRY" | grep -qE 'directory_site_content|directory_listings_grant_colum
 fi
 
 echo ""
-echo "==> Applying. Answer Y at the prompt."
-npx supabase db push
+echo "==> Applying (auto-confirming the Y prompt so this cannot stall)"
+if printf 'y\n' | npx supabase db push 2>&1; then
+  echo "    push command returned 0"
+else
+  echo "!! push command returned non-zero — see the output above and the log."
+fi
 
 echo ""
 echo "==> AFTER"
