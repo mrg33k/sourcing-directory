@@ -340,9 +340,45 @@
 
 /* ===========================================================================
    AVATAR
+
+   Two states, and the EMPTY one is the common one: directory records mostly
+   arrive without a photo, so the initials fallback is what most people
+   actually see. It is therefore designed rather than inherited from the photo
+   case.
+
+   What was wrong: a dark navy disc with bold white caps made the avatar the
+   highest-contrast object in the whole content area — heavier than the name,
+   heavier than the CONNECT button, on a page that is otherwise white cards and
+   hairlines. The reference puts a mid-grey photograph there; a photograph
+   never out-weighs the name beside it. A missing photo has even less claim to.
+
+   The fix takes the weight off the VALUE, not the size. The disc keeps the
+   176px column the reference measures, so the header layout is untouched, but
+   it is now built from the page's own material — a cool neutral inside the
+   same --v3-border hairline every card on this screen uses. It belongs to the
+   layout instead of being punched through it.
+
+   Getting the LEVEL right took a measurement, because the first attempt
+   overshot into the opposite failure. The reference photograph is mid-grey and
+   fills the whole disc; a near-white disc carrying two small grey letters is
+   only about 3% covered, so it read as washed out and unfinished rather than
+   restrained. Mid-grey initials are the correct tone — it is the FIELD that
+   has to carry the rest of the weight. So the field sits a clear step down
+   from the card, which lands the disc's overall mass near the photograph's
+   while keeping it nowhere near the navy original.
+
+   Deliberately plain: one ring, one tone, one mark. An earlier pass added a
+   second hairline inset inside the first to suggest a photo mount, and at 1:1
+   two concentric hairlines 8px apart just read as a registration error. The
+   considered quality has to come from precision — the ring weight, the
+   restrained cap size, the tracking — not from added ornament.
+
+   The one saturated thing left on the avatar is the availability dot, which is
+   correct: that is the part that carries meaning.
    =========================================================================== */
 
 .osv3p-avatar {
+  box-sizing: border-box;
   position: relative;
   border-radius: 50%;
   overflow: hidden;
@@ -350,11 +386,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(140deg, #16233A 0%, #2C3E5C 100%);
-  color: #FFFFFF;
-  font-weight: 700;
+  background: var(--v3-panel-bg);
   line-height: 1;
-  letter-spacing: 0.04em;
 }
 
 .osv3p-avatar img {
@@ -362,6 +395,25 @@
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+/* The placeholder. Not an error state — the default one.
+   The field is a cool neutral biased the same way --v3-border is, so it reads
+   as the page's material rather than as default UI grey. The ring is 2px
+   rather than a hairline: at 176px a 1px line disappears and the disc loses
+   its edge, and an edge is what tells you a photo belongs there. */
+.osv3p-avatar--empty {
+  --p-avatar-field: #EDF0F2;
+
+  background: var(--p-avatar-field);
+  border: 2px solid var(--v3-border);
+  color: var(--v3-muted);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+}
+
+.osv3p-avatar-initials {
+  position: relative;
 }
 
 .osv3p-avatar--xl {
@@ -994,13 +1046,47 @@
 /* ===========================================================================
    MAP PANEL — the repo's own zero-dependency albersUsa SVG (usStatesPaths.js).
    No map library, no Maps key: a key would compile into the public bundle.
+
+   Why this panel read as a rendering failure rather than a map, and what each
+   line below fixes:
+
+   1. NO FIGURE / GROUND. Land was #EFF2F4 on a #EAF1F6 field — about 1%
+      apart in luminance. Every state disappeared into the background and the
+      only thing left visible was the highlighted one, which is why it looked
+      like a single beige silhouette floating in an empty box. Land now sits
+      near-white on a neutral grey ground, the convention every locator map
+      uses, so the outlines are the content.
+
+   2. THE GROUND IS NEUTRAL, NOT BLUE. We only hold US state geography — there
+      is no Mexico and no Canada in the dataset. A blue field would claim the
+      land south of Arizona is ocean. A neutral ground says "outside this map's
+      scope", which is the truth. It is warm rather than a straight mid-grey:
+      the neutral is biased toward the #CE4421 accent, which also puts it in
+      the same family as the reference's beige cartography.
+
+   3. SUB-PIXEL BORDERS. stroke-width was 0.8 USER units, so it scaled with the
+      crop: ~0.3px on the national map, and heavier on a zoomed one. Both maps
+      now use non-scaling-stroke, which puts the border in screen pixels and
+      gives the two profile screens the same weight of line.
+
+   The framing defect — a crop that sliced the top border off Arizona — is
+   fixed in MapPanel.jsx, which keeps the card's requested proportion and
+   widens the crop until the subject fits inside it.
    =========================================================================== */
 
 .osv3p-map {
+  /* The map's own four-colour palette, named so each one has a job. Every
+     neutral is warm — unequal RGB biased toward the #CE4421 accent — so the
+     panel belongs to this brand rather than being default UI grey. */
+  --p-map-void: #E4DDD5;    /* outside the dataset: not ocean, out of scope */
+  --p-map-land: #FBFAF8;    /* the 50 states */
+  --p-map-line: #C9BFB5;    /* state borders */
+  --p-map-subject: #F1D9CF; /* the state this card is about */
+
   position: relative;
   border-radius: var(--p-radius-sm);
   overflow: hidden;
-  background: linear-gradient(180deg, #EAF1F6 0%, #DCE7EF 100%);
+  background: var(--p-map-void);
   border: var(--p-hair);
 }
 
@@ -1011,22 +1097,33 @@
 }
 
 .osv3p-map-land {
-  fill: #EFF2F4;
-  stroke: #C8D3DA;
-  stroke-width: 0.8;
+  fill: var(--p-map-land);
+  stroke: var(--p-map-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
 }
 
+/* The subject state. It carries the accent because it is the answer to the
+   question the card asks; the pin then says where inside it. The heavier
+   stroke keeps it separated from the void where the two touch — Arizona's
+   southern border runs straight into off-map Mexico. */
 .osv3p-map-land--active {
-  fill: #F3DED6;
+  fill: var(--p-map-subject);
   stroke: var(--v3-accent);
+  stroke-width: 1.5;
 }
 
+/* A white keyline lifts the pin off the accent-tinted state it usually
+   stands on, which is the one place it would otherwise lose its silhouette. */
 .osv3p-map-pin {
   fill: var(--v3-accent);
+  stroke: var(--v3-content-bg);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
 }
 
 .osv3p-map-pin-dot {
-  fill: #FFFFFF;
+  fill: var(--v3-content-bg);
 }
 
 .osv3p-map-expand {
