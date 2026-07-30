@@ -1946,6 +1946,143 @@
 }
 
 /* ===========================================================================
+   ADMIN › USERS — the account roster and its filter bar
+
+   Every class here is used by AdminUsers.jsx and nothing else. Written in the
+   SAME commit as that screen, because the alternative — markup naming classes a
+   stylesheet does not define — is what shipped the profile edit form as raw
+   browser defaults and read to a real user as "it will not save".
+   =========================================================================== */
+
+.osv3p-users {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-4);
+}
+
+.osv3p-users-bar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--p-4);
+}
+
+/* One connected control, not four loose buttons: the roster has exactly one
+   status filter on at a time and the shared border says so. */
+.osv3p-seg {
+  display: inline-flex;
+  border: var(--p-hair);
+  border-radius: var(--p-radius-sm);
+  overflow: hidden;
+}
+
+.osv3p-seg-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-2);
+  font-size: var(--t-label);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--v3-ink-secondary);
+  background: var(--v3-content-bg);
+  border: 0;
+  border-left: var(--p-hair);
+  padding: var(--p-2) var(--p-3);
+  cursor: pointer;
+  transition: background var(--v3-transition-fast), color var(--v3-transition-fast);
+}
+
+.osv3p-seg-btn:first-child {
+  border-left: 0;
+}
+
+.osv3p-seg-btn:hover {
+  background: var(--v3-panel-bg);
+}
+
+.osv3p-seg-btn--on {
+  background: var(--v3-accent);
+  color: var(--v3-content-bg);
+}
+
+/* The count is the whole point of the control — how many are waiting — so it
+   stays legible in both states rather than fading into the chrome. */
+.osv3p-seg-count {
+  font-size: var(--t-label);
+  font-weight: 700;
+  opacity: 0.75;
+}
+
+.osv3p-seg-btn--on .osv3p-seg-count {
+  opacity: 1;
+}
+
+.osv3p-users-search {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-1);
+  min-width: 0;
+  width: 260px;
+}
+
+.osv3p-usercell {
+  display: flex;
+  align-items: center;
+  gap: var(--p-2);
+  min-width: 0;
+}
+
+.osv3p-usercell-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.osv3p-usercell-name {
+  font-size: var(--t-body);
+  color: var(--v3-ink-primary);
+}
+
+.osv3p-usercell-mail {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+}
+
+.osv3p-usercell-role,
+.osv3p-usercell-joined {
+  font-size: var(--t-body);
+  color: var(--v3-ink-secondary);
+}
+
+.osv3p-usercell-joined {
+  white-space: nowrap;
+}
+
+/* .osv3p-btn-row is a stretched COLUMN by default (it was built for profile
+   sidebars). Left alone in a table cell it turns two small actions into two
+   full-width stacked blocks that outweigh the person's own name — in a roster
+   the person wins and the action stays available but quiet. */
+.osv3p-table-actions .osv3p-btn-row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--p-2);
+}
+
+/* `.osv3p-table-actions` already says text-align:right, but `.osv3p-table th`
+   (0,1,1) outranks it (0,1,0), so the ACTIONS header sits far left of the
+   buttons it labels. That is true of the dashboard's Recent Organizations table
+   too — deliberately NOT fixed globally here, because that table is pixel
+   matched to reference/design-admin-tools.png and moving its header is a
+   separate decision. Scoped to this screen. */
+.osv3p-users .osv3p-table th.osv3p-table-actions {
+  text-align: right;
+}
+
+/* ===========================================================================
    RESPONSIVE — the shell already drops the sidebar under 900px
    =========================================================================== */
 
@@ -2015,6 +2152,20 @@
   .osv3p-repeater-row {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  /* The filter bar stacks, and the search stops being a fixed 260px column. */
+  .osv3p-users-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .osv3p-users-search {
+    width: auto;
+  }
+
+  .osv3p-seg {
+    overflow-x: auto;
   }
 
   .osv3p-identity-name--org {

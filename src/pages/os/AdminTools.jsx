@@ -7,6 +7,7 @@ import {
   Button, ButtonRow, EmptyState,
 } from '../../components/osv3/index.js'
 import { ADMIN_FIXTURE } from '../../lib/profileFixtures.js'
+import AdminUsers from './AdminUsers.jsx'
 import {
   loadAdminStats, emptyAdminStats, windowDelta, formatCount, formatDate, WINDOW_DAYS,
 } from '../../lib/adminStats.js'
@@ -106,8 +107,9 @@ const KPI_TAB = {
 /* What each unbuilt tab will hold. One honest sentence each beats one generic
    "coming soon" repeated seven times — an admin should be able to tell from the
    empty panel whether this is the tab they wanted. */
+/* Users is BUILT — see AdminUsers.jsx. It is off this list on purpose: a promise
+   left next to a delivered screen is how the next reader learns the wrong thing. */
 const TAB_PROMISES = {
-  users: 'Every registered account, with approval, role and suspension controls.',
   organizations: 'The organization directory: create, merge, transfer ownership, archive.',
   verification: 'The verification queue — evidence, reviewer notes, approve or reject.',
   content: 'Submitted capabilities, listings and resources awaiting an editor.',
@@ -355,7 +357,9 @@ export default function AdminTools() {
 
       <Tabs items={a.tabs} value={tab} onChange={setTab} label={TABS_LABEL} />
 
-      {tab !== 'dashboard' ? (
+      {tab === 'users' ? (
+        <AdminUsers />
+      ) : tab !== 'dashboard' ? (
         <EmptyState
           icon="gear"
           title={`${activeTab.label} is not built yet`}
