@@ -107,11 +107,11 @@ The SAME probe run before `0693ca8` returned `item font: Arial` and
   preview.
 - The Arial leak means every OTHER button in this shell inherits UA font too; I fixed
   my menu and did not audit the rest of the shell for the same defect.
-- The chip menu overlays the nav above it; at its top edge the covered "Saved" row
-  peeks out beside the menu (visible in the full-page shot). I judged it acceptable
-  overlay behavior; a sharper eye might call it visual noise and want a backdrop.
-- Mobile: the drawer sidebar chip menu at 390px was not re-screenshotted after the
-  redesign.
+- ~~The "Saved" row peeking around the chip~~ RESOLVED in the ownership round: it
+  was the sidebar's 24px bottom padding showing scrolled rows under the sticky
+  chip; the chip now owns the bottom edge (a841ad1).
+- ~~Mobile drawer chip menu not re-screenshotted~~ RESOLVED: captured at 390px in
+  the ownership round's mobile pass, clean.
 - "Management panel" naming: admins have called it "/admin" for months; the redirect
   plus rename might read as the panel being gone for a beat.
 
