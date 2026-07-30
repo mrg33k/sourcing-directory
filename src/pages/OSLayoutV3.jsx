@@ -127,7 +127,7 @@ const OSLayoutV3 = () => {
       if (topbarRef.current && !topbarRef.current.contains(e.target)) setShowTopbarMenu(false)
     }
     const onKey = (e) => {
-      if (e.key === 'Escape') { setShowUserMenu(false); setShowTopbarMenu(false) }
+      if (e.key === 'Escape') { setShowUserMenu(false); setShowTopbarMenu(false); setNavOpen(false) }
     }
     document.addEventListener('mousedown', onPress)
     document.addEventListener('keydown', onKey)

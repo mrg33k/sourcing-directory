@@ -8,6 +8,7 @@ import {
 } from '../../components/osv3/index.js'
 import { fetchCompanyProfile } from '../../lib/profileApi.js'
 import { computeCompanyCompleteness } from '../../lib/profileCompleteness.js'
+import { resolveEditPermission, editHref } from '../../lib/profileWrite.js'
 import { COMPANY_FIXTURE } from '../../lib/profileFixtures.js'
 import '../../styles/osv3-profile.css'
 
@@ -47,9 +48,6 @@ import '../../styles/osv3-profile.css'
  * gets reviewed before a thin live record is routed here. Explicit param only —
  * never the default, and never mistaken for a real profile.
  */
-
-/** The route that owns the "finish your record" flow. */
-const EDIT_HREF = '/profile/edit'
 
 /** Below this, a profile is materially incomplete and says so. Above it, the
  *  record is essentially there and a progress band would just be nagging —
@@ -108,14 +106,14 @@ function newOrganizationPreview() {
 /** The locations map + the list beside it. Shared by the OVERVIEW card and the
  *  LOCATION tab so the two can never drift; `stacked` is the expanded reading,
  *  where the map takes the full card width and the list sits under it. */
-function LocationsBody({ company, stacked, onExpand }) {
+function LocationsBody({ company, stacked, onExpand, canEdit }) {
   const loc = company.locations
   if (!loc.items.length) {
     return (
       <EmptyState
         icon="location"
         title="No locations added"
-        body="Headquarters, launch sites and facilities appear here, pinned on the map."
+        body={canEdit ? 'Headquarters, launch sites and facilities appear here, pinned on the map.' : 'This organization has not published any locations yet.'}
       />
     )
   }
@@ -133,13 +131,13 @@ function LocationsBody({ company, stacked, onExpand }) {
 }
 
 /** The capabilities grid, shared by the OVERVIEW card and the CAPABILITIES tab. */
-function CapabilitiesBody({ company }) {
+function CapabilitiesBody({ company, canEdit }) {
   if (!company.capabilities.shown.length) {
     return (
       <EmptyState
         icon="rocket"
         title="No capabilities listed"
-        body="Say what this organization builds, launches or operates. Capabilities are how it gets found."
+        body={canEdit ? 'Say what this organization builds, launches or operates. Capabilities are how it gets found.' : 'This organization has not listed any capabilities yet.'}
       />
     )
   }
@@ -158,6 +156,23 @@ export default function ProfileCompany({ slug: slugProp }) {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+
+  // Whether THIS viewer may edit THIS organization. Strangers see no
+  // completeness band and no Edit control — another company's gaps are not
+  // theirs to close, and the old unconditional render told every visitor to
+  // "Complete this profile" on records they cannot touch. The _preview fixture
+  // keeps the affordances: it is the design-review render.
+  const [editPerm, setEditPerm] = useState({ canEdit: false, href: null })
+  useEffect(() => {
+    let cancelled = false
+    setEditPerm({ canEdit: false, href: null })
+    if (slug && slug !== '_preview') {
+      resolveEditPermission('company', slug).then(({ data }) => {
+        if (!cancelled && data) setEditPerm(data)
+      })
+    }
+    return () => { cancelled = true }
+  }, [slug])
   const [tab, setTab] = useState('overview')
 
   useEffect(() => {
@@ -222,7 +237,10 @@ export default function ProfileCompany({ slug: slugProp }) {
   }
 
   const c = profile
-  const showCompleteness = completeness && completeness.percent < INCOMPLETE_BELOW
+  const isFixture = profile.source === 'fixture' || profile.source === 'preview-new'
+  const canEdit = isFixture || editPerm.canEdit
+  const edit = (section) => (isFixture ? null : editHref('company', slug, section))
+  const showCompleteness = canEdit && completeness && completeness.percent < INCOMPLETE_BELOW
 
   // The meta line: pin, globe, envelope — hairline-separated, exactly as the
   // reference draws it — then the LinkedIn mark appended with no separator.
@@ -259,7 +277,7 @@ export default function ProfileCompany({ slug: slugProp }) {
             />
           </CardBody>
           <CardFooter>
-            <CardLink href={EDIT_HREF}>Complete this profile</CardLink>
+            <CardLink href={edit()}>Complete this profile</CardLink>
           </CardFooter>
         </Card>
       ) : null}
@@ -353,7 +371,7 @@ export default function ProfileCompany({ slug: slugProp }) {
                   ? <CardLink onClick={() => setTab('capabilities')}>{c.capabilities.footerLink}</CardLink>
                   : null}
               />
-              <CardBody><CapabilitiesBody company={c} /></CardBody>
+              <CardBody><CapabilitiesBody canEdit={canEdit} company={c} /></CardBody>
             </Card>
 
             <Card>
@@ -365,7 +383,7 @@ export default function ProfileCompany({ slug: slugProp }) {
                     <EmptyState
                       icon="mission-build"
                       title="No mission alignment yet"
-                      body="Map this organization to the six space missions to show where its work lands."
+                      body={canEdit ? 'Map this organization to the six space missions to show where its work lands.' : 'This organization has not rated its mission alignment yet.'}
                     />
                   )}
               </CardBody>
@@ -417,8 +435,8 @@ export default function ProfileCompany({ slug: slugProp }) {
             <Card>
               <CardHeader
                 title={c.lookingFor.heading}
-                action={c.lookingFor.action
-                  ? <CardAction href={EDIT_HREF}>{c.lookingFor.action}</CardAction>
+                action={c.lookingFor.action && canEdit
+                  ? <CardAction href={edit('needs')}>{c.lookingFor.action}</CardAction>
                   : null}
               />
               <CardBody>
@@ -442,7 +460,7 @@ export default function ProfileCompany({ slug: slugProp }) {
             <Card>
               <CardHeader title={c.locations.heading} />
               <CardBody>
-                <LocationsBody company={c} onExpand={() => setTab('location')} />
+                <LocationsBody canEdit={canEdit} company={c} onExpand={() => setTab('location')} />
               </CardBody>
               {c.locations.footerLink ? (
                 <CardFooter><CardLink>{c.locations.footerLink}</CardLink></CardFooter>
@@ -475,7 +493,7 @@ export default function ProfileCompany({ slug: slugProp }) {
       {tab === 'capabilities' && (
         <Card>
           <CardHeader title={c.capabilities.heading} count={c.capabilities.total || null} />
-          <CardBody><CapabilitiesBody company={c} /></CardBody>
+          <CardBody><CapabilitiesBody canEdit={canEdit} company={c} /></CardBody>
         </Card>
       )}
 
@@ -495,7 +513,7 @@ export default function ProfileCompany({ slug: slugProp }) {
       {tab === 'location' && (
         <Card>
           <CardHeader title={c.locations.heading} />
-          <CardBody><LocationsBody company={c} stacked /></CardBody>
+          <CardBody><LocationsBody canEdit={canEdit} company={c} stacked /></CardBody>
           {c.locations.footerLink ? (
             <CardFooter><CardLink>{c.locations.footerLink}</CardLink></CardFooter>
           ) : null}

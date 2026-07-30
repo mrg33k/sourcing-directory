@@ -8,6 +8,7 @@ import {
 } from '../../components/osv3/index.js'
 import { fetchPersonProfile } from '../../lib/profileApi.js'
 import { computePersonCompleteness } from '../../lib/profileCompleteness.js'
+import { resolveEditPermission, editHref } from '../../lib/profileWrite.js'
 import '../../styles/osv3-profile.css'
 
 /**
@@ -104,7 +105,7 @@ function normalize(p) {
  *  rectangle across the rest of the header — the exact "looks broken" the
  *  unfinished profile has to avoid. Full width, the same twelve pills sit in
  *  two rows and nothing is left holding up dead space. */
-function FinishCard({ completeness }) {
+function FinishCard({ completeness, href }) {
   return (
     <Card>
       <CardBody>
@@ -115,7 +116,7 @@ function FinishCard({ completeness }) {
         />
       </CardBody>
       <CardFooter>
-        <Button icon="edit" variant="primary" href="/profile/edit">
+        <Button icon="edit" variant="primary" href={href || '/profile/edit'}>
           Complete profile
         </Button>
       </CardFooter>
@@ -136,6 +137,23 @@ export default function ProfilePerson({ slug: slugProp }) {
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
   const [tab, setTab] = useState('overview')
+
+  // Whether THIS viewer may edit THIS record. Until it resolves (and for every
+  // stranger) the screen shows no Edit, no + Add, no completeness band —
+  // another member's gaps are not the viewer's to close, and a control that
+  // does nothing for them reads as broken. The _preview fixture keeps the
+  // affordances: it is the design-review render and the reference shows them.
+  const [editPerm, setEditPerm] = useState({ canEdit: false, href: null })
+  useEffect(() => {
+    let cancelled = false
+    setEditPerm({ canEdit: false, href: null })
+    if (slug && slug !== '_preview') {
+      resolveEditPermission('person', slug).then(({ data }) => {
+        if (!cancelled && data) setEditPerm(data)
+      })
+    }
+    return () => { cancelled = true }
+  }, [slug])
 
   useEffect(() => {
     let cancelled = false
@@ -206,7 +224,9 @@ export default function ProfilePerson({ slug: slugProp }) {
   const p = normalize(showSparse ? sparse(profile) : profile)
 
   const completeness = computePersonCompleteness(p)
-  const incomplete = completeness.missing.some((m) => LOAD_BEARING.includes(m.field))
+  const canEdit = isFixture || editPerm.canEdit
+  const edit = (section) => (isFixture ? null : editHref('person', slug, section))
+  const incomplete = canEdit && completeness.missing.some((m) => LOAD_BEARING.includes(m.field))
   // The 296px slot beside the identity block carries AVAILABILITY and nothing
   // else — that is the reference. A person who has not published one gets the
   // header at full width instead of an empty panel holding the row open.
@@ -271,7 +291,7 @@ export default function ProfilePerson({ slug: slugProp }) {
         identity
       )}
 
-      {incomplete ? <FinishCard completeness={completeness} /> : null}
+      {incomplete ? <FinishCard completeness={completeness} href={edit()} /> : null}
 
       {/* ---- tabs ---- */}
       <div className="osv3p-tabbar">
@@ -286,7 +306,7 @@ export default function ProfilePerson({ slug: slugProp }) {
               <CardBody>
                 {p.about.body
                   ? <p className="osv3p-prose">{p.about.body}</p>
-                  : <EmptyState icon="file" title="No bio yet" body="A few sentences on what you do and why is the first thing anyone reads here." />}
+                  : <EmptyState icon="file" title="No bio yet" body={canEdit ? 'A few sentences on what you do and why is the first thing anyone reads here.' : 'This member has not written a bio yet.'} />}
               </CardBody>
               {p.about.body && p.about.link ? (
                 <CardFooter><CardLink>{p.about.link}</CardLink></CardFooter>
@@ -296,12 +316,12 @@ export default function ProfilePerson({ slug: slugProp }) {
             <Card>
               <CardHeader
                 title={p.capabilities.heading}
-                action={p.capabilities.action ? <CardAction>{p.capabilities.action}</CardAction> : null}
+                action={p.capabilities.action && canEdit ? <CardAction href={edit('capabilities')}>{p.capabilities.action}</CardAction> : null}
               />
               <CardBody>
                 {p.capabilities.shown.length
                   ? <CheckList items={p.capabilities.shown} />
-                  : <EmptyState icon="check-circle" title="No capabilities listed" body="Add the work you do so the directory can match you to it." />}
+                  : <EmptyState icon="check-circle" title="No capabilities listed" body={canEdit ? 'Add the work you do so the directory can match you to it.' : 'This member has not listed any capabilities yet.'} />}
               </CardBody>
               {p.capabilities.shown.length && p.capabilities.footerLink ? (
                 <CardFooter><CardLink>{p.capabilities.footerLink}</CardLink></CardFooter>
@@ -311,12 +331,12 @@ export default function ProfilePerson({ slug: slugProp }) {
             <Card>
               <CardHeader
                 title={p.missions.heading}
-                action={p.missions.action ? <CardAction>{p.missions.action}</CardAction> : null}
+                action={p.missions.action && canEdit ? <CardAction href={edit('missions')}>{p.missions.action}</CardAction> : null}
               />
               <CardBody>
                 {p.missions.rows.length
                   ? <MissionBars rows={p.missions.rows} />
-                  : <EmptyState icon="mission-build" title="No mission alignment yet" body="Rate how your work maps to the six space missions." />}
+                  : <EmptyState icon="mission-build" title="No mission alignment yet" body={canEdit ? 'Rate how your work maps to the six space missions.' : 'This member has not rated their mission alignment yet.'} />}
               </CardBody>
             </Card>
           </div>
@@ -325,24 +345,24 @@ export default function ProfilePerson({ slug: slugProp }) {
             <Card>
               <CardHeader
                 title={p.lookingFor.heading}
-                action={p.lookingFor.action ? <CardAction>{p.lookingFor.action}</CardAction> : null}
+                action={p.lookingFor.action && canEdit ? <CardAction href={edit('needs')}>{p.lookingFor.action}</CardAction> : null}
               />
               <CardBody>
                 {p.lookingFor.left.items.length || p.lookingFor.right.items.length
                   ? <SplitList left={p.lookingFor.left} right={p.lookingFor.right} />
-                  : <EmptyState icon="handshake" title="Nothing listed yet" body="Say what you are looking for and what you can offer — this is what connects you to other members." />}
+                  : <EmptyState icon="handshake" title="Nothing listed yet" body={canEdit ? 'Say what you are looking for and what you can offer — this is what connects you to other members.' : 'This member has not published what they are seeking or can provide.'} />}
               </CardBody>
             </Card>
 
             <Card>
               <CardHeader
                 title={p.affiliations.heading}
-                action={p.affiliations.action ? <CardAction>{p.affiliations.action}</CardAction> : null}
+                action={p.affiliations.action && canEdit ? <CardAction href={edit('affiliations')}>{p.affiliations.action}</CardAction> : null}
               />
               <CardBody>
                 {p.affiliations.items.length
                   ? <IconList items={p.affiliations.items} />
-                  : <EmptyState icon="building" title="No affiliations yet" body="Link the organizations you are part of." />}
+                  : <EmptyState icon="building" title="No affiliations yet" body={canEdit ? 'Link the organizations you are part of.' : 'No organizations linked yet.'} />}
               </CardBody>
               {p.affiliations.items.length && p.affiliations.footerLink ? (
                 <CardFooter><CardLink>{p.affiliations.footerLink}</CardLink></CardFooter>
@@ -369,7 +389,7 @@ export default function ProfilePerson({ slug: slugProp }) {
                     </div>
                   </>
                 ) : (
-                  <EmptyState icon="location" title="No location yet" body="Members search this directory by region more than by anything else." />
+                  <EmptyState icon="location" title="No location yet" body={canEdit ? 'Members search this directory by region more than by anything else.' : 'This member has not published a location.'} />
                 )}
               </CardBody>
             </Card>
@@ -394,12 +414,12 @@ export default function ProfilePerson({ slug: slugProp }) {
           <CardHeader
             title={p.capabilities.heading}
             count={p.capabilities.total || null}
-            action={p.capabilities.action ? <CardAction>{p.capabilities.action}</CardAction> : null}
+            action={p.capabilities.action && canEdit ? <CardAction href={edit('capabilities')}>{p.capabilities.action}</CardAction> : null}
           />
           <CardBody>
             {p.capabilities.shown.length
               ? <CheckList items={p.capabilities.shown} />
-              : <EmptyState icon="check-circle" title="No capabilities listed" body="Add the work you do so the directory can match you to it." />}
+              : <EmptyState icon="check-circle" title="No capabilities listed" body={canEdit ? 'Add the work you do so the directory can match you to it.' : 'This member has not listed any capabilities yet.'} />}
           </CardBody>
         </Card>
       )}
@@ -408,12 +428,12 @@ export default function ProfilePerson({ slug: slugProp }) {
         <Card>
           <CardHeader
             title={p.lookingFor.heading}
-            action={p.lookingFor.action ? <CardAction>{p.lookingFor.action}</CardAction> : null}
+            action={p.lookingFor.action && canEdit ? <CardAction href={edit('needs')}>{p.lookingFor.action}</CardAction> : null}
           />
           <CardBody>
             {p.lookingFor.left.items.length || p.lookingFor.right.items.length
               ? <SplitList left={p.lookingFor.left} right={p.lookingFor.right} />
-              : <EmptyState icon="handshake" title="Nothing listed yet" body="Say what you are looking for and what you can offer — this is what connects you to other members." />}
+              : <EmptyState icon="handshake" title="Nothing listed yet" body={canEdit ? 'Say what you are looking for and what you can offer — this is what connects you to other members.' : 'This member has not published what they are seeking or can provide.'} />}
           </CardBody>
         </Card>
       )}
@@ -430,12 +450,12 @@ export default function ProfilePerson({ slug: slugProp }) {
         <Card>
           <CardHeader
             title={p.affiliations.heading}
-            action={p.affiliations.action ? <CardAction>{p.affiliations.action}</CardAction> : null}
+            action={p.affiliations.action && canEdit ? <CardAction href={edit('affiliations')}>{p.affiliations.action}</CardAction> : null}
           />
           <CardBody>
             {p.affiliations.items.length
               ? <IconList items={p.affiliations.items} />
-              : <EmptyState icon="building" title="No affiliations yet" body="Link the organizations you are part of." />}
+              : <EmptyState icon="building" title="No affiliations yet" body={canEdit ? 'Link the organizations you are part of.' : 'No organizations linked yet.'} />}
           </CardBody>
         </Card>
       )}
