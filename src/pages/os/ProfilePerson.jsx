@@ -94,21 +94,32 @@ function normalize(p) {
   }
 }
 
-/** The completeness panel: the number, the bar, and the named gaps, over the
- *  one button that closes them. A bare percentage tells a member they are at
- *  13% and nothing about what to do next. */
-function FinishPanel({ completeness }) {
+/** The completeness card: the number, the bar, the named gaps, and the one
+ *  button that closes them. A bare percentage tells a member they are at 13%
+ *  and nothing about what to do next.
+ *
+ *  It is a FULL-WIDTH row, never the 296px slot beside the identity block. A
+ *  twelve-gap checklist stacks four pill rows deep in 296px, which made that
+ *  panel half again as tall as the avatar next to it and left a visibly empty
+ *  rectangle across the rest of the header — the exact "looks broken" the
+ *  unfinished profile has to avoid. Full width, the same twelve pills sit in
+ *  two rows and nothing is left holding up dead space. */
+function FinishCard({ completeness }) {
   return (
-    <>
-      <CompletenessMeter
-        percent={completeness.percent}
-        missing={completeness.missing}
-        label="PROFILE COMPLETENESS"
-      />
-      <Button icon="edit" variant="primary" block href="/profile/edit">
-        Complete profile
-      </Button>
-    </>
+    <Card>
+      <CardBody>
+        <CompletenessMeter
+          percent={completeness.percent}
+          missing={completeness.missing}
+          label="PROFILE COMPLETENESS"
+        />
+      </CardBody>
+      <CardFooter>
+        <Button icon="edit" variant="primary" href="/profile/edit">
+          Complete profile
+        </Button>
+      </CardFooter>
+    </Card>
   )
 }
 
@@ -196,12 +207,10 @@ export default function ProfilePerson({ slug: slugProp }) {
 
   const completeness = computePersonCompleteness(p)
   const incomplete = completeness.missing.some((m) => LOAD_BEARING.includes(m.field))
+  // The 296px slot beside the identity block carries AVAILABILITY and nothing
+  // else — that is the reference. A person who has not published one gets the
+  // header at full width instead of an empty panel holding the row open.
   const hasAvailability = Boolean(p.availability.status)
-  // The 296px slot beside the identity block. It carries AVAILABILITY when the
-  // person has published one — that is the reference. When they have not, it
-  // carries the reason it is blank and the way to fix it, rather than 296px of
-  // white.
-  const sidePanel = hasAvailability || incomplete
 
   const identity = (
     <div className="osv3p-identity-main">
@@ -245,39 +254,24 @@ export default function ProfilePerson({ slug: slugProp }) {
   return (
     <div className="osv3p-screen osv3p-screen--profile">
       {/* ---- identity ---- */}
-      {sidePanel ? (
+      {hasAvailability ? (
         <div className="osv3p-identity">
           {identity}
           <aside className="osv3p-sidepanel">
-            {hasAvailability ? (
-              <>
-                <h2 className="osv3p-card-title">{p.availability.heading}</h2>
-                <span className="osv3p-sidepanel-status">
-                  {p.availability.status}
-                  <span className="osv3p-sidepanel-dot" />
-                </span>
-                {p.availability.body ? <p className="osv3p-sidepanel-body">{p.availability.body}</p> : null}
-                <Button icon="send" variant="primary" block>{p.availability.primaryCta}</Button>
-              </>
-            ) : (
-              <FinishPanel completeness={completeness} />
-            )}
+            <h2 className="osv3p-card-title">{p.availability.heading}</h2>
+            <span className="osv3p-sidepanel-status">
+              {p.availability.status}
+              <span className="osv3p-sidepanel-dot" />
+            </span>
+            {p.availability.body ? <p className="osv3p-sidepanel-body">{p.availability.body}</p> : null}
+            <Button icon="send" variant="primary" block>{p.availability.primaryCta}</Button>
           </aside>
         </div>
       ) : (
         identity
       )}
 
-      {/* A profile that has published its availability but is still missing the
-          load-bearing sections gets the prompt on its own row — the side panel
-          is already spoken for. */}
-      {hasAvailability && incomplete ? (
-        <Card>
-          <CardBody>
-            <FinishPanel completeness={completeness} />
-          </CardBody>
-        </Card>
-      ) : null}
+      {incomplete ? <FinishCard completeness={completeness} /> : null}
 
       {/* ---- tabs ---- */}
       <div className="osv3p-tabbar">
@@ -384,9 +378,12 @@ export default function ProfilePerson({ slug: slugProp }) {
           <Card>
             <CardHeader title={p.activity.heading} />
             <CardBody>
+              {/* Activity is the one section a member cannot fill in — the
+                  platform writes it. So it gets a single honest line, not the
+                  dashed "something goes here" box the fillable sections use. */}
               {p.activity.stats.length
                 ? <StatStrip items={p.activity.stats} />
-                : <EmptyState icon="grid" title="No activity yet" body="Connections, organizations and events show up here as you use SpaceOS." />}
+                : <p className="osv3p-empty-body">Connections, organizations and events are counted here as you use SpaceOS. Nothing has been recorded yet.</p>}
             </CardBody>
           </Card>
         </>
