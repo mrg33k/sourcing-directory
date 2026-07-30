@@ -11,8 +11,11 @@ sidebar entry), `src/main.jsx` (/admin → /admin-tools, legacy panel at /admin/
 `src/pages/os/AdminTools.jsx` (header ButtonRow + unbuilt-tab pointer),
 `src/pages/os/OSMyProfile.jsx` (/profile forwards to own person page),
 `src/styles/osv3-profile.css` (pagehead btn-row runs horizontal).
-Commits `30cd6cd` + `0693ca8` on `feat/spaceos-profiles`. Live on os.spacerising.org
-via deploy `sourcing-directory-8sedcl7am`.
+Commits `30cd6cd` + `0693ca8` on `feat/spaceos-profiles`. Extended same-day by the
+ownership/mobile round: `a841ad1` (+ `e6bc990`, the in-flight full-width
+completeness card committed as found) — `src/pages/os/ProfilePerson.jsx` and
+`ProfileCompany.jsx` gain resolveEditPermission gating. Live on os.spacerising.org
+via deploy `sourcing-directory-pau83gde1`.
 
 ## call
 
@@ -30,6 +33,18 @@ BELOW a chip stuck to the viewport bottom — the cramped feeling was the menu p
 against the screen edge, not the padding.
 
 ## measured
+
+Ownership round (a841ad1), guest sweep run against the LIVE domain:
+
+    companyGuest:  completenessBands 0 · completeThisProfile 0 · editChips 0
+    personGuest:   completenessBands 0 · editChips 0 · completeProfileBtn 0
+    personFixture: editChips 4        (design-review render keeps affordances)
+    mobileHscroll: none (390px)       · mobile console errors: only the known
+                                        get_admin_location_stats 404
+
+Before the fix the same sweep showed the completeness band + "Complete this
+profile" (linking to the VIEWER'S OWN person edit) on every thin company page,
+and Edit/+ Add chips on every person profile, for any guest.
 
 design_spacing_check on the authored avatar-menu CSS (extracted section + the two
 type sizes, rendered standalone):
@@ -71,6 +86,17 @@ All menu spacing values sit on the 4px grid: 4, 8, 12, 16. Two menu font sizes
 (redirect confirmed), root innerHTML 18787 chars, profile page 13276 chars.
 The SAME probe run before `0693ca8` returned `item font: Arial` and
 `email weight: 700` — the fix is measured, not assumed.
+
+## uncertain (ownership round)
+
+- resolveEditPermission runs client-side on RLS-scoped reads; a signed-in
+  APPROVED MEMBER of a company seeing that company's band was verified by code
+  path, not by a live member session.
+- The owner's own coaching-voice render (chips + band + "Complete profile")
+  is proven via the fixture branch, which shares the JSX — not via a real
+  signed-in owner on the live site.
+- Visitor empty-copy variants were hand-swapped at 11 sites across two screens;
+  a copy site added later will default to whatever voice its author writes.
 
 ## uncertain
 
