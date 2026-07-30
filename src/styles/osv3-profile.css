@@ -1710,6 +1710,242 @@
 .osv3p-status--rejected { stroke: #D01A20; background: #D01A20; }
 
 /* ===========================================================================
+   EDIT FORMS — the CSS contract declared in ProfileEditPerson.jsx
+
+   Both edit screens shipped naming these classes against a stylesheet that
+   defined none of them, so every control rendered at browser defaults: system
+   labels, hairline-less inputs, a MONOSPACE textarea (the browser default for
+   that element), and a native select. The save-blocked message rendered too —
+   as plain text the same size and colour as the hint under every other field,
+   which is why the screen also read as "it will not save".
+
+   `font: inherit` on the three controls is the single most load-bearing
+   declaration in this block. Form elements do NOT inherit type from the page in
+   any browser; without it, Roboto 13px stops at the input boundary.
+
+   Two deliberate departures from the contract comment, both noted there:
+     - the contract said `padding: var(--p-2)`; text controls use
+       `var(--p-2) var(--p-3)` (8/12, both on the scale) because 8px all round
+       sets 13px text too tight against the box to read as a designed field.
+     - the contract said the field grid drops to one column under 640px; this
+       sheet's breakpoints are 1180 and 760, so it folds into the 760 block
+       rather than putting a third breakpoint in the file.
+   =========================================================================== */
+
+.osv3p-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-6);
+}
+
+.osv3p-formgroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-3);
+}
+
+.osv3p-formgroup-title {
+  font-size: var(--t-label);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v3-ink-secondary);
+  margin: 0;
+}
+
+.osv3p-fieldgrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--p-4);
+}
+
+.osv3p-fieldgrid--thirds {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.osv3p-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-1);
+  min-width: 0;
+}
+
+.osv3p-field--wide {
+  grid-column: 1 / -1;
+}
+
+.osv3p-field-label {
+  font-size: var(--t-label);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--v3-ink-secondary);
+}
+
+/* The label is the only part of a field that is always visible, so it is what
+   carries the invalid state to someone scanning the column. */
+.osv3p-field--invalid .osv3p-field-label {
+  color: var(--v3-accent);
+}
+
+.osv3p-field-hint {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+  margin: 0;
+}
+
+.osv3p-field-error {
+  font-size: var(--t-meta);
+  font-weight: 500;
+  color: var(--v3-accent);
+  margin: 0;
+}
+
+/* box-sizing is NOT global in this sheet — there is exactly one other rule, on
+   one component. Without it here, width:100% plus the padding and the hairline
+   pushes every control past its grid cell and out through the card's edge. */
+.osv3p-input,
+.osv3p-textarea,
+.osv3p-select {
+  box-sizing: border-box;
+  font: inherit;
+  font-size: var(--t-body);
+  color: var(--v3-ink-primary);
+  background: #FFFFFF;
+  border: var(--p-hair);
+  border-radius: var(--p-radius-sm);
+  padding: var(--p-2) var(--p-3);
+  width: 100%;
+  min-width: 0;
+  transition: border-color var(--v3-transition-fast);
+}
+
+.osv3p-textarea {
+  resize: vertical;
+  line-height: var(--v3-line-height-normal);
+}
+
+/* appearance:none removes the platform control so the box matches the inputs
+   beside it; the chevron is an inline data URI, so no network asset. */
+.osv3p-select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: var(--p-6);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 4.5 6 8l3.5-3.5' fill='none' stroke='%236B7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--p-3) center;
+}
+
+.osv3p-input:focus-visible,
+.osv3p-textarea:focus-visible,
+.osv3p-select:focus-visible {
+  outline: none;
+  border-color: var(--v3-accent);
+}
+
+.osv3p-input--invalid {
+  border-color: var(--v3-accent);
+}
+
+.osv3p-checkrow {
+  display: flex;
+  align-items: center;
+  gap: var(--p-2);
+}
+
+.osv3p-checkrow-box {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  accent-color: var(--v3-accent);
+  margin: 0;
+}
+
+.osv3p-checkrow-label {
+  font-size: var(--t-body);
+  color: var(--v3-ink-primary);
+}
+
+.osv3p-repeater {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-3);
+}
+
+.osv3p-repeater-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--p-3);
+  border: var(--p-hair);
+  border-radius: var(--p-radius-sm);
+  padding: var(--p-3);
+}
+
+.osv3p-repeater-fields {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-2);
+  flex: 1;
+  min-width: 0;
+}
+
+.osv3p-repeater-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-1);
+  flex-shrink: 0;
+  font-size: var(--t-label);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--v3-muted);
+  background: none;
+  border: 0;
+  padding: var(--p-1);
+  cursor: pointer;
+}
+
+.osv3p-repeater-remove:hover {
+  color: var(--v3-accent);
+}
+
+.osv3p-repeater-remove svg {
+  width: 12px;
+  height: 12px;
+}
+
+.osv3p-repeater-empty {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+  margin: 0;
+}
+
+.osv3p-savebar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--p-3);
+}
+
+.osv3p-savebar-msg {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+  margin: 0;
+}
+
+/* #2E9E3F is already this sheet's positive, on .osv3p-status--verified. The
+   accent is the only other signal colour in the system, and it means "wrong". */
+.osv3p-savebar-msg--ok {
+  color: #2E9E3F;
+  font-weight: 500;
+}
+
+.osv3p-savebar-msg--err {
+  color: var(--v3-accent);
+  font-weight: 500;
+}
+
+/* ===========================================================================
    RESPONSIVE — the shell already drops the sidebar under 900px
    =========================================================================== */
 
@@ -1769,8 +2005,16 @@
   .osv3p-split,
   .osv3p-counts,
   .osv3p-kpi-row,
-  .osv3p-stats {
+  .osv3p-stats,
+  .osv3p-fieldgrid,
+  .osv3p-fieldgrid--thirds {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* The remove control drops under its fields rather than squeezing them. */
+  .osv3p-repeater-row {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   .osv3p-identity-name--org {

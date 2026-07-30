@@ -25,17 +25,21 @@ import '../../styles/osv3-profile.css'
  * src/components/osv3/Form.jsx and re-point both imports. Nothing else uses them.
  *
  * ===========================================================================
- * NO INLINE STYLES, AND SOME CLASSES DO NOT EXIST YET  <- READ THIS FIRST
+ * NO INLINE STYLES. THE CSS CONTRACT IS NOW IMPLEMENTED.
  * ===========================================================================
- * src/styles/osv3-profile.css is owned by another agent and has NO form rules
- * in it — no input, no label, no fieldset, nothing. The markup below therefore
- * names the classes the stylesheet needs, and until they land these controls
- * render at browser defaults: functional and legible, but unstyled.
+ * HISTORY, because it cost a real user a broken screen: this file shipped
+ * naming classes that src/styles/osv3-profile.css did not define — the sheet was
+ * owned by another agent that round and had NO form rules at all. Every control
+ * rendered at browser defaults, and the validation errors rendered as plain
+ * unstyled text, so the screen also read as "it will not save". The note that
+ * used to be here said the classes would land later. Nothing made that happen.
  *
- * That is deliberate. An inline style would look finished and be invisible to
- * design_spacing_check.py, which is the exact failure the no-inline-styles rule
- * exists to stop. This is the whole list — it is the CSS contract for both edit
- * screens, and nothing outside it is used:
+ * If you ever again have to write markup against classes that do not exist:
+ * put it on the punch list, not in a comment. A comment is not a mechanism.
+ *
+ * The rules now live under "EDIT FORMS" in osv3-profile.css. Keep this list and
+ * that block in step — it is the contract for both edit screens, and nothing
+ * outside it is used:
  *
  *   .osv3p-form              the form column        gap: var(--p-6)
  *   .osv3p-formgroup         one titled group       gap: var(--p-3)
@@ -53,9 +57,9 @@ import '../../styles/osv3-profile.css'
  *   .osv3p-textarea          same, plus resize: vertical
  *   .osv3p-select            same as input
  *   .osv3p-input--invalid    border: 1px solid var(--v3-accent)
- *   .osv3p-check             checkbox row           gap: var(--p-2), align center
- *   .osv3p-check-box         the input
- *   .osv3p-check-label       --t-body
+ *   .osv3p-checkrow          checkbox row           gap: var(--p-2), align center
+ *   .osv3p-checkrow-box      the input
+ *   .osv3p-checkrow-label    --t-body
  *   .osv3p-repeater          list column            gap: var(--p-3)
  *   .osv3p-repeater-row      one item + its remove  --p-hair, --p-radius-sm,
  *                            padding: var(--p-3), gap: var(--p-3)
@@ -144,17 +148,20 @@ export function SelectInput({ id, value, onChange, options, invalid }) {
   )
 }
 
+/** `checkrow`, not `check`: osv3-profile.css already owns `.osv3p-check` for the
+ *  ticked-capability checklist (icon + title + sub). Two components under one
+ *  class name is how a change to one silently breaks the other. */
 export function CheckField({ id, label, checked, onChange }) {
   return (
-    <div className="osv3p-check">
+    <div className="osv3p-checkrow">
       <input
         id={id}
-        className="osv3p-check-box"
+        className="osv3p-checkrow-box"
         type="checkbox"
         checked={Boolean(checked)}
         onChange={(e) => onChange(e.target.checked)}
       />
-      <label className="osv3p-check-label" htmlFor={id}>{label}</label>
+      <label className="osv3p-checkrow-label" htmlFor={id}>{label}</label>
     </div>
   )
 }
