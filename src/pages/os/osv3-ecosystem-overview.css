@@ -1,0 +1,556 @@
+/* osv3-ecosystem-overview.css — page-local rules for /ecosystem/overview.
+   Everything structural comes from src/styles/osv3-profile.css, which the page
+   imports FIRST. Nothing here redefines a --v3-* token and there is no :root
+   block: those leak globally once this lazy chunk loads
+   (src/styles/osv3-directory.css:3-16 is the cautionary example).
+
+   Spacing uses the --p-* scale and type the --t-* ladder, both declared on
+   .osv3p-screen (osv3-profile.css:50-84). They resolve only because the page
+   root carries `osv3p-screen`. No eighth type size is introduced anywhere in
+   this file, and every gap is a step on that one scale. */
+
+/* .osv3p-screen already sets font, colour, flex column, 16px gap, 32px bottom
+   padding and the 1440px max width. Nothing needed here. */
+
+/* ---------------------------------------------------------------------------
+   PAGE HEAD — the window control
+   --------------------------------------------------------------------------- */
+
+.osv3-eco-window {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--p-2);
+  flex-shrink: 0;
+}
+
+.osv3-eco-window-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-1);
+  font-size: var(--t-label);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--v3-muted);
+}
+
+.osv3-eco-window-label svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* ---------------------------------------------------------------------------
+   THE STAT ROW — six, where the shared grid is built for five
+   --------------------------------------------------------------------------- */
+
+.osv3-eco-kpis {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+}
+
+/* The number is the tile. At --t-num (20px) the six values read as body copy
+   sitting beside an icon; the comp draws them as the loudest thing on the page
+   after the H1, and they are what the page is FOR. --t-name (28px) is the next
+   step up on the same seven-size ladder — no eighth size — and at a 142px
+   inner tile width even "1,732" would still fit on one line. */
+.osv3-eco-kpis .osv3p-kpi-value {
+  font-size: var(--t-name);
+  line-height: 1.15;
+}
+
+/* Two of the six notes run to three lines ("new in 30 days · down 85%" wraps
+   at this width) and the other four to two. Reserving three puts all six on one
+   baseline, which is the same reason osv3-profile.css:1410 reserves two lines
+   on the label. */
+.osv3-eco-kpis .osv3p-kpi-delta {
+  min-height: calc(3 * 1.3em);
+  margin-top: var(--p-2);
+}
+
+/* ---------------------------------------------------------------------------
+   THE TWO CARD ROWS — three equal columns
+   --------------------------------------------------------------------------- */
+
+.osv3-eco-thirds {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+/* .osv3p-card-header aligns on the baseline, which drops a one-line "View all"
+   below a heading that wraps to two. These headings are 18px and several of
+   them wrap at a third of 1440px, so the row aligns on its first line instead
+   and the link stays level with the first word of the title. */
+.osv3-eco-head {
+  align-items: flex-start;
+}
+
+.osv3-eco-head .osv3p-rail-title {
+  margin-bottom: 0;
+}
+
+/* The block at the bottom of a card: the honest caption, then the "View all".
+
+   It sits AFTER CardBody, and CardBody carries flex:1 (osv3-profile.css:159),
+   so it is pinned to the bottom of the card by the design system rather than by
+   a margin here. That is what makes three cards of different content heights
+   end on one line, which is how the comp's row reads and the thing that was
+   wrong on the first build: the caption sat directly under a short donut and
+   left 130px of dead card beneath it. */
+.osv3-eco-foot {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--p-3);
+  margin-top: var(--p-4);
+  padding-top: var(--p-3);
+  border-top: var(--p-hair);
+}
+
+/* The explanatory line under a chart. Left-aligned, unlike .osv3p-footnote
+   which is centred and belongs at the bottom of a PAGE. Smallest size on the
+   ladder because it is the last thing read, never the first. */
+.osv3-eco-note {
+  font-size: var(--t-label);
+  line-height: 1.5;
+  color: var(--v3-muted);
+  margin: 0;
+}
+
+/* Used on its own (the row-3 cards, whose "View all" is in the header) it still
+   needs the rule and the air the foot block would have given it. */
+.osv3p-card > .osv3-eco-note {
+  margin-top: var(--p-4);
+  padding-top: var(--p-3);
+  border-top: var(--p-hair);
+}
+
+/* ---------------------------------------------------------------------------
+   DONUT — the six organization types
+
+   DonutChart takes a `tone` and writes `.osv3p-status--<tone>`; it takes no
+   colour prop, which is the design (DonutChart.jsx:6-8). The four tones the
+   shared sheet defines are VERIFICATION states and mean something else
+   entirely, so these six carry their own prefix and are scoped to this page —
+   nothing here can change how a verification donut renders anywhere else.
+
+   The palette is the token set, not new colour: rust for the dominant type
+   (the same accent the whole screen wears), navy for the second, then three
+   mission accents, then the sheet's own neutral grey for Other. Grey for
+   "we could not tell" is deliberate — an unknown should not look like a
+   category.
+   --------------------------------------------------------------------------- */
+
+.osv3-eco .osv3p-status--orgtype-private { stroke: var(--v3-accent); background: var(--v3-accent); }
+.osv3-eco .osv3p-status--orgtype-nonprofit { stroke: var(--v3-active-nav); background: var(--v3-active-nav); }
+.osv3-eco .osv3p-status--orgtype-government { stroke: var(--v3-mission-cyan); background: var(--v3-mission-cyan); }
+.osv3-eco .osv3p-status--orgtype-academic { stroke: var(--v3-mission-purple); background: var(--v3-mission-purple); }
+.osv3-eco .osv3p-status--orgtype-investor { stroke: var(--v3-mission-gold); background: var(--v3-mission-gold); }
+.osv3-eco .osv3p-status--orgtype-other { stroke: #7E8496; background: #7E8496; }
+
+/* At a third of the page the shared 1fr/1fr split leaves the legend's longest
+   row ("Private Company  142 (87%)") wrapping onto two lines, so the columns
+   are sized to the two jobs instead: enough ring to read the split at a glance,
+   and enough legend that no row wraps. */
+.osv3-eco .osv3p-donut {
+  grid-template-columns: 140px minmax(0, 1fr);
+  gap: var(--p-3);
+}
+
+/* Two steps wider than the shared 12px. The three cards in this row stretch to
+   the tallest of them (the map), and at 12px the legend left 120px of dead card
+   under it. At 24px the legend, the seven bars and the map+city list all land
+   within 25px of each other, which is what makes the row read as three cards
+   rather than one tall card and two short ones. Air inside the content beats
+   air under it. */
+.osv3-eco .osv3p-legend {
+  gap: var(--p-6);
+}
+
+/* "Private Company  142 (87%)" is the longest row and it is the one that must
+   not wrap: a wrapped legend row breaks the alignment of the dot column and the
+   list stops reading as a key. 12px plus the tighter donut column above is what
+   fits it on one line at a third of 1440. */
+.osv3-eco .osv3p-legend-row {
+  font-size: var(--t-meta);
+  gap: var(--p-1);
+}
+
+/* ---------------------------------------------------------------------------
+   CAPABILITY BARS — label, track, count
+
+   MissionBars is the repo's horizontal-bar idiom but it leads every row with a
+   mission badge, and these rows are certifications with no glyph of their own.
+   So the rows are built from Bar, which is the primitive MissionBars itself
+   uses, in the comp's three-column shape.
+   --------------------------------------------------------------------------- */
+
+/* Same reasoning as the legend gap above: seven rows at 16px fill the height
+   the row is stretched to instead of stacking tight at the top of it. */
+.osv3-eco-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-4);
+}
+
+.osv3-eco-bar-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 88px 32px;
+  align-items: center;
+  gap: var(--p-3);
+}
+
+.osv3-eco-bar-label {
+  font-size: var(--t-body);
+  color: var(--v3-ink-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.osv3-eco-bar-value {
+  font-size: var(--t-meta);
+  font-weight: 600;
+  color: var(--v3-ink-primary);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------------
+   MAP — the city list under the locator
+
+   MapPanel draws state outlines and unlabelled pins and takes no count prop
+   (it is a locator, MapPanel.jsx:12-19). The comp puts the number inside the
+   bubble. At this scale that is not available and would not be readable if it
+   were: Phoenix, Scottsdale, Tempe, Mesa and Chandler sit inside four canvas
+   units of each other, so five counted bubbles would be one illegible blob.
+   The pins say WHERE and this list says HOW MANY.
+   --------------------------------------------------------------------------- */
+
+.osv3-eco-places {
+  list-style: none;
+  margin: var(--p-3) 0 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--p-1) var(--p-4);
+}
+
+.osv3-eco-place {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--p-2);
+  font-size: var(--t-meta);
+  color: var(--v3-ink-secondary);
+  padding: var(--p-1) 0;
+  border-bottom: var(--p-hair);
+}
+
+.osv3-eco-place b {
+  font-weight: 600;
+  color: var(--v3-ink-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.osv3-eco-place-name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-1);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A city with no coordinates on file carries a mark, so a reader can see that
+   its count is real and only its PIN is missing. */
+.osv3-eco-place-name svg {
+  width: 12px;
+  height: 12px;
+  color: var(--v3-muted);
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   RECENT ORGANIZATIONS
+   --------------------------------------------------------------------------- */
+
+.osv3-eco-orgs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-4);
+}
+
+.osv3-eco-org {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--p-3);
+}
+
+.osv3-eco-org-text {
+  min-width: 0;
+}
+
+/* A control that navigates is a link and one that does not is a button
+   (Card.jsx:36-37). This one calls navigate(), so it is a button styled as the
+   row's title rather than an <a> with a fabricated href. */
+.osv3-eco-org-name {
+  font-size: var(--t-body);
+  font-weight: 500;
+  color: var(--v3-ink-primary);
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.osv3-eco-org-name:hover {
+  color: var(--p-screen-accent, var(--v3-accent));
+}
+
+.osv3-eco-org-name:focus-visible {
+  outline: none;
+  border-radius: var(--p-radius-sm);
+  box-shadow: var(--p-screen-focus, var(--p-focus));
+}
+
+.osv3-eco-org-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--p-1);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.osv3-eco-org-meta .osv3p-iconlist-time {
+  margin-top: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   RANKED LIST
+   --------------------------------------------------------------------------- */
+
+.osv3-eco-rank {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-1);
+}
+
+.osv3-eco-rank-row {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--p-3);
+  padding: var(--p-3) 0;
+  border-bottom: var(--p-hair);
+}
+
+.osv3-eco-rank-row:last-child {
+  border-bottom: 0;
+}
+
+.osv3-eco-rank-num {
+  font-size: var(--t-body);
+  font-weight: 700;
+  color: var(--p-screen-accent, var(--v3-accent));
+  font-variant-numeric: tabular-nums;
+}
+
+.osv3-eco-rank-name {
+  font-size: var(--t-body);
+  color: var(--v3-ink-primary);
+  background: none;
+  border: 0;
+  padding: 0;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.osv3-eco-rank-name:hover {
+  color: var(--p-screen-accent, var(--v3-accent));
+}
+
+.osv3-eco-rank-name:focus-visible {
+  outline: none;
+  border-radius: var(--p-radius-sm);
+  box-shadow: var(--p-screen-focus, var(--p-focus));
+}
+
+.osv3-eco-rank-row b {
+  font-size: var(--t-meta);
+  font-weight: 600;
+  color: var(--v3-ink-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------------------
+   GROW THE ECOSYSTEM
+
+   The one panel on the page with a fill. It is the only element that asks the
+   reader to DO something rather than read something, and the panel grey is the
+   existing --v3-panel-bg, not a new colour.
+   --------------------------------------------------------------------------- */
+
+.osv3-eco-banner {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--p-4);
+  padding: var(--p-4);
+  border: var(--p-hair);
+  border-radius: var(--p-radius);
+  background: var(--v3-panel-bg);
+}
+
+.osv3-eco-banner-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--p-radius-sm);
+  background: var(--v3-content-bg);
+  border: var(--p-hair);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--p-screen-accent, var(--v3-accent));
+}
+
+.osv3-eco-banner-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.osv3-eco-banner-title {
+  font-size: var(--t-lead);
+  font-weight: 600;
+  color: var(--p-screen-accent, var(--v3-accent));
+  margin: 0;
+}
+
+.osv3-eco-banner-body {
+  font-size: var(--t-body);
+  color: var(--v3-ink-secondary);
+  margin: var(--p-1) 0 0 0;
+}
+
+.osv3-eco-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--p-3);
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   BREAKPOINTS — 1180 and 760, matching the rest of the osv3p family
+   (osv3-profile.css:2089, 2119). The shell drops the sidebar at 900 and cuts
+   its content padding to 16 at 768.
+   --------------------------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+  .osv3-eco-kpis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .osv3-eco-thirds {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Two columns leaves the third card alone on its own row; a full-width donut
+     beside a full-width legend is the one arrangement that does not waste it. */
+  .osv3-eco .osv3p-donut {
+    grid-template-columns: 160px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .osv3-eco-kpis,
+  .osv3-eco-thirds {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .osv3-eco-kpis .osv3p-kpi-delta {
+    min-height: 0;
+  }
+
+  .osv3-eco-kpis .osv3p-kpi-label {
+    min-height: 0;
+  }
+
+  .osv3-eco-window {
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  /* The three-button segmented control is 260px wide and the phone frame is
+     358px inside the shell's 16px padding, so it fits — but only if it is
+     allowed to be the full width rather than sitting in a shrink-to-fit
+     column beside a title that has already stacked above it. */
+  .osv3-eco-window .osv3p-seg {
+    width: 100%;
+  }
+
+  .osv3-eco-window .osv3p-seg-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .osv3-eco-places {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* On a 390px phone the card's inner width is 326px. At the desktop 140px ring
+     the legend gets 174px and "Private Company  142 (87%)" needs 171 — it wraps
+     on the tightest row and the dot column stops lining up. 12px off the ring
+     buys the margin; the ring is still the largest thing in the card. */
+  .osv3-eco .osv3p-donut {
+    grid-template-columns: 116px minmax(0, 1fr);
+  }
+
+  /* Icon, copy, then the two buttons full width underneath. The buttons are
+     the point of the panel and a 40px icon column beside them would leave each
+     one too narrow to read its own label. */
+  .osv3-eco-banner {
+    grid-template-columns: 40px minmax(0, 1fr);
+    row-gap: var(--p-3);
+  }
+
+  .osv3-eco-banner-actions {
+    grid-column: 1 / -1;
+  }
+
+  .osv3-eco-banner-actions > * {
+    flex: 1;
+  }
+
+  .osv3-eco-org {
+    grid-template-columns: 32px minmax(0, 1fr);
+  }
+
+  .osv3-eco-org-meta {
+    grid-column: 2;
+    align-items: flex-start;
+    text-align: left;
+    flex-direction: row;
+    gap: var(--p-3);
+  }
+}
