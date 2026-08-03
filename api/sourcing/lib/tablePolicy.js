@@ -112,6 +112,38 @@ const DEAL_ROUND_COLUMNS = [
   'created_at', 'updated_at',
 ];
 
+// ── Space Congress column sets ───────────────────────────────────────────────
+// Mirrors supabase/migrations/20260803120000_congress_schema.sql +
+// 20260803123000_congress_seed_arizona_2026.sql (which adds `summary`).
+const CONGRESS_EVENT_COLUMNS = [
+  'id', 'tenant_id', 'name', 'slug', 'edition_year', 'starts_on', 'ends_on',
+  'venue', 'city', 'state', 'summary', 'description', 'website_url',
+  'hero_image_url', 'status', 'created_at', 'updated_at',
+];
+
+const CONGRESS_SESSION_COLUMNS = [
+  'id', 'tenant_id', 'event_id', 'title', 'description', 'session_date',
+  'starts_at', 'ends_at', 'room', 'track', 'is_featured', 'sort_order',
+  'status', 'created_at', 'updated_at',
+];
+
+const CONGRESS_SPEAKER_COLUMNS = [
+  'id', 'tenant_id', 'event_id', 'person_id', 'company_id', 'full_name',
+  'title', 'org_name', 'headshot_url', 'bio', 'sort_order',
+  'created_at', 'updated_at',
+];
+
+const CONGRESS_ORG_COLUMNS = [
+  'id', 'tenant_id', 'event_id', 'company_id', 'role', 'sponsor_tier',
+  'booth', 'sort_order', 'status', 'created_at', 'updated_at',
+];
+
+const CONGRESS_REGISTRATION_COLUMNS = [
+  'id', 'tenant_id', 'event_id', 'person_id', 'member_id', 'auth_user_id',
+  'full_name', 'email', 'ticket_type', 'status', 'sessions_attending',
+  'meetings_scheduled', 'registered_at', 'created_at', 'updated_at',
+];
+
 const without = (cols, drop) => cols.filter(c => !drop.includes(c));
 
 export const TABLE_POLICY = {
@@ -273,6 +305,68 @@ export const TABLE_POLICY = {
     globalOnly: true,
     columns: DEAL_ROUND_COLUMNS,
     writable: without(DEAL_ROUND_COLUMNS, ['id', 'created_at']),
+  },
+
+  // ── Space Congress ───────────────────────────────────────────────────────────
+  // Backs /congress and the Admin Tools -> Congress tab. Every table here carries
+  // its own tenant_id — including the session/speaker join — specifically so all six
+  // get the ordinary `tenantKey` treatment and none needs a parentScope rule.
+  //
+  // These are on the allowlist because the whole point of the Congress page is that
+  // the client's admins fill it themselves: an agenda that needs an engineer to add a
+  // session is not a maintainable page.
+  congress_events: {
+    ops: ['select', 'insert', 'update', 'delete'],
+    tenantKey: 'tenant_id',
+    columns: CONGRESS_EVENT_COLUMNS,
+    writable: without(CONGRESS_EVENT_COLUMNS, ['id', 'created_at']),
+  },
+
+  congress_sessions: {
+    ops: ['select', 'insert', 'update', 'delete'],
+    tenantKey: 'tenant_id',
+    columns: CONGRESS_SESSION_COLUMNS,
+    writable: without(CONGRESS_SESSION_COLUMNS, ['id', 'created_at']),
+  },
+
+  congress_speakers: {
+    ops: ['select', 'insert', 'update', 'delete'],
+    tenantKey: 'tenant_id',
+    columns: CONGRESS_SPEAKER_COLUMNS,
+    writable: without(CONGRESS_SPEAKER_COLUMNS, ['id', 'created_at']),
+  },
+
+  congress_session_speakers: {
+    ops: ['select', 'insert', 'update', 'delete'],
+    tenantKey: 'tenant_id',
+    columns: ['id', 'tenant_id', 'session_id', 'speaker_id', 'speaking_role', 'sort_order', 'created_at'],
+    writable: ['tenant_id', 'session_id', 'speaker_id', 'speaking_role', 'sort_order'],
+  },
+
+  congress_organizations: {
+    ops: ['select', 'insert', 'update', 'delete'],
+    tenantKey: 'tenant_id',
+    columns: CONGRESS_ORG_COLUMNS,
+    writable: without(CONGRESS_ORG_COLUMNS, ['id', 'created_at']),
+  },
+
+  // Holds a registrant's name and email. Reachable by a tenant admin (who runs the
+  // event and needs the roster) and by nobody else: the table's RLS gives a signed-in
+  // member their OWN row only, and the public participant COUNT comes from the
+  // security-definer congress_event_stats() rather than from reading rows.
+  congress_registrations: {
+    ops: ['select', 'insert', 'update', 'delete'],
+    tenantKey: 'tenant_id',
+    columns: CONGRESS_REGISTRATION_COLUMNS,
+    writable: without(CONGRESS_REGISTRATION_COLUMNS, ['id', 'created_at']),
+  },
+
+  // Relates existing directory_listings coverage to an event. No content of its own.
+  congress_media: {
+    ops: ['select', 'insert', 'delete'],
+    tenantKey: 'tenant_id',
+    columns: ['id', 'tenant_id', 'event_id', 'listing_id', 'sort_order', 'created_at'],
+    writable: ['tenant_id', 'event_id', 'listing_id', 'sort_order'],
   },
 };
 
