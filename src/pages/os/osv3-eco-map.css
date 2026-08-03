@@ -1,0 +1,796 @@
+/* osv3-eco-map.css — page-local rules for the Ecosystem Map.
+
+   Everything structural comes from src/styles/osv3-profile.css, which the page
+   imports FIRST. Nothing here redefines a --v3-* token and there is no :root
+   block: those leak globally the moment this lazy chunk loads
+   (src/styles/osv3-directory.css:3-16 is the cautionary example).
+
+   Spacing is the --p-* scale and type is the --t-* ladder, both declared on
+   .osv3p-screen. They resolve only because the page root carries that class.
+
+   Breakpoints match the osv3p family: 1180 and 760
+   (osv3-profile.css:2089 and :2119). The shell separately drops the sidebar at
+   900 and cuts content padding to 16 at 768. */
+
+.osv3-ecomap {
+  /* .osv3p-screen already sets font, colour, flex column, 16px gap, bottom
+     padding and the 1440 max width. */
+  gap: var(--p-4);
+}
+
+/* A label that a screen reader reads and nobody sees. osv3-profile.css has no
+   such helper and three controls on this page need one. */
+.osv3p-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================================ PAGE HEADER */
+
+/* .osv3p-pagehead is a two-child space-between flex. This page has three:
+   title, the four counts, and the about toggle. */
+.osv3-ecomap-head {
+  align-items: flex-start;
+  gap: var(--p-6);
+  flex-wrap: wrap;
+}
+
+.osv3-ecomap-headline {
+  min-width: 240px;
+}
+
+.osv3-ecomap-counts {
+  display: flex;
+  align-items: center;
+  gap: var(--p-6);
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+
+.osv3-ecomap-count {
+  display: flex;
+  align-items: center;
+  gap: var(--p-2);
+}
+
+.osv3-ecomap-count-icon {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  color: var(--v3-muted);
+}
+
+.osv3-ecomap-count-value {
+  font-size: var(--t-num);
+  font-weight: 700;
+  line-height: 1.15;
+  color: var(--v3-ink-primary);
+}
+
+.osv3-ecomap-count-label {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+}
+
+.osv3-ecomap-about-title {
+  font-size: var(--t-lead);
+  font-weight: 600;
+  margin-bottom: var(--p-2);
+  color: var(--v3-ink-primary);
+}
+
+.osv3-ecomap-about .osv3p-prose + .osv3p-prose {
+  margin-top: var(--p-2);
+}
+
+/* ============================================================= THE 2-UP BODY */
+
+/* stretch, not start: the result rail is meant to end level with the map, the
+   way the reference draws it. Left at `start` the rail stops short and opens a
+   dead band above the panel row. */
+.osv3-ecomap-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 368px;
+  gap: var(--p-4);
+  align-items: stretch;
+}
+
+.osv3-ecomap-left,
+.osv3-ecomap-right {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-3);
+  min-width: 0;
+}
+
+/* ================================================================ FILTER BAR */
+
+.osv3-ecomap-filterbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-3);
+  padding: var(--p-3);
+  border: var(--p-hair);
+  border-radius: var(--p-radius);
+  background: var(--v3-panel-bg);
+}
+
+.osv3-ecomap-filterhead {
+  display: flex;
+  align-items: center;
+  gap: var(--p-3);
+  flex-wrap: wrap;
+}
+
+.osv3-ecomap-searchwrap {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.osv3-ecomap-search {
+  background: var(--v3-content-bg);
+}
+
+/* The collapse control only exists on a phone, where the four selects would
+   otherwise push the map below the fold. */
+.osv3-ecomap-filtertoggle {
+  display: none;
+  align-items: center;
+  gap: var(--p-2);
+  font: inherit;
+  font-size: var(--t-label);
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--v3-ink-secondary);
+  background: var(--v3-content-bg);
+  border: var(--p-hair);
+  border-radius: var(--p-radius-sm);
+  padding: var(--p-2) var(--p-3);
+  cursor: pointer;
+}
+
+.osv3-ecomap-filtertoggle svg {
+  width: 14px;
+  height: 14px;
+}
+
+.osv3-ecomap-selects {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
+  gap: var(--p-3);
+  align-items: end;
+}
+
+.osv3-ecomap-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-1);
+  min-width: 0;
+}
+
+.osv3-ecomap-field .osv3p-select {
+  background-color: var(--v3-content-bg);
+}
+
+.osv3-ecomap-field .osv3p-select:disabled {
+  color: var(--v3-muted);
+  background-color: var(--v3-gray-100);
+  cursor: not-allowed;
+}
+
+.osv3-ecomap-clear {
+  font: inherit;
+  font-size: var(--t-body);
+  color: var(--v3-accent);
+  background: transparent;
+  border: 0;
+  padding: var(--p-2) 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.osv3-ecomap-clear:disabled {
+  color: var(--v3-muted);
+  cursor: default;
+}
+
+/* ==================================================================== MAP */
+
+/* The map card takes whatever height the row ends up being — so the two columns
+   finish level instead of one of them trailing a dead band — and the map is
+   centred inside it rather than stretched out of its own proportion. */
+.osv3-ecomap-mapcard {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.osv3-ecomap-mapcard .osv3p-card-body {
+  padding: var(--p-3);
+  flex: 1 1 auto;
+  display: flex;
+  min-height: 0;
+}
+
+.osv3-ecomap-mapbox {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* The map's own warm palette. These four custom properties are declared on
+     .osv3p-map in osv3-profile.css and read by .osv3p-map-land, which this SVG
+     reuses. The SVG is not inside .osv3p-map, so the properties are declared
+     again here rather than the shared component being edited. Same values. */
+  --p-map-void: #E4DDD5;
+  --p-map-land: #FBFAF8;
+  --p-map-line: #C9BFB5;
+  --p-map-subject: #F1D9CF;
+
+  position: relative;
+  border-radius: var(--p-radius-sm);
+  overflow: hidden;
+  background: var(--p-map-void);
+  border: var(--p-hair);
+}
+
+.osv3-ecomap-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 100%;
+}
+
+.osv3-ecomap-mapempty {
+  padding: var(--p-8) var(--p-4);
+  background: var(--v3-content-bg);
+}
+
+/* A bubble is a control, so it takes a pointer and a focus ring. */
+.osv3-ecomap-bubble {
+  cursor: pointer;
+}
+
+.osv3-ecomap-bubble:focus {
+  outline: none;
+}
+
+.osv3-ecomap-bubble:focus-visible .osv3-ecomap-disc {
+  stroke: var(--v3-ink-primary);
+  stroke-width: 2.5;
+}
+
+.osv3-ecomap-disc {
+  fill: var(--v3-accent);
+  fill-opacity: 0.9;
+  stroke: var(--v3-content-bg);
+  stroke-width: 1.25;
+  vector-effect: non-scaling-stroke;
+  transition: fill-opacity var(--v3-transition-fast);
+}
+
+.osv3-ecomap-bubble:hover .osv3-ecomap-disc {
+  fill-opacity: 1;
+}
+
+.osv3-ecomap-bubble--on .osv3-ecomap-disc {
+  fill: var(--v3-active-nav);
+  fill-opacity: 1;
+}
+
+.osv3-ecomap-count {
+  fill: var(--v3-content-bg);
+  font-family: var(--v3-font-family-base);
+  font-weight: 700;
+  pointer-events: none;
+}
+
+/* The halo is what keeps a city name legible where it crosses a border or
+   another bubble's edge. paint-order puts the stroke behind the fill so the
+   letterforms do not thicken. */
+.osv3-ecomap-name {
+  fill: var(--v3-ink-primary);
+  font-family: var(--v3-font-family-base);
+  font-weight: 600;
+  stroke: var(--p-map-land);
+  stroke-width: 2.4;
+  paint-order: stroke;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
+}
+
+.osv3-ecomap-lead {
+  stroke: var(--v3-accent);
+  stroke-width: 1;
+  stroke-opacity: 0.5;
+  vector-effect: non-scaling-stroke;
+}
+
+.osv3-ecomap-truedot {
+  fill: var(--v3-accent);
+  fill-opacity: 0.65;
+}
+
+.osv3-ecomap-key {
+  position: absolute;
+  left: var(--p-3);
+  bottom: var(--p-3);
+  max-width: 232px;
+  padding: var(--p-3);
+  border: var(--p-hair);
+  border-radius: var(--p-radius-sm);
+  background: var(--v3-content-bg);
+  box-shadow: var(--v3-shadow-sm);
+}
+
+.osv3-ecomap-key-title {
+  font-size: var(--t-label);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--v3-ink-primary);
+  margin-bottom: var(--p-1);
+}
+
+.osv3-ecomap-key-body {
+  font-size: var(--t-meta);
+  line-height: 1.45;
+  color: var(--v3-muted);
+}
+
+.osv3-ecomap-key-body + .osv3-ecomap-key-body {
+  margin-top: var(--p-1);
+}
+
+/* =============================================================== RESULT RAIL */
+
+.osv3-ecomap-resulthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--p-3);
+}
+
+.osv3-ecomap-resulttitle {
+  font-size: var(--t-lead);
+  font-weight: 700;
+  color: var(--v3-ink-primary);
+  min-width: 0;
+}
+
+.osv3-ecomap-sortselect {
+  width: auto;
+  font-size: var(--t-meta);
+  padding: var(--p-1) var(--p-6) var(--p-1) var(--p-2);
+  background-position: right var(--p-2) center;
+}
+
+.osv3-ecomap-resultnote {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+}
+
+/* A bounded, visibly-framed pane that grows to the height of the map beside it.
+   Without the frame the last card is simply sliced by the height and reads as a
+   rendering fault rather than as a list you can scroll. min-height:0 is what
+   lets a flex child actually shrink and scroll instead of pushing its parent. */
+.osv3-ecomap-results {
+  flex: 0 1 auto;
+  max-height: 600px;
+  overflow-y: auto;
+  padding: var(--p-2);
+  border: var(--p-hair);
+  border-radius: var(--p-radius);
+  background: var(--v3-panel-bg);
+}
+
+.osv3-ecomap-cards {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-2);
+}
+
+.osv3-ecomap-card {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) 14px;
+  gap: var(--p-3);
+  align-items: start;
+  padding: var(--p-3);
+  border: var(--p-hair);
+  border-radius: var(--p-radius-sm);
+  background: var(--v3-content-bg);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--v3-transition-fast), background var(--v3-transition-fast);
+}
+
+.osv3-ecomap-card:hover {
+  border-color: var(--v3-accent);
+  background: var(--v3-gray-50);
+}
+
+.osv3-ecomap-card:focus-visible {
+  outline: none;
+  box-shadow: var(--p-screen-focus, var(--p-focus));
+}
+
+.osv3-ecomap-card[aria-disabled='true'] {
+  cursor: default;
+}
+
+.osv3-ecomap-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-1);
+  min-width: 0;
+}
+
+.osv3-ecomap-card-name {
+  font-size: var(--t-body);
+  font-weight: 600;
+  color: var(--v3-ink-primary);
+  line-height: 1.3;
+}
+
+.osv3-ecomap-card-meta {
+  font-size: var(--t-meta);
+  color: var(--v3-ink-secondary);
+}
+
+.osv3-ecomap-card-place {
+  display: flex;
+  align-items: center;
+  gap: var(--p-1);
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+}
+
+.osv3-ecomap-card-place svg {
+  width: 12px;
+  height: 12px;
+}
+
+.osv3-ecomap-card-pills {
+  margin-top: var(--p-1);
+}
+
+.osv3-ecomap-card-go {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  color: var(--v3-muted);
+  margin-top: 3px;
+}
+
+/* ============================================================== BOTTOM PANELS */
+
+/* Four panels on one baseline. Ragged card bottoms are the single loudest
+   "unfinished" signal on a dashboard row, and the four here hold naturally
+   different amounts of content. */
+.osv3-ecomap-panels {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--p-4);
+  align-items: stretch;
+}
+
+.osv3-ecomap-panels > .osv3p-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.osv3-ecomap-panels > .osv3p-card > .osv3p-card-body {
+  flex: 1 1 auto;
+}
+
+.osv3-ecomap-panelnote {
+  font-size: var(--t-meta);
+  line-height: 1.45;
+  color: var(--v3-muted);
+  margin-bottom: var(--p-3);
+}
+
+/* Donut above, legend below at full card width.
+   Side by side inside a quarter-width card left the legend 132px, which
+   ellipsised "Private Company" — the largest slice on the chart — down to
+   "Private …". A label the reader cannot finish is worse than a taller card,
+   and the card had room going spare: the row height is set by Recently added,
+   not by this panel. */
+.osv3-ecomap-donutrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--p-3);
+}
+
+.osv3-ecomap-donut {
+  width: 108px;
+  height: 108px;
+  flex: 0 0 auto;
+}
+
+.osv3-ecomap-seg {
+  fill: none;
+  stroke-width: 22;
+}
+
+/* Series colour by position, from the eight mission accents already in
+   osv3-tokens.css. Never passed as a prop. */
+.osv3-ecomap-seg--1 { stroke: var(--v3-mission-indigo); background: var(--v3-mission-indigo); }
+.osv3-ecomap-seg--2 { stroke: var(--v3-mission-teal);   background: var(--v3-mission-teal); }
+.osv3-ecomap-seg--3 { stroke: var(--v3-mission-orange); background: var(--v3-mission-orange); }
+.osv3-ecomap-seg--4 { stroke: var(--v3-mission-gold);   background: var(--v3-mission-gold); }
+.osv3-ecomap-seg--5 { stroke: var(--v3-mission-purple); background: var(--v3-mission-purple); }
+.osv3-ecomap-seg--6 { stroke: var(--v3-mission-blue);   background: var(--v3-mission-blue); }
+.osv3-ecomap-seg--7 { stroke: var(--v3-mission-pink);   background: var(--v3-mission-pink); }
+.osv3-ecomap-seg--8 { stroke: var(--v3-mission-cyan);   background: var(--v3-mission-cyan); }
+
+.osv3-ecomap-donut-total {
+  fill: var(--v3-ink-primary);
+  font-family: var(--v3-font-family-base);
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.osv3-ecomap-donut-cap {
+  fill: var(--v3-muted);
+  font-family: var(--v3-font-family-base);
+  font-size: 11px;
+}
+
+.osv3-ecomap-legend {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-1);
+  width: 100%;
+}
+
+.osv3-ecomap-legend-row {
+  display: flex;
+  align-items: center;
+  gap: var(--p-2);
+  font-size: var(--t-meta);
+  color: var(--v3-ink-secondary);
+}
+
+.osv3-ecomap-legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--v3-border-radius-full);
+  flex: 0 0 auto;
+}
+
+.osv3-ecomap-legend-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.osv3-ecomap-legend-value {
+  margin-left: auto;
+  font-weight: 600;
+  color: var(--v3-ink-primary);
+  white-space: nowrap;
+}
+
+.osv3-ecomap-legend-n {
+  font-weight: 400;
+  color: var(--v3-muted);
+}
+
+/* Ranked rows: label, track, number. The plain modifier drops the track for the
+   locations panel, which the reference shows as a naked list. */
+.osv3-ecomap-rank {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-2);
+}
+
+/* The track is 60px, not 84: at 84 the longest real certification name
+   ("DoD Secret Cleared", the fourth-ranked one) ellipsised inside a
+   quarter-width card. The bar only has to show relative length. */
+.osv3-ecomap-rankrow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 60px 32px;
+  gap: var(--p-2);
+  align-items: center;
+}
+
+.osv3-ecomap-rank--plain .osv3-ecomap-rankrow {
+  grid-template-columns: minmax(0, 1fr) 32px;
+}
+
+.osv3-ecomap-ranklabel {
+  font: inherit;
+  font-size: var(--t-meta);
+  text-align: left;
+  color: var(--v3-ink-secondary);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.osv3-ecomap-ranklabel:hover {
+  color: var(--v3-accent);
+}
+
+.osv3-ecomap-ranklabel--on {
+  color: var(--v3-accent);
+  font-weight: 600;
+}
+
+/* The tail of the distribution, said out loud. Thirty-five locations do not fit
+   in eight rows, and "and the rest are ones" is a real fact about this
+   ecosystem rather than filler under a short list. */
+.osv3-ecomap-rankmore {
+  font-size: var(--t-meta);
+  line-height: 1.45;
+  color: var(--v3-muted);
+  padding-top: var(--p-2);
+  border-top: var(--p-hair);
+  margin-top: var(--p-1);
+}
+
+.osv3-ecomap-rankvalue {
+  font-size: var(--t-meta);
+  font-weight: 600;
+  color: var(--v3-ink-primary);
+  text-align: right;
+}
+
+.osv3-ecomap-rankrow .osv3p-bar {
+  width: 100%;
+}
+
+/* ==================================================================== FOOT */
+
+.osv3-ecomap-footlink {
+  text-align: center;
+  font-size: var(--t-body);
+  color: var(--v3-ink-secondary);
+  padding-top: var(--p-2);
+}
+
+.osv3-ecomap-footlink a {
+  color: var(--v3-accent);
+  font-weight: 600;
+}
+
+.osv3-ecomap-foot {
+  text-align: center;
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+}
+
+/* ============================================================== BREAKPOINTS */
+
+@media (max-width: 1180px) {
+  .osv3-ecomap-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .osv3-ecomap-panels {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .osv3-ecomap-results {
+    max-height: 480px;
+  }
+}
+
+@media (max-width: 900px) {
+  .osv3-ecomap-selects {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .osv3-ecomap-field--clear {
+    grid-column: 1 / -1;
+  }
+
+  .osv3-ecomap-clear {
+    text-align: left;
+  }
+}
+
+@media (max-width: 760px) {
+  .osv3-ecomap-head {
+    gap: var(--p-3);
+  }
+
+  .osv3-ecomap-counts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--p-3);
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .osv3-ecomap-filtertoggle {
+    display: inline-flex;
+  }
+
+  /* Collapsed by default on a phone: the map is the reason the page exists and
+     four selects above it would push it off the first screen. */
+  .osv3-ecomap-selects {
+    display: none;
+  }
+
+  .osv3-ecomap-selects--open {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .osv3-ecomap-searchwrap {
+    flex: 1 1 100%;
+  }
+
+  .osv3-ecomap-filterhead .osv3p-seg {
+    flex: 1 1 auto;
+  }
+
+  .osv3-ecomap-filterhead .osv3p-seg-btn {
+    flex: 1 1 0;
+    justify-content: center;
+  }
+
+  /* The map box centres the SVG in a flex ROW on desktop, which would sit the
+     key beside the map on a phone instead of under it. Stack the axis. */
+  .osv3-ecomap-mapbox {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .osv3-ecomap-svg {
+    max-height: none;
+  }
+
+  /* The key would cover a third of a phone-sized map, so it drops below it. */
+  .osv3-ecomap-key {
+    position: static;
+    max-width: none;
+    margin-top: var(--p-2);
+    box-shadow: none;
+    border: 0;
+    border-top: var(--p-hair);
+    border-radius: 0;
+    padding: var(--p-2) 0 0;
+  }
+
+  .osv3-ecomap-panels {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* No scroll pane on a phone. A 460px inner scroller inside the page scroller
+     means a thumb in the card area moves the list and never the page, and the
+     four panels underneath become unreachable by the obvious gesture. On a
+     phone the list flows with the document and the page shows fewer cards. */
+  .osv3-ecomap-results {
+    max-height: none;
+    overflow-y: visible;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .osv3-ecomap-donutrow {
+    justify-content: center;
+  }
+}
