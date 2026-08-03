@@ -352,3 +352,19 @@ where ten.slug = 'space-rising'
 -- No seed for blueprint_goals, blueprint_initiatives, blueprint_kpis,
 -- blueprint_alignments or blueprint_activity. Those are empty because the truth
 -- is empty. The page counts them and prints zero.
+-- The Overview grid needs a one-liner; the Priorities tab needs the paragraph.
+-- One column cannot be both without either blowing the card height (which it
+-- did) or losing the sourced detail. So: `blurb` is the card, `summary` is the
+-- page. Both come from the same cited section of the report.
+alter table public.blueprint_priorities add column if not exists blurb text;
+
+update public.blueprint_priorities set blurb = v.blurb
+from (values
+  ('build-space',      'Infrastructure across the full operational lifecycle, not launch alone. Arizona already holds the assets; integration is the work.'),
+  ('move-in-space',    'Launch and orbital access as one statewide system: two emerging spaceport initiatives, Yuma logistics, Sierra Vista reentry.'),
+  ('operate-in-space', 'Operating missions from Arizona, not just building them. Today that work moves to other states, and the talent follows.'),
+  ('live-in-space',    'The human layer, and the Blueprint''s named bottleneck. Arizona produces the graduates and then loses most of them.'),
+  ('prosper-in-space', 'Commercialization as the growth engine, against a capital-formation gap that pushes AZ-founded companies out of state.'),
+  ('secure-space',     'National security space, where Arizona is already strongest: first nationally in space manufacturing employment.')
+) as v(slug, blurb)
+where blueprint_priorities.slug = v.slug;

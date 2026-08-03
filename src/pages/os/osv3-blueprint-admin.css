@@ -1,0 +1,78 @@
+/* osv3-blueprint-admin.css — the Blueprint tab of Admin Tools.
+
+   Everything structural comes from src/styles/osv3-profile.css, which the
+   AdminTools screen already imports: .osv3p-users-bar, .osv3p-seg,
+   .osv3p-input / -textarea / -select, .osv3p-field-label, .osv3p-savebar-msg.
+   Only the form's own grid is new, because no existing admin screen has a
+   multi-field form.
+
+   No :root block and no --v3-* redefinition: this sheet loads with the admin
+   chunk and anything global here would outlive the screen. */
+
+.osv3-bpadmin {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-4);
+}
+
+/* Two columns on the desktop admin body. Long-form fields (the textareas and
+   the help-bearing description fields) span both — a 4-line textarea in a half
+   column is unusable for the paragraph it is meant to hold. */
+.osv3-bpadmin-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--p-4);
+  margin-bottom: var(--p-4);
+}
+
+.osv3-bpadmin-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-1);
+  min-width: 0;
+}
+
+.osv3-bpadmin-field:has(textarea) {
+  grid-column: 1 / -1;
+}
+
+.osv3-bpadmin-help {
+  font-size: var(--t-label);
+  line-height: 1.4;
+  color: var(--v3-muted);
+  margin: 0;
+}
+
+/* .osv3p-btn-row is a column outside .osv3p-pagehead; the form's Save/Cancel
+   pair belongs side by side. */
+.osv3-bpadmin .osv3p-btn-row {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
+/* The per-row Edit / Remove pair inside the table must not stack — a two-row
+   cell doubles the height of every row in the table. */
+.osv3-bpadmin td .osv3p-btn-row {
+  flex-direction: row;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+}
+
+@media (max-width: 760px) {
+  .osv3-bpadmin-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+/* The same caption rule the page sheet carries — this screen renders its
+   tables inside Admin Tools, which does not load osv3-blueprint.css. */
+.osv3-bpadmin .osv3p-table caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

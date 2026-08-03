@@ -8,6 +8,7 @@ import {
 } from '../../components/osv3/index.js'
 import { ADMIN_FIXTURE } from '../../lib/profileFixtures.js'
 import AdminUsers from './AdminUsers.jsx'
+import AdminBlueprint from './AdminBlueprint.jsx'
 import {
   loadAdminStats, emptyAdminStats, windowDelta, formatCount, formatDate, WINDOW_DAYS,
 } from '../../lib/adminStats.js'
@@ -327,7 +328,12 @@ export default function AdminTools() {
   const pendingTotal = pendingRows.reduce((n, r) => n + (r.value || 0), 0)
   const pendingMeasured = pendingRows.filter((r) => r.value !== null).length
 
-  const activeTab = a.tabs.find((t) => t.id === tab)
+  /* Blueprint is appended here rather than added to ADMIN_FIXTURE.tabs: the
+     fixture is a shared file this screen does not own, and the tab set is the
+     only thing about it that changes when a new admin section ships. */
+  const tabs = useMemo(() => [...a.tabs, { id: 'blueprint', label: 'Blueprint' }], [a.tabs])
+
+  const activeTab = tabs.find((t) => t.id === tab)
   const loading = !stats
   const disconnected = stats && !stats.ok
   const verification = stats?.verification
@@ -355,10 +361,12 @@ export default function AdminTools() {
         </ButtonRow>
       </header>
 
-      <Tabs items={a.tabs} value={tab} onChange={setTab} label={TABS_LABEL} />
+      <Tabs items={tabs} value={tab} onChange={setTab} label={TABS_LABEL} />
 
       {tab === 'users' ? (
         <AdminUsers />
+      ) : tab === 'blueprint' ? (
+        <AdminBlueprint />
       ) : tab !== 'dashboard' ? (
         <EmptyState
           icon="gear"

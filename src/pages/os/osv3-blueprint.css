@@ -1,0 +1,831 @@
+/* osv3-blueprint.css — page-local rules for the Arizona Space Action Blueprint.
+   Loaded after src/styles/osv3-profile.css, which supplies every structural
+   class this page reuses (.osv3p-card, .osv3p-admin-body, .osv3p-stats, ...).
+
+   Nothing here defines a --v3-* token and there is no :root block: a :root in a
+   lazily-loaded page sheet leaks globally for the rest of the session the moment
+   this chunk loads (osv3-directory.css:3-16 is the cautionary example).
+
+   Spacing is the --p-* scale and type the --t-* ladder, both declared on
+   .osv3p-screen. They resolve only because the page root carries `osv3p-screen`.
+   Breakpoints match the family: 1180 and 760 (osv3-profile.css:2089, 2119).
+
+   Every colour is a token. The six priority glyph tints are the six --v3-mission-*
+   accents, chosen by ordinal class rather than by a prop, because a colour prop is
+   banned on these screens (Pill.jsx:4-6). */
+
+/* ===========================================================================
+   TOP ROW — hero beside the stat strip, the comp's two-up above the rail
+   =========================================================================== */
+
+.osv3-bp-toprow {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--p-4);
+  align-items: stretch;
+}
+
+/* ===========================================================================
+   HERO
+   Earth-from-orbit, already shipping at public/v2-assets/earth.png. The image
+   is dark on the left and lit on the right, so the copy is pinned left and a
+   left-to-right scrim carries it: no text ever sits on the bright limb, at any
+   width, without needing a second crop.
+   =========================================================================== */
+
+.osv3-bp-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--p-radius);
+  background-color: var(--v3-sidebar-bg);
+  background-image:
+    linear-gradient(90deg, rgba(0, 12, 32, 0.94) 0%, rgba(0, 12, 32, 0.76) 42%, rgba(0, 12, 32, 0.16) 100%),
+    url('/v2-assets/earth.png');
+  background-size: cover;
+  background-position: center right;
+  min-height: 188px;
+  display: flex;
+  align-items: center;
+}
+
+.osv3-bp-hero-inner {
+  padding: var(--p-6);
+  max-width: 30em;
+}
+
+.osv3-bp-hero-title {
+  font-size: var(--t-num);
+  font-weight: 700;
+  line-height: 1.25;
+  color: #FFFFFF;
+  margin: 0 0 var(--p-2) 0;
+}
+
+.osv3-bp-hero-body {
+  font-size: var(--t-body);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0 0 var(--p-4) 0;
+}
+
+/* The accent outline button, on dark. Button.jsx's own variants are built for
+   the light ground and would vanish here, so the hero CTA is its own anchor —
+   it navigates to a PDF, so it is an <a>, not a <button>. */
+.osv3-bp-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-2);
+  padding: var(--p-2) var(--p-4);
+  border: 1px solid var(--v3-accent);
+  border-radius: var(--p-radius-sm);
+  color: #FFFFFF;
+  background: rgba(206, 68, 33, 0.14);
+  font-size: var(--t-meta);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background var(--v3-transition-fast), border-color var(--v3-transition-fast);
+}
+
+.osv3-bp-hero-cta:hover {
+  background: var(--v3-accent);
+}
+
+.osv3-bp-hero-cta:focus-visible {
+  outline: none;
+  box-shadow: var(--p-focus);
+}
+
+.osv3-bp-hero-cta svg {
+  width: 16px;
+  height: 16px;
+}
+
+.osv3-bp-hero-note {
+  font-size: var(--t-meta);
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0;
+}
+
+/* ===========================================================================
+   STAT STRIP
+   StatStrip renders glyph-left. The comp stacks glyph over number over label,
+   centred. This is a page-scoped restyle of the shared component — the
+   component file itself is untouched, another screen is depending on it.
+   =========================================================================== */
+
+.osv3-bp-statcard {
+  justify-content: center;
+}
+
+.osv3-bp-statcard .osv3p-stat {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--p-2);
+  padding: var(--p-2) var(--p-2);
+}
+
+.osv3-bp-statcard .osv3p-stat-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+/* Number above label: the comp reads the figure first, the noun second. */
+.osv3-bp-statcard .osv3p-stat-value {
+  order: -1;
+  font-size: var(--t-name);
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.osv3-bp-statcard .osv3p-stat-label {
+  font-size: var(--t-meta);
+  color: var(--v3-ink-secondary);
+}
+
+.osv3-bp-statcard .osv3p-stat-note {
+  font-size: var(--t-label);
+  color: var(--v3-muted);
+}
+
+/* ===========================================================================
+   PRIORITY CARDS
+   =========================================================================== */
+
+.osv3-bp-pri-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--p-4);
+}
+
+.osv3-bp-pri {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-3);
+  padding: var(--p-4);
+  border: var(--p-hair);
+  border-radius: var(--p-radius);
+  min-width: 0;
+}
+
+.osv3-bp-pri-head {
+  display: flex;
+  align-items: center;
+  gap: var(--p-3);
+}
+
+.osv3-bp-pri-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--v3-border-radius-full);
+  background: var(--v3-gray-100);
+  color: var(--v3-ink-secondary);
+}
+
+.osv3-bp-pri-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+/* One tint per pillar, by ordinal. currentColor drives the glyph; the disc is
+   the same hue at 12% so the card never turns into a colour block. */
+.osv3-bp-pri-icon--1 { color: var(--v3-mission-blue);   background: rgba(59, 130, 246, 0.12); }
+.osv3-bp-pri-icon--2 { color: var(--v3-mission-teal);   background: rgba(20, 184, 166, 0.12); }
+.osv3-bp-pri-icon--3 { color: var(--v3-mission-purple); background: rgba(139, 92, 246, 0.12); }
+.osv3-bp-pri-icon--4 { color: var(--v3-mission-orange); background: rgba(249, 115, 22, 0.12); }
+.osv3-bp-pri-icon--5 { color: var(--v3-mission-cyan);   background: rgba(6, 182, 212, 0.12); }
+.osv3-bp-pri-icon--6 { color: var(--v3-mission-pink);   background: rgba(236, 72, 153, 0.12); }
+
+.osv3-bp-pri-title {
+  font-size: var(--t-lead);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--v3-ink-primary);
+  margin: 0;
+  min-width: 0;
+}
+
+.osv3-bp-pri-body {
+  font-size: var(--t-body);
+  line-height: 1.55;
+  color: var(--v3-ink-secondary);
+  margin: 0;
+  flex: 1;
+}
+
+/* The cite under a priority: small, muted, and always present on the Priorities
+   tab. It is the whole reason the prose can be trusted. */
+.osv3-bp-cite {
+  font-size: var(--t-label);
+  line-height: 1.4;
+  color: var(--v3-muted);
+  margin: 0;
+}
+
+.osv3-bp-pri-counts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--p-3);
+  padding-top: var(--p-3);
+  border-top: var(--p-hair);
+}
+
+.osv3-bp-count {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-1);
+  font-size: var(--t-meta);
+  font-weight: 500;
+  color: var(--v3-ink-secondary);
+  white-space: nowrap;
+}
+
+.osv3-bp-count-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--v3-border-radius-full);
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.osv3-bp-count--a { color: var(--v3-mission-blue); }
+.osv3-bp-count--b { color: var(--v3-mission-teal); }
+.osv3-bp-count--c { color: var(--v3-mission-purple); }
+.osv3-bp-count--d { color: var(--v3-mission-orange); }
+
+/* ===========================================================================
+   PRIORITIES TAB — the same six, given room for the prose and the citation
+   =========================================================================== */
+
+.osv3-bp-prilist {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-4);
+}
+
+.osv3-bp-prirow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--p-4);
+}
+
+.osv3-bp-prirow-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-2);
+  min-width: 0;
+  flex: 1;
+}
+
+.osv3-bp-prirow-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--p-3);
+}
+
+/* ===========================================================================
+   FINDINGS — four positions, five gaps, both verbatim from the report
+   =========================================================================== */
+
+.osv3-bp-findings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--p-6);
+}
+
+.osv3-bp-findcol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-4);
+  min-width: 0;
+}
+
+.osv3-bp-findhead {
+  font-size: var(--t-label);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0;
+  padding-bottom: var(--p-2);
+  border-bottom: 2px solid currentColor;
+}
+
+/* Green for a strength, rust for a gap — the two status colours this design
+   system already uses, not a new pair. */
+.osv3-bp-findhead--up { color: #1B7A2C; }
+.osv3-bp-findhead--down { color: var(--v3-accent); }
+
+.osv3-bp-find {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--p-3);
+}
+
+.osv3-bp-find-code {
+  font-size: var(--t-label);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+  min-width: 3.5em;
+  padding-top: 2px;
+}
+
+.osv3-bp-find-code--up { color: #1B7A2C; }
+.osv3-bp-find-code--down { color: var(--v3-accent); }
+
+.osv3-bp-find-title {
+  font-size: var(--t-body);
+  font-weight: 600;
+  color: var(--v3-ink-primary);
+  margin-bottom: 2px;
+}
+
+.osv3-bp-find-body {
+  font-size: var(--t-body);
+  line-height: 1.55;
+  color: var(--v3-ink-secondary);
+  margin: 0;
+}
+
+/* ===========================================================================
+   ACTIVITY FEED — four across, hairline-divided, like the comp
+   =========================================================================== */
+
+.osv3-bp-feed {
+  /* auto-fit, not a fixed 4 columns. The comp draws four entries because it
+     invented four; on day one there is one, and a fixed grid squeezed it into a
+     quarter-width column that wrapped to four lines beside three empty tracks.
+     auto-fit gives 1-3 entries the width they have and still lands on four
+     across once the feed is busy. */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--p-4) 0;
+}
+
+.osv3-bp-feeditem {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--p-3);
+  padding: 0 var(--p-4);
+  border-left: var(--p-hair);
+  min-width: 0;
+}
+
+.osv3-bp-feeditem:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+
+.osv3-bp-feedicon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: var(--v3-border-radius-full);
+  background: var(--v3-gray-100);
+  color: var(--v3-ink-secondary);
+}
+
+.osv3-bp-feedicon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.osv3-bp-feedtext {
+  font-size: var(--t-body);
+  line-height: 1.45;
+  color: var(--v3-ink-primary);
+  margin: 0 0 var(--p-1) 0;
+}
+
+.osv3-bp-feedtime {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+}
+
+/* ===========================================================================
+   RAIL
+   =========================================================================== */
+
+.osv3-bp-railnote {
+  font-size: var(--t-body);
+  line-height: 1.5;
+  color: var(--v3-muted);
+  margin: 0 0 var(--p-3) 0;
+}
+
+.osv3-bp-goals {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-3);
+}
+
+.osv3-bp-goal-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--p-2);
+  margin-bottom: var(--p-1);
+}
+
+.osv3-bp-goal-label {
+  font-size: var(--t-body);
+  color: var(--v3-ink-primary);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.osv3-bp-goal-pct {
+  font-size: var(--t-meta);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--v3-muted);
+  flex-shrink: 0;
+}
+
+/* ===========================================================================
+   ROADMAP — the six Mobilization Method phases
+   =========================================================================== */
+
+.osv3-bp-phases {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.osv3-bp-phase {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--p-4);
+  padding: var(--p-4) 0;
+  border-bottom: var(--p-hair);
+}
+
+.osv3-bp-phase:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+/* The phase number carries the status: filled when complete, ringed when in
+   flight, faint when it has not started. The pill says it in words as well —
+   colour is never the only carrier. */
+.osv3-bp-phase-code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--v3-border-radius-full);
+  border: 2px solid var(--v3-border);
+  font-size: var(--t-body);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--v3-muted);
+  background: var(--v3-content-bg);
+}
+
+.osv3-bp-phase--complete .osv3-bp-phase-code {
+  border-color: #2E9E3F;
+  background: #EFF6F0;
+  color: #1B7A2C;
+}
+
+.osv3-bp-phase--in_progress .osv3-bp-phase-code {
+  border-color: var(--v3-accent);
+  background: #FBF0EC;
+  color: var(--v3-accent);
+}
+
+.osv3-bp-phase-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-1);
+  min-width: 0;
+  flex: 1;
+}
+
+.osv3-bp-phase-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--p-3);
+}
+
+.osv3-bp-phase-title {
+  font-size: var(--t-lead);
+  font-weight: 600;
+  color: var(--v3-ink-primary);
+  margin: 0;
+}
+
+.osv3-bp-phase-body {
+  font-size: var(--t-body);
+  line-height: 1.5;
+  color: var(--v3-ink-secondary);
+  margin: 0;
+}
+
+.osv3-bp-phase-horizon {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+}
+
+/* ===========================================================================
+   DOCUMENTS
+   =========================================================================== */
+
+.osv3-bp-docs {
+  display: flex;
+  flex-direction: column;
+}
+
+.osv3-bp-doc {
+  display: flex;
+  align-items: center;
+  gap: var(--p-4);
+  padding: var(--p-4) 0;
+  border-bottom: var(--p-hair);
+}
+
+.osv3-bp-doc:first-child {
+  padding-top: 0;
+}
+
+.osv3-bp-doc:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.osv3-bp-doc-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--p-radius-sm);
+  background: var(--v3-panel-bg);
+  color: var(--v3-ink-secondary);
+}
+
+.osv3-bp-doc-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.osv3-bp-doc-main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-1);
+  min-width: 0;
+  flex: 1;
+}
+
+.osv3-bp-doc-title {
+  font-size: var(--t-lead);
+  font-weight: 600;
+  color: var(--v3-ink-primary);
+  margin: 0;
+}
+
+.osv3-bp-doc-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--p-2);
+}
+
+.osv3-bp-doc-date {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+}
+
+.osv3-bp-doc-body {
+  font-size: var(--t-body);
+  line-height: 1.5;
+  color: var(--v3-ink-secondary);
+  margin: 0;
+}
+
+/* ===========================================================================
+   ABOUT PANEL
+   =========================================================================== */
+
+.osv3-bp-about-lead {
+  font-size: var(--t-lead);
+  line-height: 1.55;
+  color: var(--v3-ink-secondary);
+  margin: 0 0 var(--p-6) 0;
+  max-width: 62ch;
+}
+
+.osv3-bp-about-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--p-6);
+  margin-bottom: var(--p-6);
+}
+
+.osv3-bp-about-head {
+  font-size: var(--t-label);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--v3-muted);
+  margin: 0 0 var(--p-2) 0;
+}
+
+.osv3-bp-about-body {
+  font-size: var(--t-body);
+  line-height: 1.55;
+  color: var(--v3-ink-secondary);
+  margin: 0;
+}
+
+/* ===========================================================================
+   BOTTOM BANNER
+   =========================================================================== */
+
+.osv3-bp-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--p-4);
+  padding: var(--p-4) var(--p-6);
+  border: var(--p-hair);
+  border-radius: var(--p-radius);
+  background: var(--v3-panel-bg);
+}
+
+.osv3-bp-banner-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: var(--v3-border-radius-full);
+  background: rgba(37, 99, 235, 0.10);
+  color: var(--v3-link);
+}
+
+.osv3-bp-banner-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.osv3-bp-banner-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.osv3-bp-banner-title {
+  font-size: var(--t-lead);
+  font-weight: 700;
+  color: var(--v3-link);
+  margin: 0 0 2px 0;
+}
+
+.osv3-bp-banner-body {
+  font-size: var(--t-body);
+  color: var(--v3-ink-secondary);
+  margin: 0;
+}
+
+/* .osv3p-btn-row is a COLUMN by default and only goes horizontal inside
+   .osv3p-pagehead (osv3-profile.css:1343-1346). The banner needs it side by
+   side, and so does the About panel's footer. */
+.osv3-bp-banner .osv3p-btn-row,
+.osv3-bp-about .osv3p-btn-row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+/* ===========================================================================
+   MISC
+   =========================================================================== */
+
+.osv3-bp-panel {
+  min-width: 0;
+}
+
+.osv3-bp-ref,
+.osv3-bp-pct {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--v3-ink-primary);
+}
+
+/* ===========================================================================
+   RESPONSIVE — 1180 and 760, the same two the rest of the osv3p family uses
+   =========================================================================== */
+
+@media (max-width: 1180px) {
+  .osv3-bp-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .osv3-bp-pri-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .osv3-bp-about-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--p-4);
+  }
+}
+
+@media (max-width: 900px) {
+  .osv3-bp-toprow {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .osv3-bp-pri-grid,
+  .osv3-bp-feed,
+  .osv3-bp-findings {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .osv3-bp-feeditem {
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  /* Five stats will not fit across a phone. Two columns keeps every number
+     legible instead of shrinking the type below the ladder's floor. */
+  .osv3-bp-statcard .osv3p-stats {
+    grid-auto-flow: row;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--p-4) 0;
+  }
+
+  .osv3-bp-statcard .osv3p-stat,
+  .osv3-bp-statcard .osv3p-stat:first-child {
+    border-left: 0;
+    padding-left: var(--p-2);
+  }
+
+  /* Five tiles over two columns leaves the fifth alone in the left-hand column,
+     which reads as a layout that ran out rather than one that ended. It spans
+     the row instead. */
+  .osv3-bp-statcard .osv3p-stat:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .osv3-bp-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--p-3);
+  }
+
+  .osv3-bp-doc {
+    flex-wrap: wrap;
+  }
+
+  .osv3-bp-prirow {
+    flex-direction: column;
+  }
+}
+
+/* ===========================================================================
+   DATATABLE CAPTION
+   DataTable renders a real <caption>, but src/styles/osv3-profile.css has no
+   rule for one — no existing caller passes the prop, so it has never been
+   styled. Left alone it renders as centred body text sitting on top of the
+   header row. The caption is worth keeping (a screen reader announces what the
+   table is before reading 6 columns of it), so it is hidden visually here
+   rather than dropped, and rather than editing the shared component another
+   screen depends on.
+   =========================================================================== */
+
+.osv3-bp .osv3p-table caption,
+.osv3-bpadmin .osv3p-table caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

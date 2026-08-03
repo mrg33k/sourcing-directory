@@ -198,6 +198,75 @@ export const TABLE_POLICY = {
     writable: ['tenant_id', 'actor_email', 'action', 'entity_type', 'entity_id', 'detail'],
   },
 
+  // ── ARIZONA SPACE ACTION BLUEPRINT ────────────────────────────────────────
+  // Backs /blueprint and the Blueprint tab of Admin Tools. Every table carries
+  // its own tenant_id, so all of them scope normally — no globalOnly, no
+  // parentScope. The page these feed prints a real zero wherever a table is
+  // empty, which is only safe if admins can actually fill them, which is what
+  // these entries are for.
+  blueprint_priorities: {
+    ops: ['select', 'insert', 'update', 'delete'],
+    tenantKey: 'tenant_id',
+    columns: ['id', 'tenant_id', 'tag_id', 'name', 'slug', 'theme', 'blurb', 'summary', 'source_note', 'icon', 'sort_order', 'status', 'created_at', 'updated_at'],
+    // tag_id stays OFF this list. It is the FK that keeps this page's spelling
+    // identical to the Directory's, and repointing it from a form is a silent
+    // way to break that. Relinking a priority to a different tag is a migration.
+    writable: ['tenant_id', 'name', 'slug', 'theme', 'blurb', 'summary', 'source_note', 'icon', 'sort_order', 'status', 'updated_at'],
+  },
+
+  blueprint_goals: {
+    ops: ['select', 'insert', 'update', 'delete'],
+    tenantKey: 'tenant_id',
+    columns: ['id', 'tenant_id', 'priority_id', 'code', 'title', 'description', 'owner', 'status', 'progress_pct', 'target_date', 'sort_order', 'created_at', 'updated_at'],
+    writable: ['tenant_id', 'priority_id', 'code', 'title', 'description', 'owner', 'status', 'progress_pct', 'target_date', 'sort_order', 'updated_at'],
+  },
+
+  blueprint_initiatives: {
+    ops: ['select', 'insert', 'update', 'delete'],
+    tenantKey: 'tenant_id',
+    columns: ['id', 'tenant_id', 'priority_id', 'goal_id', 'title', 'description', 'lead_org', 'owner', 'status', 'start_date', 'target_date', 'sort_order', 'created_at', 'updated_at'],
+    writable: ['tenant_id', 'priority_id', 'goal_id', 'title', 'description', 'lead_org', 'owner', 'status', 'start_date', 'target_date', 'sort_order', 'updated_at'],
+  },
+
+  blueprint_kpis: {
+    ops: ['select', 'insert', 'update', 'delete'],
+    tenantKey: 'tenant_id',
+    columns: ['id', 'tenant_id', 'priority_id', 'goal_id', 'name', 'description', 'unit', 'baseline_value', 'current_value', 'target_value', 'as_of', 'source', 'sort_order', 'created_at', 'updated_at'],
+    writable: ['tenant_id', 'priority_id', 'goal_id', 'name', 'description', 'unit', 'baseline_value', 'current_value', 'target_value', 'as_of', 'source', 'sort_order', 'updated_at'],
+  },
+
+  blueprint_milestones: {
+    ops: ['select', 'insert', 'update', 'delete'],
+    tenantKey: 'tenant_id',
+    columns: ['id', 'tenant_id', 'priority_id', 'phase_code', 'title', 'description', 'horizon', 'status', 'target_date', 'sort_order', 'created_at', 'updated_at'],
+    writable: ['tenant_id', 'priority_id', 'phase_code', 'title', 'description', 'horizon', 'status', 'target_date', 'sort_order', 'updated_at'],
+  },
+
+  blueprint_findings: {
+    ops: ['select', 'insert', 'update', 'delete'],
+    tenantKey: 'tenant_id',
+    columns: ['id', 'tenant_id', 'kind', 'code', 'title', 'body', 'source_note', 'sort_order', 'created_at', 'updated_at'],
+    writable: ['tenant_id', 'kind', 'code', 'title', 'body', 'source_note', 'sort_order', 'updated_at'],
+  },
+
+  blueprint_alignments: {
+    ops: ['select', 'insert', 'delete'],
+    tenantKey: 'tenant_id',
+    columns: ['id', 'tenant_id', 'company_id', 'priority_id', 'note', 'aligned_by', 'created_at'],
+    writable: ['tenant_id', 'company_id', 'priority_id', 'note', 'aligned_by'],
+  },
+
+  // Append-only, for the same reason directory_audit is: a feed of "what changed
+  // on the Blueprint" that can be edited afterwards is not a record of anything.
+  blueprint_activity: {
+    ops: ['select', 'insert'],
+    tenantKey: 'tenant_id',
+    columns: ['id', 'tenant_id', 'action', 'entity_type', 'entity_id', 'summary', 'actor_email', 'detail', 'created_at'],
+    // actor_email is overwritten server-side with the verified caller.
+    writable: ['tenant_id', 'action', 'entity_type', 'entity_id', 'summary', 'actor_email', 'detail'],
+    actorColumn: 'actor_email',
+  },
+
   // Read-only. Analytics rows are written by the public site, not the admin panel.
   directory_analytics: {
     ops: ['select'],
