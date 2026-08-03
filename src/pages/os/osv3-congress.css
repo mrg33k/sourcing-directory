@@ -268,6 +268,11 @@
 
 .osv3-cg-track {
   display: flex;
+  /* Organization names run from one line ("Honeywell Aerospace") to three
+     ("Arizona State University Semiconductor Research"). Without stretch the
+     cards are three different heights and the role badges float at three
+     different levels, which reads as a broken row rather than a carousel. */
+  align-items: stretch;
   gap: var(--p-4);
   overflow-x: auto;
   scroll-behavior: smooth;
@@ -313,7 +318,10 @@
   margin: 0;
 }
 
-.osv3-cg-orgcard-role { margin-top: var(--p-1); }
+/* auto pushes the badge to the bottom of whatever height the row settled on, so
+   every badge sits on one baseline across the carousel regardless of how many
+   lines the organization's name took. */
+.osv3-cg-orgcard-role { margin-top: auto; padding-top: var(--p-2); }
 
 /* Sits over the track's edge like the directory's control. Kept inside the card
    padding rather than hanging outside it, so it never collides with the rail. */
@@ -659,6 +667,68 @@ a.osv3-cg-media-item:hover { border-color: var(--v3-ink-secondary); }
 .osv3-cg-action:hover .osv3-cg-action-icon { color: var(--p-screen-accent, var(--v3-accent)); }
 
 /* ===========================================================================
+   ADMIN TOOLS -> CONGRESS  (src/pages/os/AdminCongress.jsx)
+   Lives in this sheet rather than its own because the two files are one
+   feature and AdminCongress imports it directly. Everything is `osv3-cga-`
+   so it can never collide with the read page's `osv3-cg-`.
+   =========================================================================== */
+.osv3-cga {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-4);
+}
+
+/* CONTRAST FIX, and it is a bug in the SHARED sheet, not in this file.
+   osv3-profile.css has:
+     .osv3p-seg-btn:hover   { background: var(--v3-panel-bg) }   specificity 0,2,0
+     .osv3p-seg-btn--on     { background: var(--v3-accent);
+                              color: var(--v3-content-bg) }       specificity 0,1,0
+   `:hover` therefore WINS on background while `--on` still wins on colour, so
+   hovering the selected segment paints near-white text onto a light grey ground
+   and the label disappears. It is not specific to this screen — Admin Tools ->
+   Users has the same segmented control and the same defect.
+   Fixed here, scoped to this component, because osv3-profile.css is shared and
+   another agent is building against it this round. The shared rule still needs
+   fixing at source; noted in the handoff. */
+.osv3-cga .osv3p-seg-btn--on:hover {
+  background: var(--v3-accent);
+  color: var(--v3-content-bg);
+}
+
+.osv3-cga-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--p-4);
+  margin: var(--p-4) 0;
+}
+
+.osv3-cga-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-1);
+  min-width: 0;
+}
+
+/* A textarea earns the full row — a 3-sentence description typed into a third
+   of the width is unreadable while you are writing it. */
+.osv3-cga-field:has(> .osv3p-textarea) { grid-column: 1 / -1; }
+
+.osv3-cga-hint {
+  font-size: var(--t-meta);
+  line-height: 1.45;
+  color: var(--v3-muted);
+  margin: var(--p-1) 0 0;
+}
+
+@media (max-width: 1180px) {
+  .osv3-cga-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+  .osv3-cga-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ===========================================================================
    RESPONSIVE — 1180 and 760, matching osv3-profile.css:2089 / 2119
    =========================================================================== */
 @media (max-width: 1180px) {
@@ -705,6 +775,13 @@ a.osv3-cg-media-item:hover { border-color: var(--v3-ink-secondary); }
       rgba(1, 11, 19, 0.72) 100%
     );
   }
+
+  /* Four tabs cannot fit 390px whatever the gap ("Participants & Organizations"
+     alone is ~200px), and .osv3p-tabs already scrolls. Halving the shared 32px
+     gap is purely about the AFFORDANCE: at 32px the fourth tab is entirely off
+     screen and the bar looks like it has three; at 16px the next label is
+     visibly clipped, which is what tells a thumb to swipe. */
+  .osv3-cg .osv3p-tabs { gap: var(--p-4); }
 
   .osv3-cg-orgcard { flex-basis: 152px; }
   .osv3-cg-arrow--prev { left: 0; }

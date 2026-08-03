@@ -8,6 +8,7 @@ import {
 } from '../../components/osv3/index.js'
 import { ADMIN_FIXTURE } from '../../lib/profileFixtures.js'
 import AdminUsers from './AdminUsers.jsx'
+import AdminCongress from './AdminCongress.jsx'
 import {
   loadAdminStats, emptyAdminStats, windowDelta, formatCount, formatDate, WINDOW_DAYS,
 } from '../../lib/adminStats.js'
@@ -88,6 +89,12 @@ import '../../styles/osv3-profile.css'
 
 const TABS_LABEL = 'Admin sections'
 
+/* ADMIN_FIXTURE is a shared file this screen does not own (see the note beside
+   KPI_LINK_CORRECTIONS), so the Congress tab is appended here rather than added
+   to the fixture. Same reason the fixture's "View verification" wording is
+   corrected in this file instead of at source. */
+const ADMIN_TABS = [...ADMIN_FIXTURE.tabs, { id: 'congress', label: 'Congress' }]
+
 /* ADMIN_FIXTURE reads "View verification"; the reference PNG and
    reference/measurements-admin.json both read "View verifications" (verified on
    a 3x crop of the fifth KPI tile). The fixture is a shared file this screen
@@ -108,7 +115,9 @@ const KPI_TAB = {
    "coming soon" repeated seven times — an admin should be able to tell from the
    empty panel whether this is the tab they wanted. */
 /* Users is BUILT — see AdminUsers.jsx. It is off this list on purpose: a promise
-   left next to a delivered screen is how the next reader learns the wrong thing. */
+   left next to a delivered screen is how the next reader learns the wrong thing.
+   Congress is BUILT too — see AdminCongress.jsx — and is off the list for the
+   same reason. */
 const TAB_PROMISES = {
   organizations: 'The organization directory: create, merge, transfer ownership, archive.',
   verification: 'The verification queue — evidence, reviewer notes, approve or reject.',
@@ -327,7 +336,7 @@ export default function AdminTools() {
   const pendingTotal = pendingRows.reduce((n, r) => n + (r.value || 0), 0)
   const pendingMeasured = pendingRows.filter((r) => r.value !== null).length
 
-  const activeTab = a.tabs.find((t) => t.id === tab)
+  const activeTab = ADMIN_TABS.find((t) => t.id === tab)
   const loading = !stats
   const disconnected = stats && !stats.ok
   const verification = stats?.verification
@@ -355,10 +364,12 @@ export default function AdminTools() {
         </ButtonRow>
       </header>
 
-      <Tabs items={a.tabs} value={tab} onChange={setTab} label={TABS_LABEL} />
+      <Tabs items={ADMIN_TABS} value={tab} onChange={setTab} label={TABS_LABEL} />
 
       {tab === 'users' ? (
         <AdminUsers />
+      ) : tab === 'congress' ? (
+        <AdminCongress />
       ) : tab !== 'dashboard' ? (
         <EmptyState
           icon="gear"
