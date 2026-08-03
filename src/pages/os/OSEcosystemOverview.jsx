@@ -415,9 +415,13 @@ export default function OSEcosystemOverview() {
                       <li className="osv3-eco-org" key={r.id}>
                         <LogoTile name={r.name} size="sm" />
                         <div className="osv3-eco-org-text">
+                          {/* Both name columns ellipsis at a third of 1440
+                              ("Commercial Real Estate Group of T…"), so the
+                              full name has to stay reachable. */}
                           <button
                             type="button"
                             className="osv3-eco-org-name"
+                            title={r.name}
                             onClick={() => navigate(`/${r.slug}`)}
                           >
                             {r.name}
@@ -501,6 +505,7 @@ export default function OSEcosystemOverview() {
                         <button
                           type="button"
                           className="osv3-eco-rank-name"
+                          title={r.name}
                           onClick={() => navigate(`/${r.slug}`)}
                         >
                           {r.name}
