@@ -723,6 +723,12 @@
    =========================================================================== */
 
 .osv3-bp-panel {
+  /* The Overview panel is a fragment of three siblings (the two-column body,
+     then two full-width cards), so the panel itself owns the rhythm between
+     them. .osv3p-screen's own flex gap only reaches its direct children. */
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-4);
   min-width: 0;
 }
 

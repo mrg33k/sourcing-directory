@@ -357,8 +357,94 @@ export default function OSBlueprint() {
     />
   ) : null
 
+  /* The report's own read of where the state stands. Nine rows, all verbatim
+     from "Where Arizona has a real advantage" (p.17) and "Where Arizona is
+     falling short" (p.18).
+
+     Rendered FULL WIDTH, below the two-column body rather than inside its main
+     column. Inside it, two columns of findings were squeezed into ~780px and
+     ran ~700px tall against a rail that had already ended, which left a void
+     down the whole right-hand side. Nine findings want the width, and the rail
+     wants something beside it that ends when it does. */
+  const findingsCard = (bp.positions.length || bp.gaps.length) ? (
+    <Card>
+      <PanelHead
+        title="Where Arizona Stands"
+        note="Straight from the Blueprint's own findings."
+      />
+      <CardBody>
+        <div className="osv3-bp-findings">
+          <div className="osv3-bp-findcol">
+            <h3 className="osv3-bp-findhead osv3-bp-findhead--up">
+              {bp.positions.length} positions where Arizona leads
+            </h3>
+            {bp.positions.map((f) => (
+              <div className="osv3-bp-find" key={f.id}>
+                <span className="osv3-bp-find-code osv3-bp-find-code--up">{f.code}</span>
+                <div>
+                  <div className="osv3-bp-find-title">{f.title}</div>
+                  <p className="osv3-bp-find-body">{f.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="osv3-bp-findcol">
+            <h3 className="osv3-bp-findhead osv3-bp-findhead--down">
+              {bp.gaps.length} gaps holding the ecosystem back
+            </h3>
+            {bp.gaps.map((f) => (
+              <div className="osv3-bp-find" key={f.id}>
+                <span className="osv3-bp-find-code osv3-bp-find-code--down">{f.code}</span>
+                <div>
+                  <div className="osv3-bp-find-title">{f.title}</div>
+                  <p className="osv3-bp-find-body">{f.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </CardBody>
+    </Card>
+  ) : null
+
+  const activityCard = (
+    <Card>
+      <PanelHead
+        title="Recent Blueprint Activity"
+        link={bp.activity.length ? 'View all activity' : null}
+        onLink={openTab('overview')}
+      />
+      <CardBody>
+        {bp.activity.length ? (
+          <div className="osv3-bp-feed">
+            {bp.activity.slice(0, 4).map((e) => (
+              <div className="osv3-bp-feeditem" key={e.id}>
+                <span className="osv3-bp-feedicon">
+                  <Icon name={e.entity_type === 'kpi' ? 'gauge' : e.entity_type === 'initiative' ? 'rocket' : 'check-circle'} />
+                </span>
+                <div>
+                  <p className="osv3-bp-feedtext">{e.summary}</p>
+                  <span className="osv3-bp-feedtime">{formatRelative(e.created_at)}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <AskForData
+            icon="clock"
+            measures="Every change to the Blueprint, newest first"
+            why="Nothing has been recorded yet — this Blueprint has never been edited inside SpaceOS. The moment an admin adds or changes a priority, goal, initiative or KPI in Admin Tools, it lands here with who did it and when."
+            cta="Open Admin Tools"
+            onCta={() => navigate('/admin-tools')}
+          />
+        )}
+      </CardBody>
+    </Card>
+  )
+
   const panels = {
     overview: (
+      <>
       <div className="osv3p-admin-body osv3-bp-body">
         <div className="osv3p-admin-main">
           <div className="osv3-bp-toprow">
@@ -378,82 +464,9 @@ export default function OSBlueprint() {
             <CardBody>{priorityCards}</CardBody>
           </Card>
 
-          {/* The report's own read of where the state stands. Nine rows, all
-              verbatim from "Where Arizona has a real advantage" (p.17) and
-              "Where Arizona is falling short" (p.18). */}
-          {bp.positions.length || bp.gaps.length ? (
-            <Card>
-              <PanelHead
-                title="Where Arizona Stands"
-                note="Straight from the Blueprint's own findings."
-              />
-              <CardBody>
-                <div className="osv3-bp-findings">
-                  <div className="osv3-bp-findcol">
-                    <h3 className="osv3-bp-findhead osv3-bp-findhead--up">
-                      {bp.positions.length} positions where Arizona leads
-                    </h3>
-                    {bp.positions.map((f) => (
-                      <div className="osv3-bp-find" key={f.id}>
-                        <span className="osv3-bp-find-code osv3-bp-find-code--up">{f.code}</span>
-                        <div>
-                          <div className="osv3-bp-find-title">{f.title}</div>
-                          <p className="osv3-bp-find-body">{f.body}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="osv3-bp-findcol">
-                    <h3 className="osv3-bp-findhead osv3-bp-findhead--down">
-                      {bp.gaps.length} gaps holding the ecosystem back
-                    </h3>
-                    {bp.gaps.map((f) => (
-                      <div className="osv3-bp-find" key={f.id}>
-                        <span className="osv3-bp-find-code osv3-bp-find-code--down">{f.code}</span>
-                        <div>
-                          <div className="osv3-bp-find-title">{f.title}</div>
-                          <p className="osv3-bp-find-body">{f.body}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </CardBody>
-            </Card>
-          ) : null}
-
-          <Card>
-            <PanelHead
-              title="Recent Blueprint Activity"
-              link={bp.activity.length ? 'View all activity' : null}
-              onLink={openTab('overview')}
-            />
-            <CardBody>
-              {bp.activity.length ? (
-                <div className="osv3-bp-feed">
-                  {bp.activity.slice(0, 4).map((e) => (
-                    <div className="osv3-bp-feeditem" key={e.id}>
-                      <span className="osv3-bp-feedicon">
-                        <Icon name={e.entity_type === 'kpi' ? 'gauge' : e.entity_type === 'initiative' ? 'rocket' : 'check-circle'} />
-                      </span>
-                      <div>
-                        <p className="osv3-bp-feedtext">{e.summary}</p>
-                        <span className="osv3-bp-feedtime">{formatRelative(e.created_at)}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <AskForData
-                  icon="clock"
-                  measures="Every change to the Blueprint, newest first"
-                  why="Nothing has been recorded yet — this Blueprint has never been edited inside SpaceOS. The moment an admin adds or changes a priority, goal, initiative or KPI in Admin Tools, it lands here with who did it and when."
-                  cta="Open Admin Tools"
-                  onCta={() => navigate('/admin-tools')}
-                />
-              )}
-            </CardBody>
-          </Card>
+          {/* In the main column, as the comp has it: the rail's third card ends
+              below the priorities grid, and this is what sits beside it. */}
+          {activityCard}
         </div>
 
         <aside className="osv3p-admin-rail">
@@ -547,6 +560,12 @@ export default function OSBlueprint() {
           </Card>
         </aside>
       </div>
+
+      {/* Full width, below the rail: nine findings in two columns were squeezed
+          into the ~780px main column and ran ~700px tall against a rail that had
+          already ended. */}
+      {findingsCard}
+      </>
     ),
 
     priorities: (
