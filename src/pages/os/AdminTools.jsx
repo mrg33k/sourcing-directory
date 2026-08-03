@@ -8,6 +8,7 @@ import {
 } from '../../components/osv3/index.js'
 import { ADMIN_FIXTURE } from '../../lib/profileFixtures.js'
 import AdminUsers from './AdminUsers.jsx'
+import AdminOrganizationTypes from './AdminOrganizationTypes.jsx'
 import {
   loadAdminStats, emptyAdminStats, windowDelta, formatCount, formatDate, WINDOW_DAYS,
 } from '../../lib/adminStats.js'
@@ -107,10 +108,11 @@ const KPI_TAB = {
 /* What each unbuilt tab will hold. One honest sentence each beats one generic
    "coming soon" repeated seven times — an admin should be able to tell from the
    empty panel whether this is the tab they wanted. */
-/* Users is BUILT — see AdminUsers.jsx. It is off this list on purpose: a promise
-   left next to a delivered screen is how the next reader learns the wrong thing. */
+/* Users is BUILT — see AdminUsers.jsx. Organizations is PART-built — see
+   AdminOrganizationTypes.jsx, which owns organization type. Both are off this
+   list on purpose: a promise left next to a delivered screen is how the next
+   reader learns the wrong thing. */
 const TAB_PROMISES = {
-  organizations: 'The organization directory: create, merge, transfer ownership, archive.',
   verification: 'The verification queue — evidence, reviewer notes, approve or reject.',
   content: 'Submitted capabilities, listings and resources awaiting an editor.',
   activity: 'The full system log this dashboard summarises, searchable and filterable.',
@@ -189,7 +191,16 @@ export default function AdminTools() {
   const previewState = params.get('state') === 'empty'
     ? 'empty'
     : params.get('state') === 'loading' ? 'loading' : null
-  const [tab, setTab] = useState('dashboard')
+  /* ?tab=organizations opens that tab directly. Added with the organization-type
+     editor: without it the only way to reach a tab is to click it, so a tab
+     cannot be linked to, bookmarked, or opened from another screen — and the
+     KPI tiles' own "View all ->" links already move the tab, which made the
+     address bar disagree with the screen. An unknown value falls back to the
+     dashboard rather than rendering nothing. */
+  const requestedTab = params.get('tab')
+  const [tab, setTab] = useState(
+    a.tabs.some((t) => t.id === requestedTab) ? requestedTab : 'dashboard'
+  )
   const [stats, setStats] = useState(previewState === 'empty' ? emptyAdminStats() : null)
   const [attempt, setAttempt] = useState(0)
 
@@ -359,6 +370,13 @@ export default function AdminTools() {
 
       {tab === 'users' ? (
         <AdminUsers />
+      ) : tab === 'organizations' ? (
+        /* Organization TYPE only, not the whole organization directory. It is
+           here because /ecosystem/overview draws a chart from org_type and a
+           derived value nobody can overrule is a value nobody should trust.
+           Creating, merging and archiving organizations still live in the
+           management panel. */
+        <AdminOrganizationTypes />
       ) : tab !== 'dashboard' ? (
         <EmptyState
           icon="gear"

@@ -240,6 +240,45 @@ export const TABLE_POLICY = {
     actorColumn: 'author',
   },
 
+  // ── Organization profile ─────────────────────────────────────────────────────
+  // Added 2026-08-03 so an admin can correct `org_type`, which /ecosystem/overview
+  // now draws a chart from and scripts/backfill-org-type.mjs derives in bulk. A
+  // derived value nobody can overrule is a value nobody should trust.
+  //
+  // Tenant-less: the row is keyed by company_id and carries no tenant column, so the
+  // tenant is resolved through the PARENT company exactly as admin_ticket_comments
+  // resolves through its ticket. A tenant admin reaches the profiles of their own
+  // directory's companies and no others.
+  //
+  // `writable` is deliberately the org-type columns and nothing else. The rest of
+  // this table (verification, verified_by, the six relationship counts, focus_areas)
+  // belongs to the verification flow and the profile editor, which are different
+  // screens with different rules; widening this list is how a "fix the type" button
+  // quietly becomes a way to mark a company verified.
+  //
+  // No 'delete': removing the row would not clear a type, it would erase the
+  // verification state stored beside it.
+  directory_company_profile: {
+    ops: ['select', 'insert', 'update', 'upsert'],
+    tenantKey: null,
+    primaryKey: 'company_id',
+    parentScope: {
+      column: 'company_id',
+      table: 'directory_companies',
+      parentKey: 'id',
+      tenantKey: 'tenant_id',
+    },
+    columns: [
+      'company_id', 'org_type', 'org_type_source', 'org_type_confidence',
+      'org_type_evidence', 'org_type_derived_at', 'org_type_reviewed_by',
+      'org_type_reviewed_at', 'verification', 'verified_at', 'created_at', 'updated_at',
+    ],
+    writable: [
+      'company_id', 'org_type', 'org_type_source', 'org_type_confidence',
+      'org_type_reviewed_by', 'org_type_reviewed_at', 'updated_at',
+    ],
+  },
+
   // ── Deal Bank ────────────────────────────────────────────────────────────────
   // One global surface shared by the whole platform, not by any tenant: pending deal
   // submissions, deck URLs, revenue figures, and investor contact_email_internal.
