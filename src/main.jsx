@@ -335,6 +335,12 @@ createRoot(document.getElementById('root')).render(
           <Route path="/admin/panel" element={<RequireAdmin><SourcingAdmin /></RequireAdmin>} />
           <Route path="/admin/new" element={<RequireAdmin><SourcingAdmin /></RequireAdmin>} />
           <Route path="/admin/settings/:tenantSlug" element={<RequireAdmin><SourcingAdmin /></RequireAdmin>} />
+          {/* The OS pages' "Add …" buttons target these three; without routes the
+              catch-all sent every click to the home page. Each opens the panel on
+              its section — see PATH_TAB in SourcingAdmin.jsx. */}
+          <Route path="/admin/reports" element={<RequireAdmin><SourcingAdmin /></RequireAdmin>} />
+          <Route path="/admin/listings" element={<RequireAdmin><SourcingAdmin /></RequireAdmin>} />
+          <Route path="/admin/organizations" element={<RequireAdmin><SourcingAdmin /></RequireAdmin>} />
 
           {/* ===== LEGACY REDIRECTS ===== */}
           {/* /spaceos/* → clean OS routes (e.g., /spaceos/directory → /directory) */}

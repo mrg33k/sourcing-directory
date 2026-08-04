@@ -83,10 +83,19 @@ function SourcingAdminInner() {
   const isNew = location.pathname === '/admin/new';
   const isSettings = location.pathname.startsWith('/admin/settings/');
 
+  // The OS pages' "Add …" buttons link to these paths; each opens this panel on
+  // the matching section. The ?category= some links carry is ignored — the
+  // Listings section shows every category.
+  const PATH_TAB = {
+    '/admin/reports': 'reports',
+    '/admin/listings': 'listings',
+    '/admin/organizations': 'companies',
+  };
+
   const [authed, setAuthed] = useState(false);
   const [currentUserEmail, setCurrentUserEmail] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('stats');
+  const [activeTab, setActiveTab] = useState(PATH_TAB[location.pathname] || 'stats');
   const [showAddContent, setShowAddContent] = useState(false);
 
   // Tenant switcher state

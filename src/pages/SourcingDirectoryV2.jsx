@@ -197,8 +197,15 @@ export default function SourcingDirectoryV2() {
     setNewsletterSubmitting(true);
     setNewsletterMessage('');
     try {
-      const { error } = await supabase.from('srw_subscribers').insert([{ email: newsletterEmail, source: 'directory' }]);
-      if (error) throw error;
+      // Same pipeline as the site's sign-up form (srw-subscribe): saves the row,
+      // mirrors to Airtable, welcomes the subscriber, notifies the team. The old
+      // direct table insert did only the first of those.
+      const res = await fetch('/api/sourcing/srw-subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ form_type: 'subscribe', email: newsletterEmail, source: 'directory' }),
+      });
+      if (!res.ok) throw new Error(`Subscribe failed (HTTP ${res.status})`);
       setNewsletterMessage('Thanks for subscribing!');
       setNewsletterEmail('');
       setTimeout(() => setNewsletterMessage(''), 3000);

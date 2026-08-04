@@ -254,6 +254,7 @@ export default async function handler(req, res) {
     areas_of_interest,
     newsletter_opt_in = false,
     message,
+    source,
   } = req.body || {};
 
   if (!email || !email.includes('@')) {
@@ -275,6 +276,7 @@ export default async function handler(req, res) {
         areas_of_interest: Array.isArray(areas_of_interest) ? areas_of_interest : null,
         newsletter_opt_in: !!newsletter_opt_in,
         message:    message?.trim() || null,
+        source:     source?.trim() || null,
       });
       if (error) console.error('Supabase insert error:', error.message);
     } catch (err) {

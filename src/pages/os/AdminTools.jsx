@@ -9,6 +9,8 @@ import {
 import { ADMIN_FIXTURE } from '../../lib/profileFixtures.js'
 import AdminUsers from './AdminUsers.jsx'
 import AdminBlueprint from './AdminBlueprint.jsx'
+import AdminSubscribers from './AdminSubscribers.jsx'
+import { useAdmin } from '../../hooks/useAdmin.js'
 import {
   loadAdminStats, emptyAdminStats, windowDelta, formatCount, formatDate, WINDOW_DAYS,
 } from '../../lib/adminStats.js'
@@ -328,10 +330,18 @@ export default function AdminTools() {
   const pendingTotal = pendingRows.reduce((n, r) => n + (r.value || 0), 0)
   const pendingMeasured = pendingRows.filter((r) => r.value !== null).length
 
-  /* Blueprint is appended here rather than added to ADMIN_FIXTURE.tabs: the
-     fixture is a shared file this screen does not own, and the tab set is the
-     only thing about it that changes when a new admin section ships. */
-  const tabs = useMemo(() => [...a.tabs, { id: 'blueprint', label: 'Blueprint' }], [a.tabs])
+  /* Blueprint and Subscribers are appended here rather than added to
+     ADMIN_FIXTURE.tabs: the fixture is a shared file this screen does not own,
+     and the tab set is the only thing about it that changes when a new admin
+     section ships. Subscribers is global admins only — srw_subscribers is
+     tenant-less, so the server (tablePolicy) refuses it to tenant admins; a tab
+     that can only error is not rendered. */
+  const { isGlobalAdmin } = useAdmin()
+  const tabs = useMemo(() => [
+    ...a.tabs,
+    { id: 'blueprint', label: 'Blueprint' },
+    ...(isGlobalAdmin ? [{ id: 'subscribers', label: 'Subscribers' }] : []),
+  ], [a.tabs, isGlobalAdmin])
 
   const activeTab = tabs.find((t) => t.id === tab)
   const loading = !stats
@@ -367,6 +377,8 @@ export default function AdminTools() {
         <AdminUsers />
       ) : tab === 'blueprint' ? (
         <AdminBlueprint />
+      ) : tab === 'subscribers' ? (
+        <AdminSubscribers />
       ) : tab !== 'dashboard' ? (
         <EmptyState
           icon="gear"
