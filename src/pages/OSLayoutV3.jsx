@@ -13,6 +13,7 @@ const TIM_NAV = {
   home:          'base',          // headquarters / home base
   directory:     'industry',      // sector/industry listings
   ecosystem:     'outreach',      // ecosystem connections
+  blueprint:     'arizona',       // the Arizona Space Action Blueprint
   intelligence:  'intelligence',  // exact match
   opportunities: 'economic-dev',  // exact match
   careers:       'workforce-dev', // exact match
@@ -32,6 +33,7 @@ const PRIMARY_NAV = [
   { to: '/', key: 'home', label: 'Home', end: true },
   { to: '/directory', key: 'directory', label: 'Directory' },
   { to: '/ecosystem', key: 'ecosystem', label: 'Ecosystem' },
+  { to: '/blueprint', key: 'blueprint', label: 'Blueprint' },
   { to: '/intelligence', key: 'intelligence', label: 'Intelligence' },
   { to: '/opportunities', key: 'opportunities', label: 'Opportunities' },
   { to: '/careers', key: 'careers', label: 'Careers' },
