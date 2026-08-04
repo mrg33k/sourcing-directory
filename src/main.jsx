@@ -157,6 +157,7 @@ const OSNewsPage = lazy(() => import('./pages/OSNewsPage.jsx'))
 const OSPeoplePage = lazy(() => import('./pages/OSPeoplePage.jsx'))
 const OSRFPsPage = lazy(() => import('./pages/OSRFPsPage.jsx'))
 const OSGrantsPage = lazy(() => import('./pages/OSGrantsPage.jsx'))
+const OSBlueprint = lazy(() => import('./pages/os/OSBlueprint.jsx'))
 
 // Space OS v3 — MY SPACEOS: the person/company profile screens and the
 // member-area pages the sidebar's new nav group points at.
@@ -216,6 +217,7 @@ createRoot(document.getElementById('root')).render(
             <Route path="/community" element={<OSEventsPage />} />
             <Route path="/events" element={<OSEventsPage />} />
             <Route path="/reports" element={<OSReportsPage />} />
+            <Route path="/blueprint" element={<OSBlueprint />} />
             <Route path="/articles" element={<OSArticlesPage />} />
             <Route path="/grants" element={<OSGrantsPage />} />
             <Route path="/deal-bank" element={<SourcingDealBankV2 />} />
@@ -322,7 +324,6 @@ createRoot(document.getElementById('root')).render(
           <Route path="/srw-v2/media" element={<SRWMediaV2 />} />
           <Route path="/srw-v2/sign-up" element={<SRWSignUpV2 />} />
           <Route path="/srw-v2/blueprint" element={<SRWBlueprintV2 />} />
-          <Route path="/blueprint" element={<Navigate to="/srw-v2/blueprint" replace />} />
 
           {/* ===== ADMIN (outside v3 shell) ===== */}
           {/* /admin now lands on the new Admin Tools (dashboard/stats tab
