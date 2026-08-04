@@ -112,6 +112,11 @@ const DEAL_ROUND_COLUMNS = [
   'created_at', 'updated_at',
 ];
 
+const SRW_SUBSCRIBER_COLUMNS = [
+  'id', 'created_at', 'form_type', 'first_name', 'last_name', 'email',
+  'organization', 'areas_of_interest', 'newsletter_opt_in', 'message', 'source',
+];
+
 const without = (cols, drop) => cols.filter(c => !drop.includes(c));
 
 export const TABLE_POLICY = {
@@ -273,6 +278,17 @@ export const TABLE_POLICY = {
     globalOnly: true,
     columns: DEAL_ROUND_COLUMNS,
     writable: without(DEAL_ROUND_COLUMNS, ['id', 'created_at']),
+  },
+
+  // Newsletter/contact submissions from the Space Rising site + OS directory
+  // (written by /api/sourcing/srw-subscribe with the service key). Read-only
+  // here: the Subscribers tab lists and exports; nothing edits a submission.
+  srw_subscribers: {
+    ops: ['select'],
+    tenantKey: null,
+    globalOnly: true,
+    columns: SRW_SUBSCRIBER_COLUMNS,
+    writable: [],
   },
 };
 

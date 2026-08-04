@@ -230,7 +230,7 @@ function OSJobsPage() {
       pageTitle={get('jobs', 'page_title', 'Jobs')}
       pageSubtitle={get('jobs', 'page_subtitle', 'Open positions across Arizona\'s space economy. From propulsion to policy.')}
       addLabel="Post a Job"
-      onAdd={() => navigate('/admin/listings?category=job')}
+      onAdd={() => navigate('/jobs/post')}
 
       featuredItem={featured}
       mediaSlot={featured ? <JobMediaSlot featured={featured} /> : null}
@@ -272,7 +272,7 @@ function OSJobsPage() {
             <button
               className="osv3-mag-btn-ghost"
               type="button"
-              onClick={() => navigate('/admin/listings?category=job')}
+              onClick={() => navigate('/jobs/post')}
             >
               + Post a Job
             </button>

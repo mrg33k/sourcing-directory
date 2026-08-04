@@ -8,6 +8,8 @@ import {
 } from '../../components/osv3/index.js'
 import { ADMIN_FIXTURE } from '../../lib/profileFixtures.js'
 import AdminUsers from './AdminUsers.jsx'
+import AdminSubscribers from './AdminSubscribers.jsx'
+import { useAdmin } from '../../hooks/useAdmin.js'
 import {
   loadAdminStats, emptyAdminStats, windowDelta, formatCount, formatDate, WINDOW_DAYS,
 } from '../../lib/adminStats.js'
@@ -327,7 +329,18 @@ export default function AdminTools() {
   const pendingTotal = pendingRows.reduce((n, r) => n + (r.value || 0), 0)
   const pendingMeasured = pendingRows.filter((r) => r.value !== null).length
 
-  const activeTab = a.tabs.find((t) => t.id === tab)
+  /* Subscribers is appended here rather than added to ADMIN_FIXTURE.tabs: the
+     fixture is a shared file this screen does not own, and the tab set is the
+     only thing about it that changes when a new admin section ships. Global
+     admins only — srw_subscribers is tenant-less, so the server (tablePolicy)
+     refuses it to tenant admins; a tab that can only error is not rendered. */
+  const { isGlobalAdmin } = useAdmin()
+  const tabs = useMemo(
+    () => (isGlobalAdmin ? [...a.tabs, { id: 'subscribers', label: 'Subscribers' }] : a.tabs),
+    [a.tabs, isGlobalAdmin],
+  )
+
+  const activeTab = tabs.find((t) => t.id === tab)
   const loading = !stats
   const disconnected = stats && !stats.ok
   const verification = stats?.verification
@@ -355,10 +368,12 @@ export default function AdminTools() {
         </ButtonRow>
       </header>
 
-      <Tabs items={a.tabs} value={tab} onChange={setTab} label={TABS_LABEL} />
+      <Tabs items={tabs} value={tab} onChange={setTab} label={TABS_LABEL} />
 
       {tab === 'users' ? (
         <AdminUsers />
+      ) : tab === 'subscribers' ? (
+        <AdminSubscribers />
       ) : tab !== 'dashboard' ? (
         <EmptyState
           icon="gear"
