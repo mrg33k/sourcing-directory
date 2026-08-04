@@ -9,6 +9,9 @@ rex
 `src/pages/os/OSBlueprint.jsx` + `osv3-blueprint.css` (builder's work, merged at `b029a1e`),
 route wiring `d96a280`, preview deploy `sourcing-directory-8myiuqo8r-aheads-projects-d2a4c70f.vercel.app`.
 Covers the decision to ship this page live at `os.spacerising.org/blueprint`.
+Extended 2026-08-04: sidebar nav row (`OSLayoutV3.jsx` `ba86f56`, Patrik's ask) — Blueprint
+after Ecosystem, arizona icon; active-pill state screenshot-verified on deploy `m1ah0a305`
+(`Screenshots/blueprint-nav-added.png`): same row geometry as siblings, NavLink active class fires.
 
 ## call
 
