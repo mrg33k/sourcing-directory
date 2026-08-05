@@ -11,6 +11,7 @@ import AdminUsers from './AdminUsers.jsx'
 import AdminBlueprint from './AdminBlueprint.jsx'
 import AdminSubscribers from './AdminSubscribers.jsx'
 import AdminOrganizationTypes from './AdminOrganizationTypes.jsx'
+import AdminCongress from './AdminCongress.jsx'
 import { useAdmin } from '../../hooks/useAdmin.js'
 import {
   loadAdminStats, emptyAdminStats, windowDelta, formatCount, formatDate, WINDOW_DAYS,
@@ -112,9 +113,9 @@ const KPI_TAB = {
    "coming soon" repeated seven times — an admin should be able to tell from the
    empty panel whether this is the tab they wanted. */
 /* Users is BUILT — see AdminUsers.jsx. Organizations is PART-built — see
-   AdminOrganizationTypes.jsx, which owns organization type. Both are off this
-   list on purpose: a promise left next to a delivered screen is how the next
-   reader learns the wrong thing. */
+   AdminOrganizationTypes.jsx, which owns organization type. Congress is BUILT —
+   see AdminCongress.jsx. All are off this list on purpose: a promise left next
+   to a delivered screen is how the next reader learns the wrong thing. */
 const TAB_PROMISES = {
   verification: 'The verification queue — evidence, reviewer notes, approve or reject.',
   content: 'Submitted capabilities, listings and resources awaiting an editor.',
@@ -341,7 +342,7 @@ export default function AdminTools() {
   const pendingTotal = pendingRows.reduce((n, r) => n + (r.value || 0), 0)
   const pendingMeasured = pendingRows.filter((r) => r.value !== null).length
 
-  /* Blueprint and Subscribers are appended here rather than added to
+  /* Blueprint, Congress and Subscribers are appended here rather than added to
      ADMIN_FIXTURE.tabs: the fixture is a shared file this screen does not own,
      and the tab set is the only thing about it that changes when a new admin
      section ships. Subscribers is global admins only — srw_subscribers is
@@ -351,6 +352,7 @@ export default function AdminTools() {
   const tabs = useMemo(() => [
     ...a.tabs,
     { id: 'blueprint', label: 'Blueprint' },
+    { id: 'congress', label: 'Congress' },
     ...(isGlobalAdmin ? [{ id: 'subscribers', label: 'Subscribers' }] : []),
   ], [a.tabs, isGlobalAdmin])
 
@@ -388,6 +390,8 @@ export default function AdminTools() {
         <AdminUsers />
       ) : tab === 'blueprint' ? (
         <AdminBlueprint />
+      ) : tab === 'congress' ? (
+        <AdminCongress />
       ) : tab === 'subscribers' ? (
         <AdminSubscribers />
       ) : tab === 'organizations' ? (

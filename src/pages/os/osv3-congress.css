@@ -1,0 +1,789 @@
+/* osv3-congress.css — page-local rules for /congress only.
+   Everything structural comes from src/styles/osv3-profile.css, which the page
+   imports FIRST. Nothing here redefines a --v3-* token and there is no :root
+   block: those leak globally for the rest of the session once this lazy chunk
+   loads (src/styles/osv3-directory.css:3-16 is the cautionary example).
+
+   Spacing uses the --p-* scale and type the --t-* ladder, both declared on
+   .osv3p-screen. They resolve only because the page root carries `osv3p-screen`.
+   Breakpoints are 1180 and 760 to break with the rest of the osv3p family. */
+
+/* ===========================================================================
+   ROW 1 — hero + event card
+   Measured off REF-space-congress.png: the hero is 600px against the event
+   card's 330px inside a 948px main column, so the ratio is content-driven
+   rather than an even split.
+   =========================================================================== */
+.osv3-cg-top {
+  display: grid;
+  grid-template-columns: 600fr 330fr;
+  gap: var(--p-4);
+  align-items: stretch;
+}
+
+.osv3-cg-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--p-radius);
+  background: var(--v3-sidebar-bg);
+  min-height: 234px;
+  display: flex;
+}
+
+.osv3-cg-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* The Space Rising hero art puts its subject hard right and its dark sky and
+     skyline left, which is where the copy sits. Anchoring right keeps the face
+     in frame at every width instead of cropping it out at narrow ones. */
+  object-position: right center;
+}
+
+/* Left-weighted so the type has a reliably dark ground while the photograph
+   stays legible on the right. A flat overlay would grey out the whole image. */
+.osv3-cg-hero-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(1, 11, 19, 0.94) 0%,
+    rgba(1, 11, 19, 0.86) 42%,
+    rgba(1, 11, 19, 0.42) 78%,
+    rgba(1, 11, 19, 0.28) 100%
+  );
+}
+
+/* 72%, not 62%: "Arizona Space Congress™" at --t-name needs ~330px to stay on
+   one line as the reference draws it, and 62% of the 600px hero less its 48px
+   of padding left only 324px, so it wrapped. */
+.osv3-cg-hero-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--p-3);
+  padding: var(--p-6);
+  max-width: 72%;
+}
+
+.osv3-cg-hero-title {
+  font-size: var(--t-name);
+  font-weight: 700;
+  line-height: 1.2;
+  color: #fff;
+  margin: 0;
+}
+
+.osv3-cg-tm {
+  font-size: var(--t-meta);
+  font-weight: 500;
+  top: -0.7em;
+}
+
+/* The event description is the client's own sentence and it runs to 47 words —
+   long enough to push the hero to twice the reference's height and drag the
+   event card beside it along with it. Clamped to four lines here; the full text
+   is one click away on the Congress site, which the link directly under it
+   opens. Nothing is lost, and the row keeps the proportions it was drawn with. */
+.osv3-cg-hero-body {
+  font-size: var(--t-lead);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.82);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.osv3-cg-hero-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-2);
+  font-size: var(--t-lead);
+  font-weight: 500;
+  color: #fff;
+  text-decoration: none;
+  margin-top: var(--p-1);
+}
+
+.osv3-cg-hero-link svg {
+  width: 18px;
+  height: 18px;
+  transition: transform var(--v3-transition-fast);
+}
+
+.osv3-cg-hero-link:hover svg { transform: translateX(3px); }
+.osv3-cg-hero-link:hover { text-decoration: underline; }
+
+/* --- the event card ------------------------------------------------------ */
+.osv3-cg-when .osv3p-card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--p-2);
+}
+
+.osv3-cg-when-head {
+  display: flex;
+  align-items: center;
+  gap: var(--p-2);
+  margin-bottom: var(--p-1);
+}
+
+.osv3-cg-when-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--v3-muted);
+  flex: 0 0 auto;
+}
+
+.osv3-cg-when-icon svg { width: 20px; height: 20px; }
+
+.osv3-cg-when-date {
+  font-size: var(--t-num);
+  font-weight: 700;
+  color: var(--v3-ink-primary);
+  margin: 0;
+}
+
+.osv3-cg-when-place,
+.osv3-cg-when-venue {
+  font-size: var(--t-body);
+  color: var(--v3-ink-secondary);
+  margin: 0;
+}
+
+.osv3-cg-when-body {
+  font-size: var(--t-body);
+  line-height: 1.5;
+  color: var(--v3-muted);
+  margin: var(--p-1) 0 var(--p-2);
+}
+
+/* ===========================================================================
+   SECTION HEADINGS — title with the note stacked underneath
+   =========================================================================== */
+.osv3-cg-head { align-items: flex-start; }
+
+.osv3-cg-head-text { min-width: 0; }
+
+.osv3-cg-head-note {
+  font-size: var(--t-meta);
+  line-height: 1.45;
+  color: var(--v3-muted);
+  margin: var(--p-1) 0 0;
+}
+
+/* ===========================================================================
+   STAT STRIP — number first, then the label, then a real link
+   Four equal columns split by hairlines, and like .osv3p-stats the divider is a
+   left border on every column but the first, so the strip never ends in a stray
+   rule.
+   =========================================================================== */
+.osv3-cg-stats {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.osv3-cg-stat {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--p-3);
+  padding: 0 var(--p-4);
+  border-left: var(--p-hair);
+  min-width: 0;
+}
+
+.osv3-cg-stat:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+
+.osv3-cg-stat:last-child { padding-right: 0; }
+
+.osv3-cg-stat-icon {
+  width: 24px;
+  height: 24px;
+  color: var(--v3-muted);
+  flex: 0 0 auto;
+  margin-top: var(--p-1);
+}
+
+.osv3-cg-stat-icon svg { width: 24px; height: 24px; }
+
+.osv3-cg-stat-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--p-1);
+  min-width: 0;
+}
+
+.osv3-cg-stat-value {
+  font-size: var(--t-hero);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--v3-ink-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Two lines are RESERVED whether or not the label needs them. "Organizations
+   Represented" wraps and the other three do not, so without this the four
+   "View all ->" links sit at three different heights and the strip reads as a
+   broken grid. Same fix, same reason, as the reserved heights on
+   .osv3p-kpi-row (osv3-profile.css:1461). */
+.osv3-cg-stat-label {
+  font-size: var(--t-body);
+  line-height: 1.35;
+  color: var(--v3-muted);
+  min-height: calc(var(--t-body) * 1.35 * 2);
+}
+
+.osv3-cg-statnote {
+  font-size: var(--t-meta);
+  line-height: 1.5;
+  color: var(--v3-muted);
+  margin: var(--p-4) 0 0;
+  padding-top: var(--p-3);
+  border-top: var(--p-hair);
+}
+
+/* ===========================================================================
+   ORGANIZATIONS CAROUSEL
+   The pattern is copied from the one inline instance in the repo
+   (SourcingDirectoryV2.jsx + osv3-directory.css:165-236), not the file. Two
+   differences on purpose: this one is light rather than the directory's dark
+   card, and it has a PREVIOUS control, because the reference draws arrows on
+   both sides and a next-only carousel cannot be walked back.
+   =========================================================================== */
+.osv3-cg-carousel { position: relative; }
+
+.osv3-cg-track {
+  display: flex;
+  /* Organization names run from one line ("Honeywell Aerospace") to three
+     ("Arizona State University Semiconductor Research"). Without stretch the
+     cards are three different heights and the role badges float at three
+     different levels, which reads as a broken row rather than a carousel. */
+  align-items: stretch;
+  gap: var(--p-4);
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: var(--p-1) 0 var(--p-2);
+}
+
+.osv3-cg-track::-webkit-scrollbar { display: none; }
+
+.osv3-cg-orgcard {
+  flex: 0 0 172px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--p-2);
+  padding: var(--p-4) var(--p-3);
+  border: var(--p-hair);
+  border-radius: var(--p-radius);
+  background: var(--v3-content-bg);
+  min-width: 0;
+}
+
+.osv3-cg-orgcard-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+}
+
+.osv3-cg-orgcard-name {
+  font-size: var(--t-body);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--v3-ink-primary);
+  margin: 0;
+}
+
+.osv3-cg-orgcard-meta {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+  margin: 0;
+}
+
+/* auto pushes the badge to the bottom of whatever height the row settled on, so
+   every badge sits on one baseline across the carousel regardless of how many
+   lines the organization's name took. */
+.osv3-cg-orgcard-role { margin-top: auto; padding-top: var(--p-2); }
+
+/* Sits over the track's edge like the directory's control. Kept inside the card
+   padding rather than hanging outside it, so it never collides with the rail. */
+.osv3-cg-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--v3-border-radius-full);
+  border: var(--p-hair);
+  background: var(--v3-content-bg);
+  color: var(--v3-ink-primary);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--v3-shadow-md);
+  transition: background var(--v3-transition-fast);
+}
+
+.osv3-cg-arrow:hover { background: var(--v3-panel-bg); }
+.osv3-cg-arrow:focus-visible { outline: none; box-shadow: var(--p-screen-focus, var(--p-focus)); }
+.osv3-cg-arrow--prev { left: calc(var(--p-3) * -1); }
+.osv3-cg-arrow--next { right: calc(var(--p-3) * -1); }
+
+/* ===========================================================================
+   SESSIONS
+   =========================================================================== */
+.osv3-cg-sessions {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--p-4);
+}
+
+.osv3-cg-session {
+  display: flex;
+  gap: var(--p-3);
+  padding-left: var(--p-3);
+  border-left: var(--p-hair);
+  min-width: 0;
+}
+
+.osv3-cg-session:first-child {
+  border-left: 0;
+  padding-left: 0;
+}
+
+.osv3-cg-session-date {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 34px;
+  line-height: 1.1;
+}
+
+.osv3-cg-session-date--none { flex-basis: 0; }
+
+.osv3-cg-session-mon {
+  font-size: var(--t-label);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--v3-muted);
+}
+
+.osv3-cg-session-day {
+  font-size: var(--t-num);
+  font-weight: 700;
+  color: var(--v3-ink-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.osv3-cg-session-text { min-width: 0; }
+
+.osv3-cg-session-time {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+  margin: 0 0 var(--p-1);
+}
+
+.osv3-cg-session-title {
+  font-size: var(--t-body);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--v3-ink-primary);
+  margin: 0;
+}
+
+.osv3-cg-session-room {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+  margin: var(--p-1) 0 0;
+}
+
+.osv3-cg-session-speaker {
+  display: flex;
+  align-items: center;
+  gap: var(--p-2);
+  margin-top: var(--p-3);
+  min-width: 0;
+}
+
+.osv3-cg-session-speaker-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.osv3-cg-session-speaker-name {
+  font-size: var(--t-meta);
+  font-weight: 500;
+  color: var(--v3-ink-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.osv3-cg-session-speaker-role {
+  font-size: var(--t-label);
+  color: var(--v3-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===========================================================================
+   SPONSORS
+   =========================================================================== */
+.osv3-cg-sponsors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--p-3);
+}
+
+.osv3-cg-sponsor {
+  display: flex;
+  align-items: center;
+  gap: var(--p-3);
+  padding: var(--p-3);
+  border: var(--p-hair);
+  border-radius: var(--p-radius);
+  min-width: 0;
+}
+
+.osv3-cg-sponsor-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.osv3-cg-sponsor .osv3-cg-orgcard-name,
+.osv3-cg-sponsor .osv3-cg-orgcard-meta { text-align: left; }
+
+/* ===========================================================================
+   MEDIA — the nine real coverage items
+   =========================================================================== */
+.osv3-cg-media {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--p-4);
+}
+
+.osv3-cg-media-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-2);
+  border: var(--p-hair);
+  border-radius: var(--p-radius);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--v3-transition-fast);
+  min-width: 0;
+}
+
+a.osv3-cg-media-item:hover { border-color: var(--v3-ink-secondary); }
+
+.osv3-cg-media-thumb {
+  display: block;
+  aspect-ratio: 16 / 9;
+  background: var(--v3-panel-bg);
+  overflow: hidden;
+}
+
+.osv3-cg-media-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* The outlet plate — the no-cover case, and the common one. Dark ground so it
+   reads as a deliberate title card rather than a failed image. */
+.osv3-cg-media-plate {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--p-2);
+  padding: var(--p-3);
+  background: var(--v3-sidebar-bg);
+  text-align: center;
+}
+
+.osv3-cg-media-plate-icon {
+  width: 22px;
+  height: 22px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.osv3-cg-media-plate-icon svg { width: 22px; height: 22px; }
+
+.osv3-cg-media-plate-name {
+  font-size: var(--t-body);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.25;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.osv3-cg-media-text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-1);
+  padding: 0 var(--p-3) var(--p-3);
+  min-width: 0;
+}
+
+.osv3-cg-media-kind {
+  font-size: var(--t-label);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--p-screen-accent, var(--v3-accent));
+}
+
+.osv3-cg-media-title {
+  font-size: var(--t-body);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--v3-ink-primary);
+}
+
+.osv3-cg-media-by {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+}
+
+/* ===========================================================================
+   RIGHT RAIL
+   =========================================================================== */
+.osv3-cg-rail-note {
+  font-size: var(--t-meta);
+  line-height: 1.5;
+  color: var(--v3-muted);
+  margin: 0 0 var(--p-3);
+}
+
+.osv3-cg-activity,
+.osv3-cg-planned,
+.osv3-cg-actions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.osv3-cg-activity { gap: var(--p-3); }
+
+.osv3-cg-activity-row {
+  display: flex;
+  align-items: center;
+  gap: var(--p-3);
+}
+
+.osv3-cg-activity-icon,
+.osv3-cg-action-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--v3-muted);
+  flex: 0 0 auto;
+}
+
+.osv3-cg-activity-icon svg,
+.osv3-cg-action-icon svg { width: 20px; height: 20px; }
+
+.osv3-cg-activity-text,
+.osv3-cg-action-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.osv3-cg-activity-label,
+.osv3-cg-action-title {
+  font-size: var(--t-body);
+  font-weight: 500;
+  color: var(--v3-ink-primary);
+}
+
+.osv3-cg-activity-value,
+.osv3-cg-action-sub {
+  font-size: var(--t-meta);
+  color: var(--v3-muted);
+}
+
+.osv3-cg-planned {
+  gap: var(--p-2);
+  margin-bottom: var(--p-3);
+}
+
+.osv3-cg-planned-item {
+  display: flex;
+  align-items: center;
+  gap: var(--p-2);
+  font-size: var(--t-body);
+  color: var(--v3-ink-secondary);
+}
+
+.osv3-cg-planned-item svg {
+  width: 18px;
+  height: 18px;
+  color: var(--v3-gray-400);
+  flex: 0 0 auto;
+}
+
+.osv3-cg-actions { gap: var(--p-1); }
+
+.osv3-cg-action {
+  display: flex;
+  align-items: center;
+  gap: var(--p-3);
+  padding: var(--p-2) 0;
+  text-decoration: none;
+  border-radius: var(--p-radius-sm);
+}
+
+.osv3-cg-action:hover .osv3-cg-action-title { text-decoration: underline; }
+.osv3-cg-action:hover .osv3-cg-action-icon { color: var(--p-screen-accent, var(--v3-accent)); }
+
+/* ===========================================================================
+   ADMIN TOOLS -> CONGRESS  (src/pages/os/AdminCongress.jsx)
+   Lives in this sheet rather than its own because the two files are one
+   feature and AdminCongress imports it directly. Everything is `osv3-cga-`
+   so it can never collide with the read page's `osv3-cg-`.
+   =========================================================================== */
+.osv3-cga {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-4);
+}
+
+/* CONTRAST FIX, and it is a bug in the SHARED sheet, not in this file.
+   osv3-profile.css has:
+     .osv3p-seg-btn:hover   { background: var(--v3-panel-bg) }   specificity 0,2,0
+     .osv3p-seg-btn--on     { background: var(--v3-accent);
+                              color: var(--v3-content-bg) }       specificity 0,1,0
+   `:hover` therefore WINS on background while `--on` still wins on colour, so
+   hovering the selected segment paints near-white text onto a light grey ground
+   and the label disappears. It is not specific to this screen — Admin Tools ->
+   Users has the same segmented control and the same defect.
+   Fixed here, scoped to this component, because osv3-profile.css is shared and
+   another agent is building against it this round. The shared rule still needs
+   fixing at source; noted in the handoff. */
+.osv3-cga .osv3p-seg-btn--on:hover {
+  background: var(--v3-accent);
+  color: var(--v3-content-bg);
+}
+
+.osv3-cga-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--p-4);
+  margin: var(--p-4) 0;
+}
+
+.osv3-cga-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-1);
+  min-width: 0;
+}
+
+/* A textarea earns the full row — a 3-sentence description typed into a third
+   of the width is unreadable while you are writing it. */
+.osv3-cga-field:has(> .osv3p-textarea) { grid-column: 1 / -1; }
+
+.osv3-cga-hint {
+  font-size: var(--t-meta);
+  line-height: 1.45;
+  color: var(--v3-muted);
+  margin: var(--p-1) 0 0;
+}
+
+@media (max-width: 1180px) {
+  .osv3-cga-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 760px) {
+  .osv3-cga-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ===========================================================================
+   RESPONSIVE — 1180 and 760, matching osv3-profile.css:2089 / 2119
+   =========================================================================== */
+@media (max-width: 1180px) {
+  .osv3-cg-top { grid-template-columns: minmax(0, 1fr); }
+  .osv3-cg-hero-inner { max-width: 78%; }
+  .osv3-cg-sessions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .osv3-cg-media { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  /* Same wrap treatment as .osv3p-stats at this width. */
+  .osv3-cg-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--p-4); }
+
+  .osv3-cg-stat {
+    border-left: 0;
+    padding: 0;
+  }
+
+  /* Once the rows wrap, the vertical rule between sessions is drawing a column
+     boundary that is no longer there. */
+  .osv3-cg-session {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .osv3-cg-sessions,
+  .osv3-cg-media,
+  .osv3-cg-sponsors,
+  .osv3-cg-stats { grid-template-columns: minmax(0, 1fr); }
+
+  .osv3-cg-hero-inner {
+    max-width: 100%;
+    padding: var(--p-4);
+  }
+
+  /* The photograph is 16:9-ish and its subject is on the right; at phone width
+     there is no room for both, so the copy takes the frame and the veil goes
+     near-solid rather than the text fighting the image. */
+  .osv3-cg-hero-veil {
+    background: linear-gradient(
+      90deg,
+      rgba(1, 11, 19, 0.95) 0%,
+      rgba(1, 11, 19, 0.88) 70%,
+      rgba(1, 11, 19, 0.72) 100%
+    );
+  }
+
+  /* Four tabs cannot fit 390px whatever the gap ("Participants & Organizations"
+     alone is ~200px), and .osv3p-tabs already scrolls. Halving the shared 32px
+     gap is purely about the AFFORDANCE: at 32px the fourth tab is entirely off
+     screen and the bar looks like it has three; at 16px the next label is
+     visibly clipped, which is what tells a thumb to swipe. */
+  .osv3-cg .osv3p-tabs { gap: var(--p-4); }
+
+  .osv3-cg-orgcard { flex-basis: 152px; }
+  .osv3-cg-arrow--prev { left: 0; }
+  .osv3-cg-arrow--next { right: 0; }
+}
