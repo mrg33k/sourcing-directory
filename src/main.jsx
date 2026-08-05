@@ -158,6 +158,9 @@ const OSPeoplePage = lazy(() => import('./pages/OSPeoplePage.jsx'))
 const OSRFPsPage = lazy(() => import('./pages/OSRFPsPage.jsx'))
 const OSGrantsPage = lazy(() => import('./pages/OSGrantsPage.jsx'))
 const OSBlueprint = lazy(() => import('./pages/os/OSBlueprint.jsx'))
+const OSEcosystemOverview = lazy(() => import('./pages/os/OSEcosystemOverview.jsx'))
+const OSEcosystemMap = lazy(() => import('./pages/os/OSEcosystemMap.jsx'))
+const OSSpaceCongress = lazy(() => import('./pages/os/OSSpaceCongress.jsx'))
 
 // Space OS v3 — MY SPACEOS: the person/company profile screens and the
 // member-area pages the sidebar's new nav group points at.
@@ -209,6 +212,9 @@ createRoot(document.getElementById('root')).render(
             <Route path="/" element={<SpaceOSHomeV3 />} />
             <Route path="/directory" element={<SourcingDirectoryV2 />} />
             <Route path="/ecosystem" element={<OSEcosystemHub />} />
+            <Route path="/ecosystem/overview" element={<OSEcosystemOverview />} />
+            <Route path="/ecosystem/map" element={<OSEcosystemMap />} />
+            <Route path="/congress" element={<OSSpaceCongress />} />
             <Route path="/intelligence" element={<OSIntelligenceHub />} />
             <Route path="/opportunities" element={<OSOpportunitiesHub />} />
             <Route path="/careers" element={<OSJobsPage />} />
