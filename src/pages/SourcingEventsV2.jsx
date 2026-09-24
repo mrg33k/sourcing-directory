@@ -51,8 +51,8 @@ function CalendarEventRow({ listing, companies }) {
         <div className="sr-event-row__title">{listing.title}</div>
         <div className="sr-event-row__meta">
           {listing.organizer ? <span>{listing.organizer}</span> : null}
-          {loc ? <><span className="sr-sep">·</span><span>{loc}</span></> : null}
-          {listing.event_type ? <><span className="sr-sep">·</span><span className="sr-type">{listing.event_type}</span></> : null}
+          {loc ? <>{listing.organizer ? <span className="sr-sep">·</span> : null}<span>{loc}</span></> : null}
+          {listing.event_type ? <>{(listing.organizer || loc) ? <span className="sr-sep">·</span> : null}<span className="sr-type">{listing.event_type}</span></> : null}
         </div>
       </div>
       <svg className="sr-event-row__arrow" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">

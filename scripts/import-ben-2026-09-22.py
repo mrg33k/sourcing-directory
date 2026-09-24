@@ -127,7 +127,8 @@ def main():
     for r in rows('Events.xlsx', 'Events'):
         if not r.get('Conference'):
             continue
-        if norm(r['Conference']) in existing_events:
+        # IAC 2026 is already listed as 'International Astronautical Congress — IAC 2026'
+        if norm(r['Conference']) in existing_events or 'International Astronautical Congress' in r['Conference']:
             continue  # already listed (e.g. 'AMOS Conference 2026')
         start, end = parse_dates(r.get('Dates'))
         if not start:
