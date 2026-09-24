@@ -1,10 +1,8 @@
 // GET /api/sourcing/tenants -- list all active tenants with company counts
 // GET /api/sourcing/tenants?slug=xxx -- get single tenant by slug
 
-import { createClient } from '@supabase/supabase-js';
+import { createSnapshotClient } from '../_lib/snapshot-engine.js';
 
-const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || 'https://kzzvjtthknsozktmpvak.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -13,11 +11,8 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'GET only' });
 
-  if (!SUPABASE_URL || !SUPABASE_KEY) {
-    return res.status(500).json({ error: 'Supabase not configured' });
-  }
-
-  const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+  // Supabase is gone (2026-09-23): answer from the read-only snapshot.
+  const sb = createSnapshotClient();
   const { slug } = req.query || {};
 
   try {
