@@ -6,9 +6,11 @@ import '../space-rising-theme-v2.css';
 
 import { SDHeroLogo, SDSearchButton, SDBuilding, SDExploreMore } from '../sd/SDChrome.jsx';
 const VERTICAL_HERO = {
-  space:         '/v2-assets/rocket-orbital.png',
-  semiconductor: '/v2-assets/asteroid-close.png',
-  default:       '/v2-assets/rocket-orbital.png',
+  // 2026-09-24 Sourcing Directory photos (KIE, black & white + one red accent)
+  semiconductor: '/sd/semiconductors-wide.jpg',
+  space: '/sd/aerospace-wide.jpg',
+  defense: '/sd/aerospace-wide.jpg',
+  default: '/sd/hero.jpg',
 };
 
 const CATEGORY_LABEL = {

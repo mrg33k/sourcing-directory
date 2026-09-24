@@ -194,7 +194,7 @@ function ConnectCard({ firmName }) {
         How to connect
       </div>
       <div style={{ color: 'rgba(255, 255, 255,0.85)', fontSize: 16, lineHeight: 1.55, marginBottom: 16 }}>
-        {`Reach ${label} through Space Rising. Founders raising in the Deal Bank can request an intro — we handle the routing so investor inboxes stay clean.`}
+        {`Reach ${label} through Sourcing Directory. Founders raising in the Deal Bank can request an intro — we handle the routing so investor inboxes stay clean.`}
       </div>
       <div style={{ color: 'var(--cyan)', fontSize: 12, fontFamily: 'IBM Plex Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.10em' }}>
         Intro request flow opening soon.

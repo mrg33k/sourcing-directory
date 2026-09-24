@@ -12,7 +12,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import SRWNavV2 from './srw/SRWNavV2.jsx';
+import { SDTopBar } from '../sd/SDChrome.jsx';
 import './srw/srw-v2.css';
 import { V2ChipNav } from './V2ChipNav.jsx';
 
@@ -109,7 +109,7 @@ function Shell({ children }) {
         select option { background: #111; color: ${TEXT}; }
         input[type="number"]::-webkit-inner-spin-button { filter: invert(0.4); }
       `}</style>
-      <SRWNavV2 />
+      <SDTopBar />
       {/* Offset the fixed 155px nav so the hero/gate never renders underneath it. */}
       <div style={{ paddingTop: 'var(--srw-nav-h, 155px)' }}>
         {children}

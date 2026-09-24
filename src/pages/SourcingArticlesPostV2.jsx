@@ -10,7 +10,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import snarkdown from 'snarkdown';
 import { supabase } from '../lib/supabase.js';
-import SRWNavV2 from './srw/SRWNavV2.jsx';
+import { SDTopBar } from '../sd/SDChrome.jsx';
 import './srw/srw-v2.css';
 import { V2ChipNav } from './V2ChipNav.jsx';
 
@@ -182,7 +182,7 @@ function Shell({ children }) {
         }
         .article-md-preview img { max-width: 100%; border-radius: 8px; }
       `}</style>
-      <SRWNavV2 />
+      <SDTopBar />
       <div style={{ paddingTop: 'var(--srw-nav-h, 155px)' }}>
         {children}
       </div>

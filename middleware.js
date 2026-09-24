@@ -35,6 +35,17 @@ function brand(html, url) {
   meta('name', 'twitter:title', TITLE);
   meta('name', 'twitter:description', DESC);
   meta('name', 'twitter:image', IMAGE);
+  meta('property', 'og:image:type', 'image/jpeg');
+  meta('property', 'og:image:secure_url', IMAGE);
+  const links = [
+    '<link rel="icon" type="image/svg+xml" href="/sd/favicon.svg" />',
+    '<link rel="icon" type="image/png" sizes="32x32" href="/sd/favicon-32.png" />',
+    '<link rel="apple-touch-icon" href="/sd/apple-touch-icon.png" />',
+    `<link rel="image_src" href="${IMAGE}" />`,
+    '<meta name="theme-color" content="#0B0B0D" />',
+  ];
+  html = html.replace(/<link[^>]+rel="(?:icon|shortcut icon|apple-touch-icon)"[^>]*>\s*/gi, '');
+  html = html.replace('</head>', `    ${links.join('\n    ')}\n  </head>`);
   return html;
 }
 

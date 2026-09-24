@@ -194,7 +194,7 @@ function SourcingDealBankInvestorSignupInner() {
             <SDHeroLogo />
           </div>
           <div className="browse-title">List your firm<span className="sd-dot">.</span></div>
-          <div className="browse-sub">Join Space Rising's investor network.</div>
+          <div className="browse-sub">Join the Sourcing Directory investor network.</div>
         </div>
       </div>
 

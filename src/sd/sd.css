@@ -167,3 +167,16 @@ html:has([data-tenant="space-rising-v2"]), body:has([data-tenant="space-rising-v
   .sd-top .sd-logo__word { font-size: 17px !important; }
   .sd-top__link { font-size: 15px; }
 }
+
+/* Whole-site brand on sourcing.directory (html.sd-host is set in brandTitle.js). */
+html.sd-host body { font-family: 'IBM Plex Sans', system-ui, sans-serif !important; background: #0B0B0D; }
+
+/* Slim top bar for pages without the photo hero */
+.sd-topbar {
+  max-width: 1240px; margin: 0 auto; padding: 24px 32px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--sd-line);
+}
+.sd-topbar__links { display: flex; gap: 24px; }
+.sd-topbar__links a { color: rgba(255,255,255,0.78); text-decoration: none; font: 500 14px/1 var(--sd-body); }
+.sd-topbar__links a:hover { color: #fff; }
+@media (max-width: 720px) { .sd-topbar { padding: 16px; } .sd-topbar__links { gap: 16px; } }

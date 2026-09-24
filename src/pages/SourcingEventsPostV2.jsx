@@ -7,7 +7,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
-import SRWNavV2 from './srw/SRWNavV2.jsx';
+import { SDTopBar } from '../sd/SDChrome.jsx';
 import './srw/srw-v2.css';
 import { V2ChipNav } from './V2ChipNav.jsx';
 
@@ -236,7 +236,7 @@ export default function SourcingEventsPostV2() {
     return (
       <div data-srw="v2" style={{ minHeight: '100dvh', background: BG, color: TEXT, fontFamily: FONT }}>
         <style>{`* { box-sizing: border-box; }`}</style>
-        <SRWNavV2 />
+        <SDTopBar />
         <div style={{ textAlign: 'center', padding: '80px 24px' }}>
           <div style={{ fontSize: 48, color: AMBER, marginBottom: 20 }}>✓</div>
           <div style={{ fontSize: 28, fontWeight: 700, color: TEXT, marginBottom: 12, fontFamily: FONT }}>
@@ -272,7 +272,7 @@ export default function SourcingEventsPostV2() {
         input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(0.4); }
       `}</style>
 
-      <SRWNavV2 />
+      <SDTopBar />
 
       {/* Hero */}
       <div style={{

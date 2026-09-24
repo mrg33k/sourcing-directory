@@ -138,7 +138,7 @@ export default function SourcingDealBankInvestorPost() {
             Firm submitted<span style={{ color: AMBER }}>.</span>
           </div>
           <div style={{ fontSize: 15, color: MUTED, marginBottom: 28, lineHeight: 1.6, maxWidth: 480, margin: '0 auto 28px' }}>
-            Thanks — your firm is in review. Once the Space Rising team approves it, your profile goes live on the Investors lane. Your contact email stays internal; founders reach you through Space Rising.
+            Thanks — your firm is in review. Once our team approves it, your profile goes live on the Investors lane. Your contact email stays internal; founders reach you through Sourcing Directory.
           </div>
           <Link to="/spaceos/deal-bank" style={{ background: AMBER, color: '#0B0B0D', textDecoration: 'none', borderRadius: 6, padding: '12px 28px', fontWeight: 700, fontSize: 14 }}>
             Back to Deal Bank
@@ -168,7 +168,7 @@ export default function SourcingDealBankInvestorPost() {
           </div>
           <div className="browse-title">List your firm<span className="sd-dot">.</span></div>
           <div className="browse-sub">
-            Free investor profile. Get discovered by Space Rising companies raising — founders reach you through us, so your inbox stays clean.
+            Free investor profile. Get discovered by companies raising — founders reach you through us, so your inbox stays clean.
           </div>
         </div>
       </div>
@@ -232,7 +232,7 @@ export default function SourcingDealBankInvestorPost() {
                 value={form.contact_email_internal}
                 onChange={set('contact_email_internal')}
                 placeholder="deals@orbitventures.com"
-                hint="Never shown publicly. Space Rising uses it to route founder intros to you."
+                hint="Never shown publicly. We use it to route founder intros to you."
               />
             </div>
 

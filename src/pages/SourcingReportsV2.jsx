@@ -101,7 +101,7 @@ function SourcingReportsV2Inner() {
           </div>
           <div className="browse-title">Industry Reports<span className="sd-dot">.</span></div>
           <div className="browse-sub">
-            Market analysis, funding round summaries, and Space Rising research briefings.
+            Market analysis, funding round summaries, and industry research briefings.
           </div>
         </div>
       </div>

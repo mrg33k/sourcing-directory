@@ -342,7 +342,7 @@ function SourcingDealBankInner() {
           <div className="browse-sub">
             {filtered.length > 0 && !loading
               ? `${deals.length}+ closed space funding rounds. Pre-seed through growth.`
-              : 'Closed space funding rounds. Pre-seed through growth, curated by the Space Rising team.'}
+              : 'Closed space funding rounds. Pre-seed through growth, curated by our team.'}
           </div>
         </div>
       </div>

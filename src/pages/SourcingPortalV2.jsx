@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase.js';
 import '../space-rising-theme-v2.css';
 
+import SDLogo from '../sd/SDLogo.jsx';
 // ─── V2 design tokens (hardcoded — no getTokens, no SourcingThemeProvider) ───
 const V2 = {
   bg: '#06060A',
@@ -894,7 +895,7 @@ export default function SourcingPortalV2() {
             fontFamily: V2.space,
           }}
         >
-          SPACE RISING
+          <SDLogo size="sm" />
         </Link>
 
         <div style={{ display: 'flex', gap: 16, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -1262,7 +1263,7 @@ export default function SourcingPortalV2() {
             textAlign: 'center',
           }}>
             <div style={{ fontSize: 13, color: V2.muted, fontFamily: V2.space }}>
-              No company profile linked to your account. Contact Space Rising to get set up.
+              No company profile linked to your account. Contact us to get set up.
             </div>
           </div>
         )}

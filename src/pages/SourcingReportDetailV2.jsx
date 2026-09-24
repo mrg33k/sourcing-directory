@@ -138,7 +138,7 @@ export default function SourcingReportDetailV2() {
           {isGated && (
             <Section eyebrow="ACCESS" title="Members-only report">
               <p className="srcv2-paragraph">
-                This report is available to Space Rising members. Become a member to read and download the full PDF.
+                This report is available to members. Become a member to read and download the full PDF.
               </p>
               <div className="srcv2-hero-actions" style={{ marginTop: 12 }}>
                 <Link to="/spaceos/membership" className="srsv2-cta srsv2-cta-line">View membership</Link>

@@ -61,3 +61,16 @@ export function SDExploreMore() {
     </section>
   );
 }
+
+// Slim brand bar for pages without the photo hero (post forms, etc.).
+export function SDTopBar() {
+  return (
+    <header className="sd-topbar">
+      <SDHeroLogo />
+      <nav className="sd-topbar__links" aria-label="Sourcing Directory">
+        <Link to="/spaceos">Directory</Link>
+        <Link to="/start">Switch directory</Link>
+      </nav>
+    </header>
+  );
+}

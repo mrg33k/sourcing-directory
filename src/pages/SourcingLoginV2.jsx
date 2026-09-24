@@ -10,6 +10,7 @@ import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider } from './SourcingTheme.jsx';
 import '../space-rising-theme-v2.css';
 
+import SDLogo from '../sd/SDLogo.jsx';
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 const BASE_PATH_V2 = '/spaceos';
 
@@ -200,7 +201,7 @@ function SourcingLoginV2Inner() {
       <div className="srsv2-shell" data-tenant="space-rising-v2">
         <div className="srsv2-veil" />
         <div className="srsv2-topbar">
-          <Link to={BASE_PATH_V2} className="srsv2-wordmark">SPACE RISING</Link>
+          <Link to={BASE_PATH_V2} className="srsv2-wordmark"><SDLogo size="sm" /></Link>
           <div className="srsv2-progress" />
           <Link to={BASE_PATH_V2} className="srsv2-close" aria-label="Close">
             <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
@@ -262,7 +263,7 @@ function SourcingLoginV2Inner() {
       <div className="srsv2-veil" />
 
       <div className="srsv2-topbar">
-        <Link to={BASE_PATH_V2} className="srsv2-wordmark">SPACE RISING</Link>
+        <Link to={BASE_PATH_V2} className="srsv2-wordmark"><SDLogo size="sm" /></Link>
         <div className="srsv2-progress" />
         <Link to={BASE_PATH_V2} className="srsv2-close" aria-label="Close">
           <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>

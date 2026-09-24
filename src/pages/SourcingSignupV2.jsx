@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase.js';
 import { useTenant } from './SourcingTheme.jsx';
 import '../space-rising-theme-v2.css';
 
+import SDLogo from '../sd/SDLogo.jsx';
 const SPACE_CERTS = ['AS9100D', 'AS9110', 'AS9120B', 'ITAR Registered', 'ISO 9001', 'MIL-STD-810', 'NADCAP', 'FAA FAR Part 145', 'DoD Secret Cleared', 'DFAR Compliant'];
 const EMP_RANGES = ['1–10', '11–50', '51–200', '200–500', '500–2000', '2000+', '10,000+'];
 
@@ -231,7 +232,7 @@ export default function SourcingSignupV2() {
 
       {/* Top bar */}
       <div className="srsv2-topbar">
-        <Link to={basePath} className="srsv2-wordmark">SPACE RISING</Link>
+        <Link to={basePath} className="srsv2-wordmark"><SDLogo size="sm" /></Link>
         <div className="srsv2-progress">
           {!submitted && !needsChoice && (
             <span>
