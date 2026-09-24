@@ -45,7 +45,7 @@ export default function SourcingSignupV2() {
     ? planParam
     : tier === 'paid' ? 'small-annual' : null;
   const isAnnual = planType?.endsWith('-annual');
-  const basePath = tenantSlug ? `/${tenantSlug}` : '/spaceos';
+  const basePath = tenantSlug ? `/${tenantSlug}` : '/os';
 
   const steps = tier === 'free' ? FREE_STEPS : PAID_STEPS;
   const totalSteps = steps.length;
@@ -146,7 +146,7 @@ export default function SourcingSignupV2() {
         body: JSON.stringify({
           email: form.auth_email.trim(),
           company_name: form.name.trim(),
-          org_name: tenant?.name || 'Space Rising',
+          org_name: tenant?.name || 'Sourcing Directory',
           company_slug: data.company_slug,
           base_url: window.location.origin,
         }),

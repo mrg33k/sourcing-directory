@@ -252,7 +252,7 @@ function SourcingDealBankInner() {
   // Fetch from the AOM-EA-managed API (single source of truth for completed-rounds data).
   // CORS-enabled, public read. Returns up to 1000 rows ordered by amount_usd_m desc.
   useEffect(() => {
-    document.title = 'Deal Bank — Space Rising Interactive';
+    document.title = 'Deal Bank — Sourcing Directory';
     let cancelled = false;
     const load = async () => {
       setLoading(true);

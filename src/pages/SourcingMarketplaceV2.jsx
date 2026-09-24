@@ -31,7 +31,7 @@ function formatPosted(dateStr) {
 function SourcingMarketplaceV2Inner() {
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
-  useSRWTitle('Space Marketplace | Space OS');
+  useSRWTitle('Space Marketplace | Sourcing Directory');
 
   const [tenant, setTenant] = useState(null);
   const [listings, setListings] = useState([]);
@@ -117,12 +117,12 @@ function SourcingMarketplaceV2Inner() {
     >
       <style>{`@keyframes spin { to { transform: rotate(360deg); } } @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }`}</style>
 
-      <div className="browse-hero" style={{ '--page-hero-bg': "url('/v2-assets/asteroid-close.png')" }}>
+      <div className="browse-hero" style={{ '--page-hero-bg': "url('/sd/manufacturing-wide.jpg')" }}>
         <div className="browse-hero-bg" />
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
           <div className="browse-hero-toprow">
-            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
+            <Link to="/os" className="browse-back" style={{ textDecoration: 'none' }}>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Back
             </Link>
@@ -158,7 +158,7 @@ function SourcingMarketplaceV2Inner() {
         {!loading && <span className="sd-dot">.</span>}
         </div>
         <div className="sec-count">
-          <Link to="/spaceos/marketplace/post" style={{ textDecoration: 'none', color: 'var(--cyan)', fontSize: 12, fontWeight: 600 }}>
+          <Link to="/os/marketplace/post" style={{ textDecoration: 'none', color: 'var(--cyan)', fontSize: 12, fontWeight: 600 }}>
             + Post a Listing
           </Link>
         </div>
@@ -184,7 +184,7 @@ function SourcingMarketplaceV2Inner() {
           return (
             <Link
               key={listing.id}
-              to={`/spaceos/marketplace/${listing.id}`}
+              to={`/os/marketplace/${listing.id}`}
               className="co-card"
               style={{ textDecoration: 'none', color: 'inherit' }}
             >

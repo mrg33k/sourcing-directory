@@ -37,12 +37,12 @@ function PageTransition({ children }) {
 }
 
 // Redirect any legacy prefix (/space-rising, /space-rising-v2) to the clean
-// /spaceos URL, preserving the rest of the path + query + hash. Navigate's `to`
+// /os URL, preserving the rest of the path + query + hash. Navigate's `to`
 // can't interpolate splat params directly, so we read them here.
 function ToSpaceOS() {
   const rest = useParams()['*'] || ''
   const { search, hash } = useLocation()
-  return <Navigate to={'/spaceos' + (rest ? '/' + rest : '') + search + hash} replace />
+  return <Navigate to={'/os' + (rest ? '/' + rest : '') + search + hash} replace />
 }
 
 // Lazy-load all pages
@@ -81,6 +81,7 @@ const SRWHomeV2 = lazy(() => import('./pages/srw/SRWHomeV2.jsx'))
 const SDHome = lazy(() => import('./sd/SDHome.jsx'))
 const SDOnboarding = lazy(() => import('./sd/SDOnboarding.jsx'))
 const SDStart = lazy(() => import('./sd/SDStart.jsx'))
+const SDMembership = lazy(() => import('./sd/SDMembership.jsx'))
 const SourcingDirectoryV2 = lazy(() => import('./pages/SourcingDirectoryV2.jsx'))
 const SourcingJobsV2 = lazy(() => import('./pages/SourcingJobsV2.jsx'))
 const SourcingEventsV2 = lazy(() => import('./pages/SourcingEventsV2.jsx'))
@@ -151,9 +152,9 @@ createRoot(document.getElementById('root')).render(
           <Route path="/get-started" element={<SDOnboarding />} />
           <Route path="/start" element={<SDStart />} />
           {/* Legacy V1 utility pages retired (2026-06-05) → Space OS. No V1 surface. */}
-          <Route path="/signup" element={<Navigate to="/spaceos/signup" replace />} />
+          <Route path="/signup" element={<Navigate to="/get-started" replace />} />
           <Route path="/about" element={<Navigate to="/srw-v2/about" replace />} />
-          <Route path="/create" element={<Navigate to="/spaceos" replace />} />
+          <Route path="/create" element={<Navigate to="/os" replace />} />
           {/* Admin stays — internal tooling, not a public surface. */}
           <Route path="/admin" element={<SourcingAdmin />} />
           <Route path="/admin/new" element={<SourcingAdmin />} />
@@ -188,48 +189,48 @@ createRoot(document.getElementById('root')).render(
               links all point here (canonical-link flip done 2026-06-18); the legacy
               /space-rising-v2/* and /space-rising/* paths below 301-redirect in.
               :slug stays LAST so static segments win. */}
-          <Route path="/spaceos" element={<SourcingDirectoryV2 />} />
-          <Route path="/spaceos/jobs" element={<SourcingJobsV2 />} />
-          <Route path="/spaceos/events" element={<SourcingEventsV2 />} />
-          <Route path="/spaceos/reports" element={<SourcingReportsV2 />} />
-          <Route path="/spaceos/marketplace" element={<SourcingMarketplaceV2 />} />
-          <Route path="/spaceos/deal-bank" element={<SourcingDealBankV2 />} />
-          <Route path="/spaceos/deal-bank/investments/add" element={<SourcingDealBankAddListing />} />
-          <Route path="/spaceos/deal-bank/investments/:slug" element={<SourcingDealBankInvestmentProfile />} />
-          <Route path="/spaceos/deal-bank/investors/signup" element={<SourcingDealBankInvestorSignup />} />
-          <Route path="/spaceos/deal-bank/investors/:slug" element={<SourcingDealBankInvestorProfile />} />
-          <Route path="/spaceos/membership" element={<SourcingMembershipV2 />} />
-          <Route path="/spaceos/signup" element={<SourcingSignupV2 />} />
-          <Route path="/spaceos/signup/complete" element={<SourcingSignupComplete />} />
-          <Route path="/spaceos/articles" element={<SourcingArticlesV2 />} />
-          <Route path="/spaceos/discovery" element={<SourcingDiscoveryV2 />} />
-          <Route path="/spaceos/grants" element={<SourcingGrantsV2 />} />
-          <Route path="/spaceos/login" element={<SourcingLoginV2 />} />
-          <Route path="/spaceos/portal" element={<SourcingPortalV2 />} />
-          <Route path="/spaceos/jobs/post" element={<SourcingJobsPostV2 />} />
-          <Route path="/spaceos/events/post" element={<SourcingEventsPostV2 />} />
-          <Route path="/spaceos/marketplace/post" element={<SourcingMarketplacePostV2 />} />
-          <Route path="/spaceos/articles/post" element={<SourcingArticlesPostV2 />} />
-          <Route path="/spaceos/discovery/post" element={<SourcingDiscoveryPostV2 />} />
-          <Route path="/spaceos/jobs/:id" element={<SourcingListingV2 kind="job" />} />
-          <Route path="/spaceos/events/:id" element={<SourcingListingV2 kind="event" />} />
-          <Route path="/spaceos/marketplace/:id" element={<SourcingListingV2 kind="marketplace" />} />
-          <Route path="/spaceos/reports/:id" element={<SourcingReportDetailV2 />} />
-          <Route path="/spaceos/:slug" element={<SourcingCompanyV2 />} />
+          <Route path="/os" element={<SourcingDirectoryV2 />} />
+          <Route path="/os/jobs" element={<SourcingJobsV2 />} />
+          <Route path="/os/events" element={<SourcingEventsV2 />} />
+          <Route path="/os/reports" element={<SourcingReportsV2 />} />
+          <Route path="/os/marketplace" element={<SourcingMarketplaceV2 />} />
+          <Route path="/os/deal-bank" element={<SourcingDealBankV2 />} />
+          <Route path="/os/deal-bank/investments/add" element={<SourcingDealBankAddListing />} />
+          <Route path="/os/deal-bank/investments/:slug" element={<SourcingDealBankInvestmentProfile />} />
+          <Route path="/os/deal-bank/investors/signup" element={<SourcingDealBankInvestorSignup />} />
+          <Route path="/os/deal-bank/investors/:slug" element={<SourcingDealBankInvestorProfile />} />
+          <Route path="/os/membership" element={<SDMembership />} />
+          <Route path="/os/signup" element={<Navigate to="/get-started" replace />} />
+          <Route path="/os/signup/complete" element={<SourcingSignupComplete />} />
+          <Route path="/os/articles" element={<SourcingArticlesV2 />} />
+          <Route path="/os/discovery" element={<SourcingDiscoveryV2 />} />
+          <Route path="/os/grants" element={<SourcingGrantsV2 />} />
+          <Route path="/os/login" element={<SourcingLoginV2 />} />
+          <Route path="/os/portal" element={<SourcingPortalV2 />} />
+          <Route path="/os/jobs/post" element={<SourcingJobsPostV2 />} />
+          <Route path="/os/events/post" element={<SourcingEventsPostV2 />} />
+          <Route path="/os/marketplace/post" element={<SourcingMarketplacePostV2 />} />
+          <Route path="/os/articles/post" element={<SourcingArticlesPostV2 />} />
+          <Route path="/os/discovery/post" element={<SourcingDiscoveryPostV2 />} />
+          <Route path="/os/jobs/:id" element={<SourcingListingV2 kind="job" />} />
+          <Route path="/os/events/:id" element={<SourcingListingV2 kind="event" />} />
+          <Route path="/os/marketplace/:id" element={<SourcingListingV2 kind="marketplace" />} />
+          <Route path="/os/reports/:id" element={<SourcingReportDetailV2 />} />
+          <Route path="/os/:slug" element={<SourcingCompanyV2 />} />
 
           {/* Legacy URL cleanup (2026-06-18): /space-rising-v2/* 301-redirects to
-              the clean /spaceos/* surface above. Same render components live under
-              /spaceos, so nothing is lost; old shared links + bookmarks forward
+              the clean /os/* surface above. Same render components live under
+              /os, so nothing is lost; old shared links + bookmarks forward
               automatically. The splat preserves the rest of the path + query + hash.
               Server-side 301s are also set in vercel.json for direct hits + SEO. */}
           <Route path="/space-rising-v2/*" element={<ToSpaceOS />} />
-          {/* Legacy /space-rising/* (V1) → clean /spaceos/*. One splat covers the
+          {/* Legacy /space-rising/* (V1) → clean /os/*. One splat covers the
               bare path, every sub-page, and company /:slug profiles. */}
           <Route path="/space-rising/*" element={<ToSpaceOS />} />
           {/* Catch-all → Space OS directory. Every unmatched path (unknown/typo slug,
-              retired V1 tenant directories) lands on /spaceos — no V1, no 404.
+              retired V1 tenant directories) lands on /os — no V1, no 404.
               Tenant company DATA stays in the DB; only old browse surfaces are gone. */}
-          <Route path="*" element={<Navigate to="/spaceos" replace />} />
+          <Route path="*" element={<Navigate to="/os" replace />} />
         </Routes>
         </PageTransition>
       </Suspense>

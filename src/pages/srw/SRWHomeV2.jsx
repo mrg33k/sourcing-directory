@@ -16,13 +16,13 @@ const HERO_VIDEO_VEO3 = '/v2-assets/home-hero.mp4';
 // Companies is the live directory search (?q=); the rest route into their section
 // carrying the query. Order = how people enter the OS most often.
 const SEARCH_CATEGORIES = [
-  { key: 'companies',  label: 'Companies',  hint: 'The space-economy directory',      to: (q) => `/spaceos${q ? `?q=${encodeURIComponent(q)}` : ''}` },
-  { key: 'jobs',       label: 'Jobs',       hint: 'Roles across the ecosystem',        to: (q) => `/spaceos/jobs${q ? `?q=${encodeURIComponent(q)}` : ''}` },
-  { key: 'deal-bank',  label: 'Deal Bank',  hint: 'Capital, raises, and investors',    to: (q) => `/spaceos/deal-bank${q ? `?q=${encodeURIComponent(q)}` : ''}` },
-  { key: 'reports',    label: 'Reports',    hint: 'Blueprints and market intelligence',to: (q) => `/spaceos/reports${q ? `?q=${encodeURIComponent(q)}` : ''}` },
-  { key: 'events',     label: 'Events',     hint: 'Conferences and convenings',        to: (q) => `/spaceos/events${q ? `?q=${encodeURIComponent(q)}` : ''}` },
-  { key: 'grants',     label: 'Grants',     hint: 'Funding and opportunities',         to: (q) => `/spaceos/grants${q ? `?q=${encodeURIComponent(q)}` : ''}` },
-  { key: 'articles',   label: 'Articles',   hint: 'Dispatches and knowledge',          to: (q) => `/spaceos/articles${q ? `?q=${encodeURIComponent(q)}` : ''}` },
+  { key: 'companies',  label: 'Companies',  hint: 'The space-economy directory',      to: (q) => `/os${q ? `?q=${encodeURIComponent(q)}` : ''}` },
+  { key: 'jobs',       label: 'Jobs',       hint: 'Roles across the ecosystem',        to: (q) => `/os/jobs${q ? `?q=${encodeURIComponent(q)}` : ''}` },
+  { key: 'deal-bank',  label: 'Deal Bank',  hint: 'Capital, raises, and investors',    to: (q) => `/os/deal-bank${q ? `?q=${encodeURIComponent(q)}` : ''}` },
+  { key: 'reports',    label: 'Reports',    hint: 'Blueprints and market intelligence',to: (q) => `/os/reports${q ? `?q=${encodeURIComponent(q)}` : ''}` },
+  { key: 'events',     label: 'Events',     hint: 'Conferences and convenings',        to: (q) => `/os/events${q ? `?q=${encodeURIComponent(q)}` : ''}` },
+  { key: 'grants',     label: 'Grants',     hint: 'Funding and opportunities',         to: (q) => `/os/grants${q ? `?q=${encodeURIComponent(q)}` : ''}` },
+  { key: 'articles',   label: 'Articles',   hint: 'Dispatches and knowledge',          to: (q) => `/os/articles${q ? `?q=${encodeURIComponent(q)}` : ''}` },
 ];
 
 // Legacy — unused by V2.
@@ -67,7 +67,7 @@ const SERVICES = [
   {
     name: 'SpaceOS™',
     body: (<>The <strong>intelligence infrastructure</strong> connecting the space economy.</>),
-    to: '/spaceos',
+    to: '/os',
   },
   {
     name: 'Partnerships',
@@ -134,21 +134,21 @@ export default function SRWHomeV2() {
         const [companies, listings, reports] = await Promise.all([companiesQ, listingsQ, reportsQ]);
 
         if (companies.data?.length) out.companies = companies.data.map(c => ({
-          label: c.name, sub: [c.city, c.state].filter(Boolean).join(', '), href: `/spaceos/${c.slug}`,
+          label: c.name, sub: [c.city, c.state].filter(Boolean).join(', '), href: `/os/${c.slug}`,
         }));
         const byCat = {};
         (listings.data || []).forEach(l => { (byCat[l.category] ||= []).push(l); });
         const itemHref = {
-          job: (l) => `/spaceos/jobs/${l.id}`,
-          event: (l) => `/spaceos/events/${l.id}`,
-          grant: () => `/spaceos/grants?q=${encodeURIComponent(q)}`,
-          article: () => `/spaceos/articles?q=${encodeURIComponent(q)}`,
+          job: (l) => `/os/jobs/${l.id}`,
+          event: (l) => `/os/events/${l.id}`,
+          grant: () => `/os/grants?q=${encodeURIComponent(q)}`,
+          article: () => `/os/articles?q=${encodeURIComponent(q)}`,
         };
         const catKey = { job: 'jobs', event: 'events', grant: 'grants', article: 'articles' };
         ['job', 'event', 'grant', 'article'].forEach(cat => {
           if (byCat[cat]?.length) out[catKey[cat]] = byCat[cat].slice(0, 4).map(l => ({ label: l.title, href: itemHref[cat](l) }));
         });
-        if (reports.data?.length) out.reports = reports.data.map(r => ({ label: r.title, href: `/spaceos/reports/${r.id}` }));
+        if (reports.data?.length) out.reports = reports.data.map(r => ({ label: r.title, href: `/os/reports/${r.id}` }));
       } catch (e) { /* search is best-effort; fall back to category routing */ }
       setResults(out);
       setSearching(false);
@@ -405,7 +405,7 @@ export default function SRWHomeV2() {
             <span className="srw-hero-search-kbd">Search</span>
           </button>
           <div className="srw-hero-v2-cta-row srw-hero-v2-cta-row-slim">
-            <Link to="/spaceos" className="srw-hero-v2-cta-secondary">Enter SpaceOS&trade;</Link>
+            <Link to="/os" className="srw-hero-v2-cta-secondary">Enter SpaceOS&trade;</Link>
             <Link to="/srw-v2/about" className="srw-hero-v2-cta-secondary">About Space Rising</Link>
           </div>
         </div>

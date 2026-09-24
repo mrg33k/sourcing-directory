@@ -1,6 +1,6 @@
 // SourcingJobsV2.jsx
 // nat-geo-uplift R5a — Jobs page in the locked V2 list-pattern.
-// Mirrors /spaceos directory: same hero + chip row + live fuzzy
+// Mirrors /os directory: same hero + chip row + live fuzzy
 // search + list-of-rows + sec-hdr CTA. The data is jobs, the shell is
 // the directory's. Proving the list pattern adapts cleanly.
 
@@ -10,7 +10,7 @@ import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
 import useSRWTitle from './srw/useSRWTitle.js';
 import { V2ChipNav } from './V2ChipNav.jsx';
-// Loads the V2 theme + R5a hero-archetype rules. Required for /spaceos/*
+// Loads the V2 theme + R5a hero-archetype rules. Required for /os/*
 // routes to pick up the locked palette, type, and card grid.
 import '../space-rising-theme-v2.css';
 
@@ -41,7 +41,7 @@ function postedAgo(created_at) {
 }
 
 function SourcingJobsV2Inner() {
-  useSRWTitle('Space Jobs | Space OS');
+  useSRWTitle('Space Jobs | Sourcing Directory');
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
 
@@ -169,17 +169,17 @@ function SourcingJobsV2Inner() {
         @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }
       `}</style>
 
-      {/* R5a hero archetype — same shell as /spaceos directory; only
+      {/* R5a hero archetype — same shell as /os directory; only
           the heading + --page-hero-bg change per page. */}
       <div
         className="browse-hero"
-        style={{ '--page-hero-bg': "url('/v2-assets/rocket-ascent.png')" }}
+        style={{ '--page-hero-bg': "url('/sd/hero.jpg')" }}
       >
         <div className="browse-hero-bg" />
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
           <div className="browse-hero-toprow">
-            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
+            <Link to="/os" className="browse-back" style={{ textDecoration: 'none' }}>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
                 <path d="M15 19l-7-7 7-7" />
               </svg>
@@ -224,7 +224,7 @@ function SourcingJobsV2Inner() {
         </div>
         <div className="sec-count">
           <Link
-            to="/spaceos/jobs/post"
+            to="/os/jobs/post"
             style={{
               textDecoration: 'none',
               color: 'var(--cyan)',
@@ -284,7 +284,7 @@ function SourcingJobsV2Inner() {
             return (
               <Link
                 key={listing.id}
-                to={`/spaceos/jobs/${listing.id}`}
+                to={`/os/jobs/${listing.id}`}
                 className="co-card"
                 style={{ textDecoration: 'none', color: 'inherit' }}
               >

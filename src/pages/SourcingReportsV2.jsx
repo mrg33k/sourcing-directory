@@ -22,7 +22,7 @@ function formatPubDate(dateStr) {
 function SourcingReportsV2Inner() {
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
-  useSRWTitle('Space Industry Reports | Space OS');
+  useSRWTitle('Space Industry Reports | Sourcing Directory');
 
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -93,7 +93,7 @@ function SourcingReportsV2Inner() {
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
           <div className="browse-hero-toprow">
-            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
+            <Link to="/os" className="browse-back" style={{ textDecoration: 'none' }}>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Back
             </Link>
@@ -154,7 +154,7 @@ function SourcingReportsV2Inner() {
           return (
             <Link
               key={report.id}
-              to={`/spaceos/reports/${report.id}`}
+              to={`/os/reports/${report.id}`}
               className="co-card"
               style={{ textDecoration: 'none', color: 'inherit' }}
             >

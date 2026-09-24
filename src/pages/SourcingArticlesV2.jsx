@@ -24,7 +24,7 @@ function formatDate(dateStr) {
 function SourcingArticlesV2Inner() {
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
-  useSRWTitle('Space Industry Articles | Space OS');
+  useSRWTitle('Space Industry Articles | Sourcing Directory');
 
   const [tenant, setTenant] = useState(null);
   const [listings, setListings] = useState([]);
@@ -127,7 +127,7 @@ function SourcingArticlesV2Inner() {
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
           <div className="browse-hero-toprow">
-            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
+            <Link to="/os" className="browse-back" style={{ textDecoration: 'none' }}>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Back
             </Link>
@@ -164,7 +164,7 @@ function SourcingArticlesV2Inner() {
         </div>
         <div className="sec-count">
           <Link
-            to="/spaceos/articles/post"
+            to="/os/articles/post"
             style={{ textDecoration: 'none', color: 'var(--cyan)', fontSize: 12, fontWeight: 600 }}
           >
             + Post an Article

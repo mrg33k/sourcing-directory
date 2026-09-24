@@ -507,7 +507,7 @@ function SourcingDirectoryInner() {
   const applyDisplayOverride = (data) => {
     if (!data) return data;
     if (data.slug === 'space-rising') {
-      return { ...data, name: 'Space Rising Interactive', nav_label: 'Space Rising Interactive' };
+      return { ...data, name: 'Sourcing Directory', nav_label: 'Sourcing Directory' };
     }
     return data;
   };

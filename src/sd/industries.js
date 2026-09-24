@@ -1,7 +1,7 @@
 // One entry per directory. Adding an industry = adding an entry here.
 //
 // `live`     — directory has data and opens today.
-// `base`     — route the directory lives at. Aerospace keeps the existing /spaceos
+// `base`     — route the directory lives at. Aerospace keeps the existing /os
 //              pages; the others open the same directory filtered by `vertical`.
 // `vertical` — directory_companies.vertical value(s) this directory shows.
 
@@ -19,7 +19,7 @@ export const INDUSTRIES = [
     image: '/sd/aerospace.jpg',
     wide: '/sd/aerospace-wide.jpg',
     live: true,
-    base: '/spaceos',
+    base: '/os',
     vertical: ['space', 'defense'],
   },
   {
@@ -35,7 +35,7 @@ export const INDUSTRIES = [
     image: '/sd/semiconductors.jpg',
     wide: '/sd/semiconductors-wide.jpg',
     live: true,
-    base: '/spaceos',
+    base: '/os',
     query: '?v=semiconductor',
     vertical: ['semiconductor'],
   },

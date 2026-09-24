@@ -11,7 +11,7 @@ import { Link } from 'react-router-dom';
 // Every link now stays inside /srw-v2/* so the V2 flow walks end-to-end.
 const LINKS = [
   { label: 'Home', to: '/srw-v2' },
-  { label: 'SpaceOS™', to: '/spaceos' },
+  { label: 'SpaceOS™', to: '/os' },
   {
     label: 'Space Congress™',
     to: '/srw-v2/space-congress',
@@ -65,7 +65,7 @@ export default function SRWNavV2() {
           </div>
 
           <div className="srw-nav-actions">
-            <Link to="/spaceos/login" className="srw-nav-signin">SIGN IN</Link>
+            <Link to="/os/login" className="srw-nav-signin">SIGN IN</Link>
             <Link to="/srw-v2/sign-up" className="srw-nav-subscribe">SUBSCRIBE</Link>
           </div>
 

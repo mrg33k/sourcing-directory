@@ -371,7 +371,7 @@ function SearchBar({ value, onChange, onSearch, loading, aiLoading, V }) {
 function SourcingDirectoryInner() {
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
-  // V2 route is static (/spaceos), so useParams() doesn't supply a
+  // V2 route is static (/os), so useParams() doesn't supply a
   // tenantSlug. Hardcode it so the data-tenant attribute is set, the
   // isSpaceRising branch fires, and the V2 theme CSS scoping matches.
   const tenantSlug = 'space-rising-v2';
@@ -495,10 +495,10 @@ function SourcingDirectoryInner() {
     if (!data) return data;
     if (data.slug === 'space-rising') {
       // polish-directory-1: per Patrik 2026-05-31 "it should be called space os."
-      // The directory IS SpaceOS — same product, same surface. Rebranded from
-      // "Space Rising Interactive" to "SpaceOS" on both the hero title and the
+      // The directory IS Sourcing Directory — same product, same surface. Rebranded from
+      // "Sourcing Directory" to "Sourcing Directory" on both the hero title and the
       // nav label so the page tells the user what it IS.
-      return { ...data, name: 'SpaceOS', nav_label: 'SpaceOS' };
+      return { ...data, name: 'Sourcing Directory', nav_label: 'Sourcing Directory' };
     }
     return data;
   };
@@ -543,9 +543,9 @@ function SourcingDirectoryInner() {
     };
 
     if (tenant) {
-      // space-rising IS SpaceOS — lead with the product, not the legacy suffix.
+      // space-rising IS Sourcing Directory — lead with the product, not the legacy suffix.
       const isSR = tenant.slug === 'space-rising';
-      const pageTitle = isSR ? 'Space OS | Space Rising' : `${tenant.name} — Sourcing Directory`;
+      const pageTitle = isSR ? 'Sourcing Directory | Space Rising' : `${tenant.name} — Sourcing Directory`;
       document.title = pageTitle;
       setMeta('name', 'description', tenant.hero_text || tenant.description);
       setMeta('property', 'og:title', pageTitle);
@@ -1028,7 +1028,7 @@ function SourcingDirectoryInner() {
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
           <div className="browse-hero-toprow">
-            {/* No Back here: /spaceos is the top layer (Ben, 2026-09-22). */}
+            {/* No Back here: /os is the top layer (Ben, 2026-09-22). */}
             {tenant?.slug === 'space-rising' && (
               <SDHeroLogo />
             )}

@@ -400,7 +400,7 @@ function SourcingAboutInner() {
               </Link>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {['S3C -- Semiconductor Coalition', 'Space Rising'].map(org => (
+              {['S3C -- Semiconductor Coalition', 'Sourcing Directory'].map(org => (
                 <div key={org} style={{
                   background: 'rgba(255,255,255,0.04)',
                   border: '1px solid rgba(255,255,255,0.08)',

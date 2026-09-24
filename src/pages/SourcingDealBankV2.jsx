@@ -121,7 +121,7 @@ function amountHeadline(raw, m) {
 function SourcingDealBankV2Inner() {
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
-  useSRWTitle('Space Deal Bank | Space OS');
+  useSRWTitle('Space Deal Bank | Sourcing Directory');
 
   const [deals, setDeals] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -200,7 +200,7 @@ function SourcingDealBankV2Inner() {
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
           <div className="browse-hero-toprow">
-            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
+            <Link to="/os" className="browse-back" style={{ textDecoration: 'none' }}>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Back
             </Link>
@@ -485,7 +485,7 @@ function InvestmentsLane({ searchInput }) {
       {filtered.map((item) => (
         <Link
           key={item.id || item.slug}
-          to={`/spaceos/deal-bank/investments/${item.slug}`}
+          to={`/os/deal-bank/investments/${item.slug}`}
           className="co-card"
           style={{ textDecoration: 'none', color: 'inherit' }}
         >
@@ -573,7 +573,7 @@ function InvestorsLane({ searchInput }) {
       {filtered.map((item) => (
         <Link
           key={item.id || item.slug}
-          to={`/spaceos/deal-bank/investors/${item.slug}`}
+          to={`/os/deal-bank/investors/${item.slug}`}
           className="co-card"
           style={{ textDecoration: 'none', color: 'inherit' }}
         >
@@ -605,7 +605,7 @@ function InvestorsLane({ searchInput }) {
 
       <div style={{ padding: '24px', borderTop: '1px solid rgba(255, 255, 255,0.10)' }}>
         <Link
-          to="/spaceos/deal-bank/investors/signup"
+          to="/os/deal-bank/investors/signup"
           style={{
             display: 'block',
             padding: '12px 16px',

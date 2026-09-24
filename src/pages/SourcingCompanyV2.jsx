@@ -89,7 +89,7 @@ export default function SourcingCompanyV2() {
   // SEO meta
   useEffect(() => {
     if (!company) return;
-    document.title = `${company.name} | Space Rising`;
+    document.title = `${company.name} | Sourcing Directory`;
     const setMeta = (attr, key, content) => {
       if (!content) return;
       let el = document.querySelector(`meta[${attr}="${key}"]`);
@@ -100,7 +100,7 @@ export default function SourcingCompanyV2() {
     setMeta('property', 'og:title', company.name);
     setMeta('property', 'og:description', company.description);
     if (company.logo_url) setMeta('property', 'og:image', company.logo_url);
-    return () => { document.title = 'Space Rising'; };
+    return () => { document.title = 'Sourcing Directory'; };
   }, [company]);
 
   const listingsByCategory = useMemo(() => {
@@ -134,7 +134,7 @@ export default function SourcingCompanyV2() {
           <div className="srsv2-eyebrow">NOT FOUND</div>
           <h1 className="srsv2-title">This company isn't in the directory<span className="srsv2-period">.</span></h1>
           <div className="srsv2-sub">We couldn't find <code>{slug}</code>. It may have been removed or renamed.</div>
-          <Link to="/spaceos" className="srsv2-cta srsv2-cta-solid">Back to the directory</Link>
+          <Link to="/os" className="srsv2-cta srsv2-cta-solid">Back to the directory</Link>
         </div>
       </div>
     );
@@ -154,7 +154,7 @@ export default function SourcingCompanyV2() {
           Replaces the previous wordmark + breadcrumb layout. */}
       <div className="srcv2-topbar">
         <div className="browse-hero-toprow">
-          <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
+          <Link to="/os" className="browse-back" style={{ textDecoration: 'none' }}>
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
             Back to directory
           </Link>
@@ -339,7 +339,7 @@ export default function SourcingCompanyV2() {
             <div className="srcv2-aside-back-copy">
               Looking for similar companies in {verticalLabel.toLowerCase()}? Walk the room.
             </div>
-            <Link to="/spaceos" className="srsv2-cta srsv2-cta-line">All companies</Link>
+            <Link to="/os" className="srsv2-cta srsv2-cta-line">All companies</Link>
           </div>
         </aside>
       </div>

@@ -1,5 +1,5 @@
 // SourcingDiscoveryV2.jsx
-// Discovery — community whitepaper library for Space OS.
+// Discovery — community whitepaper library for Sourcing Directory.
 // Modeled on SourcingArticlesV2.jsx (same list shell as Jobs/Events/Articles).
 // Data: directory_listings where category='whitepaper'.
 //
@@ -155,7 +155,7 @@ function SourcingDiscoveryV2Inner() {
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
           <div className="browse-hero-toprow">
-            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
+            <Link to="/os" className="browse-back" style={{ textDecoration: 'none' }}>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Back
             </Link>
@@ -192,7 +192,7 @@ function SourcingDiscoveryV2Inner() {
         </div>
         <div className="sec-count">
           <Link
-            to="/spaceos/discovery/post"
+            to="/os/discovery/post"
             style={{ textDecoration: 'none', color: 'var(--cyan)', fontSize: 12, fontWeight: 600 }}
           >
             + Submit a Whitepaper

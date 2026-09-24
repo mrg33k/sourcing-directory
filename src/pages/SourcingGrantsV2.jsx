@@ -44,7 +44,7 @@ function formatDeadline(dateStr) {
 function SourcingGrantsV2Inner() {
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
-  useSRWTitle('Space Grants | Space OS');
+  useSRWTitle('Space Grants | Sourcing Directory');
 
   const [tenant, setTenant] = useState(null);
   const [listings, setListings] = useState([]);
@@ -125,7 +125,7 @@ function SourcingGrantsV2Inner() {
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
           <div className="browse-hero-toprow">
-            <Link to="/spaceos" className="browse-back" style={{ textDecoration: 'none' }}>
+            <Link to="/os" className="browse-back" style={{ textDecoration: 'none' }}>
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Back
             </Link>

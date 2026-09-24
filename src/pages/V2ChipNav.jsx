@@ -1,5 +1,5 @@
 // V2ChipNav.jsx
-// nat-geo-uplift R5f — shared category-chip navigation for /spaceos/*.
+// nat-geo-uplift R5f — shared category-chip navigation for /os/*.
 // Single source of truth for the chip order, labels, routes, and active-state
 // behavior. Pages pass `active` as the slug of the chip that should be lit.
 //
@@ -12,16 +12,16 @@ import { Link } from 'react-router-dom';
 // Order locked: Companies → Jobs → Events → Reports → Marketplace →
 // Membership → Deal Bank. Patrik 2026-05-30 chip row.
 const CHIPS = [
-  { slug: 'companies',  label: 'Companies',  to: '/spaceos' },
-  { slug: 'jobs',       label: 'Jobs',       to: '/spaceos/jobs' },
-  { slug: 'events',     label: 'Events',     to: '/spaceos/events' },
-  { slug: 'reports',    label: 'Reports',    to: '/spaceos/reports' },
-  { slug: 'articles',   label: 'Articles',   to: '/spaceos/articles' },
+  { slug: 'companies',  label: 'Companies',  to: '/os' },
+  { slug: 'jobs',       label: 'Jobs',       to: '/os/jobs' },
+  { slug: 'events',     label: 'Events',     to: '/os/events' },
+  { slug: 'reports',    label: 'Reports',    to: '/os/reports' },
+  { slug: 'articles',   label: 'Articles',   to: '/os/articles' },
   // Discovery hidden from the menu (Ben, 2026-09-22). Route still exists.
-  { slug: 'grants',     label: 'Grants',     to: '/spaceos/grants' },
-  { slug: 'marketplace',label: 'Marketplace',to: '/spaceos/marketplace' },
-  { slug: 'membership', label: 'Membership', to: '/spaceos/membership' },
-  { slug: 'deal-bank',  label: 'Deal Bank',  to: '/spaceos/deal-bank' },
+  { slug: 'grants',     label: 'Grants',     to: '/os/grants' },
+  { slug: 'marketplace',label: 'Marketplace',to: '/os/marketplace' },
+  { slug: 'membership', label: 'Membership', to: '/os/membership' },
+  { slug: 'deal-bank',  label: 'Deal Bank',  to: '/os/deal-bank' },
 ];
 
 export function V2ChipNav({ active }) {

@@ -96,7 +96,7 @@ export default function SRWSignUpV2() {
                 We sent a welcome — it has your next steps and the SpaceOS™ link.
               </p>
               <div style={{ marginTop: 32 }}>
-                <Link to="/spaceos" className="srw-pg-cta solid">Enter SpaceOS™ →</Link>
+                <Link to="/os" className="srw-pg-cta solid">Enter SpaceOS™ →</Link>
               </div>
             </div>
           ) : (

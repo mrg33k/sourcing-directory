@@ -2,7 +2,7 @@
 // nat-geo-uplift — V2-skinned login.
 // Uses the srsv2-* signup aesthetic (line-style inputs, amber accents).
 // Auth logic mirrors SourcingLogin.jsx: signInWithPassword + PASSWORD_RECOVERY +
-// /api/sourcing/reset-email. On success → /spaceos.
+// /api/sourcing/reset-email. On success → /os.
 
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -12,7 +12,7 @@ import '../space-rising-theme-v2.css';
 
 import SDLogo from '../sd/SDLogo.jsx';
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
-const BASE_PATH_V2 = '/spaceos';
+const BASE_PATH_V2 = '/os';
 
 function SourcingLoginV2Inner() {
   const navigate = useNavigate();
@@ -93,7 +93,7 @@ function SourcingLoginV2Inner() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: target,
-          org_name: tenant?.name || 'Space Rising',
+          org_name: tenant?.name || 'Sourcing Directory',
           redirect_to: `${window.location.origin}${BASE_PATH_V2}/login`,
         }),
       });

@@ -37,9 +37,9 @@ export function SDBuilding({ size = 22 }) {
 }
 
 const EXPLORE = [
-  { to: '/spaceos/jobs', img: '/sd/jobs.jpg', eyebrow: 'Jobs', title: 'Explore open roles' },
-  { to: '/spaceos/events', img: '/sd/events.jpg', eyebrow: 'Events', title: 'See industry events' },
-  { to: '/spaceos/reports', img: '/sd/reports.jpg', eyebrow: 'Reports', title: 'Read industry reports' },
+  { to: '/os/jobs', img: '/sd/jobs.jpg', eyebrow: 'Jobs', title: 'Explore open roles' },
+  { to: '/os/events', img: '/sd/events.jpg', eyebrow: 'Events', title: 'See industry events' },
+  { to: '/os/reports', img: '/sd/reports.jpg', eyebrow: 'Reports', title: 'Read industry reports' },
 ];
 
 export function SDExploreMore() {
@@ -68,7 +68,7 @@ export function SDTopBar() {
     <header className="sd-topbar">
       <SDHeroLogo />
       <nav className="sd-topbar__links" aria-label="Sourcing Directory">
-        <Link to="/spaceos">Directory</Link>
+        <Link to="/os">Directory</Link>
         <Link to="/start">Switch directory</Link>
       </nav>
     </header>

@@ -47,7 +47,7 @@ const adminSupabase = (_sbUrl && _adminKey)
 // ─── Inner Component ──────────────────────────────────────────────────────────
 function SourcingAdminInner() {
   useSourcingTheme(); // keep theme context mounted; admin uses the V2 token set below
-  // V2 design system — matches the Space OS V2 front end (dark + amber + Space Grotesk).
+  // V2 design system — matches the Sourcing Directory V2 front end (dark + amber + Space Grotesk).
   // Scoped to the admin: deliberately overrides the shared getTokens (cyan/Inter) so the
   // whole panel — login screen, chrome, every tab — reads as V2.
   const V = {

@@ -20,7 +20,7 @@ export default function SRWFooterV2() {
           />
         </div>
 
-        <Link to="/spaceos" className="srw-footer-promo" aria-label="Browse the directory">
+        <Link to="/os" className="srw-footer-promo" aria-label="Browse the directory">
           <div className="srw-footer-promo-bg" aria-hidden="true" />
           <div className="srw-footer-promo-overlay" aria-hidden="true" />
           <div className="srw-footer-promo-inner">

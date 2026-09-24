@@ -1,33 +1,33 @@
 {
   "redirects": [
     {
-      "source": "/os",
-      "destination": "/spaceos",
-      "permanent": false
+      "source": "/spaceos",
+      "destination": "/os",
+      "permanent": true
     },
     {
-      "source": "/os/:path*",
-      "destination": "/spaceos/:path*",
-      "permanent": false
+      "source": "/spaceos/:path*",
+      "destination": "/os/:path*",
+      "permanent": true
     },
     {
       "source": "/space-rising-v2",
-      "destination": "/spaceos",
+      "destination": "/os",
       "permanent": true
     },
     {
       "source": "/space-rising-v2/:path*",
-      "destination": "/spaceos/:path*",
+      "destination": "/os/:path*",
       "permanent": true
     },
     {
       "source": "/space-rising",
-      "destination": "/spaceos",
+      "destination": "/os",
       "permanent": true
     },
     {
       "source": "/space-rising/:path*",
-      "destination": "/spaceos/:path*",
+      "destination": "/os/:path*",
       "permanent": true
     },
     {

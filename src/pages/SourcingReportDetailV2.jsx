@@ -51,8 +51,8 @@ export default function SourcingReportDetailV2() {
 
   useEffect(() => {
     if (!report) return;
-    document.title = `${report.title || 'Report'} | Space Rising`;
-    return () => { document.title = 'Space Rising'; };
+    document.title = `${report.title || 'Report'} | Sourcing Directory`;
+    return () => { document.title = 'Sourcing Directory'; };
   }, [report]);
 
   if (loading) {
@@ -70,7 +70,7 @@ export default function SourcingReportDetailV2() {
           <div className="srsv2-eyebrow">NOT FOUND</div>
           <h1 className="srsv2-title">This report isn't available<span className="srsv2-period">.</span></h1>
           <div className="srsv2-sub">It may have been unpublished or removed.</div>
-          <Link to="/spaceos/reports" className="srsv2-cta srsv2-cta-solid">Back to reports</Link>
+          <Link to="/os/reports" className="srsv2-cta srsv2-cta-solid">Back to reports</Link>
         </div>
       </div>
     );
@@ -88,7 +88,7 @@ export default function SourcingReportDetailV2() {
     <div className="srcv2-shell" data-tenant="space-rising-v2">
       <div className="srcv2-topbar">
         <div className="browse-hero-toprow">
-          <Link to="/spaceos/reports" className="browse-back" style={{ textDecoration: 'none' }}>
+          <Link to="/os/reports" className="browse-back" style={{ textDecoration: 'none' }}>
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
             Back to reports
           </Link>
@@ -96,7 +96,7 @@ export default function SourcingReportDetailV2() {
         </div>
       </div>
 
-      <header className="srcv2-hero" style={{ '--profile-hero-bg': "url('/v2-assets/asteroid-close.png')" }}>
+      <header className="srcv2-hero" style={{ '--profile-hero-bg': "url('/sd/manufacturing-wide.jpg')" }}>
         <div className="srcv2-hero-overlay" />
         <div className="srcv2-hero-inner">
           <div className="srsv2-eyebrow">{eyebrowBits.toUpperCase()}</div>
@@ -109,7 +109,7 @@ export default function SourcingReportDetailV2() {
               </a>
             )}
             {isGated && (
-              <Link to="/spaceos/membership" className="srsv2-cta srsv2-cta-solid">
+              <Link to="/os/membership" className="srsv2-cta srsv2-cta-solid">
                 Members only — become a member
               </Link>
             )}
@@ -141,7 +141,7 @@ export default function SourcingReportDetailV2() {
                 This report is available to members. Become a member to read and download the full PDF.
               </p>
               <div className="srcv2-hero-actions" style={{ marginTop: 12 }}>
-                <Link to="/spaceos/membership" className="srsv2-cta srsv2-cta-line">View membership</Link>
+                <Link to="/os/membership" className="srsv2-cta srsv2-cta-line">View membership</Link>
               </div>
             </Section>
           )}

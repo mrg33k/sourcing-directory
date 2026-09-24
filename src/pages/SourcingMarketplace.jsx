@@ -81,7 +81,7 @@ export function SourcingNav({ active, tenantSlug, tenantName, features, brandCol
       { label: 'Events', sub: 'Conferences & meetups', href: `${base}/events`, icon: 'M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zM16 2v4M8 2v4M3 10h18', color: '#22D3EE', bg: 'rgba(34,211,238,0.1)' },
       { label: 'Reports', sub: 'Intelligence & analysis', href: `${base}/reports`, icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6', color: '#A78BFA', bg: 'rgba(167,139,250,0.1)' },
       { label: 'Marketplace', sub: 'Equipment exchange', href: `${base}/marketplace`, icon: 'M9 21a1 1 0 100-2 1 1 0 000 2zM20 21a1 1 0 100-2 1 1 0 000 2zM1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6', color: '#FBBF24', bg: 'rgba(251,191,36,0.1)' },
-      { label: 'Membership', sub: 'Upgrade your account', href: `${base}/membership`, icon: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z', color: '#FB7185', bg: 'rgba(251,113,133,0.1)' },
+      { label: 'Membership', sub: 'Free to join', href: `${base}/membership`, icon: 'M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z', color: '#FB7185', bg: 'rgba(251,113,133,0.1)' },
       { label: 'Articles', sub: 'Industry news', href: `${base}/articles`, icon: 'M4 19.5A2.5 2.5 0 016.5 17H20M4 19.5A2.5 2.5 0 014 17V5a2.5 2.5 0 012.5-2.5H20v17H6.5', color: '#38BDF8', bg: 'rgba(56,189,248,0.1)' },
       { label: 'Deal Bank', sub: 'Closed funding rounds', href: `${base}/deal-bank`, icon: 'M12 1v22M17 5H9.5a3.5 3.5 0 100 7h5a3.5 3.5 0 110 7H6', color: '#E5451F', bg: 'rgba(229,69,31,0.12)' },
     );
@@ -260,21 +260,21 @@ export function MembershipGate({ children, featureName }) {
             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
           </svg>
         </div>
-        <h2 style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Syne', sans-serif", color: '#fff', margin: '0 0 10px' }}>
-          Paid membership required
+        <h2 style={{ fontSize: 20, fontWeight: 700, fontFamily: "'Space Grotesk', sans-serif", color: '#fff', margin: '0 0 10px' }}>
+          Free account required
         </h2>
         <p style={{ fontSize: 14, color: V.muted, fontFamily: V.space, margin: '0 0 20px', lineHeight: 1.6 }}>
-          Posting {featureName || 'content'} is available to paid members. Upgrade your membership to unlock this feature.
+          Posting {featureName || 'content'} is available to members. Create a free account to unlock this feature.
         </p>
         <Link
-          to={`${base}/membership`}
+          to="/get-started"
           style={{
             display: 'inline-block', background: accent, color: '#fff',
             textDecoration: 'none', borderRadius: 8, padding: '10px 28px',
             fontSize: 14, fontWeight: 600, fontFamily: V.space,
           }}
         >
-          View Membership Options
+          Create a free account
         </Link>
       </div>
     );
