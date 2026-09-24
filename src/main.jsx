@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from '
 import './v10.css'
 import './sd/sd.css'
 import './sd/sd-directory.css'
+import { installBrandTitle } from './sd/brandTitle.js'
+installBrandTitle()
 
 // Fade wrapper -- fades in on every route change
 function PageTransition({ children }) {
