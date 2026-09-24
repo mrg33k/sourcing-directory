@@ -1,4 +1,4 @@
-// POST /api/spaceos/checkout-webhook — receive Stripe webhook events
+// POST /api/os/checkout-webhook — receive Stripe webhook events
 //
 // R5k follow-up (2026-05-31): Space Rising membership signups are moving off
 // the sourcing.directory framing onto spacerising.org / spaceos. The webhook
@@ -7,7 +7,7 @@
 // same env vars, same code shape — different URL.
 //
 // Stripe webhook endpoint URL (set in Stripe Dashboard → Developers → Webhooks):
-//   https://spacerising.org/api/spaceos/checkout-webhook
+//   https://spacerising.org/api/os/checkout-webhook
 //
 // Env vars required for live operation:
 //   STRIPE_SECRET_KEY      (sk_live_... / sk_test_...) — used to retrieve session details if needed
