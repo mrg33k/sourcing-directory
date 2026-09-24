@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase.js';
 import V2ChipNav from './V2ChipNav.jsx';
 import '../space-rising-theme-v2.css';
 
+import { SDHeroLogo, SDSearchButton, SDBuilding, SDExploreMore } from '../sd/SDChrome.jsx';
 // Detail page for a single directory_reports row. Built 2026-06-05 so report
 // cards open a real page instead of bouncing to the directory. Free reports
 // expose the PDF directly; members/paid reports show the membership path
@@ -91,7 +92,7 @@ export default function SourcingReportDetailV2() {
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
             Back to reports
           </Link>
-          <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
+          <SDHeroLogo />
         </div>
       </div>
 

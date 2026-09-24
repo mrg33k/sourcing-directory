@@ -1,7 +1,7 @@
 // SourcingJobsPostV2.jsx
 // nat-geo-uplift — V2 post form for Jobs.
 // Supabase logic preserved exactly from SourcingJobsPost.jsx.
-// Visual system: dark BG (#06060A), amber accent (#E8A23A), line-style inputs.
+// Visual system: dark BG (#06060A), amber accent (#D71920), line-style inputs.
 // No SourcingThemeProvider, no SourcingNav, no MembershipGate.
 
 import React, { useState } from 'react';
@@ -15,7 +15,7 @@ const BG      = '#06060A';
 const TEXT    = '#F5EED7';
 const MUTED   = 'rgba(245,238,215,0.55)';
 const DIM     = 'rgba(245,238,215,0.3)';
-const AMBER   = '#E8A23A';
+const AMBER   = '#D71920';
 const BORDER  = 'rgba(245,238,215,0.10)';
 const CARD    = 'rgba(245,238,215,0.04)';
 const FONT    = "'Space Grotesk', sans-serif";
@@ -287,7 +287,7 @@ export default function SourcingJobsPostV2() {
 
       {/* Hero */}
       <div style={{
-        background: 'linear-gradient(180deg, rgba(232,162,58,0.06) 0%, transparent 100%)',
+        background: 'linear-gradient(180deg, rgba(215, 25, 32,0.06) 0%, transparent 100%)',
         borderBottom: `1px solid ${BORDER}`,
         padding: '48px 24px 32px',
       }}>

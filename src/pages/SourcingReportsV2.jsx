@@ -9,6 +9,7 @@ import useSRWTitle from './srw/useSRWTitle.js';
 import { V2ChipNav } from './V2ChipNav.jsx';
 import '../space-rising-theme-v2.css';
 
+import { SDHeroLogo, SDSearchButton, SDBuilding, SDExploreMore } from '../sd/SDChrome.jsx';
 const TENANT_SLUG_V2 = 'space-rising-v2';
 
 function formatPubDate(dateStr) {
@@ -72,17 +73,17 @@ function SourcingReportsV2Inner() {
         position: 'relative',
         fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
         '--bg': 'transparent',
-        '--tx': '#E8E4DA',
-        '--tx2': 'rgba(232,228,218,0.60)',
-        '--tx3': 'rgba(232,228,218,0.25)',
+        '--tx': '#FFFFFF',
+        '--tx2': 'rgba(255, 255, 255,0.60)',
+        '--tx3': 'rgba(255, 255, 255,0.25)',
         '--s1': 'rgba(11,11,13,0.72)',
         '--s2': 'rgba(11,11,13,0.82)',
         '--s3': 'rgba(11,11,13,0.92)',
-        '--bd': 'rgba(232,228,218,0.10)',
-        '--bd2': 'rgba(232,228,218,0.16)',
-        '--cyan': '#E8A23A',
-        '--cyan-dim': 'rgba(232,162,58,0.10)',
-        '--cyan-brd': 'rgba(232,162,58,0.32)',
+        '--bd': 'rgba(255, 255, 255,0.10)',
+        '--bd2': 'rgba(255, 255, 255,0.16)',
+        '--cyan': '#D71920',
+        '--cyan-dim': 'rgba(215, 25, 32,0.10)',
+        '--cyan-brd': 'rgba(215, 25, 32,0.32)',
       }}
     >
       <style>{`@keyframes spin { to { transform: rotate(360deg); } } @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }`}</style>
@@ -96,9 +97,9 @@ function SourcingReportsV2Inner() {
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Back
             </Link>
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
+            <SDHeroLogo />
           </div>
-          <div className="browse-title">Industry Reports.</div>
+          <div className="browse-title">Industry Reports<span className="sd-dot">.</span></div>
           <div className="browse-sub">
             Market analysis, funding round summaries, and Space Rising research briefings.
           </div>
@@ -117,16 +118,18 @@ function SourcingReportsV2Inner() {
           spellCheck="false"
         />
         {loading && <div className="spinner" />}
+        <SDSearchButton />
       </div>
 
       <V2ChipNav active="reports" />
 
       <div className="sec-hdr">
         <div className="sec-title">
-          {loading ? 'Loading...' : `${filtered.length} Report${filtered.length === 1 ? '' : 's'}.`}
+          {loading ? 'Loading...' : `${filtered.length} Report${filtered.length === 1 ? '' : 's'}`}
+        {!loading && <span className="sd-dot">.</span>}
         </div>
         <div className="sec-count">
-          <span style={{ color: 'var(--tx3)', fontSize: 12, fontFamily: 'JetBrains Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          <span style={{ color: 'var(--tx3)', fontSize: 12, fontFamily: 'IBM Plex Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             Updated weekly
           </span>
         </div>
@@ -134,14 +137,14 @@ function SourcingReportsV2Inner() {
 
       <div className="co-list">
         {!supabase && (
-          <div style={{ padding: '24px 20px', border: '1px solid rgba(232,162,58,0.32)', background: 'rgba(232,162,58,0.10)', borderRadius: 10, color: '#E8A23A', fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 13, textAlign: 'center' }}>
+          <div style={{ padding: '24px 20px', border: '1px solid rgba(215, 25, 32,0.32)', background: 'rgba(215, 25, 32,0.10)', borderRadius: 10, color: '#D71920', fontFamily: 'IBM Plex Mono, ui-monospace, monospace', fontSize: 13, textAlign: 'center' }}>
             Supabase not configured
           </div>
         )}
 
         {loading && supabase && (
           <>{[1, 2, 3, 4].map((i) => (
-            <div key={i} style={{ height: 84, borderRadius: 10, background: 'rgba(18,20,28,0.40)', border: '1px solid rgba(232,228,218,0.05)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+            <div key={i} style={{ height: 84, borderRadius: 10, background: 'rgba(18, 18, 22,0.40)', border: '1px solid rgba(255, 255, 255,0.05)', animation: 'pulse 1.5s ease-in-out infinite' }} />
           ))}</>
         )}
 
@@ -174,7 +177,7 @@ function SourcingReportsV2Inner() {
         })}
 
         {!loading && supabase && filtered.length === 0 && (
-          <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'IBM Plex Mono, ui-monospace, monospace', color: 'rgba(255, 255, 255,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             {searchInput ? `No reports match "${searchInput}"` : 'No reports published yet.'}
           </div>
         )}

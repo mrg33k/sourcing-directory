@@ -1,0 +1,304 @@
+/* Sourcing Directory redesign (2026-09-24) layered over the Space OS V2 pages.
+   Scope: every /spaceos page renders data-tenant="space-rising-v2". The `html body`
+   prefix out-ranks the older !important rules in space-rising-theme-v2.css. */
+
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] {
+  --bg: #0B0B0D;
+  --tx: #FFFFFF;
+  --tx2: rgba(255, 255, 255, 0.72);
+  --tx3: rgba(255, 255, 255, 0.5);
+  --cyan: #D71920;
+  --cyan-dim: rgba(215, 25, 32, 0.12);
+  --cyan-brd: rgba(215, 25, 32, 0.42);
+  --srv2-orange: #D71920;
+  background: #0B0B0D !important;
+  font-family: 'IBM Plex Sans', system-ui, sans-serif !important;
+  color: #fff;
+}
+
+/* ── Hero ─────────────────────────────────────────────────────────────── */
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero {
+  max-width: 1240px;
+  height: auto !important;
+  padding: 0 !important;
+  display: block !important;
+  margin: 24px auto 0 !important;
+  border: 1px solid var(--sd-line);
+  border-bottom: 0;
+  border-radius: 10px 10px 0 0;
+  overflow: hidden;
+  min-height: 0 !important;
+}
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero-bg {
+  background-image: var(--sd-hero, url('/sd/hero.jpg')) !important;
+  background-size: cover !important;
+  filter: grayscale(1) contrast(1.08) !important;
+  background-position: right center !important;
+  opacity: 1 !important;
+}
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero-overlay {
+  background: linear-gradient(90deg, rgba(11,11,13,0.96) 0%, rgba(11,11,13,0.82) 38%, rgba(11,11,13,0.25) 72%, rgba(11,11,13,0.1) 100%),
+              linear-gradient(180deg, rgba(11,11,13,0) 55%, rgba(11,11,13,0.9) 100%) !important;
+}
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero-content {
+  padding: 30px 40px 112px !important;
+  max-width: none !important;
+  min-height: 0 !important;
+  height: auto !important;
+}
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero-content::before { content: none !important; display: none !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero-toprow {
+  display: flex !important;
+  justify-content: flex-start !important;
+  align-items: center !important;
+  margin-bottom: 30px !important;
+  min-height: 0 !important;
+}
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-back { display: none !important; }
+.sd-hero-logo { display: inline-flex; text-decoration: none; }
+
+.sd-eyebrow {
+  display: inline-flex; align-items: center; gap: 12px; margin-bottom: 14px;
+  font: 600 12px/1 'IBM Plex Mono', monospace; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sd-red);
+}
+.sd-eyebrow__switch {
+  color: rgba(255,255,255,0.7); text-decoration: none; border: 1px solid var(--sd-line-strong);
+  border-radius: 4px; padding: 5px 8px; letter-spacing: 0.1em; font-size: 11px;
+}
+.sd-eyebrow__switch:hover { color: #fff; border-color: var(--sd-red); }
+
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-title {
+  font-family: 'Space Grotesk', sans-serif !important;
+  font-size: clamp(40px, 5.6vw, 72px) !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.035em !important;
+  line-height: 0.95 !important;
+  margin: 0 0 14px !important;
+  max-width: 12ch;
+}
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-title::after { content: none !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-sub {
+  font-family: 'IBM Plex Sans', sans-serif !important;
+  font-size: 17px !important;
+  color: rgba(255,255,255,0.78) !important;
+  max-width: 46ch !important;
+  margin-bottom: 4px;
+}
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sd-dot { color: #D71920 !important; }
+
+/* ── Search with red button ───────────────────────────────────────────── */
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search {
+  max-width: 1240px !important;
+  width: auto !important;
+  margin: -88px auto 0 !important;
+  box-sizing: border-box !important;
+  border-radius: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  padding: 0 40px 30px !important;
+  display: flex !important;
+  gap: 0 !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search > svg {
+  position: absolute; left: 60px; top: 50%; transform: translateY(calc(-50% - 15px)); z-index: 1; color: rgba(255,255,255,0.7) !important;
+}
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search input {
+  height: 52px !important;
+  background: #0E0E11 !important;
+  border: 1px solid rgba(255,255,255,0.28) !important;
+  border-right: 0 !important;
+  border-radius: 8px 0 0 8px !important;
+  padding: 0 18px 0 50px !important;
+  font: 400 16px/1 'IBM Plex Sans', sans-serif !important;
+  color: #fff !important;
+}
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search input:focus { border-color: #D71920 !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search .spinner { position: absolute; right: 190px; top: 18px; }
+.sd-search-btn {
+  height: 52px; padding: 0 30px; border: 0; border-radius: 0 8px 8px 0; cursor: pointer;
+  background: var(--sd-red); color: #fff; font: 700 14px/1 'Space Grotesk', sans-serif; letter-spacing: 0.06em; text-transform: uppercase;
+  flex-shrink: 0; transition: background 0.15s;
+}
+.sd-search-btn:hover { background: var(--sd-red-hot); }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search:focus-within { box-shadow: none !important; border-color: var(--sd-line) !important; }
+
+/* ── Tabs ─────────────────────────────────────────────────────────────── */
+.sd-tabs {
+  max-width: 1240px; margin: 0 auto; box-sizing: border-box; display: flex; gap: 0; overflow-x: auto; scrollbar-width: none;
+  border: 1px solid var(--sd-line); border-top: 0; border-radius: 0 0 10px 10px; background: #0B0B0D;
+  padding: 0 28px;
+}
+.sd-tabs::-webkit-scrollbar { display: none; }
+.sd-tabs__tab {
+  position: relative; flex-shrink: 0; padding: 18px 20px 20px; color: rgba(255,255,255,0.78); text-decoration: none;
+  font: 500 14px/1 'IBM Plex Sans', sans-serif; white-space: nowrap;
+}
+.sd-tabs__tab + .sd-tabs__tab::before { content: ''; position: absolute; left: 0; top: 18px; bottom: 20px; width: 1px; background: var(--sd-line); }
+.sd-tabs__tab:hover { color: #fff; }
+.sd-tabs__tab.is-on { color: #fff; font-weight: 600; }
+.sd-tabs__tab.is-on::after { content: ''; position: absolute; left: 20px; right: 20px; bottom: 0; height: 3px; background: var(--sd-red); border-radius: 2px 2px 0 0; }
+
+/* Page body width matches the hero card */
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-hdr,
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-list,
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] > .chips,
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sr-month-section,
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sd-explore {
+  max-width: 1240px !important; margin-left: auto !important; margin-right: auto !important; box-sizing: border-box !important;
+}
+
+/* ── Explore more ─────────────────────────────────────────────────────── */
+.sd-h2 { font: 700 26px/1 'Space Grotesk', sans-serif; letter-spacing: -0.02em; margin: 0 0 16px; color: #fff; }
+.sd-explore { padding: 34px 0 6px; }
+.sd-explore__row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.sd-explore__tile {
+  position: relative; aspect-ratio: 16 / 9.4; border-radius: 6px; overflow: hidden; display: block; text-decoration: none; color: #fff;
+  border: 1px solid var(--sd-line);
+}
+.sd-explore__tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(1) contrast(1.05); transition: transform 0.6s ease; }
+.sd-explore__tile::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.05) 20%, rgba(0,0,0,0.82) 100%); }
+.sd-explore__tile:hover img { transform: scale(1.04); }
+.sd-explore__tile:hover, .sd-explore__tile.is-first { border: 2px solid var(--sd-red); }
+.sd-explore__txt { position: absolute; left: 18px; bottom: 16px; z-index: 1; display: flex; flex-direction: column; gap: 4px; }
+.sd-explore__eyebrow { font: 500 14px/1 'IBM Plex Sans', sans-serif; color: rgba(255,255,255,0.9); }
+.sd-explore__title { font: 700 20px/1.15 'Space Grotesk', sans-serif; }
+.sd-explore__txt svg { color: var(--sd-red); margin-top: 8px; }
+
+/* ── Section header + red pill action ────────────────────────────────── */
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-hdr { padding: 30px 0 14px !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-title {
+  font: 700 26px/1 'Space Grotesk', sans-serif !important; letter-spacing: -0.02em !important; color: #fff !important; text-transform: none !important;
+}
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-title::after { content: none !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-count a {
+  background: #D71920 !important; color: #fff !important; border-radius: 999px !important; padding: 10px 18px !important;
+  font: 700 13px/1 'Space Grotesk', sans-serif !important; letter-spacing: 0.04em !important; text-transform: uppercase !important; border: 0 !important;
+}
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-count a:hover { background: #F0232B !important; }
+
+/* ── Rows (companies, jobs, anything in .co-list) ────────────────────── */
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-list { padding: 0 0 40px !important; gap: 8px !important; display: flex !important; flex-direction: column !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card {
+  background: #0F0F12 !important;
+  border: 1px solid var(--sd-line) !important;
+  border-radius: 6px !important;
+  filter: none !important;
+}
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card:hover {
+  border-color: #D71920 !important;
+  background: linear-gradient(90deg, rgba(215,25,32,0.10), rgba(15,15,18,1) 60%) !important;
+}
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-name { color: #fff !important; font-family: 'Space Grotesk', sans-serif !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-loc { color: rgba(255,255,255,0.6) !important; font-family: 'IBM Plex Mono', monospace !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-arrow { color: rgba(255,255,255,0.8) !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card:hover .co-arrow { color: #D71920 !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-badge {
+  border-radius: 3px !important; font: 600 11px/1 'IBM Plex Sans', sans-serif !important; letter-spacing: 0.04em !important;
+  text-transform: uppercase !important; padding: 7px 10px !important;
+  background: transparent !important; border: 1px solid rgba(255,255,255,0.25) !important; color: rgba(255,255,255,0.85) !important;
+}
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-badge.feat { background: #D71920 !important; border-color: #D71920 !important; color: #fff !important; }
+
+/* Building placeholder (no logo) */
+.sd-ph {
+  width: 44px; height: 44px; border-radius: 6px; display: inline-grid; place-items: center; flex-shrink: 0;
+  background: #1A1A1F; border: 1px solid var(--sd-line); color: rgba(255,255,255,0.75);
+}
+
+/* Company row layout (matches the mockup row) */
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card.sd-row {
+  display: grid !important;
+  grid-template-columns: 46px minmax(0, 1fr) auto auto 20px !important;
+  align-items: center !important;
+  gap: 18px !important;
+  padding: 14px 18px !important;
+  min-height: 0 !important;
+}
+.sd-row__icon { width: 46px; height: 46px; border-radius: 6px; background: #1A1A1F; border: 1px solid var(--sd-line); display: grid; place-items: center; overflow: hidden; }
+.sd-row__icon img { width: 34px; height: 34px; object-fit: contain; opacity: 0.9; }
+.sd-row__icon .sd-ph { width: 100%; height: 100%; border: 0; background: transparent; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sd-row .co-body { display: flex !important; flex-direction: column !important; gap: 6px !important; padding: 0 !important; min-width: 0; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sd-row .co-name { font-size: 16px !important; font-weight: 600 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sd-row .co-loc { font-size: 11px !important; letter-spacing: 0.14em !important; text-transform: uppercase; }
+.sd-row__badges { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.sd-tag {
+  display: inline-flex; align-items: center; border-radius: 3px; padding: 7px 10px; white-space: nowrap;
+  font: 600 11px/1 'IBM Plex Sans', sans-serif; letter-spacing: 0.04em; text-transform: uppercase;
+  border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.85);
+}
+.sd-tag--red { background: var(--sd-red); border-color: var(--sd-red); color: #fff; }
+.sd-tag--ghost { padding: 3px 6px; font-size: 10px; }
+.sd-row__view {
+  display: none;
+  background: var(--sd-red); color: #fff; border-radius: 3px; padding: 10px 14px;
+  font: 700 12px/1 'Space Grotesk', sans-serif; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap;
+}
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card.sd-row:hover .sd-row__view { display: inline-flex; }
+
+/* Jobs row: logo cell sits left, building icon when there is no logo */
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-body > span > .sd-ph { margin-right: 4px; }
+
+/* Event month rows + next-up cards in brand colors */
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sr-event-row { background: #0F0F12 !important; border-color: var(--sd-line) !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sr-event-row:hover { border-color: #D71920 !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sr-month-hdr__label { color: #D71920 !important; }
+
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
+@media (max-width: 1290px) {
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero,
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search,
+  .sd-tabs { margin-left: 20px !important; margin-right: 20px !important; }
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-hdr,
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-list,
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sr-month-section,
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sd-explore { padding-left: 20px !important; padding-right: 20px !important; }
+}
+@media (max-width: 720px) {
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero,
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search,
+  .sd-tabs { margin-left: 12px !important; margin-right: 12px !important; }
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero { margin-top: 12px !important; }
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero-content { padding: 22px 18px 96px !important; }
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero-toprow { margin-bottom: 22px !important; }
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search { padding: 0 14px 18px !important; margin-top: -80px !important; }
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search > svg { left: 30px; transform: translateY(calc(-50% - 9px)) !important; }
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search input { height: 46px !important; font-size: 14px !important; padding-left: 42px !important; }
+  .sd-search-btn { height: 46px; padding: 0 16px; font-size: 12px; }
+  .sd-tabs { padding: 0 6px; }
+  .sd-tabs__tab { padding: 16px 14px 18px; }
+  .sd-tabs__tab.is-on::after { left: 14px; right: 14px; }
+  .sd-explore__row { grid-template-columns: repeat(3, 72%); overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 4px; }
+  .sd-explore__tile { scroll-snap-align: start; }
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-hdr,
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-list,
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sr-month-section,
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sd-explore { padding-left: 12px !important; padding-right: 12px !important; }
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card.sd-row { grid-template-columns: 42px minmax(0, 1fr) auto 16px !important; gap: 12px !important; padding: 12px !important; }
+  .sd-row__badges .sd-tag:not(.sd-tag--red) { display: none; }
+  .sd-row__view { display: none; }
+  .sd-row__icon { width: 42px; height: 42px; }
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-title { font-size: 22px !important; }
+}
+
+/* Row text left-aligned (older rules centered the body) */
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card .co-body, html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card .co-name, html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card .co-loc {
+  text-align: left !important; align-items: flex-start !important; justify-content: flex-start !important;
+}
+
+/* Jobs rows: icon fills the logo cell; title + company line sit together */
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card .co-body > span:has(> .sd-ph) { grid-area: logo; align-self: center; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card .co-body > .co-mono-logo { grid-area: logo; align-self: center; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card:not(.sd-row) .co-body {
+  grid-template-rows: auto auto !important; align-content: center !important; row-gap: 6px !important;
+}
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card:not(.sd-row) .co-name { align-self: end !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card:not(.sd-row) .co-loc { align-self: start !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card:not(.sd-row) .co-badges { align-self: center !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-hdr { margin-top: 0 !important; }
+
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card.sd-row .co-body { overflow: hidden; }

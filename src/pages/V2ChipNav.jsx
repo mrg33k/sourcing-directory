@@ -25,18 +25,20 @@ const CHIPS = [
 ];
 
 export function V2ChipNav({ active }) {
+  // 2026-09-24 redesign: underlined tab bar (was pill chips).
   return (
-    <div className="chips" style={{ paddingBottom: 4 }}>
-      {CHIPS.map((c) =>
-        c.slug === active ? (
-          <div key={c.slug} className="chip on">{c.label}</div>
-        ) : (
-          <Link key={c.slug} to={c.to} className="chip" style={{ textDecoration: 'none' }}>
-            {c.label}
-          </Link>
-        )
-      )}
-    </div>
+    <nav className="sd-tabs" aria-label="Directory sections">
+      {CHIPS.map((c) => (
+        <Link
+          key={c.slug}
+          to={c.to}
+          className={`sd-tabs__tab${c.slug === active ? ' is-on' : ''}`}
+          aria-current={c.slug === active ? 'page' : undefined}
+        >
+          {c.label}
+        </Link>
+      ))}
+    </nav>
   );
 }
 

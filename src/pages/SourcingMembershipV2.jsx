@@ -18,6 +18,7 @@ import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTh
 import { V2ChipNav } from './V2ChipNav.jsx';
 import '../space-rising-theme-v2.css';
 
+import { SDHeroLogo, SDSearchButton, SDBuilding, SDExploreMore } from '../sd/SDChrome.jsx';
 const TENANT_SLUG_V2 = 'space-rising-v2';
 
 const FREE_BENEFITS = [
@@ -133,15 +134,15 @@ function CheckGlyph({ on }) {
   if (on) {
     return (
       <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-        <circle cx="9" cy="9" r="9" fill="#E8A23A" opacity="0.16" />
-        <path d="M5.5 9.5l2 2 5-5" stroke="#E8A23A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        <circle cx="9" cy="9" r="9" fill="#D71920" opacity="0.16" />
+        <path d="M5.5 9.5l2 2 5-5" stroke="#D71920" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     );
   }
   return (
     <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
-      <circle cx="9" cy="9" r="9" stroke="rgba(232,228,218,0.18)" strokeWidth="1" />
-      <path d="M6 6l6 6M12 6l-6 6" stroke="rgba(232,228,218,0.3)" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="9" cy="9" r="9" stroke="rgba(255, 255, 255,0.18)" strokeWidth="1" />
+      <path d="M6 6l6 6M12 6l-6 6" stroke="rgba(255, 255, 255,0.3)" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
@@ -156,14 +157,14 @@ function TierCard({ kind, title, lede, benefits, footnote, cta, ctaHref, billing
       style={{
         position: 'relative',
         background: isPremium ? 'rgba(11,11,13,0.92)' : 'rgba(10,11,14,0.86)',
-        border: isPremium ? '1px solid rgba(232,162,58,0.45)' : '1px solid rgba(232,228,218,0.08)',
+        border: isPremium ? '1px solid rgba(215, 25, 32,0.45)' : '1px solid rgba(255, 255, 255,0.08)',
         borderRadius: 12,
         padding: '40px 36px',
         display: 'flex',
         flexDirection: 'column',
         gap: 24,
         boxShadow: isPremium
-          ? '0 0 0 1px rgba(232,162,58,0.10) inset, 0 14px 44px rgba(0,0,0,0.4)'
+          ? '0 0 0 1px rgba(215, 25, 32,0.10) inset, 0 14px 44px rgba(0,0,0,0.4)'
           : '0 2px 12px rgba(0,0,0,0.25)',
       }}
     >
@@ -173,9 +174,9 @@ function TierCard({ kind, title, lede, benefits, footnote, cta, ctaHref, billing
             position: 'absolute',
             top: -10,
             left: 36,
-            background: '#E8A23A',
+            background: '#D71920',
             color: '#0B0B0D',
-            fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+            fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
             fontSize: 10,
             letterSpacing: '0.16em',
             textTransform: 'uppercase',
@@ -186,18 +187,18 @@ function TierCard({ kind, title, lede, benefits, footnote, cta, ctaHref, billing
           Members
         </div>
       )}
-      <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.22em', color: isPremium ? '#E8A23A' : 'rgba(232,228,218,0.5)', textTransform: 'uppercase' }}>
+      <div style={{ fontFamily: 'IBM Plex Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.22em', color: isPremium ? '#D71920' : 'rgba(255, 255, 255,0.5)', textTransform: 'uppercase' }}>
         {kind === 'free' ? 'Free' : 'Membership'}
       </div>
-      <div style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 36, fontWeight: 800, lineHeight: 1.05, letterSpacing: '-0.01em', color: '#E8E4DA' }}>
-        {title}<span style={{ color: '#E8A23A' }}>.</span>
+      <div style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 36, fontWeight: 800, lineHeight: 1.05, letterSpacing: '-0.01em', color: '#FFFFFF' }}>
+        {title}<span style={{ color: '#D71920' }}>.</span>
       </div>
-      <div style={{ fontSize: 15, lineHeight: 1.55, color: 'rgba(232,228,218,0.7)', maxWidth: '40ch' }}>
+      <div style={{ fontSize: 15, lineHeight: 1.55, color: 'rgba(255, 255, 255,0.7)', maxWidth: '40ch' }}>
         {lede}
       </div>
       <ul style={{ listStyle: 'none', padding: 0, margin: '8px 0 0', display: 'flex', flexDirection: 'column', gap: 12 }}>
         {benefits.map((b) => (
-          <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, fontSize: 14, color: '#E8E4DA', lineHeight: 1.45 }}>
+          <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, fontSize: 14, color: '#FFFFFF', lineHeight: 1.45 }}>
             <CheckGlyph on={true} />
             <span>{b}</span>
           </li>
@@ -217,12 +218,12 @@ function TierCard({ kind, title, lede, benefits, footnote, cta, ctaHref, billing
                   onClick={() => onBillingChange && onBillingChange(chip.key)}
                   style={{
                     flex: '1 1 0',
-                    background: active ? 'rgba(232,162,58,0.14)' : 'rgba(255,255,255,0.04)',
-                    border: `1px solid ${active ? 'rgba(232,162,58,0.55)' : 'rgba(232,228,218,0.12)'}`,
+                    background: active ? 'rgba(215, 25, 32,0.14)' : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${active ? 'rgba(215, 25, 32,0.55)' : 'rgba(255, 255, 255,0.12)'}`,
                     borderRadius: 8,
                     padding: '10px 8px 8px',
                     cursor: 'pointer',
-                    color: active ? '#E8A23A' : 'rgba(232,228,218,0.75)',
+                    color: active ? '#D71920' : 'rgba(255, 255, 255,0.75)',
                     textAlign: 'center',
                     transition: 'all 0.13s ease',
                   }}
@@ -230,7 +231,7 @@ function TierCard({ kind, title, lede, benefits, footnote, cta, ctaHref, billing
                   <div style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 12, fontWeight: 700, lineHeight: 1.2 }}>
                     {chip.label}
                   </div>
-                  <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 10, letterSpacing: '0.08em', marginTop: 4, color: active ? '#E8A23A' : 'rgba(232,228,218,0.45)' }}>
+                  <div style={{ fontFamily: 'IBM Plex Mono, ui-monospace, monospace', fontSize: 10, letterSpacing: '0.08em', marginTop: 4, color: active ? '#D71920' : 'rgba(255, 255, 255,0.45)' }}>
                     {chip.sub}
                   </div>
                 </button>
@@ -248,12 +249,12 @@ function TierCard({ kind, title, lede, benefits, footnote, cta, ctaHref, billing
                   style={{
                     flex: '1 1 0',
                     minWidth: 80,
-                    background: active ? 'rgba(232,162,58,0.14)' : 'rgba(255,255,255,0.04)',
-                    border: `1px solid ${active ? 'rgba(232,162,58,0.55)' : 'rgba(232,228,218,0.12)'}`,
+                    background: active ? 'rgba(215, 25, 32,0.14)' : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${active ? 'rgba(215, 25, 32,0.55)' : 'rgba(255, 255, 255,0.12)'}`,
                     borderRadius: 8,
                     padding: '10px 8px 8px',
                     cursor: 'pointer',
-                    color: active ? '#E8A23A' : 'rgba(232,228,218,0.75)',
+                    color: active ? '#D71920' : 'rgba(255, 255, 255,0.75)',
                     textAlign: 'center',
                     transition: 'all 0.13s ease',
                   }}
@@ -261,7 +262,7 @@ function TierCard({ kind, title, lede, benefits, footnote, cta, ctaHref, billing
                   <div style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 12, fontWeight: 700, lineHeight: 1.2 }}>
                     {chip.label}
                   </div>
-                  <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 10, letterSpacing: '0.08em', marginTop: 4, color: active ? '#E8A23A' : 'rgba(232,228,218,0.45)' }}>
+                  <div style={{ fontFamily: 'IBM Plex Mono, ui-monospace, monospace', fontSize: 10, letterSpacing: '0.08em', marginTop: 4, color: active ? '#D71920' : 'rgba(255, 255, 255,0.45)' }}>
                     {chip.sub}
                   </div>
                 </button>
@@ -271,9 +272,9 @@ function TierCard({ kind, title, lede, benefits, footnote, cta, ctaHref, billing
         </>
       )}
 
-      <div style={{ borderTop: '1px solid rgba(232,228,218,0.08)', paddingTop: 20, marginTop: 'auto' }}>
+      <div style={{ borderTop: '1px solid rgba(255, 255, 255,0.08)', paddingTop: 20, marginTop: 'auto' }}>
         {footnote && (
-          <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.12em', color: 'rgba(232,228,218,0.5)', textTransform: 'uppercase', marginBottom: 14 }}>
+          <div style={{ fontFamily: 'IBM Plex Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.12em', color: 'rgba(255, 255, 255,0.5)', textTransform: 'uppercase', marginBottom: 14 }}>
             {footnote}
           </div>
         )}
@@ -286,9 +287,9 @@ function TierCard({ kind, title, lede, benefits, footnote, cta, ctaHref, billing
             gap: 8,
             width: '100%',
             textDecoration: 'none',
-            background: isPremium ? '#E8A23A' : 'transparent',
-            color: isPremium ? '#0B0B0D' : '#E8E4DA',
-            border: isPremium ? '1px solid #E8A23A' : '1px solid rgba(232,228,218,0.24)',
+            background: isPremium ? '#D71920' : 'transparent',
+            color: isPremium ? '#0B0B0D' : '#FFFFFF',
+            border: isPremium ? '1px solid #D71920' : '1px solid rgba(255, 255, 255,0.24)',
             padding: '14px 22px',
             borderRadius: 999,
             fontFamily: '"Space Grotesk", sans-serif',
@@ -314,7 +315,7 @@ function BenefitStrip({ label, title, body, items, bg, flipped }) {
       style={{
         position: 'relative',
         padding: 'clamp(48px, 8vw, 88px) 0',
-        borderTop: '1px solid rgba(232,228,218,0.06)',
+        borderTop: '1px solid rgba(255, 255, 255,0.06)',
         overflow: 'hidden',
       }}
     >
@@ -339,19 +340,19 @@ function BenefitStrip({ label, title, body, items, bg, flipped }) {
         }}
       >
         <div style={{ direction: 'ltr' }}>
-          <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.22em', color: '#E8A23A', textTransform: 'uppercase', marginBottom: 18 }}>
+          <div style={{ fontFamily: 'IBM Plex Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.22em', color: '#D71920', textTransform: 'uppercase', marginBottom: 18 }}>
             {label}
           </div>
-          <h2 style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 'clamp(32px, 3.4vw, 48px)', fontWeight: 800, lineHeight: 1.05, letterSpacing: '-0.01em', color: '#E8E4DA', margin: 0 }}>
-            {title}<span style={{ color: '#E8A23A' }}>.</span>
+          <h2 style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 'clamp(32px, 3.4vw, 48px)', fontWeight: 800, lineHeight: 1.05, letterSpacing: '-0.01em', color: '#FFFFFF', margin: 0 }}>
+            {title}<span style={{ color: '#D71920' }}>.</span>
           </h2>
-          <p style={{ fontSize: 16, lineHeight: 1.55, color: 'rgba(232,228,218,0.78)', marginTop: 18, maxWidth: '42ch' }}>
+          <p style={{ fontSize: 16, lineHeight: 1.55, color: 'rgba(255, 255, 255,0.78)', marginTop: 18, maxWidth: '42ch' }}>
             {body}
           </p>
         </div>
         <ul style={{ direction: 'ltr', listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
           {items.map((i) => (
-            <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, fontSize: 14, color: 'rgba(232,228,218,0.92)', lineHeight: 1.45, paddingBottom: 14, borderBottom: '1px solid rgba(232,228,218,0.06)' }}>
+            <li key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 14, fontSize: 14, color: 'rgba(255, 255, 255,0.92)', lineHeight: 1.45, paddingBottom: 14, borderBottom: '1px solid rgba(255, 255, 255,0.06)' }}>
               <CheckGlyph on={true} />
               <span>{i}</span>
             </li>
@@ -398,29 +399,29 @@ function SourcingMembershipV2Inner() {
         position: 'relative',
         fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
         '--bg': 'transparent',
-        '--tx': '#E8E4DA',
-        '--tx2': 'rgba(232,228,218,0.60)',
-        '--tx3': 'rgba(232,228,218,0.25)',
+        '--tx': '#FFFFFF',
+        '--tx2': 'rgba(255, 255, 255,0.60)',
+        '--tx3': 'rgba(255, 255, 255,0.25)',
         '--s1': 'rgba(11,11,13,0.72)',
         '--s2': 'rgba(11,11,13,0.82)',
         '--s3': 'rgba(11,11,13,0.92)',
-        '--bd': 'rgba(232,228,218,0.10)',
-        '--bd2': 'rgba(232,228,218,0.16)',
-        '--cyan': '#E8A23A',
-        '--cyan-dim': 'rgba(232,162,58,0.10)',
-        '--cyan-brd': 'rgba(232,162,58,0.32)',
+        '--bd': 'rgba(255, 255, 255,0.10)',
+        '--bd2': 'rgba(255, 255, 255,0.16)',
+        '--cyan': '#D71920',
+        '--cyan-dim': 'rgba(215, 25, 32,0.10)',
+        '--cyan-brd': 'rgba(215, 25, 32,0.32)',
       }}
     >
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }
-        .v2-membership-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(232,162,58,0.3); }
+        .v2-membership-cta:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(215, 25, 32,0.3); }
 
         /* ── Responsive grid helpers ── */
         .mem-section   { max-width: 1140px; margin: 56px auto 0; padding: 0 32px; }
         .mem-tier-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
         .mem-price-band { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;
-                          border: 1px solid rgba(232,228,218,0.10); background: rgba(10,11,14,0.62);
+                          border: 1px solid rgba(255, 255, 255,0.10); background: rgba(10,11,14,0.62);
                           border-radius: 12px; padding: 32px 36px; }
         .mem-seat-grid  { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 18px; }
         .mem-benefit-inner { max-width: 1140px; margin: 0 auto; padding: 0 32px;
@@ -447,9 +448,9 @@ function SourcingMembershipV2Inner() {
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Back
             </Link>
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
+            <SDHeroLogo />
           </div>
-          <div className="browse-title">Be in the room.</div>
+          <div className="browse-title">Be in the room<span className="sd-dot">.</span></div>
           <div className="browse-sub">
             Where Arizona&rsquo;s space industry decides what gets built next.
           </div>
@@ -465,7 +466,7 @@ function SourcingMembershipV2Inner() {
         <div className="sec-hdr" style={{ maxWidth: 'none', padding: 0, marginBottom: 20 }}>
           <div className="sec-title" style={{ whiteSpace: 'normal' }}>Pick how you walk in.</div>
           <div className="sec-count">
-            <span style={{ color: 'var(--tx3)', fontSize: 12, fontFamily: 'JetBrains Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            <span style={{ color: 'var(--tx3)', fontSize: 12, fontFamily: 'IBM Plex Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
               Two doors, same room
             </span>
           </div>
@@ -500,7 +501,7 @@ function SourcingMembershipV2Inner() {
 
       {/* Pricing table — all tiers, both billing options */}
       <section className="mem-section">
-        <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.22em', color: '#E8A23A', textTransform: 'uppercase', marginBottom: 18 }}>
+        <div style={{ fontFamily: 'IBM Plex Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.22em', color: '#D71920', textTransform: 'uppercase', marginBottom: 18 }}>
           Pricing by company size
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
@@ -509,22 +510,22 @@ function SourcingMembershipV2Inner() {
               key={t.key}
               style={{
                 padding: '20px 20px 18px',
-                border: `1px solid ${empTier === t.key ? 'rgba(232,162,58,0.45)' : 'rgba(232,228,218,0.08)'}`,
+                border: `1px solid ${empTier === t.key ? 'rgba(215, 25, 32,0.45)' : 'rgba(255, 255, 255,0.08)'}`,
                 borderRadius: 10,
-                background: empTier === t.key ? 'rgba(232,162,58,0.06)' : 'rgba(10,11,14,0.42)',
+                background: empTier === t.key ? 'rgba(215, 25, 32,0.06)' : 'rgba(10,11,14,0.42)',
                 cursor: 'pointer',
                 transition: 'all 0.13s ease',
               }}
               onClick={() => setEmpTier(t.key)}
             >
-              <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 10, letterSpacing: '0.14em', color: 'rgba(232,228,218,0.55)', textTransform: 'uppercase', marginBottom: 8 }}>
+              <div style={{ fontFamily: 'IBM Plex Mono, ui-monospace, monospace', fontSize: 10, letterSpacing: '0.14em', color: 'rgba(255, 255, 255,0.55)', textTransform: 'uppercase', marginBottom: 8 }}>
                 {t.label}
               </div>
-              <div style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 22, fontWeight: 700, color: empTier === t.key ? '#E8A23A' : '#E8E4DA', marginBottom: 4 }}>
+              <div style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 22, fontWeight: 700, color: empTier === t.key ? '#D71920' : '#FFFFFF', marginBottom: 4 }}>
                 {t.annual}
-                <span style={{ fontSize: 12, fontWeight: 400, color: 'rgba(232,228,218,0.5)', marginLeft: 4 }}>/yr</span>
+                <span style={{ fontSize: 12, fontWeight: 400, color: 'rgba(255, 255, 255,0.5)', marginLeft: 4 }}>/yr</span>
               </div>
-              <div style={{ fontSize: 12, color: 'rgba(232,228,218,0.5)' }}>
+              <div style={{ fontSize: 12, color: 'rgba(255, 255, 255,0.5)' }}>
                 or {t.monthly} monthly
               </div>
             </div>
@@ -540,11 +541,11 @@ function SourcingMembershipV2Inner() {
       {/* "What's in the room" — full benefits as editorial strips */}
       <section style={{ marginTop: 96 }}>
         <div className="mem-section" style={{ marginTop: 0 }}>
-          <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.22em', color: '#E8A23A', textTransform: 'uppercase', marginBottom: 14 }}>
+          <div style={{ fontFamily: 'IBM Plex Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.22em', color: '#D71920', textTransform: 'uppercase', marginBottom: 14 }}>
             What&rsquo;s in the room
           </div>
-          <h2 style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 'clamp(36px, 4vw, 56px)', fontWeight: 800, lineHeight: 1.02, letterSpacing: '-0.015em', color: '#E8E4DA', margin: 0, maxWidth: '18ch' }}>
-            Five things every member gets<span style={{ color: '#E8A23A' }}>.</span>
+          <h2 style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 'clamp(36px, 4vw, 56px)', fontWeight: 800, lineHeight: 1.02, letterSpacing: '-0.015em', color: '#FFFFFF', margin: 0, maxWidth: '18ch' }}>
+            Five things every member gets<span style={{ color: '#D71920' }}>.</span>
           </h2>
         </div>
         {BENEFIT_STRIPS.map((s, i) => (
@@ -559,7 +560,7 @@ function SourcingMembershipV2Inner() {
           style={{
             width: '100%',
             background: 'transparent',
-            border: '1px solid rgba(232,228,218,0.12)',
+            border: '1px solid rgba(255, 255, 255,0.12)',
             borderRadius: 10,
             padding: '20px 24px',
             display: 'flex',
@@ -570,19 +571,19 @@ function SourcingMembershipV2Inner() {
             fontFamily: '"Space Grotesk", sans-serif',
           }}
         >
-          <span style={{ fontSize: 16, fontWeight: 600, color: '#E8E4DA' }}>
+          <span style={{ fontSize: 16, fontWeight: 600, color: '#FFFFFF' }}>
             See what&rsquo;s different between Free and Members
           </span>
-          <span style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.16em', color: '#E8A23A', textTransform: 'uppercase' }}>
+          <span style={{ fontFamily: 'IBM Plex Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.16em', color: '#D71920', textTransform: 'uppercase' }}>
             {compareOpen ? 'Hide' : 'Show'} table
           </span>
         </button>
         {compareOpen && (
-          <div style={{ marginTop: 16, border: '1px solid rgba(232,228,218,0.10)', borderRadius: 10, overflow: 'hidden' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px 110px', padding: '14px 24px', borderBottom: '1px solid rgba(232,228,218,0.10)', background: 'rgba(10,11,14,0.62)' }}>
-              <span style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.14em', color: 'rgba(232,228,218,0.55)', textTransform: 'uppercase' }}>Feature</span>
-              <span style={{ textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.14em', color: 'rgba(232,228,218,0.55)', textTransform: 'uppercase' }}>Free</span>
-              <span style={{ textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.14em', color: '#E8A23A', textTransform: 'uppercase' }}>Members</span>
+          <div style={{ marginTop: 16, border: '1px solid rgba(255, 255, 255,0.10)', borderRadius: 10, overflow: 'hidden' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 110px 110px', padding: '14px 24px', borderBottom: '1px solid rgba(255, 255, 255,0.10)', background: 'rgba(10,11,14,0.62)' }}>
+              <span style={{ fontFamily: 'IBM Plex Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.14em', color: 'rgba(255, 255, 255,0.55)', textTransform: 'uppercase' }}>Feature</span>
+              <span style={{ textAlign: 'center', fontFamily: 'IBM Plex Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.14em', color: 'rgba(255, 255, 255,0.55)', textTransform: 'uppercase' }}>Free</span>
+              <span style={{ textAlign: 'center', fontFamily: 'IBM Plex Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.14em', color: '#D71920', textTransform: 'uppercase' }}>Members</span>
             </div>
             {COMPARISON.map((row, idx) => (
               <div
@@ -592,9 +593,9 @@ function SourcingMembershipV2Inner() {
                   gridTemplateColumns: '1fr 110px 110px',
                   alignItems: 'center',
                   padding: '14px 24px',
-                  borderBottom: idx < COMPARISON.length - 1 ? '1px solid rgba(232,228,218,0.06)' : 'none',
+                  borderBottom: idx < COMPARISON.length - 1 ? '1px solid rgba(255, 255, 255,0.06)' : 'none',
                   fontSize: 14,
-                  color: '#E8E4DA',
+                  color: '#FFFFFF',
                 }}
               >
                 <span>{row.feature}</span>
@@ -607,15 +608,15 @@ function SourcingMembershipV2Inner() {
       </section>
 
       {/* Final CTA stripe */}
-      <section style={{ borderTop: '1px solid rgba(232,228,218,0.08)', marginTop: 56, padding: 'clamp(48px, 8vw, 88px) 16px clamp(64px, 10vw, 120px)' }}>
+      <section style={{ borderTop: '1px solid rgba(255, 255, 255,0.08)', marginTop: 56, padding: 'clamp(48px, 8vw, 88px) 16px clamp(64px, 10vw, 120px)' }}>
         <div style={{ maxWidth: 920, margin: '0 auto', textAlign: 'center' }}>
-          <div style={{ fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.22em', color: '#E8A23A', textTransform: 'uppercase', marginBottom: 18 }}>
+          <div style={{ fontFamily: 'IBM Plex Mono, ui-monospace, monospace', fontSize: 11, letterSpacing: '0.22em', color: '#D71920', textTransform: 'uppercase', marginBottom: 18 }}>
             Pick a door
           </div>
-          <h2 style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 'clamp(32px, 3.6vw, 52px)', fontWeight: 800, lineHeight: 1.05, color: '#E8E4DA', margin: 0 }}>
-            Decide who you want to be in this industry<span style={{ color: '#E8A23A' }}>.</span>
+          <h2 style={{ fontFamily: '"Space Grotesk", sans-serif', fontSize: 'clamp(32px, 3.6vw, 52px)', fontWeight: 800, lineHeight: 1.05, color: '#FFFFFF', margin: 0 }}>
+            Decide who you want to be in this industry<span style={{ color: '#D71920' }}>.</span>
           </h2>
-          <p style={{ fontSize: 16, lineHeight: 1.55, color: 'rgba(232,228,218,0.72)', marginTop: 22, maxWidth: '48ch', marginLeft: 'auto', marginRight: 'auto' }}>
+          <p style={{ fontSize: 16, lineHeight: 1.55, color: 'rgba(255, 255, 255,0.72)', marginTop: 22, maxWidth: '48ch', marginLeft: 'auto', marginRight: 'auto' }}>
             Watch from the floor or join the room. Either way, you&rsquo;re on the map and you&rsquo;re in the conversation.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 36, flexWrap: 'wrap' }}>
@@ -627,8 +628,8 @@ function SourcingMembershipV2Inner() {
                 gap: 8,
                 textDecoration: 'none',
                 background: 'transparent',
-                color: '#E8E4DA',
-                border: '1px solid rgba(232,228,218,0.30)',
+                color: '#FFFFFF',
+                border: '1px solid rgba(255, 255, 255,0.30)',
                 padding: '16px 32px',
                 borderRadius: 999,
                 fontFamily: '"Space Grotesk", sans-serif',
@@ -647,9 +648,9 @@ function SourcingMembershipV2Inner() {
                 alignItems: 'center',
                 gap: 8,
                 textDecoration: 'none',
-                background: '#E8A23A',
+                background: '#D71920',
                 color: '#0B0B0D',
-                border: '1px solid #E8A23A',
+                border: '1px solid #D71920',
                 padding: '16px 32px',
                 borderRadius: 999,
                 fontFamily: '"Space Grotesk", sans-serif',

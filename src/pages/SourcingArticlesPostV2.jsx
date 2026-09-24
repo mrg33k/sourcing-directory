@@ -1,7 +1,7 @@
 // SourcingArticlesPostV2.jsx
 // nat-geo-uplift — V2 post form for Articles.
 // Supabase logic preserved exactly from SourcingArticlesPost.jsx.
-// Visual system: dark BG (#06060A), amber accent (#E8A23A), line-style inputs.
+// Visual system: dark BG (#06060A), amber accent (#D71920), line-style inputs.
 // GATED to signed-in community members, mirroring SourcingDiscoveryPostV2 — you
 // must have an account to contribute. The Shell offsets the fixed 155px nav so
 // the hero never renders underneath it.
@@ -25,11 +25,11 @@ const BG     = '#06060A';
 const TEXT   = '#F5EED7';
 const MUTED  = 'rgba(245,238,215,0.55)';
 const DIM    = 'rgba(245,238,215,0.3)';
-const AMBER  = '#E8A23A';
+const AMBER  = '#D71920';
 const BORDER = 'rgba(245,238,215,0.10)';
 const CARD   = 'rgba(245,238,215,0.04)';
 const FONT   = "'Space Grotesk', sans-serif";
-const MONO   = "'JetBrains Mono', monospace";
+const MONO   = "'IBM Plex Mono', monospace";
 
 const VERTICALS = [
   { key: 'semiconductor',  label: 'Semiconductor' },
@@ -151,7 +151,7 @@ function Shell({ children }) {
       '--tx2': MUTED, '--tx3': DIM,
       '--s1': 'rgba(6,6,10,0.72)', '--s2': 'rgba(6,6,10,0.82)',
       '--bd': BORDER, '--bd2': 'rgba(245,238,215,0.16)',
-      '--cyan': AMBER, '--cyan-dim': 'rgba(232,162,58,0.10)', '--cyan-brd': 'rgba(232,162,58,0.32)',
+      '--cyan': AMBER, '--cyan-dim': 'rgba(215, 25, 32,0.10)', '--cyan-brd': 'rgba(215, 25, 32,0.32)',
     }}>
       <style>{`
         * { box-sizing: border-box; }
@@ -429,7 +429,7 @@ export default function SourcingArticlesPostV2() {
     <Shell>
       {/* Hero */}
       <div style={{
-        background: 'linear-gradient(180deg, rgba(232,162,58,0.06) 0%, transparent 100%)',
+        background: 'linear-gradient(180deg, rgba(215, 25, 32,0.06) 0%, transparent 100%)',
         borderBottom: `1px solid ${BORDER}`,
         padding: '48px 24px 32px',
       }}>
@@ -606,7 +606,7 @@ export default function SourcingArticlesPostV2() {
                     display: 'flex', alignItems: 'center', gap: 16, marginTop: 6,
                     padding: 12, marginLeft: -12, borderRadius: 10,
                     border: `1px solid ${coverDragging ? AMBER : 'transparent'}`,
-                    background: coverDragging ? 'rgba(232,162,58,0.06)' : 'transparent',
+                    background: coverDragging ? 'rgba(215, 25, 32,0.06)' : 'transparent',
                     transition: 'background 120ms, border-color 120ms',
                   }}
                 >

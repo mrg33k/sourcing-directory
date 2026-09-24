@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
 import '../space-rising-theme-v2.css';
 
+import { SDHeroLogo, SDSearchButton, SDBuilding, SDExploreMore } from '../sd/SDChrome.jsx';
 const TENANT_SLUG_V2 = 'space-rising-v2';
 
 const ROUND_STAGES = ['Pre-Seed', 'Seed', 'Series A', 'Series B', 'Series C', 'Series D', 'Series D+', 'Growth'];
@@ -292,17 +293,17 @@ function SourcingDealBankAddListingInner() {
           padding: 24,
           fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
           '--bg': 'transparent',
-          '--tx': '#E8E4DA',
-          '--tx2': 'rgba(232,228,218,0.60)',
-          '--tx3': 'rgba(232,228,218,0.25)',
+          '--tx': '#FFFFFF',
+          '--tx2': 'rgba(255, 255, 255,0.60)',
+          '--tx3': 'rgba(255, 255, 255,0.25)',
           '--s1': 'rgba(11,11,13,0.72)',
           '--s2': 'rgba(11,11,13,0.82)',
           '--s3': 'rgba(11,11,13,0.92)',
-          '--bd': 'rgba(232,228,218,0.10)',
-          '--bd2': 'rgba(232,228,218,0.16)',
-          '--cyan': '#E8A23A',
-          '--cyan-dim': 'rgba(232,162,58,0.10)',
-          '--cyan-brd': 'rgba(232,162,58,0.32)',
+          '--bd': 'rgba(255, 255, 255,0.10)',
+          '--bd2': 'rgba(255, 255, 255,0.16)',
+          '--cyan': '#D71920',
+          '--cyan-dim': 'rgba(215, 25, 32,0.10)',
+          '--cyan-brd': 'rgba(215, 25, 32,0.32)',
         }}
       >
         <div style={{ maxWidth: 480, textAlign: 'center' }}>
@@ -340,10 +341,10 @@ function SourcingDealBankAddListingInner() {
       <div
         data-tenant={TENANT_SLUG_V2}
         style={{
-          minHeight: '100dvh', background: 'transparent', color: '#E8E4DA',
+          minHeight: '100dvh', background: 'transparent', color: '#FFFFFF',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontFamily: 'JetBrains Mono, ui-monospace, monospace', fontSize: 13,
-          letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(232,228,218,0.5)',
+          fontFamily: 'IBM Plex Mono, ui-monospace, monospace', fontSize: 13,
+          letterSpacing: '0.08em', textTransform: 'uppercase', color: 'rgba(255, 255, 255,0.5)',
         }}
       >
         Loading your listing…
@@ -361,17 +362,17 @@ function SourcingDealBankAddListingInner() {
         position: 'relative',
         fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
         '--bg': 'transparent',
-        '--tx': '#E8E4DA',
-        '--tx2': 'rgba(232,228,218,0.60)',
-        '--tx3': 'rgba(232,228,218,0.25)',
+        '--tx': '#FFFFFF',
+        '--tx2': 'rgba(255, 255, 255,0.60)',
+        '--tx3': 'rgba(255, 255, 255,0.25)',
         '--s1': 'rgba(11,11,13,0.72)',
         '--s2': 'rgba(11,11,13,0.82)',
         '--s3': 'rgba(11,11,13,0.92)',
-        '--bd': 'rgba(232,228,218,0.10)',
-        '--bd2': 'rgba(232,228,218,0.16)',
-        '--cyan': '#E8A23A',
-        '--cyan-dim': 'rgba(232,162,58,0.10)',
-        '--cyan-brd': 'rgba(232,162,58,0.32)',
+        '--bd': 'rgba(255, 255, 255,0.10)',
+        '--bd2': 'rgba(255, 255, 255,0.16)',
+        '--cyan': '#D71920',
+        '--cyan-dim': 'rgba(215, 25, 32,0.10)',
+        '--cyan-brd': 'rgba(215, 25, 32,0.32)',
       }}
     >
       <div className="browse-hero" style={{ '--page-hero-bg': "url('/v2-assets/earth.png')" }}>
@@ -385,7 +386,7 @@ function SourcingDealBankAddListingInner() {
               </svg>
               Deal Bank
             </Link>
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
+            <SDHeroLogo />
           </div>
           <div className="browse-title">{isEdit ? 'Edit your listing.' : 'Add your listing.'}</div>
           <div className="browse-sub">
@@ -539,7 +540,7 @@ function SourcingDealBankAddListingInner() {
             Leadership Team (Optional)
           </label>
           {formData.leadership.map((leader, idx) => (
-            <div key={idx} style={{ marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid rgba(232,228,218,0.10)' }}>
+            <div key={idx} style={{ marginBottom: 16, paddingBottom: 16, borderBottom: '1px solid rgba(255, 255, 255,0.10)' }}>
               <FormField
                 label={`Name ${idx + 1}`}
                 type="text"
@@ -615,7 +616,7 @@ function SourcingDealBankAddListingInner() {
             style={{
               width: '100%',
               padding: '12px 24px',
-              background: loading ? 'rgba(232,162,58,0.3)' : 'var(--cyan)',
+              background: loading ? 'rgba(215, 25, 32,0.3)' : 'var(--cyan)',
               color: loading ? 'var(--tx3)' : '#000',
               border: 'none',
               borderRadius: 6,

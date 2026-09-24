@@ -11,6 +11,7 @@ import useSRWTitle from './srw/useSRWTitle.js';
 import { V2ChipNav } from './V2ChipNav.jsx';
 import '../space-rising-theme-v2.css';
 
+import { SDHeroLogo, SDSearchButton, SDBuilding, SDExploreMore } from '../sd/SDChrome.jsx';
 const TENANT_SLUG_V2 = 'space-rising-v2';
 
 const LANES = [
@@ -185,11 +186,11 @@ function SourcingDealBankV2Inner() {
         color: 'var(--tx)',
         position: 'relative',
         fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
-        '--bg': 'transparent', '--tx': '#E8E4DA',
-        '--tx2': 'rgba(232,228,218,0.60)', '--tx3': 'rgba(232,228,218,0.25)',
+        '--bg': 'transparent', '--tx': '#FFFFFF',
+        '--tx2': 'rgba(255, 255, 255,0.60)', '--tx3': 'rgba(255, 255, 255,0.25)',
         '--s1': 'rgba(11,11,13,0.72)', '--s2': 'rgba(11,11,13,0.82)', '--s3': 'rgba(11,11,13,0.92)',
-        '--bd': 'rgba(232,228,218,0.10)', '--bd2': 'rgba(232,228,218,0.16)',
-        '--cyan': '#E8A23A', '--cyan-dim': 'rgba(232,162,58,0.10)', '--cyan-brd': 'rgba(232,162,58,0.32)',
+        '--bd': 'rgba(255, 255, 255,0.10)', '--bd2': 'rgba(255, 255, 255,0.16)',
+        '--cyan': '#D71920', '--cyan-dim': 'rgba(215, 25, 32,0.10)', '--cyan-brd': 'rgba(215, 25, 32,0.32)',
       }}
     >
       <style>{`@keyframes spin { to { transform: rotate(360deg); } } @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }`}</style>
@@ -203,9 +204,9 @@ function SourcingDealBankV2Inner() {
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Back
             </Link>
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
+            <SDHeroLogo />
           </div>
-          <div className="browse-title">Deal Bank.</div>
+          <div className="browse-title">Deal Bank<span className="sd-dot">.</span></div>
           <div className="browse-sub">
             Three ways to connect to space deal flow: companies raising, investor firms, and completed rounds.
           </div>
@@ -224,6 +225,7 @@ function SourcingDealBankV2Inner() {
           spellCheck="false"
         />
         {loading && activeLane === 'completed' && <div className="spinner" />}
+        <SDSearchButton />
       </div>
 
       {/* Deal-Bank-only lane selector — three bubbles, defaults to Completed
@@ -249,11 +251,12 @@ function SourcingDealBankV2Inner() {
       <div className="sec-hdr">
         <div className="sec-title">
           {activeLane === 'completed'
-            ? (loading ? 'Loading...' : `${filtered.length} Deal${filtered.length === 1 ? '' : 's'}.`)
-            : LANE_HEADINGS[activeLane] + '.'}
+            ? (loading ? 'Loading...' : `${filtered.length} Deal${filtered.length === 1 ? '' : 's'}`)
+            : LANE_HEADINGS[activeLane]}
+        {!loading && <span className="sd-dot">.</span>}
         </div>
         <div className="sec-count">
-          <span style={{ color: 'var(--tx3)', fontSize: 12, fontFamily: 'JetBrains Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+          <span style={{ color: 'var(--tx3)', fontSize: 12, fontFamily: 'IBM Plex Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
             {LANE_HEADINGS[activeLane]}
           </span>
         </div>
@@ -264,7 +267,7 @@ function SourcingDealBankV2Inner() {
           <>
             {loading && (
               <>{[1, 2, 3, 4].map((i) => (
-                <div key={i} style={{ height: 84, borderRadius: 10, background: 'rgba(18,20,28,0.40)', border: '1px solid rgba(232,228,218,0.05)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+                <div key={i} style={{ height: 84, borderRadius: 10, background: 'rgba(18, 18, 22,0.40)', border: '1px solid rgba(255, 255, 255,0.05)', animation: 'pulse 1.5s ease-in-out infinite' }} />
               ))}</>
             )}
 
@@ -295,7 +298,7 @@ function SourcingDealBankV2Inner() {
             })}
 
             {!loading && filtered.length === 0 && (
-              <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'IBM Plex Mono, ui-monospace, monospace', color: 'rgba(255, 255, 255,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                 {searchInput ? `No deals match "${searchInput}"` : 'No deals available.'}
               </div>
             )}
@@ -354,7 +357,7 @@ function AcceleratorsLane({ searchInput }) {
 
   return (
     <>
-      <div style={{ padding: '0 2px 10px', color: 'var(--tx3)', fontSize: 12, fontFamily: 'JetBrains Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+      <div style={{ padding: '0 2px 10px', color: 'var(--tx3)', fontSize: 12, fontFamily: 'IBM Plex Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
         {loading && !items.length ? 'Loading…' : `${total.toLocaleString()} accelerators · most active first`}
       </div>
 
@@ -384,7 +387,7 @@ function AcceleratorsLane({ searchInput }) {
       ))}
 
       {!loading && items.length === 0 && (
-        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'IBM Plex Mono, ui-monospace, monospace', color: 'rgba(255, 255, 255,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           {searchInput ? `No accelerators match "${searchInput}"` : 'No accelerators yet.'}
         </div>
       )}
@@ -474,7 +477,7 @@ function InvestmentsLane({ searchInput }) {
   return (
     <>
       {loading && (
-        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.35)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'IBM Plex Mono, ui-monospace, monospace', color: 'rgba(255, 255, 255,0.35)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           Loading...
         </div>
       )}
@@ -503,7 +506,7 @@ function InvestmentsLane({ searchInput }) {
       ))}
 
       {showEmptyState && (
-        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'IBM Plex Mono, ui-monospace, monospace', color: 'rgba(255, 255, 255,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           {`No listings match "${searchInput}"`}
         </div>
       )}
@@ -589,26 +592,26 @@ function InvestorsLane({ searchInput }) {
       ))}
 
       {filtered.length === 0 && !loading && (
-        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'IBM Plex Mono, ui-monospace, monospace', color: 'rgba(255, 255, 255,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           {`No firms match "${searchInput}"`}
         </div>
       )}
 
       {loading && (
-        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.35)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'IBM Plex Mono, ui-monospace, monospace', color: 'rgba(255, 255, 255,0.35)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           Loading...
         </div>
       )}
 
-      <div style={{ padding: '24px', borderTop: '1px solid rgba(232,228,218,0.10)' }}>
+      <div style={{ padding: '24px', borderTop: '1px solid rgba(255, 255, 255,0.10)' }}>
         <Link
           to="/spaceos/deal-bank/investors/signup"
           style={{
             display: 'block',
             padding: '12px 16px',
-            border: '1px solid rgba(232,162,58,0.32)',
+            border: '1px solid rgba(215, 25, 32,0.32)',
             borderRadius: 6,
-            background: 'rgba(232,162,58,0.08)',
+            background: 'rgba(215, 25, 32,0.08)',
             color: 'var(--cyan)',
             textDecoration: 'none',
             fontSize: 12,
@@ -633,11 +636,11 @@ function SamplePreviewBanner({ copy }) {
         padding: '12px 16px',
         marginBottom: 16,
         borderRadius: 10,
-        border: '1px solid rgba(232,162,58,0.32)',
-        background: 'rgba(232,162,58,0.08)',
+        border: '1px solid rgba(215, 25, 32,0.32)',
+        background: 'rgba(215, 25, 32,0.08)',
         color: 'var(--cyan)',
         fontSize: 12,
-        fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+        fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
         textTransform: 'uppercase',
         letterSpacing: '0.10em',
         textAlign: 'center',

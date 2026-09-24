@@ -334,12 +334,12 @@ function ChooseAccountType({ basePath, onPick }) {
             onClick={() => onPick(o.key)}
             style={{
               textAlign: 'left',
-              background: o.solid ? 'rgba(232,162,58,0.07)' : 'rgba(255,255,255,0.03)',
-              border: `1px solid ${o.solid ? 'rgba(232,162,58,0.45)' : 'rgba(232,228,218,0.14)'}`,
+              background: o.solid ? 'rgba(215, 25, 32,0.07)' : 'rgba(255,255,255,0.03)',
+              border: `1px solid ${o.solid ? 'rgba(215, 25, 32,0.45)' : 'rgba(255, 255, 255,0.14)'}`,
               borderRadius: 12,
               padding: '22px 24px',
               cursor: 'pointer',
-              color: '#E8E4DA',
+              color: '#FFFFFF',
               display: 'flex',
               flexDirection: 'column',
               gap: 8,
@@ -347,9 +347,9 @@ function ChooseAccountType({ basePath, onPick }) {
             }}
           >
             <span style={{
-              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+              fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
               fontSize: 11, letterSpacing: '0.18em', textTransform: 'uppercase',
-              color: o.solid ? '#E8A23A' : 'rgba(232,228,218,0.55)',
+              color: o.solid ? '#D71920' : 'rgba(255, 255, 255,0.55)',
             }}>
               {o.tag}
             </span>
@@ -357,15 +357,15 @@ function ChooseAccountType({ basePath, onPick }) {
               fontFamily: '"Space Grotesk", sans-serif',
               fontSize: 22, fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.01em',
             }}>
-              {o.title}<span style={{ color: '#E8A23A' }}>.</span>
+              {o.title}<span style={{ color: '#D71920' }}>.</span>
             </span>
-            <span style={{ fontSize: 14, lineHeight: 1.5, color: 'rgba(232,228,218,0.7)' }}>
+            <span style={{ fontSize: 14, lineHeight: 1.5, color: 'rgba(255, 255, 255,0.7)' }}>
               {o.sub}
             </span>
             <span style={{
               display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 6,
               fontFamily: '"Space Grotesk", sans-serif', fontWeight: 700, fontSize: 14,
-              color: o.solid ? '#E8A23A' : '#E8E4DA',
+              color: o.solid ? '#D71920' : '#FFFFFF',
             }}>
               {o.cta}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
@@ -376,12 +376,12 @@ function ChooseAccountType({ basePath, onPick }) {
 
       <div style={{
         marginTop: 28, textAlign: 'center',
-        fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+        fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
         fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase',
-        color: 'rgba(232,228,218,0.45)',
+        color: 'rgba(255, 255, 255,0.45)',
       }}>
         Already have an account?{' '}
-        <Link to={`${basePath}/login`} style={{ color: '#E8A23A', textDecoration: 'none' }}>
+        <Link to={`${basePath}/login`} style={{ color: '#D71920', textDecoration: 'none' }}>
           Sign in
         </Link>
       </div>

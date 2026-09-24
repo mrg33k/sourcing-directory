@@ -10,6 +10,7 @@ import useSRWTitle from './srw/useSRWTitle.js';
 import { V2ChipNav } from './V2ChipNav.jsx';
 import '../space-rising-theme-v2.css';
 
+import { SDHeroLogo, SDSearchButton, SDBuilding, SDExploreMore } from '../sd/SDChrome.jsx';
 const TENANT_SLUG_V2 = 'space-rising-v2';
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
@@ -222,7 +223,7 @@ function SourcingEventsV2Inner() {
   const isSearching = searchInput.trim().length > 0;
 
   return (
-    <div data-tenant={TENANT_SLUG_V2} style={{ minHeight: '100dvh', color: '#E8E4DA' }}>
+    <div data-tenant={TENANT_SLUG_V2} style={{ minHeight: '100dvh', color: '#FFFFFF' }}>
 
       {/* Hero */}
       <div className="browse-hero" style={{ '--page-hero-bg': "url('/v2-assets/starfield-dense.png')" }}>
@@ -236,9 +237,9 @@ function SourcingEventsV2Inner() {
               </svg>
               Back
             </Link>
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
+            <SDHeroLogo />
           </div>
-          <div className="browse-title">Upcoming Events.</div>
+          <div className="browse-title">Upcoming Events<span className="sd-dot">.</span></div>
           <div className="browse-sub">Industry meetups, summits, and showcases across the space sector.</div>
         </div>
       </div>
@@ -258,6 +259,7 @@ function SourcingEventsV2Inner() {
           spellCheck="false"
         />
         {loading && <div className="spinner" />}
+        <SDSearchButton />
       </div>
 
       <V2ChipNav active="events" />
@@ -265,7 +267,8 @@ function SourcingEventsV2Inner() {
       {/* Header row */}
       <div className="sec-hdr">
         <div className="sec-title">
-          {loading ? 'Loading...' : isSearching ? `${filtered.length} result${filtered.length === 1 ? '' : 's'}.` : `${listings.length} Events.`}
+          {loading ? 'Loading...' : isSearching ? `${filtered.length} result${filtered.length === 1 ? '' : 's'}` : `${listings.length} Events`}
+        {!loading && <span className="sd-dot">.</span>}
         </div>
         <div className="sec-count">
           <Link to="/spaceos/events/post" style={{ textDecoration: 'none', color: 'var(--srv2-orange)', fontSize: 12, fontWeight: 600 }}>

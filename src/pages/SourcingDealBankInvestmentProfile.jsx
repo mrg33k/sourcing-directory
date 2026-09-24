@@ -11,6 +11,7 @@ import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
 import '../space-rising-theme-v2.css';
 
+import { SDHeroLogo, SDSearchButton, SDBuilding, SDExploreMore } from '../sd/SDChrome.jsx';
 const TENANT_SLUG_V2 = 'space-rising-v2';
 
 const TABS = [
@@ -160,11 +161,11 @@ function SourcingDealBankInvestmentProfileInner() {
         color: 'var(--tx)',
         position: 'relative',
         fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
-        '--bg': 'transparent', '--tx': '#E8E4DA',
-        '--tx2': 'rgba(232,228,218,0.60)', '--tx3': 'rgba(232,228,218,0.25)',
+        '--bg': 'transparent', '--tx': '#FFFFFF',
+        '--tx2': 'rgba(255, 255, 255,0.60)', '--tx3': 'rgba(255, 255, 255,0.25)',
         '--s1': 'rgba(11,11,13,0.72)', '--s2': 'rgba(11,11,13,0.82)', '--s3': 'rgba(11,11,13,0.92)',
-        '--bd': 'rgba(232,228,218,0.10)', '--bd2': 'rgba(232,228,218,0.16)',
-        '--cyan': '#E8A23A', '--cyan-dim': 'rgba(232,162,58,0.10)', '--cyan-brd': 'rgba(232,162,58,0.32)',
+        '--bd': 'rgba(255, 255, 255,0.10)', '--bd2': 'rgba(255, 255, 255,0.16)',
+        '--cyan': '#D71920', '--cyan-dim': 'rgba(215, 25, 32,0.10)', '--cyan-brd': 'rgba(215, 25, 32,0.32)',
       }}
     >
       <div className="browse-hero" style={{ '--page-hero-bg': "url('/v2-assets/earth.png')" }}>
@@ -176,9 +177,9 @@ function SourcingDealBankInvestmentProfileInner() {
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Investments
             </Link>
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
+            <SDHeroLogo />
           </div>
-          <div className="browse-title">{companyName}.</div>
+          <div className="browse-title">{companyName}<span className="sd-dot">.</span></div>
           <div className="browse-sub">
             {segment} • {region}
           </div>
@@ -219,8 +220,8 @@ function CapitalGrid({ listing }) {
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
         gap: 1,
-        background: 'rgba(232,228,218,0.10)',
-        border: '1px solid rgba(232,228,218,0.10)',
+        background: 'rgba(255, 255, 255,0.10)',
+        border: '1px solid rgba(255, 255, 255,0.10)',
         borderRadius: 10,
         overflow: 'hidden',
       }}
@@ -244,9 +245,9 @@ function CapitalField({ label, value }) {
     >
       <div
         style={{
-          color: 'rgba(232,228,218,0.55)',
+          color: 'rgba(255, 255, 255,0.55)',
           fontSize: 10,
-          fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+          fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
           textTransform: 'uppercase',
           letterSpacing: '0.12em',
           marginBottom: 8,
@@ -254,7 +255,7 @@ function CapitalField({ label, value }) {
       >
         {label}
       </div>
-      <div style={{ color: 'rgba(232,228,218,0.40)', fontSize: 15, fontWeight: 500 }}>
+      <div style={{ color: 'rgba(255, 255, 255,0.40)', fontSize: 15, fontWeight: 500 }}>
         {value}
       </div>
     </div>
@@ -267,16 +268,16 @@ function TabPanel({ tab, listing }) {
       <div
         style={{
           padding: '32px 28px',
-          border: '1px solid rgba(232,228,218,0.10)',
+          border: '1px solid rgba(255, 255, 255,0.10)',
           borderRadius: 10,
           background: 'rgba(18,20,28,0.40)',
         }}
       >
         <div
           style={{
-            color: 'rgba(232,228,218,0.55)',
+            color: 'rgba(255, 255, 255,0.55)',
             fontSize: 11,
-            fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+            fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
             textTransform: 'uppercase',
             letterSpacing: '0.12em',
             marginBottom: 12,
@@ -284,7 +285,7 @@ function TabPanel({ tab, listing }) {
         >
           Executive Summary
         </div>
-        <div style={{ color: 'rgba(232,228,218,0.85)', fontSize: 16, lineHeight: 1.55 }}>
+        <div style={{ color: 'rgba(255, 255, 255,0.85)', fontSize: 16, lineHeight: 1.55 }}>
           {listing.exec_summary || 'No summary posted yet.'}
         </div>
       </div>
@@ -323,7 +324,7 @@ function TabPanel({ tab, listing }) {
       <div
         style={{
           padding: '32px 28px',
-          border: '1px solid rgba(232,228,218,0.10)',
+          border: '1px solid rgba(255, 255, 255,0.10)',
           borderRadius: 10,
           background: 'rgba(18,20,28,0.40)',
           textAlign: 'center',
@@ -331,9 +332,9 @@ function TabPanel({ tab, listing }) {
       >
         <div
           style={{
-            color: 'rgba(232,228,218,0.55)',
+            color: 'rgba(255, 255, 255,0.55)',
             fontSize: 11,
-            fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+            fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
             textTransform: 'uppercase',
             letterSpacing: '0.12em',
             marginBottom: 12,
@@ -369,7 +370,7 @@ function TeamCard({ member }) {
     <div
       style={{
         padding: '24px',
-        border: '1px solid rgba(232,228,218,0.10)',
+        border: '1px solid rgba(255, 255, 255,0.10)',
         borderRadius: 10,
         background: 'rgba(18,20,28,0.40)',
         textAlign: 'center',
@@ -390,14 +391,14 @@ function TeamCard({ member }) {
           }}
         />
       )}
-      <div style={{ color: 'rgba(232,228,218,0.85)', fontSize: 15, fontWeight: 600, marginBottom: 4 }}>
+      <div style={{ color: 'rgba(255, 255, 255,0.85)', fontSize: 15, fontWeight: 600, marginBottom: 4 }}>
         {member.name}
       </div>
-      <div style={{ color: 'rgba(232,228,218,0.55)', fontSize: 12, marginBottom: 12 }}>
+      <div style={{ color: 'rgba(255, 255, 255,0.55)', fontSize: 12, marginBottom: 12 }}>
         {member.title}
       </div>
       {member.bio && (
-        <div style={{ color: 'rgba(232,228,218,0.70)', fontSize: 13, lineHeight: 1.5, marginBottom: 12 }}>
+        <div style={{ color: 'rgba(255, 255, 255,0.70)', fontSize: 13, lineHeight: 1.5, marginBottom: 12 }}>
           {member.bio}
         </div>
       )}
@@ -421,18 +422,18 @@ function EmptyTab({ eyebrow, title, body }) {
       style={{
         padding: '56px 24px',
         textAlign: 'center',
-        border: '1px solid rgba(232,228,218,0.10)',
+        border: '1px solid rgba(255, 255, 255,0.10)',
         borderRadius: 10,
         background: 'rgba(18,20,28,0.40)',
       }}
     >
-      <div style={{ color: 'rgba(232,228,218,0.55)', fontSize: 11, fontFamily: 'JetBrains Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>
+      <div style={{ color: 'rgba(255, 255, 255,0.55)', fontSize: 11, fontFamily: 'IBM Plex Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.12em', marginBottom: 12 }}>
         {eyebrow}
       </div>
       <div style={{ color: 'var(--tx)', fontSize: 22, fontWeight: 600, lineHeight: 1.2, marginBottom: 12 }}>
         {title}
       </div>
-      <div style={{ color: 'rgba(232,228,218,0.70)', fontSize: 14, lineHeight: 1.55, maxWidth: 560, margin: '0 auto' }}>
+      <div style={{ color: 'rgba(255, 255, 255,0.70)', fontSize: 14, lineHeight: 1.55, maxWidth: 560, margin: '0 auto' }}>
         {body}
       </div>
     </div>

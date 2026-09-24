@@ -12,6 +12,7 @@ import { supabase } from '../lib/supabase.js';
 import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTheme.jsx';
 import '../space-rising-theme-v2.css';
 
+import { SDHeroLogo, SDSearchButton, SDBuilding, SDExploreMore } from '../sd/SDChrome.jsx';
 const TENANT_SLUG_V2 = 'space-rising-v2';
 
 const CRITERIA_FIELDS = [
@@ -125,11 +126,11 @@ function SourcingDealBankInvestorProfileInner() {
         color: 'var(--tx)',
         position: 'relative',
         fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
-        '--bg': 'transparent', '--tx': '#E8E4DA',
-        '--tx2': 'rgba(232,228,218,0.60)', '--tx3': 'rgba(232,228,218,0.25)',
+        '--bg': 'transparent', '--tx': '#FFFFFF',
+        '--tx2': 'rgba(255, 255, 255,0.60)', '--tx3': 'rgba(255, 255, 255,0.25)',
         '--s1': 'rgba(11,11,13,0.72)', '--s2': 'rgba(11,11,13,0.82)', '--s3': 'rgba(11,11,13,0.92)',
-        '--bd': 'rgba(232,228,218,0.10)', '--bd2': 'rgba(232,228,218,0.16)',
-        '--cyan': '#E8A23A', '--cyan-dim': 'rgba(232,162,58,0.10)', '--cyan-brd': 'rgba(232,162,58,0.32)',
+        '--bd': 'rgba(255, 255, 255,0.10)', '--bd2': 'rgba(255, 255, 255,0.16)',
+        '--cyan': '#D71920', '--cyan-dim': 'rgba(215, 25, 32,0.10)', '--cyan-brd': 'rgba(215, 25, 32,0.32)',
       }}
     >
       <div className="browse-hero" style={{ '--page-hero-bg': "url('/v2-assets/earth.png')" }}>
@@ -141,9 +142,9 @@ function SourcingDealBankInvestorProfileInner() {
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Deal Bank
             </Link>
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
+            <SDHeroLogo />
           </div>
-          <div className="browse-title">{firmName}.</div>
+          <div className="browse-title">{firmName}<span className="sd-dot">.</span></div>
           <div className="browse-sub">
             Investor firm profile.
           </div>
@@ -175,16 +176,16 @@ function ConnectCard({ firmName }) {
     <div
       style={{
         padding: '32px 28px',
-        border: '1px solid rgba(232,228,218,0.10)',
+        border: '1px solid rgba(255, 255, 255,0.10)',
         borderRadius: 10,
         background: 'rgba(18,20,28,0.40)',
       }}
     >
       <div
         style={{
-          color: 'rgba(232,228,218,0.55)',
+          color: 'rgba(255, 255, 255,0.55)',
           fontSize: 11,
-          fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+          fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
           textTransform: 'uppercase',
           letterSpacing: '0.12em',
           marginBottom: 12,
@@ -192,10 +193,10 @@ function ConnectCard({ firmName }) {
       >
         How to connect
       </div>
-      <div style={{ color: 'rgba(232,228,218,0.85)', fontSize: 16, lineHeight: 1.55, marginBottom: 16 }}>
+      <div style={{ color: 'rgba(255, 255, 255,0.85)', fontSize: 16, lineHeight: 1.55, marginBottom: 16 }}>
         {`Reach ${label} through Space Rising. Founders raising in the Deal Bank can request an intro — we handle the routing so investor inboxes stay clean.`}
       </div>
-      <div style={{ color: 'var(--cyan)', fontSize: 12, fontFamily: 'JetBrains Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.10em' }}>
+      <div style={{ color: 'var(--cyan)', fontSize: 12, fontFamily: 'IBM Plex Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.10em' }}>
         Intro request flow opening soon.
       </div>
     </div>
@@ -208,16 +209,16 @@ function FocusStatement({ firm }) {
     <div
       style={{
         padding: '32px 28px',
-        border: '1px solid rgba(232,228,218,0.10)',
+        border: '1px solid rgba(255, 255, 255,0.10)',
         borderRadius: 10,
         background: 'rgba(18,20,28,0.40)',
       }}
     >
       <div
         style={{
-          color: 'rgba(232,228,218,0.55)',
+          color: 'rgba(255, 255, 255,0.55)',
           fontSize: 11,
-          fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+          fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
           textTransform: 'uppercase',
           letterSpacing: '0.12em',
           marginBottom: 12,
@@ -225,7 +226,7 @@ function FocusStatement({ firm }) {
       >
         Investment focus
       </div>
-      <div style={{ color: 'rgba(232,228,218,0.85)', fontSize: 16, lineHeight: 1.55 }}>
+      <div style={{ color: 'rgba(255, 255, 255,0.85)', fontSize: 16, lineHeight: 1.55 }}>
         {hasCriteria
           ? firm.criteria
           : "This firm hasn't published their investment criteria yet."}
@@ -271,8 +272,8 @@ function CriteriaBlock({ firm }) {
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
         gap: 1,
-        background: 'rgba(232,228,218,0.10)',
-        border: '1px solid rgba(232,228,218,0.10)',
+        background: 'rgba(255, 255, 255,0.10)',
+        border: '1px solid rgba(255, 255, 255,0.10)',
         borderRadius: 10,
         overflow: 'hidden',
       }}
@@ -287,9 +288,9 @@ function CriteriaBlock({ firm }) {
         >
           <div
             style={{
-              color: 'rgba(232,228,218,0.55)',
+              color: 'rgba(255, 255, 255,0.55)',
               fontSize: 10,
-              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+              fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
               textTransform: 'uppercase',
               letterSpacing: '0.12em',
               marginBottom: 8,
@@ -297,7 +298,7 @@ function CriteriaBlock({ firm }) {
           >
             {field.label}
           </div>
-          <div style={{ color: 'rgba(232,228,218,0.40)', fontSize: 15, fontWeight: 500 }}>
+          <div style={{ color: 'rgba(255, 255, 255,0.40)', fontSize: 15, fontWeight: 500 }}>
             {getFieldValue(field)}
           </div>
         </div>

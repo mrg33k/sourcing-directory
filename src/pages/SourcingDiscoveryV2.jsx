@@ -20,6 +20,7 @@ import { SourcingThemeProvider, useSourcingTheme, getTokens } from './SourcingTh
 import { V2ChipNav } from './V2ChipNav.jsx';
 import '../space-rising-theme-v2.css';
 
+import { SDHeroLogo, SDSearchButton, SDBuilding, SDExploreMore } from '../sd/SDChrome.jsx';
 const TENANT_SLUG_V2 = 'space-rising-v2';
 const TENANT_DB_LOOKUP_SLUG = 'space-rising';
 
@@ -103,11 +104,11 @@ function SourcingDiscoveryV2Inner() {
         color: 'var(--tx)',
         position: 'relative',
         fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
-        '--bg': 'transparent', '--tx': '#E8E4DA',
-        '--tx2': 'rgba(232,228,218,0.60)', '--tx3': 'rgba(232,228,218,0.25)',
+        '--bg': 'transparent', '--tx': '#FFFFFF',
+        '--tx2': 'rgba(255, 255, 255,0.60)', '--tx3': 'rgba(255, 255, 255,0.25)',
         '--s1': 'rgba(11,11,13,0.72)', '--s2': 'rgba(11,11,13,0.82)', '--s3': 'rgba(11,11,13,0.92)',
-        '--bd': 'rgba(232,228,218,0.10)', '--bd2': 'rgba(232,228,218,0.16)',
-        '--cyan': '#E8A23A', '--cyan-dim': 'rgba(232,162,58,0.10)', '--cyan-brd': 'rgba(232,162,58,0.32)',
+        '--bd': 'rgba(255, 255, 255,0.10)', '--bd2': 'rgba(255, 255, 255,0.16)',
+        '--cyan': '#D71920', '--cyan-dim': 'rgba(215, 25, 32,0.10)', '--cyan-brd': 'rgba(215, 25, 32,0.32)',
       }}
     >
       <style>{`
@@ -116,34 +117,34 @@ function SourcingDiscoveryV2Inner() {
         [data-tenant="space-rising-v2"] .wp-list { display: flex; flex-direction: column; gap: 12px; width: 100%; grid-column: 1 / -1; }
         [data-tenant="space-rising-v2"] .wp-card {
           display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
-          padding: 20px 22px; border: 1px solid rgba(232,228,218,0.10); border-radius: 12px;
-          background: rgba(18,20,28,0.40); text-decoration: none; color: inherit;
+          padding: 20px 22px; border: 1px solid rgba(255, 255, 255,0.10); border-radius: 12px;
+          background: rgba(18, 18, 22,0.40); text-decoration: none; color: inherit;
           transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
         }
         [data-tenant="space-rising-v2"] .wp-card:hover {
-          border-color: rgba(232,162,58,0.45); background: rgba(232,162,58,0.06); transform: translateY(-1px);
+          border-color: rgba(215, 25, 32,0.45); background: rgba(215, 25, 32,0.06); transform: translateY(-1px);
         }
-        [data-tenant="space-rising-v2"] .wp-card:hover .wp-arrow { color: #E8A23A; transform: translate(2px,-2px); }
+        [data-tenant="space-rising-v2"] .wp-card:hover .wp-arrow { color: #D71920; transform: translate(2px,-2px); }
         [data-tenant="space-rising-v2"] .wp-card:hover .wp-title { color: #F3C57E; }
-        [data-tenant="space-rising-v2"] .wp-card:hover .wp-open { color: #E8A23A; }
+        [data-tenant="space-rising-v2"] .wp-card:hover .wp-open { color: #D71920; }
         [data-tenant="space-rising-v2"] .wp-title { font-size: 16px; font-weight: 700; color: #F1ECE0; line-height: 1.3; transition: color 0.16s ease; }
-        [data-tenant="space-rising-v2"] .wp-meta { font-size: 12px; color: rgba(232,228,218,0.55); margin-top: 5px; letter-spacing: 0.01em; }
+        [data-tenant="space-rising-v2"] .wp-meta { font-size: 12px; color: rgba(255, 255, 255,0.55); margin-top: 5px; letter-spacing: 0.01em; }
         [data-tenant="space-rising-v2"] .wp-abstract {
-          font-size: 13px; color: rgba(232,228,218,0.66); margin-top: 9px; line-height: 1.55;
+          font-size: 13px; color: rgba(255, 255, 255,0.66); margin-top: 9px; line-height: 1.55;
           display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
         }
         [data-tenant="space-rising-v2"] .wp-open {
           display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0; margin-top: 2px;
-          font-size: 12px; font-weight: 600; color: rgba(232,228,218,0.45);
+          font-size: 12px; font-weight: 600; color: rgba(255, 255, 255,0.45);
           transition: color 0.16s ease; white-space: nowrap;
         }
         [data-tenant="space-rising-v2"] .wp-badges { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 12px; }
         [data-tenant="space-rising-v2"] .wp-badge {
           font-size: 11px; font-weight: 600; letter-spacing: 0.02em; padding: 3px 9px; border-radius: 100px;
-          border: 1px solid rgba(232,228,218,0.16); color: rgba(232,228,218,0.70); white-space: nowrap;
+          border: 1px solid rgba(255, 255, 255,0.16); color: rgba(255, 255, 255,0.70); white-space: nowrap;
         }
         [data-tenant="space-rising-v2"] .wp-badge.pdf {
-          color: #E8A23A; border-color: rgba(232,162,58,0.40); background: rgba(232,162,58,0.10);
+          color: #D71920; border-color: rgba(215, 25, 32,0.40); background: rgba(215, 25, 32,0.10);
           display: inline-flex; align-items: center; gap: 4px;
         }
         [data-tenant="space-rising-v2"] .wp-arrow { color: inherit; flex-shrink: 0; transition: transform 0.16s ease; }
@@ -158,9 +159,9 @@ function SourcingDiscoveryV2Inner() {
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Back
             </Link>
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
+            <SDHeroLogo />
           </div>
-          <div className="browse-title">Discovery.</div>
+          <div className="browse-title">Discovery<span className="sd-dot">.</span></div>
           <div className="browse-sub">
             Whitepapers, research, and industry reports from across space.
           </div>
@@ -179,13 +180,15 @@ function SourcingDiscoveryV2Inner() {
           spellCheck="false"
         />
         {loading && <div className="spinner" />}
+        <SDSearchButton />
       </div>
 
       <V2ChipNav active="discovery" />
 
       <div className="sec-hdr">
         <div className="sec-title">
-          {loading ? 'Loading...' : `${filteredListings.length} Whitepaper${filteredListings.length === 1 ? '' : 's'}.`}
+          {loading ? 'Loading...' : `${filteredListings.length} Whitepaper${filteredListings.length === 1 ? '' : 's'}`}
+        {!loading && <span className="sd-dot">.</span>}
         </div>
         <div className="sec-count">
           <Link
@@ -202,10 +205,10 @@ function SourcingDiscoveryV2Inner() {
           {!supabase && (
             <div style={{
               padding: '24px 20px',
-              border: '1px solid rgba(232,162,58,0.32)',
-              background: 'rgba(232,162,58,0.10)',
-              borderRadius: 10, color: '#E8A23A',
-              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+              border: '1px solid rgba(215, 25, 32,0.32)',
+              background: 'rgba(215, 25, 32,0.10)',
+              borderRadius: 10, color: '#D71920',
+              fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
               fontSize: 13, textAlign: 'center',
             }}>
               Supabase not configured — copy your env keys to .env.local
@@ -214,7 +217,7 @@ function SourcingDiscoveryV2Inner() {
 
           {loading && supabase && (
             <>{[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} style={{ height: 96, borderRadius: 12, background: 'rgba(18,20,28,0.40)', border: '1px solid rgba(232,228,218,0.05)', animation: 'pulse 1.5s ease-in-out infinite' }} />
+              <div key={i} style={{ height: 96, borderRadius: 12, background: 'rgba(18, 18, 22,0.40)', border: '1px solid rgba(255, 255, 255,0.05)', animation: 'pulse 1.5s ease-in-out infinite' }} />
             ))}</>
           )}
 
@@ -234,7 +237,7 @@ function SourcingDiscoveryV2Inner() {
                       src={listing.cover_image_url}
                       alt=""
                       aria-hidden="true"
-                      style={{ width: 56, height: 72, borderRadius: 6, objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(232,228,218,0.10)' }}
+                      style={{ width: 56, height: 72, borderRadius: 6, objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255, 255, 255,0.10)' }}
                       onError={(e) => { e.currentTarget.style.display = 'none'; }}
                     />
                   ) : null}
@@ -268,8 +271,8 @@ function SourcingDiscoveryV2Inner() {
           {!loading && supabase && filteredListings.length === 0 && (
             <div style={{
               padding: '48px 24px', textAlign: 'center',
-              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-              color: 'rgba(232,228,218,0.55)',
+              fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
+              color: 'rgba(255, 255, 255,0.55)',
               fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase',
             }}>
               {searchInput ? `No whitepapers match "${searchInput}"` : 'No whitepapers posted yet.'}

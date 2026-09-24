@@ -305,8 +305,8 @@ function SourcingLoginV2Inner() {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: 'rgba(232,228,218,0.55)',
-                  fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+                  color: 'rgba(255, 255, 255,0.55)',
+                  fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
                   fontSize: 11,
                   letterSpacing: '0.12em',
                   textTransform: 'uppercase',
@@ -322,7 +322,7 @@ function SourcingLoginV2Inner() {
               <div style={{
                 marginTop: 20,
                 padding: '20px 22px',
-                border: '1px solid rgba(232,228,218,0.10)',
+                border: '1px solid rgba(255, 255, 255,0.10)',
                 borderRadius: 10,
                 background: 'rgba(11,11,13,0.55)',
                 display: 'flex',
@@ -330,11 +330,11 @@ function SourcingLoginV2Inner() {
                 gap: 12,
               }}>
                 <div style={{
-                  fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+                  fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
                   fontSize: 11,
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
-                  color: 'rgba(232,228,218,0.55)',
+                  color: 'rgba(255, 255, 255,0.55)',
                 }}>
                   Reset password
                 </div>
@@ -373,9 +373,9 @@ function SourcingLoginV2Inner() {
                 marginTop: 16,
                 padding: '12px 14px',
                 borderRadius: 8,
-                background: 'rgba(232,162,58,0.10)',
-                border: '1px solid rgba(232,162,58,0.32)',
-                color: '#E8A23A',
+                background: 'rgba(215, 25, 32,0.10)',
+                border: '1px solid rgba(215, 25, 32,0.32)',
+                color: '#D71920',
                 fontSize: 13,
                 lineHeight: 1.5,
               }}>
@@ -397,16 +397,16 @@ function SourcingLoginV2Inner() {
           <div style={{
             marginTop: 32,
             textAlign: 'center',
-            fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+            fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
             fontSize: 11,
             letterSpacing: '0.12em',
             textTransform: 'uppercase',
-            color: 'rgba(232,228,218,0.45)',
+            color: 'rgba(255, 255, 255,0.45)',
           }}>
             New here?{' '}
             <Link
               to={`${BASE_PATH_V2}/signup`}
-              style={{ color: '#E8A23A', textDecoration: 'none' }}
+              style={{ color: '#D71920', textDecoration: 'none' }}
             >
               Create an account
             </Link>

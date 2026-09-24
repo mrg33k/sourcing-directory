@@ -11,13 +11,14 @@ import { Link } from 'react-router-dom';
 import { V2ChipNav } from './V2ChipNav.jsx';
 import '../space-rising-theme-v2.css';
 
+import { SDHeroLogo, SDSearchButton, SDBuilding, SDExploreMore } from '../sd/SDChrome.jsx';
 const TENANT_SLUG_V2 = 'space-rising-v2';
 
-const TEXT   = '#E8E4DA';
-const MUTED  = 'rgba(232,228,218,0.55)';
-const DIM    = 'rgba(232,228,218,0.30)';
-const AMBER  = '#E8A23A';
-const BORDER = 'rgba(232,228,218,0.12)';
+const TEXT   = '#FFFFFF';
+const MUTED  = 'rgba(255, 255, 255,0.55)';
+const DIM    = 'rgba(255, 255, 255,0.30)';
+const AMBER  = '#D71920';
+const BORDER = 'rgba(255, 255, 255,0.12)';
 const CARD   = 'rgba(18,20,28,0.50)';
 const FONT   = '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif';
 
@@ -84,11 +85,11 @@ function SectionHeader({ children }) {
 }
 
 const PAGE_VARS = {
-  '--bg': 'transparent', '--tx': '#E8E4DA',
-  '--tx2': 'rgba(232,228,218,0.60)', '--tx3': 'rgba(232,228,218,0.25)',
+  '--bg': 'transparent', '--tx': '#FFFFFF',
+  '--tx2': 'rgba(255, 255, 255,0.60)', '--tx3': 'rgba(255, 255, 255,0.25)',
   '--s1': 'rgba(11,11,13,0.72)', '--s2': 'rgba(11,11,13,0.82)', '--s3': 'rgba(11,11,13,0.92)',
-  '--bd': 'rgba(232,228,218,0.10)', '--bd2': 'rgba(232,228,218,0.16)',
-  '--cyan': '#E8A23A', '--cyan-dim': 'rgba(232,162,58,0.10)', '--cyan-brd': 'rgba(232,162,58,0.32)',
+  '--bd': 'rgba(255, 255, 255,0.10)', '--bd2': 'rgba(255, 255, 255,0.16)',
+  '--cyan': '#D71920', '--cyan-dim': 'rgba(215, 25, 32,0.10)', '--cyan-brd': 'rgba(215, 25, 32,0.32)',
 };
 
 export default function SourcingDealBankInvestorPost() {
@@ -163,9 +164,9 @@ export default function SourcingDealBankInvestorPost() {
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
               Deal Bank
             </Link>
-            <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
+            <SDHeroLogo />
           </div>
-          <div className="browse-title">List your firm.</div>
+          <div className="browse-title">List your firm<span className="sd-dot">.</span></div>
           <div className="browse-sub">
             Free investor profile. Get discovered by Space Rising companies raising — founders reach you through us, so your inbox stays clean.
           </div>
@@ -204,8 +205,8 @@ export default function SourcingDealBankInvestorPost() {
                           style={{
                             font: 'inherit', fontSize: 13, cursor: 'pointer',
                             padding: '7px 14px', borderRadius: 999,
-                            border: `1px solid ${on ? 'rgba(232,162,58,0.55)' : BORDER}`,
-                            background: on ? 'rgba(232,162,58,0.14)' : 'transparent',
+                            border: `1px solid ${on ? 'rgba(215, 25, 32,0.55)' : BORDER}`,
+                            background: on ? 'rgba(215, 25, 32,0.14)' : 'transparent',
                             color: on ? AMBER : MUTED,
                           }}
                         >

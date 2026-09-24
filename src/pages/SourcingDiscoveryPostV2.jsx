@@ -20,11 +20,11 @@ const BG     = '#06060A';
 const TEXT   = '#F5EED7';
 const MUTED  = 'rgba(245,238,215,0.55)';
 const DIM    = 'rgba(245,238,215,0.3)';
-const AMBER  = '#E8A23A';
+const AMBER  = '#D71920';
 const BORDER = 'rgba(245,238,215,0.10)';
 const CARD   = 'rgba(245,238,215,0.04)';
 const FONT   = "'Space Grotesk', sans-serif";
-const MONO   = "'JetBrains Mono', monospace";
+const MONO   = "'IBM Plex Mono', monospace";
 
 // directory_listings.company_id is NOT NULL, but whitepapers come from outside
 // the directory. We anchor every submission to a hidden "house" company (created
@@ -301,7 +301,7 @@ export default function SourcingDiscoveryPostV2() {
     <Shell>
       {/* Hero */}
       <div style={{
-        background: 'linear-gradient(180deg, rgba(232,162,58,0.06) 0%, transparent 100%)',
+        background: 'linear-gradient(180deg, rgba(215, 25, 32,0.06) 0%, transparent 100%)',
         borderBottom: `1px solid ${BORDER}`,
         padding: '48px 24px 32px',
       }}>

@@ -14,6 +14,7 @@ import { V2ChipNav } from './V2ChipNav.jsx';
 // routes to pick up the locked palette, type, and card grid.
 import '../space-rising-theme-v2.css';
 
+import { SDHeroLogo, SDSearchButton, SDBuilding, SDExploreMore } from '../sd/SDChrome.jsx';
 // V2 route is static (no :tenantSlug); we hardcode so data-tenant matches the
 // V2 theme CSS selectors and we filter against the space-rising tenant row.
 const TENANT_SLUG_V2 = 'space-rising-v2';
@@ -149,17 +150,17 @@ function SourcingJobsV2Inner() {
           '"Space Grotesk", "Hanken Grotesk", system-ui, -apple-system, sans-serif',
         ...(isSpaceRising && {
           '--bg': 'transparent',
-          '--tx': '#E8E4DA',
-          '--tx2': 'rgba(232,228,218,0.60)',
-          '--tx3': 'rgba(232,228,218,0.25)',
+          '--tx': '#FFFFFF',
+          '--tx2': 'rgba(255, 255, 255,0.60)',
+          '--tx3': 'rgba(255, 255, 255,0.25)',
           '--s1': 'rgba(11,11,13,0.72)',
           '--s2': 'rgba(11,11,13,0.82)',
           '--s3': 'rgba(11,11,13,0.92)',
-          '--bd': 'rgba(232,228,218,0.10)',
-          '--bd2': 'rgba(232,228,218,0.16)',
-          '--cyan': '#E8A23A',
-          '--cyan-dim': 'rgba(232,162,58,0.10)',
-          '--cyan-brd': 'rgba(232,162,58,0.32)',
+          '--bd': 'rgba(255, 255, 255,0.10)',
+          '--bd2': 'rgba(255, 255, 255,0.16)',
+          '--cyan': '#D71920',
+          '--cyan-dim': 'rgba(215, 25, 32,0.10)',
+          '--cyan-brd': 'rgba(215, 25, 32,0.32)',
         }),
       }}
     >
@@ -184,13 +185,9 @@ function SourcingJobsV2Inner() {
               </svg>
               Back
             </Link>
-            <img
-              src="/images/space-rising/logo-white.png"
-              alt="Space Rising"
-              className="tenant-hero-logo"
-            />
+            <SDHeroLogo />
           </div>
-          <div className="browse-title">Open Roles.</div>
+          <div className="browse-title">Open Roles<span className="sd-dot">.</span></div>
           <div className="browse-sub">
             Hiring across Arizona&rsquo;s space industry. Launch suppliers, defense contractors,
             and R&amp;D firms.
@@ -214,6 +211,7 @@ function SourcingJobsV2Inner() {
           spellCheck="false"
         />
         {loading && <div className="spinner" />}
+        <SDSearchButton />
       </div>
 
       <V2ChipNav active="jobs" />
@@ -221,7 +219,8 @@ function SourcingJobsV2Inner() {
       {/* Section header — count + Post CTA */}
       <div className="sec-hdr">
         <div className="sec-title">
-          {loading ? 'Loading...' : `${filteredListings.length} Open Role${filteredListings.length === 1 ? '' : 's'}.`}
+          {loading ? 'Loading...' : `${filteredListings.length} Open Role${filteredListings.length === 1 ? '' : 's'}`}
+        {!loading && <span className="sd-dot">.</span>}
         </div>
         <div className="sec-count">
           <Link
@@ -244,11 +243,11 @@ function SourcingJobsV2Inner() {
           <div
             style={{
               padding: '24px 20px',
-              border: '1px solid rgba(232,162,58,0.32)',
-              background: 'rgba(232,162,58,0.10)',
+              border: '1px solid rgba(215, 25, 32,0.32)',
+              background: 'rgba(215, 25, 32,0.10)',
               borderRadius: 10,
-              color: '#E8A23A',
-              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+              color: '#D71920',
+              fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
               fontSize: 13,
               textAlign: 'center',
             }}
@@ -265,8 +264,8 @@ function SourcingJobsV2Inner() {
                 style={{
                   height: 84,
                   borderRadius: 10,
-                  background: 'rgba(18,20,28,0.40)',
-                  border: '1px solid rgba(232,228,218,0.05)',
+                  background: 'rgba(18, 18, 22,0.40)',
+                  border: '1px solid rgba(255, 255, 255,0.05)',
                   animation: 'pulse 1.5s ease-in-out infinite',
                 }}
               />
@@ -298,9 +297,12 @@ function SourcingJobsV2Inner() {
                       aria-hidden="true"
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
+                        e.currentTarget.nextElementSibling?.removeAttribute('hidden');
                       }}
                     />
                   ) : null}
+                  {/* Building icon fills the logo cell when there's no logo (no empty gap). */}
+                  <span hidden={Boolean(company?.slug)}><SDBuilding /></span>
                   <div className="co-name">{listing.title || 'Untitled role'}</div>
                   <div className="co-loc">
                     {[company?.name, loc, ago].filter(Boolean).join(' · ')}
@@ -327,8 +329,8 @@ function SourcingJobsV2Inner() {
             style={{
               padding: '48px 24px',
               textAlign: 'center',
-              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
-              color: 'rgba(232,228,218,0.55)',
+              fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
+              color: 'rgba(255, 255, 255,0.55)',
               fontSize: 13,
               letterSpacing: '0.08em',
               textTransform: 'uppercase',

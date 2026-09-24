@@ -2,6 +2,8 @@ import React, { lazy, Suspense, useEffect, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom'
 import './v10.css'
+import './sd/sd.css'
+import './sd/sd-directory.css'
 
 // Fade wrapper -- fades in on every route change
 function PageTransition({ children }) {
@@ -74,6 +76,9 @@ const GlobalSignup = lazy(() => import('./pages/GlobalSignup.jsx'))
 // Pixel-equivalent to V1 at R1; diverges starting R2 (type + palette).
 // Mission: aom:space-rising:website:nat-geo-uplift.
 const SRWHomeV2 = lazy(() => import('./pages/srw/SRWHomeV2.jsx'))
+const SDHome = lazy(() => import('./sd/SDHome.jsx'))
+const SDOnboarding = lazy(() => import('./sd/SDOnboarding.jsx'))
+const SDStart = lazy(() => import('./sd/SDStart.jsx'))
 const SourcingDirectoryV2 = lazy(() => import('./pages/SourcingDirectoryV2.jsx'))
 const SourcingJobsV2 = lazy(() => import('./pages/SourcingJobsV2.jsx'))
 const SourcingEventsV2 = lazy(() => import('./pages/SourcingEventsV2.jsx'))
@@ -136,11 +141,13 @@ createRoot(document.getElementById('root')).render(
               renders directly at "/", no /srw-v2 hop. The bare /srw-v2 route below
               redirects back to "/" so the old marketing URL never rots. V1 routes
               (/srw, /space-rising) stay as redirects for legacy deep-link compat. */}
-          {/* Ben 2026-09-22: on sourcing.directory, Space OS IS the home page. Other
-              hosts (spacerising.org) keep the marketing home. */}
-          <Route path="/" element={typeof window !== 'undefined' && /sourcing\.directory$/.test(window.location.hostname)
-            ? <Navigate to="/spaceos" replace />
+          {/* sourcing.directory front door (2026-09-24 redesign): home → onboarding → start → directory.
+              Other hosts (spacerising.org) keep the Space Rising marketing home. */}
+          <Route path="/" element={typeof window !== 'undefined' && /sourcing\.directory$|localhost|127\.0\.0\.1|vercel\.app$/.test(window.location.hostname)
+            ? <SDHome />
             : <SRWHomeV2 />} />
+          <Route path="/get-started" element={<SDOnboarding />} />
+          <Route path="/start" element={<SDStart />} />
           {/* Legacy V1 utility pages retired (2026-06-05) → Space OS. No V1 surface. */}
           <Route path="/signup" element={<Navigate to="/spaceos/signup" replace />} />
           <Route path="/about" element={<Navigate to="/srw-v2/about" replace />} />

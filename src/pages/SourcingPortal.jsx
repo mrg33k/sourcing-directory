@@ -283,7 +283,7 @@ function SourcingPortalInner() {
             fontWeight: 700,
             letterSpacing: '0.16em',
             textTransform: 'uppercase',
-            color: '#E8A23A',
+            color: '#D71920',
             textDecoration: 'none',
             fontFamily: 'Space Grotesk, sans-serif',
           }}
@@ -299,7 +299,7 @@ function SourcingPortalInner() {
               textTransform: 'uppercase',
               color: 'rgba(255,255,255,0.45)',
               textDecoration: 'none',
-              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+              fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
             }}
           >
             ← Directory
@@ -312,7 +312,7 @@ function SourcingPortalInner() {
               textTransform: 'uppercase',
               color: 'rgba(255,255,255,0.45)',
               textDecoration: 'none',
-              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+              fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
             }}
           >
             Settings
@@ -321,14 +321,14 @@ function SourcingPortalInner() {
             onClick={handleLogout}
             style={{
               background: 'transparent',
-              border: '1px solid rgba(232,162,58,0.32)',
-              color: '#E8A23A',
+              border: '1px solid rgba(215, 25, 32,0.32)',
+              color: '#D71920',
               borderRadius: 6,
               padding: '6px 14px',
               fontSize: 11,
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
-              fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+              fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
               cursor: 'pointer',
             }}
           >
@@ -342,12 +342,12 @@ function SourcingPortalInner() {
         <div style={{ marginBottom: 32 }}>
           <div style={{
             fontSize: 11,
-            color: '#E8A23A',
+            color: '#D71920',
             fontWeight: 700,
             letterSpacing: '0.16em',
             textTransform: 'uppercase',
             marginBottom: 10,
-            fontFamily: 'JetBrains Mono, ui-monospace, monospace',
+            fontFamily: 'IBM Plex Mono, ui-monospace, monospace',
           }}>
             Member Portal
           </div>
@@ -359,7 +359,7 @@ function SourcingPortalInner() {
             fontFamily: 'Instrument Serif, serif',
             letterSpacing: '-0.01em',
           }}>
-            {member?.full_name ? `Welcome, ${member.full_name.split(' ')[0]}` : 'Your Portal'}<span style={{ color: '#E8A23A' }}>.</span>
+            {member?.full_name ? `Welcome, ${member.full_name.split(' ')[0]}` : 'Your Portal'}<span style={{ color: '#D71920' }}>.</span>
           </h1>
           <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.55)', margin: 0, fontFamily: 'Space Grotesk, sans-serif' }}>
             Manage your company profile and listings.

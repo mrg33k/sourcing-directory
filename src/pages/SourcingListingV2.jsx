@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase.js';
 import V2ChipNav from './V2ChipNav.jsx';
 import '../space-rising-theme-v2.css';
 
+import { SDHeroLogo, SDSearchButton, SDBuilding, SDExploreMore } from '../sd/SDChrome.jsx';
 // Detail page for a single directory_listings row (a job, event, or marketplace
 // item). One component, three entry routes — the `kind` prop only drives labels
 // and which facts are shown. Built 2026-06-05 so listing cards open a real page
@@ -127,7 +128,7 @@ export default function SourcingListingV2({ kind = 'job' }) {
             <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7" /></svg>
             Back to {meta.backLabel}
           </Link>
-          <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
+          <SDHeroLogo />
         </div>
       </div>
 
