@@ -117,7 +117,7 @@ function SourcingJobsV2Inner() {
     if (!searchInput.trim()) return listings;
     const terms = searchInput.toLowerCase().split(/\s+/).filter(Boolean);
     return listings.filter((l) => {
-      const company = companies[l.company_id];
+      const company = companies[l.company_id] || (l.company_name ? { name: l.company_name } : undefined);
       const haystack = [
         l.title,
         l.description,
@@ -276,7 +276,7 @@ function SourcingJobsV2Inner() {
 
         {!loading &&
           filteredListings.map((listing) => {
-            const company = companies[listing.company_id];
+            const company = companies[listing.company_id] || (listing.company_name ? { name: listing.company_name } : undefined);
             const salary = formatSalary(listing.salary_min, listing.salary_max, listing.job_type);
             const ago = postedAgo(listing.created_at);
             const loc = listing.remote

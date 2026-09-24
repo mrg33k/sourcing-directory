@@ -194,10 +194,13 @@ function SourcingArticlesV2Inner() {
           const tags = Array.isArray(listing.tags) ? listing.tags : [];
           const posted = formatDate(listing.created_at);
           return (
-            <div
+            <a
               key={listing.id}
+              href={listing.apply_url || undefined}
+              target={listing.apply_url ? '_blank' : undefined}
+              rel="noopener noreferrer"
               className="co-card"
-              style={{ textDecoration: 'none', color: 'inherit' }}
+              style={{ textDecoration: 'none', color: 'inherit', cursor: listing.apply_url ? 'pointer' : 'default' }}
             >
               <div className="co-body">
                 {listing.cover_image_url ? (
@@ -214,7 +217,7 @@ function SourcingArticlesV2Inner() {
                 ) : null}
                 <div className="co-name">{listing.title || 'Untitled article'}</div>
                 <div className="co-loc">
-                  {[listing.author_name && `By ${listing.author_name}`, company?.name, posted, listing.read_time_min && `${listing.read_time_min} min read`].filter(Boolean).join(' · ')}
+                  {[listing.author_name && (listing.apply_url ? listing.author_name : `By ${listing.author_name}`), company?.name, posted, listing.read_time_min && `${listing.read_time_min} min read`].filter(Boolean).join(' · ')}
                 </div>
                 {tags.length > 0 && (
                   <div className="co-badges">
@@ -227,7 +230,7 @@ function SourcingArticlesV2Inner() {
               <div className="co-arrow">
                 <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
               </div>
-            </div>
+            </a>
           );
         })}
 

@@ -62,6 +62,7 @@ export default function SourcingListingV2({ kind = 'job' }) {
         }
         if (cancelled) return;
         setListing(data);
+        if (!data.company_id && data.company_name) setCompany({ name: data.company_name });
         if (data.company_id) {
           const { data: co } = await supabase
             .from('directory_companies')

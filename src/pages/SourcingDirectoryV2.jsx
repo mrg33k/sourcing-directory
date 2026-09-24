@@ -1060,10 +1060,7 @@ function SourcingDirectoryInner() {
         <div className="browse-hero-overlay" />
         <div className="browse-hero-content" style={{ position: 'relative' }}>
           <div className="browse-hero-toprow">
-            <Link to="/" className="browse-back" style={{ textDecoration: 'none' }}>
-              <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
-              Back
-            </Link>
+            {/* No Back here: /spaceos is the top layer (Ben, 2026-09-22). */}
             {tenant?.slug === 'space-rising' && (
               <img src="/images/space-rising/logo-white.png" alt="Space Rising" className="tenant-hero-logo" />
             )}

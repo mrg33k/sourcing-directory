@@ -136,7 +136,11 @@ createRoot(document.getElementById('root')).render(
               renders directly at "/", no /srw-v2 hop. The bare /srw-v2 route below
               redirects back to "/" so the old marketing URL never rots. V1 routes
               (/srw, /space-rising) stay as redirects for legacy deep-link compat. */}
-          <Route path="/" element={<SRWHomeV2 />} />
+          {/* Ben 2026-09-22: on sourcing.directory, Space OS IS the home page. Other
+              hosts (spacerising.org) keep the marketing home. */}
+          <Route path="/" element={typeof window !== 'undefined' && /sourcing\.directory$/.test(window.location.hostname)
+            ? <Navigate to="/spaceos" replace />
+            : <SRWHomeV2 />} />
           {/* Legacy V1 utility pages retired (2026-06-05) → Space OS. No V1 surface. */}
           <Route path="/signup" element={<Navigate to="/spaceos/signup" replace />} />
           <Route path="/about" element={<Navigate to="/srw-v2/about" replace />} />

@@ -17,18 +17,21 @@ const LANES = [
   { slug: 'investments', label: 'Investments' },
   { slug: 'investors',   label: 'Investors' },
   { slug: 'completed',   label: 'Completed' },
+  { slug: 'accelerators', label: 'Accelerators' },
 ];
 
 const LANE_PLACEHOLDERS = {
   investments: 'Search by company, segment, round, or raise size',
   investors:   'Search by firm, focus area, check size, or deal types',
   completed:   'Search companies, rounds, investors, segments...',
+  accelerators: 'Search accelerators by name, city, or focus',
 };
 
 const LANE_HEADINGS = {
   investments: 'Companies raising',
   investors:   'Investor firms',
   completed:   'Completed rounds',
+  accelerators: 'Accelerators',
 };
 
 // R7d — preview-only sample entries. Clearly marked SAMPLE on each card and
@@ -122,7 +125,11 @@ function SourcingDealBankV2Inner() {
   const [deals, setDeals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState('');
-  const [activeLane, setActiveLane] = useState('completed');
+  // ?lane=accelerators (etc.) deep-links straight to a lane.
+  const [activeLane, setActiveLane] = useState(() => {
+    const want = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('lane') : null;
+    return LANES.some((l) => l.slug === want) ? want : 'completed';
+  });
 
   // Clear search when switching lanes — each lane scopes its own query.
   useEffect(() => { setSearchInput(''); }, [activeLane]);
@@ -302,8 +309,98 @@ function SourcingDealBankV2Inner() {
         {activeLane === 'investors' && (
           <InvestorsLane searchInput={searchInput} />
         )}
+
+        {activeLane === 'accelerators' && (
+          <AcceleratorsLane searchInput={searchInput} />
+        )}
       </div>
     </div>
+  );
+}
+
+// Accelerators lane (Ben, 2026-09-22): ~3.5k programs from his spreadsheet.
+// Searched and paged on the server so the page never loads the whole list.
+const ACC_PAGE = 40;
+
+function AcceleratorsLane({ searchInput }) {
+  const [items, setItems] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => { setPage(1); }, [searchInput]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      setLoading(true);
+      let qb = supabase
+        .from('accelerators')
+        .select('id, name, location, website, short_description, investments, founded_year, linkedin_url', { count: 'exact' })
+        .order('investments', { ascending: false });
+      const q = searchInput.trim().replace(/[,()%]/g, ' ').trim();
+      if (q) qb = qb.or(`name.ilike.%${q}%,location.ilike.%${q}%,short_description.ilike.%${q}%`);
+      const { data, count, error } = await qb.range(0, page * ACC_PAGE - 1);
+      if (cancelled) return;
+      if (error) console.error('Accelerators fetch error:', error);
+      setItems(data || []);
+      setTotal(count || 0);
+      setLoading(false);
+    }, searchInput ? 250 : 0);
+    return () => { cancelled = true; clearTimeout(t); };
+  }, [searchInput, page]);
+
+  const href = (u) => (u && !/^https?:\/\//i.test(u) ? `https://${u}` : u);
+
+  return (
+    <>
+      <div style={{ padding: '0 2px 10px', color: 'var(--tx3)', fontSize: 12, fontFamily: 'JetBrains Mono, ui-monospace, monospace', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+        {loading && !items.length ? 'Loading…' : `${total.toLocaleString()} accelerators · most active first`}
+      </div>
+
+      {items.map((a) => (
+        <a
+          key={a.id}
+          href={href(a.website || a.linkedin_url) || undefined}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="co-card"
+          style={{ textDecoration: 'none', color: 'inherit' }}
+        >
+          <div className="co-body">
+            <div className="co-name">{a.name}</div>
+            <div className="co-loc">{[a.location, a.founded_year && `Founded ${a.founded_year}`].filter(Boolean).join(' · ')}</div>
+            {a.short_description && (
+              <div className="co-loc" style={{ marginTop: 4, opacity: 0.85 }}>{a.short_description}</div>
+            )}
+            <div className="co-badges">
+              {a.investments > 0 && <span className="co-badge feat">{a.investments.toLocaleString()} investments</span>}
+            </div>
+          </div>
+          <div className="co-arrow">
+            <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
+          </div>
+        </a>
+      ))}
+
+      {!loading && items.length === 0 && (
+        <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'JetBrains Mono, ui-monospace, monospace', color: 'rgba(232,228,218,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+          {searchInput ? `No accelerators match "${searchInput}"` : 'No accelerators yet.'}
+        </div>
+      )}
+
+      {items.length < total && (
+        <button
+          type="button"
+          className="chip"
+          onClick={() => setPage((p) => p + 1)}
+          disabled={loading}
+          style={{ font: 'inherit', cursor: 'pointer', margin: '12px auto', display: 'block' }}
+        >
+          {loading ? 'Loading…' : `Show more (${(total - items.length).toLocaleString()} left)`}
+        </button>
+      )}
+    </>
   );
 }
 
