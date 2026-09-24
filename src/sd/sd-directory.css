@@ -41,7 +41,7 @@ html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero
               linear-gradient(180deg, rgba(11,11,13,0) 55%, rgba(11,11,13,0.9) 100%) !important;
 }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero-content {
-  padding: 30px 40px 112px !important;
+  padding: 32px 48px 128px !important;
   max-width: none !important;
   min-height: 0 !important;
   height: auto !important;
@@ -51,19 +51,19 @@ html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero
   display: flex !important;
   justify-content: flex-start !important;
   align-items: center !important;
-  margin-bottom: 30px !important;
+  margin-bottom: 32px !important;
   min-height: 0 !important;
 }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-back { display: none !important; }
 .sd-hero-logo { display: inline-flex; text-decoration: none; }
 
 .sd-eyebrow {
-  display: inline-flex; align-items: center; gap: 12px; margin-bottom: 14px;
+  display: inline-flex; align-items: center; gap: 12px; margin-bottom: 16px;
   font: 600 12px/1 'IBM Plex Mono', monospace; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sd-red);
 }
 .sd-eyebrow__switch {
   color: rgba(255,255,255,0.7); text-decoration: none; border: 1px solid var(--sd-line-strong);
-  border-radius: 4px; padding: 5px 8px; letter-spacing: 0.1em; font-size: 11px;
+  border-radius: 4px; padding: 4px 8px; letter-spacing: 0.1em; font-size: 11px;
 }
 .sd-eyebrow__switch:hover { color: #fff; border-color: var(--sd-red); }
 
@@ -73,7 +73,7 @@ html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-titl
   font-weight: 700 !important;
   letter-spacing: -0.035em !important;
   line-height: 0.95 !important;
-  margin: 0 0 14px !important;
+  margin: 0 0 16px !important;
   max-width: 12ch;
 }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-title::after { content: none !important; }
@@ -90,21 +90,21 @@ html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sd-dot { co
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search {
   max-width: 1240px !important;
   width: auto !important;
-  margin: -88px auto 0 !important;
+  margin: -96px auto 0 !important;
   box-sizing: border-box !important;
   border-radius: 0 !important;
   border: 0 !important;
   background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  padding: 0 40px 30px !important;
+  padding: 0 48px 32px !important;
   display: flex !important;
   gap: 0 !important;
   position: relative !important;
   z-index: 3 !important;
 }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search > svg {
-  position: absolute; left: 60px; top: 50%; transform: translateY(calc(-50% - 15px)); z-index: 1; color: rgba(255,255,255,0.7) !important;
+  position: absolute; left: 64px; top: 50%; transform: translateY(calc(-50% - 16px)); z-index: 1; color: rgba(255,255,255,0.7) !important;
 }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search input {
   height: 52px !important;
@@ -112,14 +112,14 @@ html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-sear
   border: 1px solid rgba(255,255,255,0.28) !important;
   border-right: 0 !important;
   border-radius: 8px 0 0 8px !important;
-  padding: 0 18px 0 50px !important;
+  padding: 0 16px 0 48px !important;
   font: 400 16px/1 'IBM Plex Sans', sans-serif !important;
   color: #fff !important;
 }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search input:focus { border-color: #D71920 !important; }
-html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search .spinner { position: absolute; right: 190px; top: 18px; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search .spinner { position: absolute; right: 128px; top: 16px; }
 .sd-search-btn {
-  height: 52px; padding: 0 30px; border: 0; border-radius: 0 8px 8px 0; cursor: pointer;
+  height: 52px; padding: 0 32px; border: 0; border-radius: 0 8px 8px 0; cursor: pointer;
   background: var(--sd-red); color: #fff; font: 700 14px/1 'Space Grotesk', sans-serif; letter-spacing: 0.06em; text-transform: uppercase;
   flex-shrink: 0; transition: background 0.15s;
 }
@@ -130,17 +130,17 @@ html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-sear
 .sd-tabs {
   max-width: 1240px; margin: 0 auto; box-sizing: border-box; display: flex; gap: 0; overflow-x: auto; scrollbar-width: none;
   border: 1px solid var(--sd-line); border-top: 0; border-radius: 0 0 10px 10px; background: #0B0B0D;
-  padding: 0 28px;
+  padding: 0 32px;
 }
 .sd-tabs::-webkit-scrollbar { display: none; }
 .sd-tabs__tab {
-  position: relative; flex-shrink: 0; padding: 18px 20px 20px; color: rgba(255,255,255,0.78); text-decoration: none;
+  position: relative; flex-shrink: 0; padding: 16px 24px 24px; color: rgba(255,255,255,0.78); text-decoration: none;
   font: 500 14px/1 'IBM Plex Sans', sans-serif; white-space: nowrap;
 }
-.sd-tabs__tab + .sd-tabs__tab::before { content: ''; position: absolute; left: 0; top: 18px; bottom: 20px; width: 1px; background: var(--sd-line); }
+.sd-tabs__tab + .sd-tabs__tab::before { content: ''; position: absolute; left: 0; top: 16px; bottom: 24px; width: 1px; background: var(--sd-line); }
 .sd-tabs__tab:hover { color: #fff; }
 .sd-tabs__tab.is-on { color: #fff; font-weight: 600; }
-.sd-tabs__tab.is-on::after { content: ''; position: absolute; left: 20px; right: 20px; bottom: 0; height: 3px; background: var(--sd-red); border-radius: 2px 2px 0 0; }
+.sd-tabs__tab.is-on::after { content: ''; position: absolute; left: 24px; right: 24px; bottom: 0; height: 3px; background: var(--sd-red); border-radius: 2px 2px 0 0; }
 
 /* Page body width matches the hero card */
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-hdr,
@@ -153,7 +153,7 @@ html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sd-explore 
 
 /* ── Explore more ─────────────────────────────────────────────────────── */
 .sd-h2 { font: 700 26px/1 'Space Grotesk', sans-serif; letter-spacing: -0.02em; margin: 0 0 16px; color: #fff; }
-.sd-explore { padding: 34px 0 6px; }
+.sd-explore { padding: 32px 0 8px; }
 .sd-explore__row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .sd-explore__tile {
   position: relative; aspect-ratio: 16 / 9.4; border-radius: 6px; overflow: hidden; display: block; text-decoration: none; color: #fff;
@@ -163,25 +163,25 @@ html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sd-explore 
 .sd-explore__tile::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0.05) 20%, rgba(0,0,0,0.82) 100%); }
 .sd-explore__tile:hover img { transform: scale(1.04); }
 .sd-explore__tile:hover, .sd-explore__tile.is-first { border: 2px solid var(--sd-red); }
-.sd-explore__txt { position: absolute; left: 18px; bottom: 16px; z-index: 1; display: flex; flex-direction: column; gap: 4px; }
+.sd-explore__txt { position: absolute; left: 16px; bottom: 16px; z-index: 1; display: flex; flex-direction: column; gap: 4px; }
 .sd-explore__eyebrow { font: 500 14px/1 'IBM Plex Sans', sans-serif; color: rgba(255,255,255,0.9); }
 .sd-explore__title { font: 700 20px/1.15 'Space Grotesk', sans-serif; }
 .sd-explore__txt svg { color: var(--sd-red); margin-top: 8px; }
 
 /* ── Section header + red pill action ────────────────────────────────── */
-html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-hdr { padding: 30px 0 14px !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-hdr { padding: 32px 0 16px !important; }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-title {
   font: 700 26px/1 'Space Grotesk', sans-serif !important; letter-spacing: -0.02em !important; color: #fff !important; text-transform: none !important;
 }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-title::after { content: none !important; }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-count a {
-  background: #D71920 !important; color: #fff !important; border-radius: 999px !important; padding: 10px 18px !important;
+  background: #D71920 !important; color: #fff !important; border-radius: 999px !important; padding: 12px 16px !important;
   font: 700 13px/1 'Space Grotesk', sans-serif !important; letter-spacing: 0.04em !important; text-transform: uppercase !important; border: 0 !important;
 }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-count a:hover { background: #F0232B !important; }
 
 /* ── Rows (companies, jobs, anything in .co-list) ────────────────────── */
-html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-list { padding: 0 0 40px !important; gap: 8px !important; display: flex !important; flex-direction: column !important; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-list { padding: 0 0 48px !important; gap: 8px !important; display: flex !important; flex-direction: column !important; }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card {
   background: #0F0F12 !important;
   border: 1px solid var(--sd-line) !important;
@@ -198,7 +198,7 @@ html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-arrow { 
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card:hover .co-arrow { color: #D71920 !important; }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-badge {
   border-radius: 3px !important; font: 600 11px/1 'IBM Plex Sans', sans-serif !important; letter-spacing: 0.04em !important;
-  text-transform: uppercase !important; padding: 7px 10px !important;
+  text-transform: uppercase !important; padding: 8px 12px !important;
   background: transparent !important; border: 1px solid rgba(255,255,255,0.25) !important; color: rgba(255,255,255,0.85) !important;
 }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-badge.feat { background: #D71920 !important; border-color: #D71920 !important; color: #fff !important; }
@@ -214,27 +214,27 @@ html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card.sd-
   display: grid !important;
   grid-template-columns: 46px minmax(0, 1fr) auto auto 20px !important;
   align-items: center !important;
-  gap: 18px !important;
-  padding: 14px 18px !important;
+  gap: 16px !important;
+  padding: 16px 16px !important;
   min-height: 0 !important;
 }
 .sd-row__icon { width: 46px; height: 46px; border-radius: 6px; background: #1A1A1F; border: 1px solid var(--sd-line); display: grid; place-items: center; overflow: hidden; }
 .sd-row__icon img { width: 34px; height: 34px; object-fit: contain; opacity: 0.9; }
 .sd-row__icon .sd-ph { width: 100%; height: 100%; border: 0; background: transparent; }
-html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sd-row .co-body { display: flex !important; flex-direction: column !important; gap: 6px !important; padding: 0 !important; min-width: 0; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sd-row .co-body { display: flex !important; flex-direction: column !important; gap: 8px !important; padding: 0 !important; min-width: 0; }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sd-row .co-name { font-size: 16px !important; font-weight: 600 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block !important; }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sd-row .co-loc { font-size: 11px !important; letter-spacing: 0.14em !important; text-transform: uppercase; }
 .sd-row__badges { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .sd-tag {
-  display: inline-flex; align-items: center; border-radius: 3px; padding: 7px 10px; white-space: nowrap;
+  display: inline-flex; align-items: center; border-radius: 3px; padding: 8px 12px; white-space: nowrap;
   font: 600 11px/1 'IBM Plex Sans', sans-serif; letter-spacing: 0.04em; text-transform: uppercase;
   border: 1px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.85);
 }
 .sd-tag--red { background: var(--sd-red); border-color: var(--sd-red); color: #fff; }
-.sd-tag--ghost { padding: 3px 6px; font-size: 10px; }
+.sd-tag--ghost { padding: 4px 8px; font-size: 10px; }
 .sd-row__view {
   display: none;
-  background: var(--sd-red); color: #fff; border-radius: 3px; padding: 10px 14px;
+  background: var(--sd-red); color: #fff; border-radius: 3px; padding: 12px 16px;
   font: 700 12px/1 'Space Grotesk', sans-serif; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap;
 }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card.sd-row:hover .sd-row__view { display: inline-flex; }
@@ -252,26 +252,26 @@ html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sr-month-hd
 @media (max-width: 1290px) {
   html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero,
   html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search,
-  .sd-tabs { margin-left: 20px !important; margin-right: 20px !important; }
+  .sd-tabs { margin-left: 24px !important; margin-right: 24px !important; }
   html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-hdr,
   html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-list,
   html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sr-month-section,
-  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sd-explore { padding-left: 20px !important; padding-right: 20px !important; }
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sd-explore { padding-left: 24px !important; padding-right: 24px !important; }
 }
 @media (max-width: 720px) {
   html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero,
   html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search,
   .sd-tabs { margin-left: 12px !important; margin-right: 12px !important; }
   html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero { margin-top: 12px !important; }
-  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero-content { padding: 22px 18px 96px !important; }
-  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero-toprow { margin-bottom: 22px !important; }
-  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search { padding: 0 14px 18px !important; margin-top: -80px !important; }
-  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search > svg { left: 30px; transform: translateY(calc(-50% - 9px)) !important; }
-  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search input { height: 46px !important; font-size: 14px !important; padding-left: 42px !important; }
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero-content { padding: 24px 16px 128px !important; }
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-hero-toprow { margin-bottom: 24px !important; }
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search { padding: 0 16px 16px !important; margin-top: -96px !important; }
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search > svg { left: 32px; transform: translateY(calc(-50% - 8px)) !important; }
+  html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .browse-search input { height: 46px !important; font-size: 14px !important; padding-left: 48px !important; }
   .sd-search-btn { height: 46px; padding: 0 16px; font-size: 12px; }
-  .sd-tabs { padding: 0 6px; }
-  .sd-tabs__tab { padding: 16px 14px 18px; }
-  .sd-tabs__tab.is-on::after { left: 14px; right: 14px; }
+  .sd-tabs { padding: 0 8px; }
+  .sd-tabs__tab { padding: 16px 16px 16px; }
+  .sd-tabs__tab.is-on::after { left: 16px; right: 16px; }
   .sd-explore__row { grid-template-columns: repeat(3, 72%); overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 4px; }
   .sd-explore__tile { scroll-snap-align: start; }
   html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-hdr,
@@ -294,7 +294,7 @@ html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card .co
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card .co-body > span:has(> .sd-ph) { grid-area: logo; align-self: center; }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card .co-body > .co-mono-logo { grid-area: logo; align-self: center; }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card:not(.sd-row) .co-body {
-  grid-template-rows: auto auto !important; align-content: center !important; row-gap: 6px !important;
+  grid-template-rows: auto auto !important; align-content: center !important; row-gap: 8px !important;
 }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card:not(.sd-row) .co-name { align-self: end !important; }
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card:not(.sd-row) .co-loc { align-self: start !important; }
@@ -302,3 +302,4 @@ html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card:not
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sec-hdr { margin-top: 0 !important; }
 
 html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card.sd-row .co-body { overflow: hidden; }
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card.sd-row .co-name { width: auto !important; max-width: 100% !important; }
