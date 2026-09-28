@@ -441,7 +441,7 @@ export default function SourcingArticlesPostV2() {
             Post an Article<span style={{ color: AMBER }}>.</span>
           </div>
           <div style={{ fontSize: 15, color: MUTED, marginTop: 10, lineHeight: 1.6, fontFamily: FONT }}>
-            Share insights, company news, or technical content with Arizona's advanced tech community.
+            Share insights, company news, or technical content with the national advanced tech community.
           </div>
           <Link to="/os/articles" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 16, fontSize: 13, color: MUTED, textDecoration: 'none', fontFamily: FONT }}>
             <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
@@ -518,7 +518,7 @@ export default function SourcingArticlesPostV2() {
                 <InputField
                   label="Article Title"
                   required
-                  placeholder="e.g. Arizona's Semiconductor Workforce: What 2026 Holds"
+                  placeholder="e.g. The Semiconductor Workforce: What 2026 Holds"
                   value={form.title}
                   onChange={e => set('title', e.target.value)}
                 />
@@ -669,7 +669,7 @@ export default function SourcingArticlesPostV2() {
                 <InputField
                   label="Tags"
                   hint="Comma-separated. e.g. Space Medicine, Workforce"
-                  placeholder="Space Medicine, Clinical, Arizona"
+                  placeholder="Space Medicine, Clinical, Research"
                   value={tagsInput}
                   onChange={e => setTagsInput(e.target.value)}
                 />

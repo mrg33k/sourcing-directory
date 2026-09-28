@@ -452,7 +452,7 @@ function SourcingMembershipV2Inner() {
           </div>
           <div className="browse-title">Be in the room<span className="sd-dot">.</span></div>
           <div className="browse-sub">
-            Where Arizona&rsquo;s space industry decides what gets built next.
+            Where the space industry decides what gets built next.
           </div>
         </div>
       </div>

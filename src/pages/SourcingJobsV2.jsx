@@ -189,7 +189,7 @@ function SourcingJobsV2Inner() {
           </div>
           <div className="browse-title">Open Roles<span className="sd-dot">.</span></div>
           <div className="browse-sub">
-            Hiring across Arizona&rsquo;s space industry. Launch suppliers, defense contractors,
+            Hiring across the U.S. space industry. Launch suppliers, defense contractors,
             and R&amp;D firms.
           </div>
         </div>

@@ -552,7 +552,7 @@ function SourcingDirectoryInner() {
       setMeta('property', 'og:description', tenant.hero_text || tenant.description);
     } else if (!tenantSlug) {
       document.title = 'Sourcing Directory | Find Certified Suppliers';
-      setMeta('name', 'description', 'Verified supplier directories for Arizona\'s advanced industries. Find certified companies, explore job boards, marketplaces, and events.');
+      setMeta('name', 'description', 'Verified supplier directories for America\'s advanced industries. Find certified companies, explore job boards, marketplaces, and events.');
     }
 
     return () => { document.title = 'Sourcing Directory | Find Certified Suppliers'; };

@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase.js';
 import V2ChipNav from './V2ChipNav.jsx';
 import '../space-rising-theme-v2.css';
 
+import { grantAmount, grantType } from './SourcingGrantsV2.jsx';
 import { SDHeroLogo, SDSearchButton, SDBuilding, SDExploreMore } from '../sd/SDChrome.jsx';
 // Detail page for a single directory_listings row (a job, event, or marketplace
 // item). One component, three entry routes — the `kind` prop only drives labels
@@ -14,6 +15,7 @@ const KIND_META = {
   job:         { eyebrow: 'JOB',         backLabel: 'jobs',        backPath: '/os/jobs',        hero: '/sd/hero.jpg' },
   event:       { eyebrow: 'EVENT',       backLabel: 'events',      backPath: '/os/events',      hero: '/sd/hero.jpg' },
   marketplace: { eyebrow: 'MARKETPLACE', backLabel: 'marketplace', backPath: '/os/marketplace', hero: '/sd/manufacturing-wide.jpg' },
+  grant:       { eyebrow: 'GRANT',       backLabel: 'grants',      backPath: '/os/grants',      hero: '/sd/hero.jpg' },
 };
 
 function fmtDate(v) {
@@ -116,8 +118,12 @@ export default function SourcingListingV2({ kind = 'job' }) {
   const eventDate = fmtDate(listing.event_date);
   const salary = salaryText(listing);
   // For events, the company is the platform (Space Rising), not the event host — omit it from the eyebrow
-  const eyebrowBits = [meta.eyebrow, kind !== 'event' && company?.name, loc].filter(Boolean).join(' · ');
-  const ctaUrl = externalHref(listing.virtual_url);
+  const isGrant = kind === 'grant';
+  const eyebrowBits = isGrant
+    ? [meta.eyebrow, listing.grant_agency].filter(Boolean).join(' · ')
+    : [meta.eyebrow, kind !== 'event' && company?.name, loc].filter(Boolean).join(' · ');
+  const grantDeadline = fmtDate(listing.deadline || listing.grant_deadline);
+  const ctaUrl = externalHref(listing.virtual_url || (isGrant ? (listing.apply_url || listing.grant_url) : listing.apply_url));
   const companyWebsite = externalHref(company?.website);
 
   return (
@@ -140,7 +146,7 @@ export default function SourcingListingV2({ kind = 'job' }) {
           <div className="srcv2-hero-actions">
             {ctaUrl && (
               <a href={ctaUrl} target="_blank" rel="noopener noreferrer" className="srsv2-cta srsv2-cta-solid">
-                {kind === 'event' ? 'Event details' : kind === 'marketplace' ? 'View listing' : 'Apply / Learn more'}
+                {kind === 'event' ? 'Event details' : kind === 'marketplace' ? 'View listing' : isGrant ? 'Apply / Program page' : 'Apply / Learn more'}
               </a>
             )}
             {!ctaUrl && company?.email && (
@@ -149,7 +155,7 @@ export default function SourcingListingV2({ kind = 'job' }) {
               </a>
             )}
             {/* Don't show "View Space Rising" on events — the company is the platform, not the event host */}
-            {kind !== 'event' && company?.slug && (
+            {!isGrant && kind !== 'event' && company?.slug && (
               <Link to={`/os/${company.slug}`} className="srsv2-cta srsv2-cta-line">
                 View {company.name}
               </Link>
@@ -161,7 +167,7 @@ export default function SourcingListingV2({ kind = 'job' }) {
       <div className="srcv2-body">
         <main className="srcv2-main">
           {listing.description && (
-            <Section eyebrow="DETAILS" title="About this listing">
+            <Section eyebrow="DETAILS" title={isGrant ? 'About this grant' : 'About this listing'}>
               <p className="srcv2-paragraph" style={{ whiteSpace: 'pre-wrap' }}>{listing.description}</p>
             </Section>
           )}
@@ -169,10 +175,16 @@ export default function SourcingListingV2({ kind = 'job' }) {
           <Section eyebrow="AT A GLANCE" title="Key facts">
             <dl className="srcv2-facts">
               {/* For events the company is the platform (Space Rising) — suppress "Posted by" */}
-              {kind !== 'event' && company?.name && <Fact label="Posted by" value={company.slug
+              {isGrant && listing.grant_agency && <Fact label="Agency" value={listing.grant_agency} />}
+              {isGrant && grantType(listing) && <Fact label="Type" value={grantType(listing)} />}
+              {isGrant && grantAmount(listing) && <Fact label="Amount" value={grantAmount(listing)} />}
+              {isGrant && <Fact label="Deadline" value={grantDeadline || 'Rolling / see program page'} />}
+              {isGrant && listing.grant_eligibility && <Fact label="Eligibility" value={listing.grant_eligibility} />}
+              {!isGrant && kind !== 'event' && company?.name && <Fact label="Posted by" value={company.slug
                 ? <Link to={`/os/${company.slug}`} style={{ color: 'inherit' }}>{company.name}</Link>
                 : company.name} />}
-              {loc && <Fact label="Location" value={loc} />}
+              {loc && !isGrant && <Fact label="Location" value={loc} />}
+              {isGrant && listing.location && <Fact label="Where" value={listing.location} />}
               {kind === 'job' && listing.job_type && <Fact label="Type" value={String(listing.job_type).replace('-', ' ')} />}
               {kind === 'job' && salary && <Fact label="Compensation" value={salary} />}
               {kind === 'job' && listing.remote && <Fact label="Remote" value="Yes" />}
@@ -181,12 +193,12 @@ export default function SourcingListingV2({ kind = 'job' }) {
               {kind === 'event' && listing.organizer && <Fact label="Organizer" value={listing.organizer} />}
               {kind === 'marketplace' && listing.price && <Fact label="Price" value={listing.price} />}
               {kind === 'marketplace' && listing.condition && <Fact label="Condition" value={listing.condition} />}
-              {posted && <Fact label="Posted" value={posted} />}
+              {posted && !isGrant && <Fact label="Posted" value={posted} />}
             </dl>
           </Section>
 
           {/* For events, the company is the platform (Space Rising) — suppress company contact block */}
-          {kind !== 'event' && (companyWebsite || company?.email) && (
+          {!isGrant && kind !== 'event' && (companyWebsite || company?.email) && (
             <Section eyebrow="CONTACT" title={company?.name || 'Get in touch'}>
               <div className="srcv2-hero-actions" style={{ marginTop: 0 }}>
                 {companyWebsite && (

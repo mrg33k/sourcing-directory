@@ -38,32 +38,6 @@ const LANE_HEADINGS = {
 // R7d — preview-only sample entries. Clearly marked SAMPLE on each card and
 // behind a "Preview — sample listings" banner. The real data source is
 // deferred to a later round (Patrik 2026-05-31).
-const SAMPLE_INVESTMENTS = [
-  {
-    slug: 'sample-launch-co',
-    company: 'Sample Launch Co.',
-    round: 'Series A',
-    seeking: '$5M',
-    region: 'Phoenix, AZ',
-    segment: 'Launch services',
-  },
-  {
-    slug: 'sample-observation-labs',
-    company: 'Sample Observation Labs',
-    round: 'Pre-Seed',
-    seeking: '$750K',
-    region: 'Tucson, AZ',
-    segment: 'Earth observation',
-  },
-  {
-    slug: 'sample-orbital-systems',
-    company: 'Sample Orbital Systems',
-    round: 'Seed',
-    seeking: '$2M',
-    region: 'Mesa, AZ',
-    segment: 'Spacecraft components',
-  },
-];
 
 function investmentSearchMatch(item, terms) {
   const haystack = [item.company, item.round, item.segment, item.region, item.seeking]
@@ -371,11 +345,14 @@ function AcceleratorsLane({ searchInput }) {
           style={{ textDecoration: 'none', color: 'inherit' }}
         >
           <div className="co-body">
+            <span><SDBuilding /></span>
             <div className="co-name">{a.name}</div>
-            <div className="co-loc">{[a.location, a.founded_year && `Founded ${a.founded_year}`].filter(Boolean).join(' · ')}</div>
-            {a.short_description && (
-              <div className="co-loc" style={{ marginTop: 4, opacity: 0.85 }}>{a.short_description}</div>
-            )}
+            <div className="co-loc">
+              <span style={{ display: 'block' }}>{[a.location, a.founded_year && `Founded ${a.founded_year}`].filter(Boolean).join(' · ')}</span>
+              {a.short_description && (
+                <span className="sd-accel-desc">{a.short_description}</span>
+              )}
+            </div>
             <div className="co-badges">
               {a.investments > 0 && <span className="co-badge feat">{a.investments.toLocaleString()} investments</span>}
             </div>
@@ -452,7 +429,9 @@ function InvestmentsLane({ searchInput }) {
           };
         });
 
-        setListings(transformed);
+        // Skip rows whose company was removed (e.g. the scrubbed Space Rising raise):
+        // no name means no slug, and a blank slug sent the click to the wrong page (Ben, 2026-09-28).
+        setListings(transformed.filter((l) => l.slug && l.company !== '(Unnamed company)'));
       } catch (err) {
         console.error('Error fetching listings:', err);
         setListings([]);
@@ -464,7 +443,8 @@ function InvestmentsLane({ searchInput }) {
     fetchListings();
   }, []);
 
-  const displayListings = listings.length > 0 ? listings : SAMPLE_INVESTMENTS;
+  // Real data only: no sample companies when nothing is listed.
+  const displayListings = listings;
 
   const filtered = useMemo(() => {
     if (!searchInput.trim()) return displayListings;
@@ -472,7 +452,7 @@ function InvestmentsLane({ searchInput }) {
     return displayListings.filter((item) => investmentSearchMatch(item, terms));
   }, [searchInput, displayListings]);
 
-  const showEmptyState = listings.length === 0 && !loading && searchInput.trim();
+  const showEmptyState = !loading && filtered.length === 0;
 
   return (
     <>
@@ -490,6 +470,7 @@ function InvestmentsLane({ searchInput }) {
           style={{ textDecoration: 'none', color: 'inherit' }}
         >
           <div className="co-body">
+            <span><SDBuilding /></span>
             <div className="co-name">{item.company}</div>
             <div className="co-loc">
               {[item.round, item.segment, item.region].filter(Boolean).join(' · ')}
@@ -507,7 +488,7 @@ function InvestmentsLane({ searchInput }) {
 
       {showEmptyState && (
         <div style={{ padding: '48px 24px', textAlign: 'center', fontFamily: 'IBM Plex Mono, ui-monospace, monospace', color: 'rgba(255, 255, 255,0.55)', fontSize: 13, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-          {`No listings match "${searchInput}"`}
+          {searchInput.trim() ? `No listings match "${searchInput}"` : 'No open raises listed yet.'}
         </div>
       )}
     </>

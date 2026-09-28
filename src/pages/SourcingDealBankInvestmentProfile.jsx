@@ -22,7 +22,7 @@ const TABS = [
 
 function slugify(text) {
   if (!text) return '';
-  return text.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+  return text.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
 }
 
 function SourcingDealBankInvestmentProfileInner() {
@@ -38,8 +38,9 @@ function SourcingDealBankInvestmentProfileInner() {
   useEffect(() => {
     const fetchListing = async () => {
       try {
-        // Search for approved listing by company slug match
-        const { data, error } = await supabase
+        // Match the approved listing whose company slug is in the URL. (The old first
+        // query took the first approved row regardless of slug, so every card opened the same one.)
+        const { data: allListings, error: searchError } = await supabase
           .from('deal_bank_listings')
           .select(`
             *,
@@ -51,42 +52,12 @@ function SourcingDealBankInvestmentProfileInner() {
               country
             )
           `)
-          .eq('status', 'approved')
-          .limit(100)
-          .single();
-
-        if (error || !data) {
-          // Try searching all approved listings and filter by slug
-          const { data: allListings, error: searchError } = await supabase
-            .from('deal_bank_listings')
-            .select(`
-              *,
-              directory_companies (
-                name,
-                vertical,
-                city,
-                state,
-                country
-              )
-            `)
-            .eq('status', 'approved');
-
-          if (!searchError && allListings) {
-            const matched = allListings.find((listing) => {
-              const companySlug = slugify(listing.directory_companies?.name || '');
-              return companySlug === slug;
-            });
-            if (matched) {
-              setListing(matched);
-            } else {
-              setNotFound(true);
-            }
-          } else {
-            setNotFound(true);
-          }
-        } else {
-          setListing(data);
-        }
+          .eq('status', 'approved');
+        const matched = !searchError && (allListings || []).find(
+          (l) => slug && slugify(l.directory_companies?.name || '') === slug
+        );
+        if (matched) setListing(matched);
+        else setNotFound(true);
       } catch (err) {
         console.error('Error fetching listing:', err);
         setNotFound(true);

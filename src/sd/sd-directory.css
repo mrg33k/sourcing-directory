@@ -323,3 +323,9 @@ html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .sd-hero--no
 .sd-member__cta { height: 56px; font-size: 18px; }
 .sd-member__note { margin: 16px 0 0; text-align: center; color: rgba(255,255,255,0.56); font: 400 14px/1 'IBM Plex Sans', sans-serif; }
 @media (max-width: 720px) { .sd-member { padding: 32px 12px 96px; } .sd-member__card { padding: 24px; } .sd-member__price { font-size: 48px; } }
+
+/* Accelerator rows: description sits under the location line, normal case, max 2 lines (Ben, 2026-09-28: text overlapped) */
+html body [data-tenant="space-rising-v2"][data-tenant][data-tenant] .co-card .co-loc .sd-accel-desc {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  margin-top: 8px; text-transform: none; letter-spacing: 0; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; line-height: 1.5; color: rgba(255,255,255,0.6);
+}

@@ -41,6 +41,29 @@ function formatDeadline(dateStr) {
   return `Due ${label}`;
 }
 
+
+// Amount tag: structured fields first, then the "up to $X" phrase most
+// researched grants carry in their description (Ben, 2026-09-28: most rows had no tags).
+export function grantAmount(g) {
+  const lo = g.grant_amount_min ?? g.salary_min;
+  const hi = g.grant_amount_max ?? g.salary_max;
+  const structured = formatAmount(lo, hi);
+  if (structured) return structured;
+  const m = String(g.description || '').match(/(up to|at least|about|around)\s+\$\s?([\d.,]+)\s?(K|M|B|million|billion|thousand)?/i);
+  if (!m) return null;
+  const unit = (m[3] || '').toLowerCase();
+  const u = unit.startsWith('m') ? 'M' : unit.startsWith('b') ? 'B' : unit.startsWith('k') || unit.startsWith('t') ? 'K' : '';
+  const v = `$${m[2]}${u}`;
+  const q = m[1].toLowerCase();
+  return q === 'up to' ? `Up to ${v}` : q === 'at least' ? `${v}+` : `About ${v}`;
+}
+
+export function grantType(g) {
+  if (g.grant_type) return g.grant_type;
+  if (g.vertical) return `${g.vertical} grant`;
+  return null;
+}
+
 function SourcingGrantsV2Inner() {
   const { dark } = useSourcingTheme();
   const V = getTokens(dark);
@@ -188,42 +211,31 @@ function SourcingGrantsV2Inner() {
         )}
 
         {!loading && filteredListings.map((grant) => {
-          const amount = formatAmount(grant.grant_amount_min, grant.grant_amount_max);
-          const deadline = formatDeadline(grant.deadline);
-          const description = grant.description
-            ? (grant.description.length > 140 ? grant.description.slice(0, 140) + '…' : grant.description)
-            : '';
+          const amount = grantAmount(grant);
+          const deadline = formatDeadline(grant.deadline || grant.grant_deadline);
+          const type = grantType(grant);
           return (
-            <div
+            <Link
               key={grant.id}
+              to={`/os/grants/${grant.id}`}
               className="co-card"
               style={{ textDecoration: 'none', color: 'inherit' }}
             >
               <div className="co-body">
+                <span><SDBuilding /></span>
                 <div className="co-name">{grant.title || 'Untitled grant'}</div>
                 <div className="co-loc">
-                  {[grant.grant_type, deadline].filter(Boolean).join(' · ')}
+                  {[grant.grant_agency, deadline].filter(Boolean).join(' · ')}
                 </div>
-                {description && (
-                  <div style={{
-                    fontSize: 13,
-                    color: 'rgba(255, 255, 255,0.55)',
-                    marginTop: 6,
-                    fontFamily: '"Space Grotesk", "Hanken Grotesk", system-ui, sans-serif',
-                    lineHeight: 1.5,
-                  }}>
-                    {description}
-                  </div>
-                )}
                 <div className="co-badges">
-                  {grant.grant_type && <span className="co-badge cert">{grant.grant_type}</span>}
+                  {type && <span className="co-badge cert">{type}</span>}
                   {amount && <span className="co-badge feat">{amount}</span>}
                 </div>
               </div>
               <div className="co-arrow">
                 <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
               </div>
-            </div>
+            </Link>
           );
         })}
 

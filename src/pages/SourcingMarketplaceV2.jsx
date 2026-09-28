@@ -130,7 +130,7 @@ function SourcingMarketplaceV2Inner() {
           </div>
           <div className="browse-title">Marketplace<span className="sd-dot">.</span></div>
           <div className="browse-sub">
-            Equipment, capacity, and capabilities from Arizona&rsquo;s space-industry suppliers.
+            Equipment, capacity, and capabilities from space-industry suppliers nationwide.
           </div>
         </div>
       </div>
