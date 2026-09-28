@@ -104,7 +104,13 @@ function SourcingGrantsV2Inner() {
         if (tenant?.id) qb = qb.eq('tenant_id', tenant.id);
         const { data, error } = await qb.limit(100);
         if (error) throw error;
-        if (!cancelled) setListings(data || []);
+        // Hide grants whose deadline has passed; rolling/unknown deadlines stay (Patrik, 2026-09-28).
+        const now = Date.now();
+        const open = (data || []).filter((g) => {
+          const d = g.deadline || g.grant_deadline;
+          return !d || new Date(d).getTime() >= now;
+        });
+        if (!cancelled) setListings(open);
       } catch (err) {
         console.error('GrantsV2 fetch error:', err);
       } finally {
