@@ -80,7 +80,8 @@ function formatDealDate(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
   if (Number.isNaN(d.getTime())) return '';
-  return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+  // UTC: '2026-09-01' is midnight UTC, which reads as Aug 31 in Phoenix.
+  return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
 }
 
 function amountHeadline(raw, m) {
@@ -114,10 +115,21 @@ function SourcingDealBankV2Inner() {
     (async () => {
       setLoading(true);
       try {
-        const r = await fetch('https://www.aheadofmarket.com/api/deal-bank/completed');
-        if (!r.ok) throw new Error('Deal Bank API ' + r.status);
-        const j = await r.json();
-        if (!cancelled) setDeals(Array.isArray(j.rounds) ? j.rounds : []);
+        // Two sources: the original rounds feed, plus Ben's Completed.xlsx (2026-09-28)
+        // in the snapshot. Ben's row wins when the same company + round is in both.
+        const [apiRounds, benRounds] = await Promise.all([
+          fetch('https://www.aheadofmarket.com/api/deal-bank/completed')
+            .then((r) => (r.ok ? r.json() : { rounds: [] }))
+            .then((j) => (Array.isArray(j.rounds) ? j.rounds : []))
+            .catch(() => []),
+          supabase
+            ? supabase.from('completed_rounds').select('*').then(({ data }) => data || [])
+            : Promise.resolve([]),
+        ]);
+        const key = (d) => `${String(d.company || '').toLowerCase().trim()}|${String(d.round || '').toLowerCase().trim()}`;
+        const seen = new Set(benRounds.map(key));
+        const merged = [...benRounds, ...apiRounds.filter((d) => !seen.has(key(d)))];
+        if (!cancelled) setDeals(merged);
       } catch (err) {
         console.error('DealBankV2 fetch error:', err);
         if (!cancelled) setDeals([]);
@@ -142,7 +154,7 @@ function SourcingDealBankV2Inner() {
       : deals.filter((d) => {
           const terms = searchInput.toLowerCase().split(/\s+/).filter(Boolean);
           const haystack = [
-            d.company, d.round, d.segment, d.region, d.short_description,
+            d.company, d.round, d.segment, d.region, d.short_description, d.notes,
             Array.isArray(d.investors) ? d.investors.join(' ') : d.investors,
           ].filter(Boolean).join(' ').toLowerCase();
           return terms.every((t) => haystack.includes(t));
@@ -249,12 +261,16 @@ function SourcingDealBankV2Inner() {
               const amount = amountHeadline(deal.amount_raised, deal.amount_usd_m);
               const date = formatDealDate(deal.date);
               return (
-                <div
+                <a
                   key={deal.id || `${deal.company}-${idx}`}
+                  href={deal.source_url && /^https?:\/\//.test(deal.source_url) && !/^https?:\/\/[^/]+\/?$/.test(deal.source_url) ? deal.source_url : undefined}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="co-card"
                   style={{ textDecoration: 'none', color: 'inherit' }}
                 >
                   <div className="co-body">
+                    <span><SDBuilding /></span>
                     <div className="co-name">{deal.company}</div>
                     <div className="co-loc">
                       {[deal.round, deal.segment, deal.region, date].filter(Boolean).join(' · ')}
@@ -267,7 +283,7 @@ function SourcingDealBankV2Inner() {
                   <div className="co-arrow">
                     <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6" /></svg>
                   </div>
-                </div>
+                </a>
               );
             })}
 
